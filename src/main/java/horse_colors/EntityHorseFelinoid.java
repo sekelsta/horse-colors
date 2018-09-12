@@ -41,10 +41,10 @@ public class EntityHorseFelinoid extends AbstractHorse
     private static final DataParameter<Integer> HORSE_VARIANT = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
     private static final DataParameter<Integer> HORSE_ARMOR = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
     private static final DataParameter<ItemStack> HORSE_ARMOR_STACK = EntityDataManager.<ItemStack>createKey(EntityHorseFelinoid.class, DataSerializers.ITEM_STACK);
-    private static final String[] HORSE_TEXTURES = new String[] {"horse_colors:textures/entity/horse/grullo.png"};
-    private static final String[] HORSE_TEXTURES_ABBR = new String[] {"hbd"};
-    private static final String[] HORSE_MARKING_TEXTURES = new String[] {null, "textures/entity/horse/horse_markings_white.png", "textures/entity/horse/horse_markings_whitefield.png", "textures/entity/horse/horse_markings_whitedots.png", "textures/entity/horse/horse_markings_blackdots.png"};
-    private static final String[] HORSE_MARKING_TEXTURES_ABBR = new String[] {"", "wo_", "wmo", "wdo", "bdo"};
+    private static final String[] HORSE_TEXTURES = new String[] {"chestnut", "bay", "black_original", "seal_brown", "liver_chestnut", "flaxen_chestnut", "partly_flaxen_chestnut", "flaxen_liver_chestnut", "partly_flaxen_liver_chestnut", "grullo", "light_gray", "dapple_gray_original", "dapple_gray_mixed_mane", "dapple_gray_white_mane"};
+    private static final String[] HORSE_TEXTURES_ABBR = new String[] {"cht", "bay", "blk", "brw", "liv", "fch", "pfc", "flc", "pfl", "gru", "lgr", "dgr", "dgm", "dgw"};
+    private static final String[] HORSE_MARKING_TEXTURES = new String[] {null, "textures/entity/horse/horse_markings_white.png", "textures/entity/horse/horse_markings_whitefield.png", "textures/entity/horse/horse_markings_blackdots.png"};
+    private static final String[] HORSE_MARKING_TEXTURES_ABBR = new String[] {"", "wo_", "wmo", "bdo"};
     private String texturePrefix;
     private final String[] horseTexturesArray = new String[3];
 
@@ -57,6 +57,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         super(worldIn);
     }
 
+    @Override
     protected void entityInit()
     {
         super.entityInit();
@@ -74,6 +75,7 @@ public class EntityHorseFelinoid extends AbstractHorse
     /**
      * (abstract) Protected helper method to write subclass entity data to NBT.
      */
+    @Override
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
@@ -88,6 +90,7 @@ public class EntityHorseFelinoid extends AbstractHorse
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
+    @Override
     public void readEntityFromNBT(NBTTagCompound compound)
     {
         super.readEntityFromNBT(compound);
@@ -130,7 +133,13 @@ public class EntityHorseFelinoid extends AbstractHorse
         int k = ((i & 65280) >> 8) % NUM_MARKINGS;
         ItemStack armorStack = this.dataManager.get(HORSE_ARMOR_STACK);
         String texture = !armorStack.isEmpty() ? armorStack.getItem().getHorseArmorTexture(this, armorStack) : HorseArmorType.getByOrdinal(this.dataManager.get(HORSE_ARMOR)).getTextureName(); //If armorStack is empty, the server is vanilla so the texture should be determined the vanilla way
-        this.horseTexturesArray[0] = HORSE_TEXTURES[j];
+        if (HORSE_TEXTURES[j].contains(".png")) {
+            this.horseTexturesArray[0] = HORSE_TEXTURES[j];
+        }
+        else {
+            this.horseTexturesArray[0] = "horse_colors:textures/entity/horse/" 
+                                         + HORSE_TEXTURES[j] +".png";
+        }
         this.horseTexturesArray[1] = HORSE_MARKING_TEXTURES[k];
         this.horseTexturesArray[2] = texture;
         this.texturePrefix = "horse/" + HORSE_TEXTURES_ABBR[j] + HORSE_MARKING_TEXTURES_ABBR[k] + texture;
@@ -161,6 +170,7 @@ public class EntityHorseFelinoid extends AbstractHorse
     /**
      * Updates the items in the saddle and armor slots of the horse's inventory.
      */
+    @Override
     protected void updateHorseSlots()
     {
         super.updateHorseSlots();
@@ -199,6 +209,7 @@ public class EntityHorseFelinoid extends AbstractHorse
     /**
      * Called by InventoryBasic.onInventoryChanged() on a array that is never filled.
      */
+    @Override
     public void onInventoryChanged(IInventory invBasic)
     {
         HorseArmorType horsearmortype = this.getHorseArmorType();
@@ -211,6 +222,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         }
     }
 
+    @Override
     protected void playGallopSound(SoundType p_190680_1_)
     {
         super.playGallopSound(p_190680_1_);
@@ -221,6 +233,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         }
     }
 
+    @Override
     protected void applyEntityAttributes()
     {
         super.applyEntityAttributes();
@@ -232,6 +245,7 @@ public class EntityHorseFelinoid extends AbstractHorse
     /**
      * Called to update the entity's position/logic.
      */
+    @Override
     public void onUpdate()
     {
         super.onUpdate();
@@ -245,24 +259,28 @@ public class EntityHorseFelinoid extends AbstractHorse
         if (isArmor(armor)) armor.getItem().onHorseArmorTick(world, this, armor);
     }
 
+    @Override
     protected SoundEvent getAmbientSound()
     {
         super.getAmbientSound();
         return SoundEvents.ENTITY_HORSE_AMBIENT;
     }
 
+    @Override
     protected SoundEvent getDeathSound()
     {
         super.getDeathSound();
         return SoundEvents.ENTITY_HORSE_DEATH;
     }
 
+    @Override
     protected SoundEvent getHurtSound(DamageSource damageSourceIn)
     {
         super.getHurtSound(damageSourceIn);
         return SoundEvents.ENTITY_HORSE_HURT;
     }
 
+    @Override
     protected SoundEvent getAngrySound()
     {
         super.getAngrySound();
@@ -274,6 +292,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         return LootTableList.ENTITIES_HORSE;
     }
 
+    @Override
     public boolean processInteract(EntityPlayer player, EnumHand hand)
     {
         ItemStack itemstack = player.getHeldItem(hand);
@@ -347,6 +366,7 @@ public class EntityHorseFelinoid extends AbstractHorse
     /**
      * Returns true if the mob is currently able to mate with the specified mob.
      */
+    @Override
     public boolean canMateWith(EntityAnimal otherAnimal)
     {
         if (otherAnimal == this)
@@ -364,6 +384,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         }
     }
 
+    @Override
     public EntityAgeable createChild(EntityAgeable ageable)
     {
         AbstractHorse abstracthorse;
@@ -414,11 +435,13 @@ public class EntityHorseFelinoid extends AbstractHorse
         return abstracthorse;
     }
 
+    @Override
     public boolean wearsArmor()
     {
         return true;
     }
 
+    @Override
     public boolean isArmor(ItemStack stack)
     {
         return HorseArmorType.isHorseArmor(stack);

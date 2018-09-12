@@ -26,6 +26,7 @@ public class RenderHorseFelinoid extends RenderLiving<EntityHorseFelinoid>
     /**
      * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
+    @Override
     protected ResourceLocation getEntityTexture(EntityHorseFelinoid entity)
     {
         String s = entity.getHorseTexture();

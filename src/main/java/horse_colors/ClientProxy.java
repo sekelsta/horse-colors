@@ -13,9 +13,10 @@ import net.minecraft.client.model.ModelHorse;
 
 public class ClientProxy extends CommonProxy {
 
-	@SideOnly(Side.CLIENT)
-	public void registerRenderers() {
-		RenderHorseFelinoid horseRender = new RenderHorseFelinoid(Minecraft.getMinecraft().getRenderManager());
-		RenderingRegistry.registerEntityRenderingHandler(EntityHorseFelinoid.class, horseRender);
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void registerRenderers() {
+        RenderHorseFelinoid horseRender = new RenderHorseFelinoid(Minecraft.getMinecraft().getRenderManager());
+        RenderingRegistry.registerEntityRenderingHandler(EntityHorseFelinoid.class, horseRender);
 	}
 }

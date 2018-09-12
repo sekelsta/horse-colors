@@ -14,9 +14,11 @@ public class HorseReplacer {
 	public static void replaceHorses(EntityJoinWorldEvent event) {
         if (event.getEntity() instanceof EntityHorse) {
             if (!event.getWorld().isRemote) {
+                EntityHorse horse = (EntityHorse)event.getEntity();
                 EntityHorseFelinoid newHorse = new EntityHorseFelinoid(event.getWorld());
                 newHorse.setLocationAndAngles(event.getEntity().posX, event.getEntity().posY, event.getEntity().posZ, event.getEntity().rotationYaw, event.getEntity().rotationPitch);
                 event.getWorld().spawnEntity(newHorse);
+                newHorse.setHorseVariant(horse.getHorseVariant());
             }
             event.setCanceled(true);
         }
