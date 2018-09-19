@@ -41,12 +41,12 @@ public class EntityHorseFelinoid extends AbstractHorse
     private static final DataParameter<Integer> HORSE_VARIANT = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
     private static final DataParameter<Integer> HORSE_ARMOR = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
     private static final DataParameter<ItemStack> HORSE_ARMOR_STACK = EntityDataManager.<ItemStack>createKey(EntityHorseFelinoid.class, DataSerializers.ITEM_STACK);
-    private static final String[] HORSE_TEXTURES = new String[] {"chestnut", "bay", "black_original", "seal_brown", "liver_chestnut", "flaxen_chestnut", "partly_flaxen_chestnut", "flaxen_liver_chestnut", "partly_flaxen_liver_chestnut", "grullo", "light_gray", "dapple_gray_original", "dapple_gray_mixed_mane", "dapple_gray_white_mane"};
-    private static final String[] HORSE_TEXTURES_ABBR = new String[] {"cht", "bay", "blk", "brw", "liv", "fch", "pfc", "flc", "pfl", "gru", "lgr", "dgr", "dgm", "dgw"};
+    private static final String[] HORSE_TEXTURES = new String[] {"pangare", "bay", "black_original", "brown_dun", "buckskin", "chestnut", "chocolate", "cremello", "dapple_gray_mixed_mane", "dapple_gray_original", "dapple_gray_white_mane", "dun", "dunalino", "dunskin", "flaxen_chestnut", "flaxen_liver_chestnut", "flaxen_liver_dun", "grullo", "light_gray", "liver_chestnut", "liver_dun", "palomino", "partly_flaxen_chestnut", "partly_flaxen_dun", "partly_flaxen_liver_chestnut", "perlino", "red_dun", "seal_brown", "smoky_black", "smoky_brown", "smoky_brown_dun", "smoky_cream", "smoky_grullo"};
+    private static final String[] HORSE_ROAN_TEXTURES = new String[] {null, "roan"};
     private static final String[] HORSE_MARKING_TEXTURES = new String[] {null, "textures/entity/horse/horse_markings_white.png", "textures/entity/horse/horse_markings_whitefield.png", "textures/entity/horse/horse_markings_blackdots.png"};
     private static final String[] HORSE_MARKING_TEXTURES_ABBR = new String[] {"", "wo_", "wmo", "bdo"};
     private String texturePrefix;
-    private final String[] horseTexturesArray = new String[3];
+    private final String[] horseTexturesArray = new String[4];
 
     // Some constants
     private static final int NUM_TEXTURES = HORSE_TEXTURES.length;
@@ -126,23 +126,29 @@ public class EntityHorseFelinoid extends AbstractHorse
     }
 
     @SideOnly(Side.CLIENT)
+    private String fixPath(String inStr) {
+        if (inStr == null || inStr.contains(".png")) {
+            return inStr;
+        }
+        else {
+            return "horse_colors:textures/entity/horse/" + inStr +".png";
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
     private void setHorseTexturePaths()
     {
         int i = this.getHorseVariant();
         int j = (i & 255) % NUM_TEXTURES;
-        int k = ((i & 65280) >> 8) % NUM_MARKINGS;
+        int k = 0 % HORSE_ROAN_TEXTURES.length;
+        int m = ((i & 65280) >> 8) % NUM_MARKINGS;
         ItemStack armorStack = this.dataManager.get(HORSE_ARMOR_STACK);
         String texture = !armorStack.isEmpty() ? armorStack.getItem().getHorseArmorTexture(this, armorStack) : HorseArmorType.getByOrdinal(this.dataManager.get(HORSE_ARMOR)).getTextureName(); //If armorStack is empty, the server is vanilla so the texture should be determined the vanilla way
-        if (HORSE_TEXTURES[j].contains(".png")) {
-            this.horseTexturesArray[0] = HORSE_TEXTURES[j];
-        }
-        else {
-            this.horseTexturesArray[0] = "horse_colors:textures/entity/horse/" 
-                                         + HORSE_TEXTURES[j] +".png";
-        }
-        this.horseTexturesArray[1] = HORSE_MARKING_TEXTURES[k];
-        this.horseTexturesArray[2] = texture;
-        this.texturePrefix = "horse/" + HORSE_TEXTURES_ABBR[j] + HORSE_MARKING_TEXTURES_ABBR[k] + texture;
+        this.horseTexturesArray[0] = fixPath(HORSE_TEXTURES[j]);
+        this.horseTexturesArray[1] = fixPath(HORSE_ROAN_TEXTURES[k]);
+        this.horseTexturesArray[3] = fixPath(HORSE_MARKING_TEXTURES[m]);
+        this.horseTexturesArray[3] = texture;
+        this.texturePrefix = "horse/cache_" + HORSE_TEXTURES[j] + Integer.toString(k) + HORSE_MARKING_TEXTURES_ABBR[m] + texture;
     }
 
     @SideOnly(Side.CLIENT)
