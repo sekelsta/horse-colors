@@ -34,6 +34,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.storage.loot.LootTableList;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.entity.ai.*;
+import java.util.Arrays;
 
 public class EntityHorseFelinoid extends AbstractHorse
 {
@@ -41,20 +43,68 @@ public class EntityHorseFelinoid extends AbstractHorse
     private static final DataParameter<Integer> HORSE_VARIANT = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
     private static final DataParameter<Integer> HORSE_ARMOR = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
     private static final DataParameter<ItemStack> HORSE_ARMOR_STACK = EntityDataManager.<ItemStack>createKey(EntityHorseFelinoid.class, DataSerializers.ITEM_STACK);
-    private static final String[] HORSE_TEXTURES = new String[] {"pangare", "bay", "black_original", "brown_dun", "buckskin", "chestnut", "chocolate", "cremello", "dapple_gray_mixed_mane", "dapple_gray_original", "dapple_gray_white_mane", "dun", "dunalino", "dunskin", "flaxen_chestnut", "flaxen_liver_chestnut", "flaxen_liver_dun", "grullo", "light_gray", "liver_chestnut", "liver_dun", "palomino", "partly_flaxen_chestnut", "partly_flaxen_dun", "partly_flaxen_liver_chestnut", "perlino", "red_dun", "seal_brown", "smoky_black", "smoky_brown", "smoky_brown_dun", "smoky_cream", "smoky_grullo"};
-    private static final String[] HORSE_ROAN_TEXTURES = new String[] {null, "roan"};
+
+
+    /* Extension is the gene that determines whether black pigment can extend
+    into the hair, or only reach the skin. 0 is red, 1 can have black. */
+
+    /* Agouti controls where black hairs are placed. 0 is for black, 1 for seal 
+    brown, 2 for bay, and, if I ever draw the pictures, 3 for wild bay. They're
+    in order of least dominant to most. */
+
+    /* Dun dilutes pigment (by restricting it to a certain part of each hair 
+    shaft) and also adds primative markings such as a dorsal stripe. It's
+    dominant, so non-dun is 0 and dun (wildtype) is 1. */
+
+    /* Gray causes rapid graying with age. Here, it will simply mean the
+    horse is gray. It is epistatic to every color except white. Gray is 
+    dominat, so 0 is for non-gray, and 1 is for gray. */
+
+    /* Cream makes red pigment a lot lighter and also dilutes black a 
+    little. It's incomplete dominant, so here 0 is wildtype and 1 is cream. */
+
+    /* Silver makes black manes and tails silvery, while lightening a black
+    body color to a more chocolatey one, sometimes with dapples. Silver
+    is dominant, so 0 for wildtype, 1 for silver. */
+
+    /* Liver recessively makes chestnut darker. 0 for liver, 1 for non-liver. */
+
+    /* Either flaxen gene makes the mane lighter; both in combination
+    make the mane almost white. They're both recessive, so 0 for flaxen,
+    1 for non-flaxen. */
+
+    /* Sooty makes a horse darker, sometimes smoothly or sometimes in a 
+    dapple pattern. Like flaxen, there's two recessive genes, and having just
+    one will have some effect, but having both will have more. */
+
+    /* Mealy turns some red hairs to white, generally on the belly or
+    undersides. It's recessive, and, like flaxen, is a polygenetic trait. */
+    private static final String[] genes = new String[] {"extension", "agouti", "dun", "gray", "cream", "silver", "liver", "flaxen1", "flaxen2", "sooty1", "sooty2", "mealy1", "mealy2"};
+
     private static final String[] HORSE_MARKING_TEXTURES = new String[] {null, "textures/entity/horse/horse_markings_white.png", "textures/entity/horse/horse_markings_whitefield.png", "textures/entity/horse/horse_markings_blackdots.png"};
     private static final String[] HORSE_MARKING_TEXTURES_ABBR = new String[] {"", "wo_", "wmo", "bdo"};
     private String texturePrefix;
-    private final String[] horseTexturesArray = new String[4];
+    private final String[] horseTexturesArray = new String[6];
 
-    // Some constants
-    private static final int NUM_TEXTURES = HORSE_TEXTURES.length;
+    
     private static final int NUM_MARKINGS = HORSE_MARKING_TEXTURES.length;
 
     public EntityHorseFelinoid(World worldIn)
     {
         super(worldIn);
+    }
+
+    @Override
+    protected void initEntityAI()
+    {
+        this.tasks.addTask(0, new EntityAISwimming(this));
+        this.tasks.addTask(1, new EntityAIPanic(this, 1.2D));
+        this.tasks.addTask(1, new EntityAIRunAroundLikeCrazy(this, 1.2D));
+        this.tasks.addTask(2, new EntityAIMate(this, 1.0D, AbstractHorse.class));
+        this.tasks.addTask(4, new EntityAIFollowParent(this, 1.0D));
+        this.tasks.addTask(6, new EntityAIWanderAvoidWater(this, 0.7D));
+        this.tasks.addTask(7, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
+        this.tasks.addTask(8, new EntityAILookIdle(this));
     }
 
     @Override
@@ -120,13 +170,129 @@ public class EntityHorseFelinoid extends AbstractHorse
         return ((Integer)this.dataManager.get(HORSE_VARIANT)).intValue();
     }
 
+    /* For calling when debugging. */
+    public static void test()
+    {
+        System.out.println("");
+        for (String gene : genes)
+        {
+            System.out.print(gene + ": " + Integer.toBinaryString(getGeneLoci(gene)) + "\n");
+        }
+    }
+
+    public static int getGenePos(String name)
+    {
+        int i = 0;
+        for (String gene : genes)
+        {
+            if (gene == name)
+            {
+                return i;
+            }
+            // Special case to keep each gene completely on the same int
+            if ((i + (2 * getGeneSize(gene))) / 32 == i / 32)
+            {
+                i += (2 * getGeneSize(gene));
+            }
+            else
+            {
+                i = (i / 32 + 1) * 32;
+            }
+        }
+
+        // Return statement needed to compile
+        System.out.println("Gene not recognized: " + name);
+        return -1;
+    }
+
+    /* This returns the number of bits needed to store one allele. */
+    public static int getGeneSize(String gene)
+    {
+        switch(gene) 
+        {
+            case "agouti": return 2;
+
+            case "extension":
+            case "dun":
+            case "gray":
+            case "cream":
+            case "silver":
+            case "liver":
+            case "flaxen1":
+            case "flaxen2":
+            case "sooty1":
+            case "sooty2":
+            case "mealy1":
+            case "mealy2": return 1;
+        }
+        System.out.println("Gene size not found: " + gene);
+        return -1;
+    }
+
+    /* This returns a bitmask which is 1 where the gene is stored and 0 everywhere else. */
+    public static int getGeneLoci(String gene)
+    {
+        return ((1 << (2 * getGeneSize(gene))) - 1) << getGenePos(gene);
+    }
+
+    public void setGene(String name, int val)
+    {
+        setHorseVariant((getHorseVariant() & (~getGeneLoci(name))) 
+            | (val << getGenePos(name)));
+    }
+
+    public int getGene(String name)
+    {
+        return (getHorseVariant() & getGeneLoci(name)) >> getGenePos(name);
+    }
+
+    public int getPhenotype(String name)
+    {
+        switch(name)
+        {
+            /* Simple dominant  or recessive genes. */
+            case "extension":
+            case "gray":
+            case "dun":
+            case "silver":
+            case "liver":
+            case "flaxen1":
+            case "flaxen2":
+            case "sooty1":
+            case "sooty2":
+            case "mealy1":
+            case "mealy2":
+                return getGene(name) == 0? 0 : 1;
+
+            /* Incomplete dominance. */
+            case "cream":
+                /* Low bit plus high bit. */
+                return (getGene(name) & 1) + (getGene(name) >> 1);
+            
+            /* Polygenetic traits. */
+            case "flaxen":
+                return 2 - getPhenotype("flaxen1") - getPhenotype("flaxen2");
+            case "sooty":
+                return 2 - getPhenotype("sooty1") - getPhenotype("sooty2");
+            case "mealy":
+                return 2 - getPhenotype("mealy1") - getPhenotype("mealy2");
+
+            /* Genes with multiple alleles. */
+            case "agouti":
+                return Math.max(getGene("agouti") & 3, getGene("agouti") >> 2);
+                
+        }
+        System.out.println("[horse_colors]: Phenotype for " + name + " not found.");
+        return -1;
+    }
+
     private void resetTexturePrefix()
     {
         this.texturePrefix = null;
     }
 
     @SideOnly(Side.CLIENT)
-    private String fixPath(String inStr) {
+    private static String fixPath(String inStr) {
         if (inStr == null || inStr.contains(".png")) {
             return inStr;
         }
@@ -135,20 +301,248 @@ public class EntityHorseFelinoid extends AbstractHorse
         }
     }
 
+    private String getBaseTexture()
+    {
+        // First handle double cream dilutes
+        if (getPhenotype("cream") == 2)
+        {
+            // Gray could change the hairs to properly white
+            if (getPhenotype("gray") != 0)
+            {
+                return "white";
+            }
+            // Not gray, so check if base color is chestnut
+            if (getPhenotype("extension") == 0)
+            {
+                return "cremello";
+            }
+            // Base color is black or bay. Check for silver.
+            if (getPhenotype("silver") != 0)
+            {
+                switch(getPhenotype("agouti"))
+                {
+                    case 0: return "silver_smoky_cream";
+                    case 1: return "silver_brown_cream";
+                    case 2:
+                    case 3: return "silver_perlino";
+                }
+            }
+            // Just a regular double cream. 
+            switch(getPhenotype("agouti"))
+            {
+                case 0: return "smoky_cream";
+                case 1: return "brown_cream";
+                case 2:
+                case 3: return "perlino";
+            }
+            
+            
+        }
+        // Single cream dilutes
+        else if (getPhenotype("cream") == 1)
+        {
+            // Check for gray
+            if (getPhenotype("gray") != 0)
+            {
+                return "light_gray";
+            }
+            // Single cream, no gray. Check for dun.
+            if (getPhenotype("dun") != 0)
+            {
+                // Dun + single cream.
+                // Check for chestnut before looking for silver.
+                if (getPhenotype("extension") == 0)
+                {
+                    return "dunalino";
+                }
+                // Black-based, so check for silver.
+                if (getPhenotype("silver") != 0)
+                {
+                    switch(getPhenotype("agouti"))
+                    {
+                        case 0: return (getPhenotype("liver") == 0? "dark_" : "") + "silver_smoky_grullo";
+                        case 1: return "silver_smoky_brown_dun";
+                        case 2:
+                        case 3: return "silver_dunskin";
+                    }
+                }
+                switch(getPhenotype("agouti"))
+                {
+                    case 0: return "smoky_grullo";
+                    case 1: return "smoky_brown_dun";
+                    case 2:
+                    case 3: return "dunskin";
+                }
+            }
+            // Single cream, no gray, no dun. Check for chestnut base.
+            if (getPhenotype("extension") == 0)
+            {
+                return "palomino";
+            }
+            // Non-chestnut, so check for silver.
+            if (getPhenotype("silver") != 0)
+            {
+                switch(getPhenotype("agouti"))
+                {
+                    case 0: return (getPhenotype("liver") == 0? "dark_" : "") + "silver_grullo";
+                    case 1: return "silver_smoky_brown";
+                    case 2:
+                    case 3: return "silver_buckskin";
+                }
+            }
+            // Single cream, non-chestnut, with nothing else.
+            switch(getPhenotype("agouti"))
+            {
+                case 0: return "smoky_black";
+                case 1: return "smoky_brown";
+                case 2:
+                case 3: return "buckskin";
+            }
+        }
+        // No cream, check for gray
+        if (getPhenotype("gray") != 0)
+        {
+            // TODO: I have more than one gray and need to decide which to use.
+            return "light_gray";
+        }
+
+        // No cream, no gray. Check for dun.
+        if (getPhenotype("dun") != 0)
+        {
+            // Dun. Check for chestnut.
+            if (getPhenotype("extension") == 0)
+            {
+                // Red dun. Check for liver.
+                if (getPhenotype("liver") == 0)
+                {
+                    // Check for flaxen.
+                    switch(getPhenotype("flaxen"))
+                    {
+                        case 0: return "liver_dun";
+                        case 1: return "partly_flaxen_liver_dun";
+                        case 2: return "flaxen_liver_dun";
+                    }
+                }
+                // Not liver. Check for flaxen.
+                switch(getPhenotype("flaxen"))
+                {
+                    case 0: return "red_dun";
+                    case 1: return "partly_flaxen_dun";
+                    case 2: return "flaxen_dun";
+                }
+            }
+
+            // Dun, non-chestnut. Check for silver.
+            if (getPhenotype("silver") != 0)
+            {
+                switch(getPhenotype("agouti"))
+                {
+                    case 0: return "silver_grullo";
+                    case 1: return "silver_brown_dun";
+                    case 2:
+                    case 3: return "silver_dun";
+                }
+            }
+
+            // Dun, non-chestnut, no other dilutions.
+            switch(getPhenotype("agouti"))
+            {
+                case 0: return "grullo";
+                case 1: return "brown_dun";
+                case 2:
+                case 3: return "dun";
+            }
+        }
+
+        // No cream, gray, or dun. Check for chestnut.
+        if (getPhenotype("extension") == 0)
+        {
+            String result = "chestnut";
+            // So far just chestnut. Check for liver.
+            if (getPhenotype("liver") == 0)
+            {
+                result = "liver_" + result;
+            }
+            // Check for flaxen.
+            switch(getPhenotype("flaxen"))
+            {
+                case 1:
+                    result = "partly_flaxen_" + result;
+                    break;
+                case 2:
+                    result = "flaxen_" + result;
+            }
+
+
+            return result;
+        }
+
+        // Non-chestnut with no cream, gray, or dun. check for silver.
+        if (getPhenotype("silver") != 0)
+        {
+            switch(getPhenotype("agouti"))
+            {
+                case 0: return "chocolate";
+                case 1: return "silver_brown";
+                case 2:
+                case 3: return "silver_bay";
+            }
+        }
+
+        // Non-chestnut with your basic, undiluted, unmodified coat.
+        switch(getPhenotype("agouti"))
+        {
+            case 0: return "black";
+            case 1: return "seal_brown";
+            case 2:
+            case 3: return "bay";
+        }
+
+        // This point should not be reached, but java wants a return to compile.
+        System.out.println("[horse_colors]: Texture not found for horse with variant "
+            + getHorseVariant() + ".");
+        return "no texture found";
+    }
+
     @SideOnly(Side.CLIENT)
     private void setHorseTexturePaths()
     {
+        String baseTexture = getBaseTexture();
+
         int i = this.getHorseVariant();
-        int j = (i & 255) % NUM_TEXTURES;
-        int k = 0 % HORSE_ROAN_TEXTURES.length;
         int m = ((i & 65280) >> 8) % NUM_MARKINGS;
+
+        // Todo: make this follow the gene, once the gene exists
+        String roan = null;
+
+        String sooty1 = null;
+        String sooty2 = null;
+        if (getPhenotype("gray") == 0 && getPhenotype("cream") != 2)
+        {
+            if (getPhenotype("sooty1") == 0)
+            {
+                sooty1 = getPhenotype("dun") == 0? "sooty1" : "sooty1_dun";
+            }
+            if (getPhenotype("sooty2") == 0)
+            {
+                sooty1 = getPhenotype("dun") == 0? "sooty2" : "sooty2_dun";
+            }
+        }
+
         ItemStack armorStack = this.dataManager.get(HORSE_ARMOR_STACK);
         String texture = !armorStack.isEmpty() ? armorStack.getItem().getHorseArmorTexture(this, armorStack) : HorseArmorType.getByOrdinal(this.dataManager.get(HORSE_ARMOR)).getTextureName(); //If armorStack is empty, the server is vanilla so the texture should be determined the vanilla way
-        this.horseTexturesArray[0] = fixPath(HORSE_TEXTURES[j]);
-        this.horseTexturesArray[1] = fixPath(HORSE_ROAN_TEXTURES[k]);
-        this.horseTexturesArray[3] = fixPath(HORSE_MARKING_TEXTURES[m]);
-        this.horseTexturesArray[3] = texture;
-        this.texturePrefix = "horse/cache_" + HORSE_TEXTURES[j] + Integer.toString(k) + HORSE_MARKING_TEXTURES_ABBR[m] + texture;
+
+        this.horseTexturesArray[0] = fixPath(baseTexture);
+        this.horseTexturesArray[1] = fixPath(sooty1);
+        this.horseTexturesArray[2] = fixPath(sooty2);
+        this.horseTexturesArray[3] = fixPath(roan);
+        this.horseTexturesArray[4] = fixPath(HORSE_MARKING_TEXTURES[m]);
+        this.horseTexturesArray[5] = texture;
+
+        String sooty1abv = sooty1 == null? "" : sooty1;
+        String sooty2abv = sooty2 == null? "" : sooty2;
+        String roanabv = roan == null? "" : roan;
+        this.texturePrefix = "horse/cache_" + baseTexture + sooty1abv + sooty2abv + roanabv + HORSE_MARKING_TEXTURES_ABBR[m] + texture;
     }
 
     @SideOnly(Side.CLIENT)
@@ -390,6 +784,43 @@ public class EntityHorseFelinoid extends AbstractHorse
         }
     }
 
+    /* Argument is the number of genewidths to the left each gene should be
+    shifted. */
+    private int getRandomGenes(int n)
+    {
+        int result = 0;
+        int random = 0;
+        String out = "";
+        for (String gene : genes)
+        {
+            if (getGenePos(gene) % 32 == 0)
+            {
+                random = this.rand.nextInt();
+            }
+
+            int next = getGene(gene);
+            // Randomly take the low bits or the high bits
+            if (random % 2 == 0)
+            {
+                // Keep high bits, put them in low bit position
+                next >>= getGeneSize(gene);
+            }
+            else
+            {
+                // Keep low bits
+                next &= (1 << getGeneSize(gene)) - 1;
+            }
+            out = out + gene + ": " + getGene(gene) + " -> " + next + "\n";
+            random >>= 1;
+
+            // Add the allele we've selected to the final result
+            result |= next << getGenePos(gene) << (n * getGeneSize(gene));
+        }
+
+        System.out.print(out);
+        return result;
+    }
+
     @Override
     public EntityAgeable createChild(EntityAgeable ageable)
     {
@@ -403,38 +834,16 @@ public class EntityHorseFelinoid extends AbstractHorse
         {
             EntityHorseFelinoid entityhorse = (EntityHorseFelinoid)ageable;
             abstracthorse = new EntityHorseFelinoid(this.world);
-            int j = this.rand.nextInt(9);
-            int i;
 
-            if (j < 4)
-            {
-                i = this.getHorseVariant() & 255;
-            }
-            else if (j < 8)
-            {
-                i = entityhorse.getHorseVariant() & 255;
-            }
-            else
-            {
-                i = this.rand.nextInt(NUM_TEXTURES);
-            }
+            int mother = this.getRandomGenes(1);
+            int father = entityhorse.getRandomGenes(0);
 
-            int k = this.rand.nextInt(5);
-
-            if (k < 2)
-            {
-                i = i | this.getHorseVariant() & 65280;
-            }
-            else if (k < 4)
-            {
-                i = i | entityhorse.getHorseVariant() & 65280;
-            }
-            else
-            {
-                i = i | this.rand.nextInt(NUM_MARKINGS) << 8 & 65280;
-            }
+            int i = mother | father;
 
             ((EntityHorseFelinoid)abstracthorse).setHorseVariant(i);
+
+            /* Print debugging information. */
+            System.out.print("Mating:\n    Variant: " + Integer.toBinaryString(this.getHorseVariant()) + "\n    Color: " + this.getBaseTexture() + "\n    Genes passed: " + Integer.toBinaryString(mother) + "\n\n    Variant: " + Integer.toBinaryString(entityhorse.getHorseVariant()) + "\n    Color: " + entityhorse.getBaseTexture() + "\n    Genes passed: " + Integer.toBinaryString(father) + "\n");
         }
 
         this.setOffspringAttributes(ageable, abstracthorse);
@@ -453,6 +862,66 @@ public class EntityHorseFelinoid extends AbstractHorse
         return HorseArmorType.isHorseArmor(stack);
     }
 
+    /* This function changes the variant and then puts it back to what it was
+    before. */
+    // TODO: clean up
+    private int getRandomVariant(int n)
+    {
+        int startVariant = getHorseVariant();
+
+        int i = this.rand.nextInt();
+        setGene("extension", (i & 1) << (n * getGeneSize("extension")));
+        i >>= 1;
+        setGene("gray", (i % 20 == 0? 1 : 0) << (n * getGeneSize("gray")));
+        i >>= 5;
+        setGene("dun", (i % 4 == 0? 1 : 0) << (n * getGeneSize("dun")));
+        i >>= 2;
+
+        int ag = i % 32;
+        int agouti = ag == 0? 3 : (ag < 18? 2 : (ag < 20? 1: 0));
+        setGene("agouti", agouti << (n * getGeneSize("agouti")));
+        i >>= 5;
+
+        setGene("silver", (i % 32 == 0? 1 : 0) << (n * getGeneSize("silver")));
+        i >>= 5;
+
+        setGene("cream", (i % 32 == 0? 1 : 0) << (n * getGeneSize("cream")));
+        i >>= 5;
+
+        setGene("liver", (i % 3 == 0? 0 : 1) << (n * getGeneSize("liver")));
+        i >>= 2;
+
+        setGene("flaxen1", (i % 4 == 0? 0 : 1) << (n * getGeneSize("flaxen1")));
+        i >>= 2;
+
+        setGene("flaxen2", (i % 4 == 0? 0 : 1) << (n * getGeneSize("flaxen2")));
+        i >>= 2;
+
+        setGene("sooty1", (i % 2 == 0? 0 : 1) << (n * getGeneSize("sooty1")));
+        // Out of random digits; time for more!
+        i = Math.abs(this.rand.nextInt());
+
+        setGene("sooty2", (i % 2 == 0? 0 : 1) << (n * getGeneSize("sooty2")));
+        i >>= 2;
+
+        setGene("mealy1", (i % 4 == 0? 0 : 1) << (n * getGeneSize("mealy1")));
+        i >>= 2;
+
+        setGene("mealy2", (i % 4 == 0? 0 : 1) << (n * getGeneSize("mealy2")));
+
+        int answer = getHorseVariant();
+        setHorseVariant(startVariant);
+        return answer;
+    }
+
+    /* Make the horse have random genetics. */
+    public void randomize()
+    {
+        int i = getRandomVariant(0);
+        int j = getRandomVariant(1);
+        setHorseVariant(i | j);
+    }
+
     /**
      * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
      * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
@@ -461,19 +930,23 @@ public class EntityHorseFelinoid extends AbstractHorse
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata)
     {
         livingdata = super.onInitialSpawn(difficulty, livingdata);
-        int i;
 
+        // TODO
+        /*
         if (livingdata instanceof EntityHorseFelinoid.GroupData)
         {
-            i = ((EntityHorseFelinoid.GroupData)livingdata).variant;
+            int i = ((EntityHorseFelinoid.GroupData)livingdata).variant;
+            this.setHorseVariant(i);
         }
         else
         {
-            i = this.rand.nextInt(NUM_TEXTURES);
-            livingdata = new EntityHorseFelinoid.GroupData(i);
+            this.randomize();
+            livingdata = new EntityHorseFelinoid.GroupData(getHorseVariant());
         }
+        */
 
-        this.setHorseVariant(i | this.rand.nextInt(NUM_MARKINGS) << 8);
+        this.randomize();
+        System.out.println("New horse with variant " + getHorseVariant());
         return livingdata;
     }
 

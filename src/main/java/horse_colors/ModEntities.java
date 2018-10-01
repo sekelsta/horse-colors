@@ -27,7 +27,7 @@ public class ModEntities {
             .id(new ResourceLocation(HorseColors.MODID, horse_name), ID++)
             .name(horse_name)
             .egg(0xFFFFFF, 0xAAAAAA)
-            .tracker(64, 20, false)
+            .tracker(64, 2, false)
             .build();
         event.getRegistry().register(entry);
 	}
