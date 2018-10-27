@@ -536,13 +536,13 @@ public class EntityHorseFelinoid extends AbstractHorse
         this.horseTexturesArray[1] = fixPath(sooty1);
         this.horseTexturesArray[2] = fixPath(sooty2);
         this.horseTexturesArray[3] = fixPath(roan);
-        this.horseTexturesArray[4] = fixPath(HORSE_MARKING_TEXTURES[m]);
+        this.horseTexturesArray[4] = null; // TODO
         this.horseTexturesArray[5] = texture;
 
         String sooty1abv = sooty1 == null? "" : sooty1;
         String sooty2abv = sooty2 == null? "" : sooty2;
         String roanabv = roan == null? "" : roan;
-        this.texturePrefix = "horse/cache_" + baseTexture + sooty1abv + sooty2abv + roanabv + HORSE_MARKING_TEXTURES_ABBR[m] + texture;
+        this.texturePrefix = "horse/cache_" + baseTexture + sooty1abv + sooty2abv + roanabv + "" + texture;
     }
 
     @SideOnly(Side.CLIENT)
