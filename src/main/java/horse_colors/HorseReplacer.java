@@ -18,7 +18,7 @@ public class HorseReplacer {
                 EntityHorseFelinoid newHorse = new EntityHorseFelinoid(event.getWorld());
                 newHorse.setLocationAndAngles(event.getEntity().posX, event.getEntity().posY, event.getEntity().posZ, event.getEntity().rotationYaw, event.getEntity().rotationPitch);
                 event.getWorld().spawnEntity(newHorse);
-                newHorse.setHorseVariant(horse.getHorseVariant());
+                // TODO: initialize genes and stuff
             }
             event.setCanceled(true);
         }

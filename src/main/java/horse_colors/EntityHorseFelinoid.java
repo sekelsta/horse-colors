@@ -41,6 +41,11 @@ public class EntityHorseFelinoid extends AbstractHorse
 {
     private static final UUID ARMOR_MODIFIER_UUID = UUID.fromString("556E1665-8B10-40C8-8F9D-CF9B1667F295");
     private static final DataParameter<Integer> HORSE_VARIANT = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
+    private static final DataParameter<Integer> HORSE_VARIANT2 = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
+    private static final DataParameter<Integer> HORSE_SPEED = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
+    private static final DataParameter<Integer> HORSE_JUMP = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
+    private static final DataParameter<Integer> HORSE_HEALTH = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
+    private static final DataParameter<Integer> HORSE_RANDOM = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
     private static final DataParameter<Integer> HORSE_ARMOR = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
     private static final DataParameter<ItemStack> HORSE_ARMOR_STACK = EntityDataManager.<ItemStack>createKey(EntityHorseFelinoid.class, DataSerializers.ITEM_STACK);
 
@@ -54,7 +59,9 @@ public class EntityHorseFelinoid extends AbstractHorse
 
     /* Dun dilutes pigment (by restricting it to a certain part of each hair 
     shaft) and also adds primative markings such as a dorsal stripe. It's
-    dominant, so non-dun is 0 and dun (wildtype) is 1. */
+    dominant, so dun (wildtype) is 11 or 10, non-dun1 (with dorsal stripe) is
+    01, and non-dun2 (without dorsal stripe) is 00. ND1 and ND2 are
+    codominate: a horse with both will have a fainter dorsal stripe. */
 
     /* Gray causes rapid graying with age. Here, it will simply mean the
     horse is gray. It is epistatic to every color except white. Gray is 
@@ -112,6 +119,11 @@ public class EntityHorseFelinoid extends AbstractHorse
     {
         super.entityInit();
         this.dataManager.register(HORSE_VARIANT, Integer.valueOf(0));
+        this.dataManager.register(HORSE_VARIANT2, Integer.valueOf(0));
+        this.dataManager.register(HORSE_SPEED, Integer.valueOf(0));
+        this.dataManager.register(HORSE_HEALTH, Integer.valueOf(0));
+        this.dataManager.register(HORSE_JUMP, Integer.valueOf(0));
+        this.dataManager.register(HORSE_RANDOM, Integer.valueOf(0));
         this.dataManager.register(HORSE_ARMOR, Integer.valueOf(HorseArmorType.NONE.getOrdinal()));
         this.dataManager.register(HORSE_ARMOR_STACK, ItemStack.EMPTY);
     }
@@ -129,7 +141,12 @@ public class EntityHorseFelinoid extends AbstractHorse
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.setInteger("Variant", this.getHorseVariant());
+        compound.setInteger("Variant", this.getHorseVariant("0"));
+        compound.setInteger("Variant2", this.getHorseVariant("1"));
+        compound.setInteger("SpeedGenes", this.getHorseVariant("speed"));
+        compound.setInteger("JumpGenes", this.getHorseVariant("jump"));
+        compound.setInteger("HealthGenes", this.getHorseVariant("health"));
+        compound.setInteger("Random", this.getHorseVariant("random"));
 
         if (!this.horseChest.getStackInSlot(1).isEmpty())
         {
@@ -144,7 +161,12 @@ public class EntityHorseFelinoid extends AbstractHorse
     public void readEntityFromNBT(NBTTagCompound compound)
     {
         super.readEntityFromNBT(compound);
-        this.setHorseVariant(compound.getInteger("Variant"));
+        this.setHorseVariant(compound.getInteger("Variant"), "0");
+        this.setHorseVariant(compound.getInteger("Variant2"), "1");
+        this.setHorseVariant(compound.getInteger("SpeedGenes"), "speed");
+        this.setHorseVariant(compound.getInteger("JumpGenes"), "jump");
+        this.setHorseVariant(compound.getInteger("HealthGenes"), "health");
+        this.setHorseVariant(compound.getInteger("Random"), "random");
 
         if (compound.hasKey("ArmorItem", 10))
         {
@@ -159,15 +181,53 @@ public class EntityHorseFelinoid extends AbstractHorse
         this.updateHorseSlots();
     }
 
-    public void setHorseVariant(int variant)
+    public void setHorseVariant(int variant, String type)
     {
-        this.dataManager.set(HORSE_VARIANT, Integer.valueOf(variant));
+        switch(type) {
+            case "0":
+                this.dataManager.set(HORSE_VARIANT, Integer.valueOf(variant));
+                break;
+            case "1":
+                this.dataManager.set(HORSE_VARIANT2, Integer.valueOf(variant));
+                break;
+            case "speed":
+                this.dataManager.set(HORSE_SPEED, Integer.valueOf(variant));
+                return;
+            case "jump":
+                this.dataManager.set(HORSE_JUMP, Integer.valueOf(variant));
+                return;
+            case "health":
+                this.dataManager.set(HORSE_HEALTH, Integer.valueOf(variant));
+                return;
+            case "random":
+                this.dataManager.set(HORSE_RANDOM, Integer.valueOf(variant));
+                break;
+            default:
+                System.out.print("Unrecognized variant name: " + type + "\n");
+        }
         this.resetTexturePrefix();
     }
 
-    public int getHorseVariant()
+    public int getHorseVariant(String type)
     {
-        return ((Integer)this.dataManager.get(HORSE_VARIANT)).intValue();
+        switch(type) {
+            case "0":
+                return ((Integer)this.dataManager.get(HORSE_VARIANT)).intValue();
+            case "1":
+                return ((Integer)this.dataManager.get(HORSE_VARIANT2)).intValue();
+            case "speed":
+                return ((Integer)this.dataManager.get(HORSE_SPEED)).intValue();
+            case "jump":
+                return ((Integer)this.dataManager.get(HORSE_JUMP)).intValue();
+            case "health":
+                return ((Integer)this.dataManager.get(HORSE_HEALTH)).intValue();
+            case "random":
+                return ((Integer)this.dataManager.get(HORSE_RANDOM)).intValue();
+            default:
+                System.out.print("Unrecognized variant name: " + type + "\n");
+                return 0;
+        }
+        
     }
 
     /* For calling when debugging. */
@@ -210,10 +270,10 @@ public class EntityHorseFelinoid extends AbstractHorse
     {
         switch(gene) 
         {
-            case "agouti": return 2;
+            case "agouti":
+            case "dun": return 2;
 
             case "extension":
-            case "dun":
             case "gray":
             case "cream":
             case "silver":
@@ -232,18 +292,26 @@ public class EntityHorseFelinoid extends AbstractHorse
     /* This returns a bitmask which is 1 where the gene is stored and 0 everywhere else. */
     public static int getGeneLoci(String gene)
     {
-        return ((1 << (2 * getGeneSize(gene))) - 1) << getGenePos(gene);
+        return ((1 << (2 * getGeneSize(gene))) - 1) << (getGenePos(gene) % 32);
+    }
+
+    public static String getGeneChromosome(String gene)
+    {
+        // Which of the ints full of genes ours is on
+        return Integer.toString(getGenePos(gene) / 32);
     }
 
     public void setGene(String name, int val)
     {
-        setHorseVariant((getHorseVariant() & (~getGeneLoci(name))) 
-            | (val << getGenePos(name)));
+        String chr = getGeneChromosome(name);
+        setHorseVariant((getHorseVariant(chr) & (~getGeneLoci(name))) 
+            | (val << getGenePos(name)), chr);
     }
 
     public int getGene(String name)
     {
-        return (getHorseVariant() & getGeneLoci(name)) >> getGenePos(name);
+        String chr = getGeneChromosome(name);
+        return (getHorseVariant(chr) & getGeneLoci(name)) >> getGenePos(name);
     }
 
     public int getPhenotype(String name)
@@ -253,7 +321,6 @@ public class EntityHorseFelinoid extends AbstractHorse
             /* Simple dominant  or recessive genes. */
             case "extension":
             case "gray":
-            case "dun":
             case "silver":
             case "liver":
             case "flaxen1":
@@ -268,6 +335,7 @@ public class EntityHorseFelinoid extends AbstractHorse
             case "cream":
                 /* Low bit plus high bit. */
                 return (getGene(name) & 1) + (getGene(name) >> 1);
+                
             
             /* Polygenetic traits. */
             case "flaxen":
@@ -280,6 +348,17 @@ public class EntityHorseFelinoid extends AbstractHorse
             /* Genes with multiple alleles. */
             case "agouti":
                 return Math.max(getGene("agouti") & 3, getGene("agouti") >> 2);
+
+            case "dun":
+                if (getGene(name) <= 1) 
+                {
+                    // 0 for ND2 (no dorsal stripe), 1 for ND1 (dorsal stripe)
+                    return getGene(name);
+                }
+                else
+                {
+                    return 2;
+                }
                 
         }
         System.out.println("[horse_colors]: Phenotype for " + name + " not found.");
@@ -347,7 +426,7 @@ public class EntityHorseFelinoid extends AbstractHorse
                 return "light_gray";
             }
             // Single cream, no gray. Check for dun.
-            if (getPhenotype("dun") != 0)
+            if (getPhenotype("dun") == 2)
             {
                 // Dun + single cream.
                 // Check for chestnut before looking for silver.
@@ -407,7 +486,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         }
 
         // No cream, no gray. Check for dun.
-        if (getPhenotype("dun") != 0)
+        if (getPhenotype("dun") == 2)
         {
             // Dun. Check for chestnut.
             if (getPhenotype("extension") == 0)
@@ -500,7 +579,7 @@ public class EntityHorseFelinoid extends AbstractHorse
 
         // This point should not be reached, but java wants a return to compile.
         System.out.println("[horse_colors]: Texture not found for horse with variant "
-            + getHorseVariant() + ".");
+            + getHorseVariant("0") + ".");
         return "no texture found";
     }
 
@@ -508,9 +587,6 @@ public class EntityHorseFelinoid extends AbstractHorse
     private void setHorseTexturePaths()
     {
         String baseTexture = getBaseTexture();
-
-        int i = this.getHorseVariant();
-        int m = ((i & 65280) >> 8) % NUM_MARKINGS;
 
         // Todo: make this follow the gene, once the gene exists
         String roan = null;
@@ -521,11 +597,11 @@ public class EntityHorseFelinoid extends AbstractHorse
         {
             if (getPhenotype("sooty1") == 0)
             {
-                sooty1 = getPhenotype("dun") == 0? "sooty1" : "sooty1_dun";
+                sooty1 = getPhenotype("dun") != 3? "sooty1" : "sooty1_dun";
             }
             if (getPhenotype("sooty2") == 0)
             {
-                sooty1 = getPhenotype("dun") == 0? "sooty2" : "sooty2_dun";
+                sooty1 = getPhenotype("dun") != 3? "sooty2" : "sooty2_dun";
             }
         }
 
@@ -840,10 +916,11 @@ public class EntityHorseFelinoid extends AbstractHorse
 
             int i = mother | father;
 
-            ((EntityHorseFelinoid)abstracthorse).setHorseVariant(i);
+            // TODO: make other ints also get inherited
+            ((EntityHorseFelinoid)abstracthorse).setHorseVariant(i, "0");
 
             /* Print debugging information. */
-            System.out.print("Mating:\n    Variant: " + Integer.toBinaryString(this.getHorseVariant()) + "\n    Color: " + this.getBaseTexture() + "\n    Genes passed: " + Integer.toBinaryString(mother) + "\n\n    Variant: " + Integer.toBinaryString(entityhorse.getHorseVariant()) + "\n    Color: " + entityhorse.getBaseTexture() + "\n    Genes passed: " + Integer.toBinaryString(father) + "\n");
+            System.out.print("Mating:\n    Variant: " + Integer.toBinaryString(this.getHorseVariant("0")) + "\n    Color: " + this.getBaseTexture() + "\n    Genes passed: " + Integer.toBinaryString(mother) + "\n\n    Variant: " + Integer.toBinaryString(entityhorse.getHorseVariant("0")) + "\n    Color: " + entityhorse.getBaseTexture() + "\n    Genes passed: " + Integer.toBinaryString(father) + "\n");
         }
 
         this.setOffspringAttributes(ageable, abstracthorse);
@@ -867,15 +944,18 @@ public class EntityHorseFelinoid extends AbstractHorse
     // TODO: clean up
     private int getRandomVariant(int n)
     {
-        int startVariant = getHorseVariant();
+        // TODO: make this function work for the other ones too
+        int startVariant = getHorseVariant("0");
 
         int i = this.rand.nextInt();
         setGene("extension", (i & 1) << (n * getGeneSize("extension")));
         i >>= 1;
         setGene("gray", (i % 20 == 0? 1 : 0) << (n * getGeneSize("gray")));
         i >>= 5;
-        setGene("dun", (i % 4 == 0? 1 : 0) << (n * getGeneSize("dun")));
-        i >>= 2;
+        int d = i % 16;
+        int dun = ((d % 4 == 0? 1 : 0) << 1) + ((d/4) % 4 == 0? 1: 0);
+        setGene("dun", dun << (n * getGeneSize("dun")));
+        i >>= 4;
 
         int ag = i % 32;
         int agouti = ag == 0? 3 : (ag < 18? 2 : (ag < 20? 1: 0));
@@ -896,10 +976,10 @@ public class EntityHorseFelinoid extends AbstractHorse
 
         setGene("flaxen2", (i % 4 == 0? 0 : 1) << (n * getGeneSize("flaxen2")));
         i >>= 2;
-
-        setGene("sooty1", (i % 2 == 0? 0 : 1) << (n * getGeneSize("sooty1")));
         // Out of random digits; time for more!
         i = Math.abs(this.rand.nextInt());
+
+        setGene("sooty1", (i % 2 == 0? 0 : 1) << (n * getGeneSize("sooty1")));
 
         setGene("sooty2", (i % 2 == 0? 0 : 1) << (n * getGeneSize("sooty2")));
         i >>= 2;
@@ -909,17 +989,18 @@ public class EntityHorseFelinoid extends AbstractHorse
 
         setGene("mealy2", (i % 4 == 0? 0 : 1) << (n * getGeneSize("mealy2")));
 
-        int answer = getHorseVariant();
-        setHorseVariant(startVariant);
+        int answer = getHorseVariant("0");
+        setHorseVariant(startVariant, "0");
         return answer;
     }
 
     /* Make the horse have random genetics. */
     public void randomize()
     {
+        // TODO: genetics for more genes
         int i = getRandomVariant(0);
         int j = getRandomVariant(1);
-        setHorseVariant(i | j);
+        setHorseVariant(i | j, "0");
     }
 
     /**
@@ -946,7 +1027,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         */
 
         this.randomize();
-        System.out.println("New horse with variant " + getHorseVariant());
+        System.out.println("New horse with variant " + getHorseVariant("0"));
         return livingdata;
     }
 
