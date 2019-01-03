@@ -246,7 +246,8 @@ public class EntityHorseFelinoid extends AbstractHorse
         System.out.println("");
         for (String gene : genes)
         {
-            System.out.print(gene + ": " + Integer.toBinaryString(getGeneLoci(gene)) + "\n");
+            //System.out.print(gene + ": " + Integer.toBinaryString(getGeneLoci(gene)) + "\n");
+            System.out.print(gene + ": " + getGenePos(gene) + "\n");
         }
     }
 
@@ -255,27 +256,18 @@ public class EntityHorseFelinoid extends AbstractHorse
         int i = 0;
         for (String gene : genes)
         {
-            if (gene == name)
-            {
-                // Special case to keep each gene completely on the same int
-                if ((i + (2 * getGeneSize(gene))) / 32 == i / 32)
-                {
-                    return i;
-                }
-                else
-                {
-                    return (i / 32 + 1) * 32;
-                }
-            }
             // Special case to keep each gene completely on the same int
-            if ((i + (2 * getGeneSize(gene))) / 32 == i / 32)
-            {
-                i += (2 * getGeneSize(gene));
-            }
-            else
+            int next = (i + (2 * getGeneSize(gene)));
+            if (next / 32 != i / 32 && next % 32 != 0)
             {
                 i = (i / 32 + 1) * 32;
             }
+
+            if (gene == name)
+            {
+                return i;
+            }
+            i += (2 * getGeneSize(gene));
         }
 
         // Return statement needed to compile
@@ -436,6 +428,10 @@ public class EntityHorseFelinoid extends AbstractHorse
     private static String fixPath(String inStr) {
         if (inStr == null || inStr.contains(".png")) {
             return inStr;
+        }
+        else if (inStr == "")
+        {
+            return null;
         }
         else {
             return "horse_colors:textures/entity/horse/" + inStr +".png";
@@ -648,7 +644,7 @@ public class EntityHorseFelinoid extends AbstractHorse
     @SideOnly(Side.CLIENT)
     private void setHorseTexturePaths()
     {
-        String baseTexture = getBaseTexture();
+        String base_texture = getBaseTexture();
 
         String roan = getPhenotype("roan") != 0? "roan" : null;
         String face_marking = null;
@@ -663,7 +659,7 @@ public class EntityHorseFelinoid extends AbstractHorse
             {
                 face_marking = "strip";
             }
-            else
+            else if ((getHorseVariant("random") >> 3) % 2 == 0)
             {
                 face_marking = "blaze";
             }
@@ -683,21 +679,35 @@ public class EntityHorseFelinoid extends AbstractHorse
             }
         }
 
+        String pinto = null;
+        if (getPhenotype("white") == 1)
+        {
+            pinto = "white";
+            sooty1 = null;
+            sooty2 = null;
+            roan = null;
+            face_marking = null;
+            base_texture = null;
+        }
+
         ItemStack armorStack = this.dataManager.get(HORSE_ARMOR_STACK);
         String texture = !armorStack.isEmpty() ? armorStack.getItem().getHorseArmorTexture(this, armorStack) : HorseArmorType.getByOrdinal(this.dataManager.get(HORSE_ARMOR)).getTextureName(); //If armorStack is empty, the server is vanilla so the texture should be determined the vanilla way
 
-        this.horseTexturesArray[0] = fixPath(baseTexture);
+        this.horseTexturesArray[0] = fixPath(base_texture);
         this.horseTexturesArray[1] = fixPath(sooty1);
         this.horseTexturesArray[2] = fixPath(sooty2);
         this.horseTexturesArray[3] = fixPath(roan);
         this.horseTexturesArray[4] = fixPath(face_marking);
-        this.horseTexturesArray[5] = null; // TODO: pinto
+        this.horseTexturesArray[5] = fixPath(pinto);
         this.horseTexturesArray[6] = texture;
 
+        String baseabv = base_texture == null? "" : base_texture;
         String sooty1abv = sooty1 == null? "" : sooty1;
         String sooty2abv = sooty2 == null? "" : sooty2;
         String roanabv = roan == null? "" : roan;
-        this.texturePrefix = "horse/cache_" + baseTexture + sooty1abv + sooty2abv + roanabv + "" + texture;
+        String face_marking_abv = face_marking == null? "" : face_marking;
+        String pinto_abv = pinto == null? "" : pinto;
+        this.texturePrefix = "horse/cache_" + baseabv + sooty1abv + sooty2abv + roanabv + face_marking_abv + pinto_abv + texture;
     }
 
     @SideOnly(Side.CLIENT)
@@ -977,6 +987,17 @@ public class EntityHorseFelinoid extends AbstractHorse
         return result;
     }
 
+    private int getRandomGenericGenes(int n, int data)
+    {
+        int rand = this.rand.nextInt();
+        int answer = 0;
+        for (int i = 0; i < 16; i++)
+        {
+            rand >>= 1;
+        }
+        return answer;
+    }
+
     @Override
     public EntityAgeable createChild(EntityAgeable ageable)
     {
@@ -1001,13 +1022,39 @@ public class EntityHorseFelinoid extends AbstractHorse
             i = mother | father;
             ((EntityHorseFelinoid)abstracthorse).setHorseVariant(i, "1");
 
-            // TODO: speed, health, and jump
+            // speed, health, and jump
+            mother = getRandomGenericGenes(1, getHorseVariant("speed"));
+            father = entityhorse.getRandomGenericGenes(0, entityhorse.getHorseVariant("speed"));
+            i = mother | father;
+            ((EntityHorseFelinoid)abstracthorse).setHorseVariant(i, "speed");
+
+            mother = getRandomGenericGenes(1, getHorseVariant("health"));
+            father = entityhorse.getRandomGenericGenes(0, entityhorse.getHorseVariant("health"));
+            i = mother | father;
+            ((EntityHorseFelinoid)abstracthorse).setHorseVariant(i, "health");
+
+            mother = getRandomGenericGenes(1, getHorseVariant("jump"));
+            father = entityhorse.getRandomGenericGenes(0, entityhorse.getHorseVariant("jump"));
+            i = mother | father;
+            ((EntityHorseFelinoid)abstracthorse).setHorseVariant(i, "jump");
 
             i =  this.rand.nextInt();
             ((EntityHorseFelinoid)abstracthorse).setHorseVariant(i, "random");
 
             /* Print debugging information. */
-            System.out.print("Mating:\n    Variant: " + Integer.toBinaryString(this.getHorseVariant("0")) + "\n    Color: " + this.getBaseTexture() + "\n    Genes passed: " + Integer.toBinaryString(mother) + "\n\n    Variant: " + Integer.toBinaryString(entityhorse.getHorseVariant("0")) + "\n    Color: " + entityhorse.getBaseTexture() + "\n    Genes passed: " + Integer.toBinaryString(father) + "\n");
+            System.out.print("Mating:\n    Variant: " 
+                + Integer.toBinaryString(this.getHorseVariant("0")) + ", " 
+                + Integer.toBinaryString(this.getHorseVariant("1")) 
+                + "\n    Color: " + this.getBaseTexture() 
+                + "\n\n    Variant: " 
+                + Integer.toBinaryString(entityhorse.getHorseVariant("0")) 
+                + ", " + Integer.toBinaryString(entityhorse.getHorseVariant("1")) 
+                + "\n    Color: " + entityhorse.getBaseTexture() + "\n\n    "
+                + "Baby Variant: " 
+                + Integer.toBinaryString(((EntityHorseFelinoid)abstracthorse).getHorseVariant("0"))
+                + ", " + Integer.toBinaryString(((EntityHorseFelinoid)abstracthorse).getHorseVariant("1"))
+                + "\n");
+                test();
         }
 
         this.setOffspringAttributes(ageable, abstracthorse);
