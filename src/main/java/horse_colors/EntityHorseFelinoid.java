@@ -86,7 +86,7 @@ public class EntityHorseFelinoid extends AbstractHorse
 
     /* Mealy turns some red hairs to white, generally on the belly or
     undersides. It's recessive, and, like flaxen, is a polygenetic trait. */
-    private static final String[] genes = new String[] {"extension", "agouti", "dun", "gray", "cream", "silver", "liver", "flaxen1", "flaxen2", "sooty1", "sooty2", "mealy1", "mealy2",
+    private static final String[] genes = new String[] {"extension", "agouti", "dun", "gray", "cream", "silver", "liver", "flaxen1", "flaxen2", "dapple", "sooty1", "sooty2", "sooty3", "mealy1", "mealy2",
         "white_suppression", "KIT", "frame", "splash"};
 
     private static final String[] HORSE_MARKING_TEXTURES = new String[] {null, "textures/entity/horse/horse_markings_white.png", "textures/entity/horse/horse_markings_whitefield.png", "textures/entity/horse/horse_markings_blackdots.png"};
@@ -94,8 +94,8 @@ public class EntityHorseFelinoid extends AbstractHorse
     private String texturePrefix;
     /* Layers are:
         0: base (chestnut, dun, or whatever)
-        sooty1
-        sooty2
+        sooty
+        mealy/pangare
         roan
         face markings
         tobiano/white/other pinto patterns
@@ -292,8 +292,10 @@ public class EntityHorseFelinoid extends AbstractHorse
             case "liver":
             case "flaxen1":
             case "flaxen2":
+            case "dapple":
             case "sooty1":
             case "sooty2":
+            case "sooty3":
             case "mealy1":
             case "mealy2":
             case "white_suppression":
@@ -340,8 +342,10 @@ public class EntityHorseFelinoid extends AbstractHorse
             case "liver":
             case "flaxen1":
             case "flaxen2":
+            case "dapple":
             case "sooty1":
             case "sooty2":
+            case "sooty3":
             case "mealy1":
             case "mealy2":
             case "white_suppression":
@@ -359,7 +363,9 @@ public class EntityHorseFelinoid extends AbstractHorse
             case "flaxen":
                 return 2 - getPhenotype("flaxen1") - getPhenotype("flaxen2");
             case "sooty":
-                return 2 - getPhenotype("sooty1") - getPhenotype("sooty2");
+                // sooty1 and 2 dominant, 3 recessive
+                return 1 + getPhenotype("sooty1") + getPhenotype("sooty2") 
+                        - getPhenotype("sooty3");
             case "mealy":
                 return 2 - getPhenotype("mealy1") - getPhenotype("mealy2");
 
@@ -370,32 +376,84 @@ public class EntityHorseFelinoid extends AbstractHorse
             case "dun":
                 if (getGene(name) <= 1) 
                 {
-                    // 0 for ND2 (no dorsal stripe), 1 for ND1 (dorsal stripe)
+                    // 0 for ND2 (no dorsal stripe), 1 for ND1/+ (faint 
+                    // dorsal stripe), 2 for ND1/ND1 (dorsal stripe), 3 for dun
                     return getGene(name);
                 }
-                else
+                else if (getGene(name) == 4)
+                {
+                    return 1;
+                }
+                else if (getGene(name) == 5)
                 {
                     return 2;
                 }
+                else
+                {
+                    return 3;
+                }
             /* KIT mappings:
                0: wildtype
-               1: W20
-               2: wildtype for now
-               3: wildtype for now
-               4: wildtype for now
-               5: wildtype for now
-               6: wildtype for now
-               7: wildtype for now
-               8: wildtype for now
-               9: wildtype for now
+               1: no markings
+               2: white boost: mall white boost (star sometimes)
+               3: star (on average)
+               4: strip (on average)
+               5: half-socks (on average)
+               6: markings (strip and half-socks typical)
+               7: W20 (strip and socks typical as heterozygous, 
+                    when homozygous, irregular draft sabino with some belly white)
+               8: flashy white: stockings and blaze (on average)
+               9: draft sabino (four stockings and blaze)
                10: wildtype for now
                11: wildtype for now
-               12: wildtype for now
+               12: sabino1
                13: tobiano
                14: roan
                15: white
             */
-            // Tobiano is also incomplete dominant
+            case "white_boost":
+                return ((getGene("KIT") & 15) == 2
+                        || (getGene("KIT") >> 4) == 2)? 1 : 0;
+            case "star":
+                return ((getGene("KIT") & 15) == 3
+                        || (getGene("KIT") >> 4) == 3)? 1 : 0;
+            case "strip":
+                return ((getGene("KIT") & 15) == 4
+                        || (getGene("KIT") >> 4) == 4)? 1 : 0;
+            case "half-socks":
+                return ((getGene("KIT") & 15) == 5
+                        || (getGene("KIT") >> 4) == 5)? 1 : 0;
+            case "markings":
+                return ((getGene("KIT") & 15) == 6
+                        || (getGene("KIT") >> 4) == 6)? 1 : 0;
+            // W20 is incomplete dominant
+            case "W20":
+                if (getGene("KIT") == (7 << 4) + 7)
+                {
+                    return 2;
+                }
+                else
+                {
+                    return ((getGene("KIT") & 15) == 7) 
+                            || ((getGene("KIT") >> 4) == 7)? 1 : 0;
+                }
+            case "flashy_white":
+                return ((getGene("KIT") & 15) == 8
+                        || (getGene("KIT") >> 4) == 8)? 1 : 0;
+            case "draft_sabino":
+                return ((getGene("KIT") & 15) == 9
+                        || (getGene("KIT") >> 4) == 9)? 1 : 0;
+            // Sabino1 and tobiano are also incomplete dominant
+            case "sabino1":
+                if (getGene("KIT") == (12 << 4) + 12)
+                {
+                    return 2;
+                }
+                else
+                {
+                    return ((getGene("KIT") & 15) == 12) 
+                            || ((getGene("KIT") >> 4) == 12)? 1 : 0;
+                }
             case "tobiano":
                 if (getGene("KIT") == (13 << 4) + 13)
                 {
@@ -484,7 +542,7 @@ public class EntityHorseFelinoid extends AbstractHorse
                 return "light_gray";
             }
             // Single cream, no gray. Check for dun.
-            if (getPhenotype("dun") == 2)
+            if (getPhenotype("dun") == 3)
             {
                 // Dun + single cream.
                 // Check for chestnut before looking for silver.
@@ -544,7 +602,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         }
 
         // No cream, no gray. Check for dun.
-        if (getPhenotype("dun") == 2)
+        if (getPhenotype("dun") == 3)
         {
             // Dun. Check for chestnut.
             if (getPhenotype("extension") == 0)
@@ -641,50 +699,162 @@ public class EntityHorseFelinoid extends AbstractHorse
         return "no texture found";
     }
 
+    private String getSooty(String base_color)
+    {
+        if (getPhenotype("gray") != 0 || getPhenotype("cream") == 2)
+        {
+            return null;
+        }
+        int sooty_level = getPhenotype("sooty");
+        if (sooty_level == 0)
+        {
+            return null;
+        }
+
+        boolean is_dun = getPhenotype("dun") == 3;
+        String suffix = "";
+        if (sooty_level == 3)
+        {
+            suffix = "_dark";
+        }
+        else if (sooty_level == 1)
+        {
+            suffix = "_light";
+        }
+
+        String type = "countershaded";
+        boolean is_chestnut = getPhenotype("extension") == 0
+            && getPhenotype("cream") == 0
+            && getPhenotype("liver") != 0;
+        if (getPhenotype("dapple") != 0)
+        {
+            type = is_chestnut? "even" : "dappled";
+        }
+
+        // TODO: dun
+
+        return "sooty_" + type + suffix;
+    }
+
+    private String getFaceMarking()
+    {
+        if (getPhenotype("white_suppression") == 0)
+        {
+            return null;
+        }
+
+        if (getPhenotype("draft_sabino") != 0
+            || getPhenotype("W20") == 2)
+        {
+            return "blaze";
+        }
+
+        String face_marking = null;
+        int random  = getHorseVariant("random");
+        if (getPhenotype("flashy_white") != 0)
+        {
+            // 1/2 chance blaze, 1/4 chance strip, 1/4 chance star
+            if (random % 2 == 0)
+            {
+                face_marking = "blaze";
+            }
+            else if ((random >> 1) % 2 == 0)
+            {
+                face_marking = "strip";
+            }
+            else
+            {
+                face_marking = "star";
+            }
+        }
+        else if (getPhenotype("tobiano") == 2)
+        {
+            // 1/4 chance blaze, 1/4 chance strip, 1/4 chance star, 1/4 chance none
+            if (random % 2 == 0)
+            {
+                if ((random >> 1) % 2 == 0)
+                {
+                    face_marking = "strip";
+                }
+                else
+                {
+                    face_marking = "blaze";
+                }
+            }
+            else if ((random >> 1) % 2 == 0)
+            {
+                face_marking = "star";
+            }
+        }
+        else if (getPhenotype("W20") == 1
+                || getPhenotype("markings") != 0
+                || getPhenotype("strip") != 0)
+        {
+            // 1/2 chance strip, 1/4 chance star, 1/8 chance blaze or none
+            if (random % 2 == 0)
+            {
+                face_marking = "strip";
+            }
+            else if ((random >> 1) % 2 == 0)
+            {
+                face_marking = "star";
+            }
+            else if ((random >> 2) % 2 == 0)
+            {
+                face_marking = "blaze";
+            }
+        }
+        else if (getPhenotype("star") != 0)
+        {
+            // 1/4 chance strip, 1/2 chance star, 1/4 chance none
+            if (random % 2 == 0)
+            {
+                face_marking = "star";
+            }
+            else if ((random >> 1) % 2 == 0)
+            {
+                face_marking = "strip";
+            }
+        }
+        else if (getPhenotype("white_boost") != 0 
+            || getPhenotype("half-socks") != 0)
+        {
+            // 1/2 chance star, 1/2 chance none
+            if (random % 2 == 0)
+            {
+                face_marking = "star";
+            }
+        }
+        return face_marking;
+    }
+
+    private String getPinto()
+    {
+        String pinto = null;
+        if (getPhenotype("white") == 1)
+        {
+            pinto = "white";
+        }
+        else if (getPhenotype("tobiano") != 0)
+        {
+            pinto = "tobiano";
+        }
+        return pinto;
+    }
+
     @SideOnly(Side.CLIENT)
     private void setHorseTexturePaths()
     {
         String base_texture = getBaseTexture();
 
         String roan = getPhenotype("roan") != 0? "roan" : null;
-        String face_marking = null;
-        if (getHorseVariant("random") % 2 != 0 
-            && getPhenotype("white_suppression") == 0)
+        String face_marking = getFaceMarking();
+        String sooty = getSooty(base_texture);
+        
+        String pinto = getPinto();
+        if (pinto == "white")
         {
-            if ((getHorseVariant("random") >> 1) % 2 == 0)
-            {
-                face_marking = "star";
-            }
-            else if ((getHorseVariant("random") >> 2) % 2 == 0)
-            {
-                face_marking = "strip";
-            }
-            else if ((getHorseVariant("random") >> 3) % 2 == 0)
-            {
-                face_marking = "blaze";
-            }
-        }
-
-        String sooty1 = null;
-        String sooty2 = null;
-        if (getPhenotype("gray") == 0 && getPhenotype("cream") != 2)
-        {
-            if (getPhenotype("sooty1") == 0)
-            {
-                sooty1 = getPhenotype("dun") != 3? "sooty1" : "sooty1_dun";
-            }
-            if (getPhenotype("sooty2") == 0)
-            {
-                sooty1 = getPhenotype("dun") != 3? "sooty2" : "sooty2_dun";
-            }
-        }
-
-        String pinto = null;
-        if (getPhenotype("white") == 1)
-        {
-            pinto = "white";
-            sooty1 = null;
-            sooty2 = null;
+            sooty = null;
             roan = null;
             face_marking = null;
             base_texture = null;
@@ -694,20 +864,19 @@ public class EntityHorseFelinoid extends AbstractHorse
         String texture = !armorStack.isEmpty() ? armorStack.getItem().getHorseArmorTexture(this, armorStack) : HorseArmorType.getByOrdinal(this.dataManager.get(HORSE_ARMOR)).getTextureName(); //If armorStack is empty, the server is vanilla so the texture should be determined the vanilla way
 
         this.horseTexturesArray[0] = fixPath(base_texture);
-        this.horseTexturesArray[1] = fixPath(sooty1);
-        this.horseTexturesArray[2] = fixPath(sooty2);
+        this.horseTexturesArray[1] = fixPath(sooty);
+        this.horseTexturesArray[2] = null; // TODO: mealy
         this.horseTexturesArray[3] = fixPath(roan);
         this.horseTexturesArray[4] = fixPath(face_marking);
         this.horseTexturesArray[5] = fixPath(pinto);
         this.horseTexturesArray[6] = texture;
 
         String baseabv = base_texture == null? "" : base_texture;
-        String sooty1abv = sooty1 == null? "" : sooty1;
-        String sooty2abv = sooty2 == null? "" : sooty2;
+        String sooty_abv = sooty == null? "" : sooty;
         String roanabv = roan == null? "" : roan;
         String face_marking_abv = face_marking == null? "" : face_marking;
         String pinto_abv = pinto == null? "" : pinto;
-        this.texturePrefix = "horse/cache_" + baseabv + sooty1abv + sooty2abv + roanabv + face_marking_abv + pinto_abv + texture;
+        this.texturePrefix = "horse/cache_" + baseabv + sooty_abv + roanabv + face_marking_abv + pinto_abv + texture;
     }
 
     @SideOnly(Side.CLIENT)
@@ -993,6 +1162,14 @@ public class EntityHorseFelinoid extends AbstractHorse
         int answer = 0;
         for (int i = 0; i < 16; i++)
         {
+            if (rand % 2 == 0)
+            {
+                answer += (data & (1 << (2 * i))) << n;
+            }
+            else 
+            {
+                answer += (data & (1 << (2 * i + 1))) >> 1 - n;
+            }
             rand >>= 1;
         }
         return answer;
@@ -1053,8 +1230,11 @@ public class EntityHorseFelinoid extends AbstractHorse
                 + "Baby Variant: " 
                 + Integer.toBinaryString(((EntityHorseFelinoid)abstracthorse).getHorseVariant("0"))
                 + ", " + Integer.toBinaryString(((EntityHorseFelinoid)abstracthorse).getHorseVariant("1"))
+                + "\n    Color: " 
+                + ((EntityHorseFelinoid)abstracthorse).getBaseTexture() 
+                + "\n" + Integer.toString(((EntityHorseFelinoid)abstracthorse).getPhenotype("dun")) 
                 + "\n");
-                test();
+                //test();
         }
 
         this.setOffspringAttributes(ageable, abstracthorse);
@@ -1088,10 +1268,10 @@ public class EntityHorseFelinoid extends AbstractHorse
             i >>= 1;
             setGene("gray", (i % 20 == 0? 1 : 0) << (n * getGeneSize("gray")));
             i >>= 5;
-            int d = i % 16;
-            int dun = ((d % 4 == 0? 1 : 0) << 1) + ((d/4) % 4 == 0? 1: 0);
+            int d = i % 32;
+            int dun = (d % 8 == 0? 2 : 0) + ((d/8) % 4 == 0? 1: 0);
             setGene("dun", dun << (n * getGeneSize("dun")));
-            i >>= 4;
+            i >>= 5;
 
             int ag = i % 32;
             int agouti = ag == 0? 3 : (ag < 18? 2 : (ag < 20? 1: 0));
@@ -1115,29 +1295,35 @@ public class EntityHorseFelinoid extends AbstractHorse
             // Out of random digits; time for more!
             i = Math.abs(this.rand.nextInt());
 
-            setGene("sooty1", (i % 2 == 0? 0 : 1) << (n * getGeneSize("sooty1")));
+            setGene("dapple", (i % 2 == 0? 0 : 1) << (n * getGeneSize("dapple")));
+            i >>= 1;
 
-            setGene("sooty2", (i % 2 == 0? 0 : 1) << (n * getGeneSize("sooty2")));
+            setGene("sooty1", (i % 8 == 0? 0 : 1) << (n * getGeneSize("sooty1")));
+            i >>= 3;
+
+            setGene("sooty2", (i % 8 == 0? 0 : 1) << (n * getGeneSize("sooty2")));
+            i >>= 3;
+
+            setGene("sooty3", (i % 4 == 0? 0 : 1) << (n * getGeneSize("sooty3")));
             i >>= 2;
 
             setGene("mealy1", (i % 4 == 0? 0 : 1) << (n * getGeneSize("mealy1")));
             i >>= 2;
-
-            setGene("mealy2", (i % 4 == 0? 0 : 1) << (n * getGeneSize("mealy2")));
         }
         else if (type == "1")
         {
             int i = this.rand.nextInt();
 
+            setGene("mealy2", (i % 4 == 0? 0 : 1) << (n * getGeneSize("mealy2")));
+
             setGene("white_suppression", (i % 32 == 0? 1 : 0) << (n * getGeneSize("white_suppression")));
             i >>= 5;
 
-            int kit = i % 2;
-            i >>= 1;
-            kit *= i % 16;
+            int kit = i % 4 == 0? (((i >> 2) % 8) + 8) % 8 
+                                : (((i >> 2) % 16) + 16) % 16;
+            System.out.println(kit);
             setGene("KIT", kit << (n * getGeneSize("KIT")));
-            System.out.println("current chromosome 2 is:" + getHorseVariant("1"));
-            i >>= 4;
+            i >>= 6;
 
             setGene("frame", (i % 32 == 0? 1 : 0) << (n * getGeneSize("frame")));
             i >>= 5;
