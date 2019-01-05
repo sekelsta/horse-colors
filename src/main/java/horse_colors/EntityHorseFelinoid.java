@@ -713,13 +713,23 @@ public class EntityHorseFelinoid extends AbstractHorse
 
         boolean is_dun = getPhenotype("dun") == 3;
         String suffix = "";
+        if (is_dun)
+        {
+            if (sooty_level == 0)
+            {
+                return "sooty_dun";
+            }
+            sooty_level -= 1;
+            suffix = "_dun";
+        }
+
         if (sooty_level == 3)
         {
-            suffix = "_dark";
+            suffix += "_dark";
         }
         else if (sooty_level == 1)
         {
-            suffix = "_light";
+            suffix += "_light";
         }
 
         String type = "countershaded";
