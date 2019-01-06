@@ -13,7 +13,9 @@ import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.entity.Entity;
-
+import net.minecraft.entity.EnumCreatureType;
+import net.minecraftforge.common.BiomeDictionary; 
+import static net.minecraftforge.common.BiomeDictionary.Type;
 
 public class ModEntities {
     private static int ID = 0;
@@ -28,6 +30,12 @@ public class ModEntities {
             .name(horse_name)
             .egg(0xFFFFFF, 0xAAAAAA)
             .tracker(64, 2, false)
+            .spawn(EnumCreatureType.CREATURE, HorseConfig.spawnWeight, 
+                HorseConfig.minHerdSize, HorseConfig.maxHerdSize, 
+                BiomeDictionary.getBiomes(Type.PLAINS))
+            .spawn(EnumCreatureType.CREATURE, HorseConfig.spawnWeight, 
+                HorseConfig.minHerdSize, HorseConfig.maxHerdSize, 
+                BiomeDictionary.getBiomes(Type.SAVANNA))
             .build();
         event.getRegistry().register(entry);
 	}

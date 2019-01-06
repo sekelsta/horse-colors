@@ -11,14 +11,20 @@ public class HorseReplacer {
 
 	
 	@SubscribeEvent
-	public static void replaceHorses(EntityJoinWorldEvent event) {
-        if (event.getEntity() instanceof EntityHorse) {
-            if (!event.getWorld().isRemote) {
+	public static void replaceHorses(EntityJoinWorldEvent event)
+    {
+        if (event.getEntity() instanceof EntityHorse
+            && HorseConfig.blockDefaultHorseSpawns)
+        {
+            if (!event.getWorld().isRemote)
+            {
+                /*
                 EntityHorse horse = (EntityHorse)event.getEntity();
                 EntityHorseFelinoid newHorse = new EntityHorseFelinoid(event.getWorld());
                 newHorse.setLocationAndAngles(event.getEntity().posX, event.getEntity().posY, event.getEntity().posZ, event.getEntity().rotationYaw, event.getEntity().rotationPitch);
+                newHorse.randomize();
                 event.getWorld().spawnEntity(newHorse);
-                // TODO: initialize genes and stuff
+                */
             }
             event.setCanceled(true);
         }
