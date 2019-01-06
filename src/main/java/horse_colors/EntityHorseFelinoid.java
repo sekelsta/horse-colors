@@ -86,7 +86,7 @@ public class EntityHorseFelinoid extends AbstractHorse
 
     /* Mealy turns some red hairs to white, generally on the belly or
     undersides. It's recessive, and, like flaxen, is a polygenetic trait. */
-    private static final String[] genes = new String[] {"extension", "agouti", "dun", "gray", "cream", "silver", "liver", "flaxen1", "flaxen2", "dapple", "sooty1", "sooty2", "sooty3", "mealy1", "mealy2",
+    public static final String[] genes = new String[] {"extension", "agouti", "dun", "gray", "cream", "silver", "liver", "flaxen1", "flaxen2", "dapple", "sooty1", "sooty2", "sooty3", "mealy1", "mealy2",
         "white_suppression", "KIT", "frame", "splash"};
 
     private static final String[] HORSE_MARKING_TEXTURES = new String[] {null, "textures/entity/horse/horse_markings_white.png", "textures/entity/horse/horse_markings_whitefield.png", "textures/entity/horse/horse_markings_blackdots.png"};
@@ -748,7 +748,7 @@ public class EntityHorseFelinoid extends AbstractHorse
 
     private String getFaceMarking()
     {
-        if (getPhenotype("white_suppression") == 0)
+        if (getPhenotype("white_suppression") != 0)
         {
             return null;
         }
@@ -798,7 +798,8 @@ public class EntityHorseFelinoid extends AbstractHorse
         }
         else if (getPhenotype("W20") == 1
                 || getPhenotype("markings") != 0
-                || getPhenotype("strip") != 0)
+                || getPhenotype("strip") != 0
+                || getPhenotype("tobiano") != 0)
         {
             // 1/2 chance strip, 1/4 chance star, 1/8 chance blaze or none
             if (random % 2 == 0)
@@ -840,14 +841,24 @@ public class EntityHorseFelinoid extends AbstractHorse
 
     private String getPinto()
     {
+
         String pinto = null;
         if (getPhenotype("white") == 1)
         {
-            pinto = "white";
+         pinto = "white";
         }
         else if (getPhenotype("tobiano") != 0)
         {
-            pinto = "tobiano";
+         pinto = "tobiano";
+        }
+        else if (getPhenotype("white_suppression") != 0)
+        {
+            pinto = null;
+        }
+        else if  (getPhenotype("draft_sabino") != 0
+                    || getPhenotype("W20") == 2)
+        {
+            pinto = "stockings";
         }
         return pinto;
     }
