@@ -35,6 +35,7 @@ public class HorseColors
     public void init(final FMLInitializationEvent event) 
     {
         proxy.registerRenderers();
+        proxy.registerEventListeners();
     }
     
     @Mod.EventHandler

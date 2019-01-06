@@ -4,4 +4,5 @@ package felinoid.horse_colors;
 public class CommonProxy
 {
     public void registerRenderers() {}
+    public void registerEventListeners() {}
 }

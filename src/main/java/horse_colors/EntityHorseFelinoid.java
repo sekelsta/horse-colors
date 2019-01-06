@@ -65,7 +65,7 @@ public class EntityHorseFelinoid extends AbstractHorse
 
     /* Gray causes rapid graying with age. Here, it will simply mean the
     horse is gray. It is epistatic to every color except white. Gray is 
-    dominat, so 0 is for non-gray, and 1 is for gray. */
+    dominant, so 0 is for non-gray, and 1 is for gray. */
 
     /* Cream makes red pigment a lot lighter and also dilutes black a 
     little. It's incomplete dominant, so here 0 is wildtype and 1 is cream. */
@@ -81,13 +81,12 @@ public class EntityHorseFelinoid extends AbstractHorse
     1 for non-flaxen. */
 
     /* Sooty makes a horse darker, sometimes smoothly or sometimes in a 
-    dapple pattern. Like flaxen, there's two recessive genes, and having just
-    one will have some effect, but having both will have more. */
+    dapple pattern. */
 
     /* Mealy turns some red hairs to white, generally on the belly or
     undersides. It's recessive, and, like flaxen, is a polygenetic trait. */
-    public static final String[] genes = new String[] {"extension", "agouti", "dun", "gray", "cream", "silver", "liver", "flaxen1", "flaxen2", "dapple", "sooty1", "sooty2", "sooty3", "mealy1", "mealy2",
-        "white_suppression", "KIT", "frame", "splash"};
+    public static final String[] genes = new String[] {"extension", "agouti", "dun", "gray", "cream", "silver", "liver", "flaxen1", "flaxen2", "dapple", "sooty1", "sooty2", "sooty3", "mealy1", 
+        "mealy2", "mealy3", "white_suppression", "KIT", "frame", "splash", "leopard", "PATN1", "PATN2", "PATN3"};
 
     private static final String[] HORSE_MARKING_TEXTURES = new String[] {null, "textures/entity/horse/horse_markings_white.png", "textures/entity/horse/horse_markings_whitefield.png", "textures/entity/horse/horse_markings_blackdots.png"};
     private static final String[] HORSE_MARKING_TEXTURES_ABBR = new String[] {"", "wo_", "wmo", "bdo"};
@@ -298,9 +297,14 @@ public class EntityHorseFelinoid extends AbstractHorse
             case "sooty3":
             case "mealy1":
             case "mealy2":
+            case "mealy3":
             case "white_suppression":
             case "frame":
-            case "splash": return 1;
+            case "splash":
+            case "leopard":
+            case "PATN1":
+            case "PATN2":
+            case "PATN3": return 1;
         }
         System.out.println("Gene size not found: " + gene);
         return -1;
@@ -331,6 +335,14 @@ public class EntityHorseFelinoid extends AbstractHorse
         return (getHorseVariant(chr) & getGeneLoci(name)) >> getGenePos(name);
     }
 
+    public int getAllele(String name, int n)
+    {
+        int gene = getGene(name);
+        gene >>= n * getGeneSize(name);
+        gene %= 1 << getGeneSize(name);
+        return gene;
+    }
+
     public int getPhenotype(String name)
     {
         switch(name)
@@ -348,13 +360,18 @@ public class EntityHorseFelinoid extends AbstractHorse
             case "sooty3":
             case "mealy1":
             case "mealy2":
+            case "mealy3":
             case "white_suppression":
+            case "PATN3":
                 return getGene(name) == 0? 0 : 1;
 
             /* Incomplete dominant. */
             case "cream":
             case "frame":
             case "splash":
+            case "leopard":
+            case "PATN1":
+            case "PATN2":
                 /* Low bit plus high bit. */
                 return (getGene(name) & 1) + (getGene(name) >> 1);
                 
@@ -392,6 +409,10 @@ public class EntityHorseFelinoid extends AbstractHorse
                 {
                     return 3;
                 }
+            // Don't give useful info when asked for KIT, but also don't
+            // give an error
+            case "KIT":
+                return -1;
             /* KIT mappings:
                0: wildtype
                1: no markings
