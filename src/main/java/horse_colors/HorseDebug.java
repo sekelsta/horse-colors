@@ -15,6 +15,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
+// Class for putting horse info on the debug screen
 public class HorseDebug {
 
     @SideOnly(Side.CLIENT)
@@ -24,13 +25,14 @@ public class HorseDebug {
         // If the player is in creative mode and looking at a horse, add 
         // genetic information about that horse to the debug screen
 
-        if (!Minecraft.getMinecraft().gameSettings.showDebugInfo)
+        if (!Minecraft.getMinecraft().gameSettings.showDebugInfo
+            || HorseConfig.disableHorseDebug)
         {
             return;
         }
 
         EntityPlayer player = Minecraft.getMinecraft().player;
-        if (player.capabilities.isCreativeMode)
+        if (player.capabilities.isCreativeMode || HorseConfig.survivalHorseDebug)
         {
             // Check if we're looking at a horse
             if (Minecraft.getMinecraft().objectMouseOver != null
@@ -48,11 +50,11 @@ public class HorseDebug {
                         + " (" + horse.getAllele(gene, 1) + ", "
                         + horse.getAllele(gene, 0) + ")");
                 }
-                event.getLeft().add("speed: " 
+                event.getLeft().add("speed: " + horse.getStat("speed") + "-"
                     + Integer.toBinaryString(horse.getHorseVariant("speed")));
-                event.getLeft().add("health: " 
+                event.getLeft().add("health: "  + horse.getStat("health") + "-"
                     + Integer.toBinaryString(horse.getHorseVariant("health")));
-                event.getLeft().add("jump: " 
+                event.getLeft().add("jump: "  + horse.getStat("jump") + "-"
                     + Integer.toBinaryString(horse.getHorseVariant("jump")));
                 event.getLeft().add("random: " 
                     + Integer.toHexString(horse.getHorseVariant("random")));

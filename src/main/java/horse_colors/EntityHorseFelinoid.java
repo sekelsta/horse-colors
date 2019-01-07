@@ -343,6 +343,18 @@ public class EntityHorseFelinoid extends AbstractHorse
         return gene;
     }
 
+    public int getStat(String name)
+    {
+        int val = getHorseVariant(name);
+        int count = 0;
+        for (int i = 0; i < 32; ++i)
+        {
+            count += ((val % 2) + 2) % 2;
+            val >>= 1;
+        }
+        return count;
+    }
+
     public int getPhenotype(String name)
     {
         switch(name)
@@ -490,7 +502,10 @@ public class EntityHorseFelinoid extends AbstractHorse
                         || (getGene("KIT") >> 4) == 14)? 1 : 0;
             case "white":
                 return (getGene("KIT") & 15) == 15
-                        || (getGene("KIT") >> 4) == 15? 1 : 0;
+                        || (getGene("KIT") >> 4) == 15 // dominant white
+                        || getPhenotype("frame") == 2  // lethal white overo
+                        || getPhenotype("sabino1") == 2 // sabino white
+                                ? 1 : 0;
             // other KIT: TODO
                 
         }
@@ -504,7 +519,7 @@ public class EntityHorseFelinoid extends AbstractHorse
     }
 
     @SideOnly(Side.CLIENT)
-    private static String fixPath(String inStr) {
+    private static String fixPath(String folder, String inStr) {
         if (inStr == null || inStr.contains(".png")) {
             return inStr;
         }
@@ -513,7 +528,7 @@ public class EntityHorseFelinoid extends AbstractHorse
             return null;
         }
         else {
-            return "horse_colors:textures/entity/horse/" + inStr +".png";
+            return "horse_colors:textures/entity/horse/" + folder + "/" + inStr +".png";
         }
     }
 
@@ -862,22 +877,47 @@ public class EntityHorseFelinoid extends AbstractHorse
 
     private String getPinto()
     {
-
-        String pinto = null;
         if (getPhenotype("white") == 1)
         {
-         pinto = "white";
+            return "white";
         }
-        else if (getPhenotype("tobiano") != 0)
+        String pinto = null;
+        int tobiano = getPhenotype("tobiano");
+        int sabino = getPhenotype("sabino1");
+        int splash = getPhenotype("splash");
+        int frame = getPhenotype("frame");
+
+        if (tobiano != 0)
         {
-         pinto = "tobiano";
+            if (frame == 1)
+            {
+                if (splash == 2)
+                {
+                    pinto = "medicine_hat";
+                }
+                else
+                {
+                    pinto = "war_shield";
+                }
+            }
+            else
+            {
+                pinto = "tobiano";
+            }
         }
-        else if (getPhenotype("white_suppression") != 0)
+        else if (frame == 1)
         {
-            pinto = null;
+            pinto = "frame";
         }
-        else if  (getPhenotype("draft_sabino") != 0
-                    || getPhenotype("W20") == 2)
+        else if (splash == 2)
+        {
+            pinto = "splash";
+        }
+        else if (sabino == 1)
+        {
+            pinto = "sabino";
+        }
+        else if (getPhenotype("W20") == 2 || getPhenotype("draft_sabino") != 0)
         {
             pinto = "stockings";
         }
@@ -905,12 +945,12 @@ public class EntityHorseFelinoid extends AbstractHorse
         ItemStack armorStack = this.dataManager.get(HORSE_ARMOR_STACK);
         String texture = !armorStack.isEmpty() ? armorStack.getItem().getHorseArmorTexture(this, armorStack) : HorseArmorType.getByOrdinal(this.dataManager.get(HORSE_ARMOR)).getTextureName(); //If armorStack is empty, the server is vanilla so the texture should be determined the vanilla way
 
-        this.horseTexturesArray[0] = fixPath(base_texture);
-        this.horseTexturesArray[1] = fixPath(sooty);
+        this.horseTexturesArray[0] = fixPath("base", base_texture);
+        this.horseTexturesArray[1] = fixPath("sooty",  sooty);
         this.horseTexturesArray[2] = null; // TODO: mealy
-        this.horseTexturesArray[3] = fixPath(roan);
-        this.horseTexturesArray[4] = fixPath(face_marking);
-        this.horseTexturesArray[5] = fixPath(pinto);
+        this.horseTexturesArray[3] = fixPath("roan", roan);
+        this.horseTexturesArray[4] = fixPath("pinto", face_marking);
+        this.horseTexturesArray[5] = fixPath("pinto", pinto);
         this.horseTexturesArray[6] = texture;
 
         String baseabv = base_texture == null? "" : base_texture;
@@ -1006,6 +1046,24 @@ public class EntityHorseFelinoid extends AbstractHorse
         if (this.rand.nextInt(10) == 0)
         {
             this.playSound(SoundEvents.ENTITY_HORSE_BREATHE, p_190680_1_.getVolume() * 0.6F, p_190680_1_.getPitch());
+        }
+    }
+
+    private void useGeneticAttributes()
+    {
+        if (HorseConfig.useGeneticStats)
+        {
+            // Default horse health ranges from 15 to 30, but ours goes from
+            // 15 to 31
+            float maxHealth = 15.0F + getStat("health") * 0.5F;
+            // Vanilla horse speed ranges from 0.1125 to 0.3375, as does ours
+            double movementSpeed = 0.1125D + getStat("speed") * (0.225D / 32.0D);
+            // Vanilla horse jump strength ranges from 0.4 to 1.0, as does ours
+            double jumpStrength = 0.4D + getStat("jump") * (0.6D / 32.0D);
+
+            this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(maxHealth);
+            this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(movementSpeed);
+            this.getEntityAttribute(JUMP_STRENGTH).setBaseValue(jumpStrength);
         }
     }
 
@@ -1280,6 +1338,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         }
 
         this.setOffspringAttributes(ageable, abstracthorse);
+        ((EntityHorseFelinoid)abstracthorse).useGeneticAttributes();
         return abstracthorse;
     }
 
@@ -1393,6 +1452,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         setHorseVariant(this.rand.nextInt(), "jump");
         setHorseVariant(this.rand.nextInt(), "health");
         setHorseVariant(this.rand.nextInt(), "random");
+        useGeneticAttributes();
     }
 
     /**
@@ -1419,7 +1479,6 @@ public class EntityHorseFelinoid extends AbstractHorse
         */
 
         this.randomize();
-        System.out.println("New horse with variant " + getHorseVariant("0"));
         return livingdata;
     }
 

@@ -35,16 +35,25 @@ public class HorseConfig
     @Comment({
         "If set to true, only horses created by this mod will spawn."
     })
-    public static boolean blockDefaultHorseSpawns = true;
+    public static boolean blockVanillaHorseSpawns = true;
+
+    @Comment({
+        "If enabled, each vanilla horse will be replaced by a random modded horse.",
+        "This is for loading a vanilla world. For creating a new world, the",
+        "recommended setting is false.",
+        "If blockVanillaHorseSpawns is set to false, this option won't do",
+        "anything."
+    })
+    public static boolean convertVanillaHorses = true;
 
     @Comment("What size groups horses will spawn in")
     @RangeInt(min = 0)
     public static int minHerdSize = 4;
     @RangeInt(min = 0)
-    public static int maxHerdSize = 10;
+    public static int maxHerdSize = 8;
 
     @Comment ("How often horses will spawn")
-    public static int spawnWeight = 20;
+    public static int spawnWeight = 10;
     
 
 
