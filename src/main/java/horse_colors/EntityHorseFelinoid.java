@@ -35,6 +35,10 @@ import net.minecraft.world.storage.loot.LootTableList;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraft.entity.ai.*;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
+import net.minecraft.init.MobEffects;
+
 import java.util.Arrays;
 
 public class EntityHorseFelinoid extends AbstractHorse
@@ -505,6 +509,10 @@ public class EntityHorseFelinoid extends AbstractHorse
                         || (getGene("KIT") >> 4) == 15 // dominant white
                         || getPhenotype("frame") == 2  // lethal white overo
                         || getPhenotype("sabino1") == 2 // sabino white
+                        || (getPhenotype("sabino1") != 0 
+                            && getPhenotype("splash") == 2
+                            && getPhenotype("frame") != 0
+                            && getPhenotype("tobiano") != 0)
                                 ? 1 : 0;
             // other KIT: TODO
                 
@@ -1091,6 +1099,20 @@ public class EntityHorseFelinoid extends AbstractHorse
         }
         ItemStack armor = this.horseChest.getStackInSlot(1);
         if (isArmor(armor)) armor.getItem().onHorseArmorTick(world, this, armor);
+        if ((!this.world.isRemote || true)
+            && this.getPhenotype("frame") == 2
+            && this.ticksExisted > 80)
+        {
+            if (!this.isPotionActive(MobEffects.POISON))
+            {
+                this.addPotionEffect(new PotionEffect(MobEffects.POISON, 100, 3));
+                System.out.println("Poison effect added");
+            }
+            if (this.getHealth() < 2)
+            {
+                this.addPotionEffect(new PotionEffect(MobEffects.INSTANT_DAMAGE, 1, 3));
+            }
+        }
     }
 
     @Override
@@ -1252,7 +1274,6 @@ public class EntityHorseFelinoid extends AbstractHorse
             result |= next << (getGenePos(gene) % 32) << (n * getGeneSize(gene));
         }
 
-        System.out.print(out);
         return result;
     }
 
@@ -1422,15 +1443,14 @@ public class EntityHorseFelinoid extends AbstractHorse
 
             int kit = i % 4 == 0? (((i >> 2) % 8) + 8) % 8 
                                 : (((i >> 2) % 16) + 16) % 16;
-            System.out.println(kit);
             setGene("KIT", kit << (n * getGeneSize("KIT")));
             i >>= 6;
 
             setGene("frame", (i % 32 == 0? 1 : 0) << (n * getGeneSize("frame")));
             i >>= 5;
 
-            setGene("splash", (i % 32 == 0? 1 : 0) << (n * getGeneSize("splash")));
-            i >>= 5;
+            setGene("splash", (i % 16 == 0? 1 : 0) << (n * getGeneSize("splash")));
+            i >>= 4;
         }
 
         answer = getHorseVariant(type);
