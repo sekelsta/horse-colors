@@ -46,6 +46,7 @@ public class EntityHorseFelinoid extends AbstractHorse
     private static final UUID ARMOR_MODIFIER_UUID = UUID.fromString("556E1665-8B10-40C8-8F9D-CF9B1667F295");
     private static final DataParameter<Integer> HORSE_VARIANT = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
     private static final DataParameter<Integer> HORSE_VARIANT2 = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
+    private static final DataParameter<Integer> HORSE_VARIANT3 = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
     private static final DataParameter<Integer> HORSE_SPEED = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
     private static final DataParameter<Integer> HORSE_JUMP = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
     private static final DataParameter<Integer> HORSE_HEALTH = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
@@ -90,7 +91,7 @@ public class EntityHorseFelinoid extends AbstractHorse
     /* Mealy turns some red hairs to white, generally on the belly or
     undersides. It's recessive, and, like flaxen, is a polygenetic trait. */
     public static final String[] genes = new String[] {"extension", "agouti", "dun", "gray", "cream", "silver", "liver", "flaxen1", "flaxen2", "dapple", "sooty1", "sooty2", "sooty3", "mealy1", 
-        "mealy2", "mealy3", "white_suppression", "KIT", "frame", "splash", "leopard", "PATN1", "PATN2", "PATN3"};
+        "mealy2", "mealy3", "white_suppression", "KIT", "frame", "splash", "leopard", "PATN1", "PATN2", "PATN3", "gray_suppression", "gray_mane", "slow_gray1", "slow_gray2"};
 
     private String texturePrefix;
     /* Layers are:
@@ -130,6 +131,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         super.entityInit();
         this.dataManager.register(HORSE_VARIANT, Integer.valueOf(0));
         this.dataManager.register(HORSE_VARIANT2, Integer.valueOf(0));
+        this.dataManager.register(HORSE_VARIANT3, Integer.valueOf(0));
         this.dataManager.register(HORSE_SPEED, Integer.valueOf(0));
         this.dataManager.register(HORSE_HEALTH, Integer.valueOf(0));
         this.dataManager.register(HORSE_JUMP, Integer.valueOf(0));
@@ -153,6 +155,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         super.writeEntityToNBT(compound);
         compound.setInteger("Variant", this.getHorseVariant("0"));
         compound.setInteger("Variant2", this.getHorseVariant("1"));
+        compound.setInteger("Variant3", this.getHorseVariant("2"));
         compound.setInteger("SpeedGenes", this.getHorseVariant("speed"));
         compound.setInteger("JumpGenes", this.getHorseVariant("jump"));
         compound.setInteger("HealthGenes", this.getHorseVariant("health"));
@@ -173,6 +176,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         super.readEntityFromNBT(compound);
         this.setHorseVariant(compound.getInteger("Variant"), "0");
         this.setHorseVariant(compound.getInteger("Variant2"), "1");
+        this.setHorseVariant(compound.getInteger("Variant3"), "2");
         this.setHorseVariant(compound.getInteger("SpeedGenes"), "speed");
         this.setHorseVariant(compound.getInteger("JumpGenes"), "jump");
         this.setHorseVariant(compound.getInteger("HealthGenes"), "health");
@@ -200,6 +204,9 @@ public class EntityHorseFelinoid extends AbstractHorse
             case "1":
                 this.dataManager.set(HORSE_VARIANT2, Integer.valueOf(variant));
                 break;
+            case "2":
+                this.dataManager.set(HORSE_VARIANT3, Integer.valueOf(variant));
+                break;
             case "speed":
                 this.dataManager.set(HORSE_SPEED, Integer.valueOf(variant));
                 return;
@@ -213,7 +220,8 @@ public class EntityHorseFelinoid extends AbstractHorse
                 this.dataManager.set(HORSE_RANDOM, Integer.valueOf(variant));
                 break;
             default:
-                System.out.print("Unrecognized variant name: " + type + "\n");
+                System.out.print("Unrecognized horse data for setting: "
+                                 + type + "\n");
         }
         this.resetTexturePrefix();
     }
@@ -225,6 +233,8 @@ public class EntityHorseFelinoid extends AbstractHorse
                 return ((Integer)this.dataManager.get(HORSE_VARIANT)).intValue();
             case "1":
                 return ((Integer)this.dataManager.get(HORSE_VARIANT2)).intValue();
+            case "2":
+                return ((Integer)this.dataManager.get(HORSE_VARIANT3)).intValue();
             case "speed":
                 return ((Integer)this.dataManager.get(HORSE_SPEED)).intValue();
             case "jump":
@@ -234,7 +244,8 @@ public class EntityHorseFelinoid extends AbstractHorse
             case "random":
                 return ((Integer)this.dataManager.get(HORSE_RANDOM)).intValue();
             default:
-                System.out.print("Unrecognized variant name: " + type + "\n");
+                System.out.print("Unrecognized horse data for getting: " 
+                                + type + "\n");
                 return 0;
         }
         
@@ -305,7 +316,11 @@ public class EntityHorseFelinoid extends AbstractHorse
             case "leopard":
             case "PATN1":
             case "PATN2":
-            case "PATN3": return 1;
+            case "PATN3":
+            case "gray_suppression":
+            case "gray_mane":
+            case "slow_gray1":
+            case "slow_gray2": return 1;
         }
         System.out.println("Gene size not found: " + gene);
         return -1;
@@ -377,6 +392,8 @@ public class EntityHorseFelinoid extends AbstractHorse
             case "white_suppression":
             case "PATN2":
             case "PATN3":
+            case "gray_suppression":
+            case "slow_gray1":
                 return getGene(name) == 0? 0 : 1;
 
             /* Incomplete dominant. */
@@ -385,6 +402,8 @@ public class EntityHorseFelinoid extends AbstractHorse
             case "splash":
             case "leopard":
             case "PATN1":
+            case "gray_mane":
+            case "slow_gray2":
                 /* Low bit plus high bit. */
                 return (getGene(name) & 1) + (getGene(name) >> 1);
                 
@@ -517,6 +536,8 @@ public class EntityHorseFelinoid extends AbstractHorse
                            + getPhenotype("PATN3");
                 return base == 0? 0 : base + getPhenotype("W20") 
                                         + getPhenotype("white_boost");
+            case "slow_gray":
+                return getPhenotype("slow_gray1") + getPhenotype("slow_gray2");
                 
         }
         System.out.println("[horse_colors]: Phenotype for " + name + " not found.");
@@ -1455,9 +1476,17 @@ public class EntityHorseFelinoid extends AbstractHorse
         return HorseArmorType.isHorseArmor(stack);
     }
 
+    // with 1/odds probability gets the gene to 0 or 1, whichever common isn't
+    private void setGeneRandom(String name, int n, int odds, int common)
+    {
+            int i = this.rand.nextInt();
+            int rare = common == 0? 1 : 0;
+            setGene(name, (i % odds == 0? rare : common) 
+                            << (n * getGeneSize(name)));
+    }
+
     /* This function changes the variant and then puts it back to what it was
     before. */
-    // TODO: clean up
     private int getRandomVariant(int n, String type)
     {
         int answer = 0;
@@ -1468,8 +1497,7 @@ public class EntityHorseFelinoid extends AbstractHorse
             int i = this.rand.nextInt();
             setGene("extension", (i & 1) << (n * getGeneSize("extension")));
             i >>= 1;
-            setGene("gray", (i % 20 == 0? 1 : 0) << (n * getGeneSize("gray")));
-            i >>= 5;
+            setGeneRandom("gray", n, 20, 0);
             int d = i % 32;
             int dun = (d % 8 == 0? 2 : 0) + ((d/8) % 4 == 0? 1: 0);
             setGene("dun", dun << (n * getGeneSize("dun")));
@@ -1480,70 +1508,47 @@ public class EntityHorseFelinoid extends AbstractHorse
             setGene("agouti", agouti << (n * getGeneSize("agouti")));
             i >>= 5;
 
-            setGene("silver", (i % 32 == 0? 1 : 0) << (n * getGeneSize("silver")));
-            i >>= 5;
+            setGeneRandom("silver", n, 32, 0);
+            setGeneRandom("cream", n, 32, 0);
+            setGeneRandom("liver", n, 3, 1);
+            setGeneRandom("flaxen1", n, 6, 1);
+            setGeneRandom("flaxen2", n, 6, 1);
 
-            setGene("cream", (i % 32 == 0? 1 : 0) << (n * getGeneSize("cream")));
-            i >>= 5;
-
-            setGene("liver", (i % 3 == 0? 0 : 1) << (n * getGeneSize("liver")));
-            i >>= 2;
-
-            setGene("flaxen1", (i % 4 == 0? 0 : 1) << (n * getGeneSize("flaxen1")));
-            i >>= 2;
-
-            setGene("flaxen2", (i % 4 == 0? 0 : 1) << (n * getGeneSize("flaxen2")));
-            i >>= 2;
-            // Out of random digits; time for more!
-            i = Math.abs(this.rand.nextInt());
-
-            setGene("dapple", (i % 2 == 0? 0 : 1) << (n * getGeneSize("dapple")));
+            setGene("dapple", (i % 2) << (n * getGeneSize("dapple")));
             i >>= 1;
 
-            setGene("sooty1", (i % 8 == 0? 0 : 1) << (n * getGeneSize("sooty1")));
-            i >>= 3;
-
-            setGene("sooty2", (i % 8 == 0? 0 : 1) << (n * getGeneSize("sooty2")));
-            i >>= 3;
-
-            setGene("sooty3", (i % 4 == 0? 0 : 1) << (n * getGeneSize("sooty3")));
-            i >>= 2;
-
-            setGene("mealy1", (i % 4 == 0? 0 : 1) << (n * getGeneSize("mealy1")));
-            i >>= 2;
+            setGeneRandom("sooty1", n, 8, 1);
+            setGeneRandom("sooty2", n, 8, 1);
+            setGeneRandom("sooty3", n, 4, 1);
+            setGeneRandom("mealy1", n, 4, 1);
         }
         else if (type == "1")
         {
             int i = this.rand.nextInt();
 
-            setGene("mealy2", (i % 4 == 0? 0 : 1) << (n * getGeneSize("mealy2")));
-
-            setGene("white_suppression", (i % 32 == 0? 1 : 0) << (n * getGeneSize("white_suppression")));
-            i >>= 5;
+            setGeneRandom("mealy2", n, 4, 1);
+            setGeneRandom("mealy3", n, 4, 1);
+            setGeneRandom("white_suppression", n, 32, 0);
 
             int kit = i % 4 == 0? (((i >> 2) % 8) + 8) % 8 
                                 : (((i >> 2) % 16) + 16) % 16;
             setGene("KIT", kit << (n * getGeneSize("KIT")));
             i >>= 6;
 
-            setGene("frame", (i % 32 == 0? 1 : 0) << (n * getGeneSize("frame")));
-            i >>= 5;
-
-            setGene("splash", (i % 16 == 0? 1 : 0) << (n * getGeneSize("splash")));
-            i >>= 4;
-
-            setGene("leopard", (i % 32 == 0? 1 : 0) << (n * getGeneSize("leopard")));
-            i >>= 5;
-
-            setGene("PATN1", (i % 16 == 0? 1 : 0) << (n * getGeneSize("PATN1")));
-            i >>= 4;
-
-            i = this.rand.nextInt();
-            setGene("PATN2", (i % 16 == 0? 1 : 0) << (n * getGeneSize("PATN2")));
-            i >>= 4;
-
-            setGene("PATN3", (i % 16 == 0? 1 : 0) << (n * getGeneSize("PATN3")));
-            i >>= 4;
+            setGeneRandom("frame", n, 32, 0);
+            setGeneRandom("splash", n, 16, 0);
+            setGeneRandom("leopard", n, 32, 0);
+            setGeneRandom("PATN1", n, 16, 0);
+            setGeneRandom("PATN2", n, 16, 0);
+            setGeneRandom("PATN3", n, 16, 0);
+            setGeneRandom("gray_suppression", n, 40, 0);
+            setGeneRandom("gray_mane", n, 16, 0);
+            setGeneRandom("slow_gray1", n, 16, 0);
+        }
+        else if (type == "2")
+        {
+            int i = this.rand.nextInt();
+            setGeneRandom("slow_gray2", n, 16, 0);
         }
 
         answer = getHorseVariant(type);
@@ -1551,15 +1556,19 @@ public class EntityHorseFelinoid extends AbstractHorse
         return answer;
     }
 
+    private void randomizeSingleVariant(String variant)
+    {
+        int i = getRandomVariant(0, variant);
+        int j = getRandomVariant(1, variant);
+        setHorseVariant(i | j, variant);
+    }
+
     /* Make the horse have random genetics. */
     public void randomize()
     {
-        int i = getRandomVariant(0, "0");
-        int j = getRandomVariant(1, "0");
-        setHorseVariant(i | j, "0");
-        i = getRandomVariant(0, "1");
-        j = getRandomVariant(1, "1");
-        setHorseVariant(i | j, "1");
+        randomizeSingleVariant("0");
+        randomizeSingleVariant("1");
+        randomizeSingleVariant("2");
 
         setHorseVariant(this.rand.nextInt(), "speed");
         setHorseVariant(this.rand.nextInt(), "jump");
