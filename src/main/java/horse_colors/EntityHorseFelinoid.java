@@ -92,8 +92,6 @@ public class EntityHorseFelinoid extends AbstractHorse
     public static final String[] genes = new String[] {"extension", "agouti", "dun", "gray", "cream", "silver", "liver", "flaxen1", "flaxen2", "dapple", "sooty1", "sooty2", "sooty3", "mealy1", 
         "mealy2", "mealy3", "white_suppression", "KIT", "frame", "splash", "leopard", "PATN1", "PATN2", "PATN3"};
 
-    private static final String[] HORSE_MARKING_TEXTURES = new String[] {null, "textures/entity/horse/horse_markings_white.png", "textures/entity/horse/horse_markings_whitefield.png", "textures/entity/horse/horse_markings_blackdots.png"};
-    private static final String[] HORSE_MARKING_TEXTURES_ABBR = new String[] {"", "wo_", "wmo", "bdo"};
     private String texturePrefix;
     /* Layers are:
         0: base (chestnut, dun, or whatever)
@@ -101,13 +99,12 @@ public class EntityHorseFelinoid extends AbstractHorse
         mealy/pangare
         roan
         face markings
+        leg markings (one layer for each leg)
+        leopard
         tobiano/white/other pinto patterns
         top: armor    
     */
-    private final String[] horseTexturesArray = new String[7];
-
-    
-    private static final int NUM_MARKINGS = HORSE_MARKING_TEXTURES.length;
+    private final String[] horseTexturesArray = new String[14];
 
     public EntityHorseFelinoid(World worldIn)
     {
@@ -540,7 +537,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         }
     }
 
-    private String getBaseTexture()
+    public String getBaseTexture()
     {
         // First handle double cream dilutes
         if (getPhenotype("cream") == 2)
@@ -743,7 +740,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         return "no texture found";
     }
 
-    private String getSooty(String base_color)
+    public String getSooty(String base_color)
     {
         if (getPhenotype("gray") != 0 || getPhenotype("cream") == 2)
         {
@@ -790,7 +787,25 @@ public class EntityHorseFelinoid extends AbstractHorse
         return "sooty_" + type + suffix;
     }
 
-    private String getFaceMarking()
+    public String getMealy()
+    {
+        // TODO
+        return null;
+    }
+
+    public String getGray()
+    {
+        // TODO
+        return null;
+    }
+
+    public String getGrayMane(String gray)
+    {
+        // TODO
+        return null;
+    }
+
+    public String getFaceMarking()
     {
         if (getPhenotype("white_suppression") != 0)
         {
@@ -883,7 +898,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         return face_marking;
     }
 
-    private String getPinto()
+    public String getPinto()
     {
         if (getPhenotype("white") == 1)
         {
@@ -932,6 +947,26 @@ public class EntityHorseFelinoid extends AbstractHorse
         return pinto;
     }
 
+    public String getLeopard()
+    {
+        // TODO
+        return null;
+    }
+
+    @SideOnly(Side.CLIENT)
+    private void setLegMarkings()
+    {
+        // TODO
+        String left_front_leg = null;
+        String right_front_leg = null;
+        String left_back_leg = null;
+        String right_back_leg = null;
+        this.horseTexturesArray[7] = fixPath("pinto", left_front_leg);
+        this.horseTexturesArray[8] = fixPath("pinto", right_front_leg);
+        this.horseTexturesArray[9] = fixPath("pinto", left_back_leg);
+        this.horseTexturesArray[10] = fixPath("pinto", right_back_leg);
+    }
+
     @SideOnly(Side.CLIENT)
     private void setHorseTexturePaths()
     {
@@ -940,6 +975,10 @@ public class EntityHorseFelinoid extends AbstractHorse
         String roan = getPhenotype("roan") != 0? "roan" : null;
         String face_marking = getFaceMarking();
         String sooty = getSooty(base_texture);
+        String leopard = getLeopard();
+        String mealy = getMealy();
+        String gray = getGray();
+        String gray_mane = getGrayMane(gray);
         
         String pinto = getPinto();
         if (pinto == "white")
@@ -948,6 +987,12 @@ public class EntityHorseFelinoid extends AbstractHorse
             roan = null;
             face_marking = null;
             base_texture = null;
+            leopard = null;
+            mealy = null;
+        }
+        else
+        {
+            setLegMarkings();
         }
 
         ItemStack armorStack = this.dataManager.get(HORSE_ARMOR_STACK);
@@ -955,18 +1000,32 @@ public class EntityHorseFelinoid extends AbstractHorse
 
         this.horseTexturesArray[0] = fixPath("base", base_texture);
         this.horseTexturesArray[1] = fixPath("sooty",  sooty);
-        this.horseTexturesArray[2] = null; // TODO: mealy
+        this.horseTexturesArray[2] = fixPath("mealy", mealy);
         this.horseTexturesArray[3] = fixPath("roan", roan);
-        this.horseTexturesArray[4] = fixPath("pinto", face_marking);
-        this.horseTexturesArray[5] = fixPath("pinto", pinto);
-        this.horseTexturesArray[6] = texture;
+        this.horseTexturesArray[4] = fixPath("roan", gray);
+        this.horseTexturesArray[5] = fixPath("roan", gray_mane);
+        this.horseTexturesArray[6] = fixPath("pinto", face_marking);
+        this.horseTexturesArray[11] = fixPath("leopard", leopard);
+        this.horseTexturesArray[12] = fixPath("pinto", pinto);
+        this.horseTexturesArray[13] = texture;
 
-        String baseabv = base_texture == null? "" : base_texture;
+        String base_abv = base_texture == null? "" : base_texture;
         String sooty_abv = sooty == null? "" : sooty;
-        String roanabv = roan == null? "" : roan;
+        String mealy_abv = mealy == null? "" : mealy;
+        String roan_abv = roan == null? "" : roan;
+        String gray_abv = gray == null? "" : gray;
+        String gray_mane_abv = gray_mane == null? "" : gray_mane;
         String face_marking_abv = face_marking == null? "" : face_marking;
+        String leg_marking_abv = 
+            (horseTexturesArray[5] == null? "-" : horseTexturesArray[5]) 
+            + (horseTexturesArray[6] == null? "-" : horseTexturesArray[6]) 
+            + (horseTexturesArray[7] == null? "-" : horseTexturesArray[7]) 
+            + (horseTexturesArray[8] == null? "-" : horseTexturesArray[8]);
         String pinto_abv = pinto == null? "" : pinto;
-        this.texturePrefix = "horse/cache_" + baseabv + sooty_abv + roanabv + face_marking_abv + pinto_abv + texture;
+        String leopard_abv = leopard == null? "" : leopard;
+        this.texturePrefix = "horse/cache_" + base_abv + sooty_abv + mealy_abv 
+            + roan_abv + gray_abv + gray_mane_abv + face_marking_abv 
+            + leg_marking_abv + leopard_abv + pinto_abv + texture;
     }
 
     @SideOnly(Side.CLIENT)
@@ -1106,7 +1165,6 @@ public class EntityHorseFelinoid extends AbstractHorse
             if (!this.isPotionActive(MobEffects.POISON))
             {
                 this.addPotionEffect(new PotionEffect(MobEffects.POISON, 100, 3));
-                System.out.println("Poison effect added");
             }
             if (this.getHealth() < 2)
             {
