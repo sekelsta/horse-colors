@@ -375,6 +375,7 @@ public class EntityHorseFelinoid extends AbstractHorse
             case "mealy2":
             case "mealy3":
             case "white_suppression":
+            case "PATN2":
             case "PATN3":
                 return getGene(name) == 0? 0 : 1;
 
@@ -384,7 +385,6 @@ public class EntityHorseFelinoid extends AbstractHorse
             case "splash":
             case "leopard":
             case "PATN1":
-            case "PATN2":
                 /* Low bit plus high bit. */
                 return (getGene(name) & 1) + (getGene(name) >> 1);
                 
@@ -512,6 +512,11 @@ public class EntityHorseFelinoid extends AbstractHorse
                             && getPhenotype("tobiano") != 0)
                                 ? 1 : 0;
             // other KIT: TODO
+            case "PATN":
+                int base = 5 * getPhenotype("PATN1") + getPhenotype("PATN2")
+                           + getPhenotype("PATN3");
+                return base == 0? 0 : base + getPhenotype("W20") 
+                                        + getPhenotype("white_boost");
                 
         }
         System.out.println("[horse_colors]: Phenotype for " + name + " not found.");
@@ -949,8 +954,25 @@ public class EntityHorseFelinoid extends AbstractHorse
 
     public String getLeopard()
     {
-        // TODO
-        return null;
+        if (getPhenotype("leopard") == 0)
+        {
+            return null;
+        }
+        int patn = getPhenotype("PATN");
+        if (patn == 0)
+        {
+            return "varnish_roan";
+        }
+        if (getPhenotype("leopard") == 1)
+        {
+            // TODO: different coverage based on the value of patn
+            return "leopard";
+        }
+        else
+        {
+            // TODO: different coverage based on the value of patn
+            return "fewspot";
+        }
     }
 
     @SideOnly(Side.CLIENT)
@@ -1508,6 +1530,19 @@ public class EntityHorseFelinoid extends AbstractHorse
             i >>= 5;
 
             setGene("splash", (i % 16 == 0? 1 : 0) << (n * getGeneSize("splash")));
+            i >>= 4;
+
+            setGene("leopard", (i % 32 == 0? 1 : 0) << (n * getGeneSize("leopard")));
+            i >>= 5;
+
+            setGene("PATN1", (i % 16 == 0? 1 : 0) << (n * getGeneSize("PATN1")));
+            i >>= 4;
+
+            i = this.rand.nextInt();
+            setGene("PATN2", (i % 16 == 0? 1 : 0) << (n * getGeneSize("PATN2")));
+            i >>= 4;
+
+            setGene("PATN3", (i % 16 == 0? 1 : 0) << (n * getGeneSize("PATN3")));
             i >>= 4;
         }
 
