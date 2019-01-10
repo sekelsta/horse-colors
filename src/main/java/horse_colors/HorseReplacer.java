@@ -13,11 +13,13 @@ public class HorseReplacer {
 	@SubscribeEvent
 	public static void replaceHorses(EntityJoinWorldEvent event)
     {
-        if (event.getEntity() instanceof EntityHorse
+        // We don't want to replace subclasses of horses
+        if (event.getEntity().getClass() == EntityHorse.class
             && HorseConfig.blockVanillaHorseSpawns)
         {
             if (!event.getWorld().isRemote && HorseConfig.convertVanillaHorses)
             {
+                // TODO: also copy over tameness and equipment
                 EntityHorse horse = (EntityHorse)event.getEntity();
                 EntityHorseFelinoid newHorse = new EntityHorseFelinoid(event.getWorld());
                 newHorse.setLocationAndAngles(event.getEntity().posX, event.getEntity().posY, event.getEntity().posZ, event.getEntity().rotationYaw, event.getEntity().rotationPitch);

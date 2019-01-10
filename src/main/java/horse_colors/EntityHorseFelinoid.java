@@ -94,18 +94,9 @@ public class EntityHorseFelinoid extends AbstractHorse
         "mealy2", "mealy3", "white_suppression", "KIT", "frame", "splash", "leopard", "PATN1", "PATN2", "PATN3", "gray_suppression", "gray_mane", "slow_gray1", "slow_gray2"};
 
     private String texturePrefix;
-    /* Layers are:
-        0: base (chestnut, dun, or whatever)
-        sooty
-        mealy/pangare
-        roan
-        face markings
-        leg markings (one layer for each leg)
-        leopard
-        tobiano/white/other pinto patterns
-        top: armor    
-    */
-    private final String[] horseTexturesArray = new String[14];
+
+    // See the function that sets this to find what each of  the layers are for
+    private final String[] horseTexturesArray = new String[15];
 
     public EntityHorseFelinoid(World worldIn)
     {
@@ -420,7 +411,12 @@ public class EntityHorseFelinoid extends AbstractHorse
 
             /* Genes with multiple alleles. */
             case "agouti":
-                return Math.max(getGene("agouti") & 3, getGene("agouti") >> 2);
+                if (getGene("agouti") == 1 || getGene("agouti") == 4)
+                {
+                    return 1;
+                }
+                int allele = Math.max(getGene("agouti") & 3, getGene("agouti") >> 2);
+                return allele == 0? 0 : allele + 1;
 
             case "dun":
                 if (getGene(name) <= 1) 
@@ -458,9 +454,9 @@ public class EntityHorseFelinoid extends AbstractHorse
                8: flashy white: stockings and blaze (on average)
                9: draft sabino (four stockings and blaze)
                10: wildtype for now
-               11: wildtype for now
+               11: tobiano
                12: sabino1
-               13: tobiano
+               13: tobiano + W20
                14: roan
                15: white
             */
@@ -481,14 +477,17 @@ public class EntityHorseFelinoid extends AbstractHorse
                         || (getGene("KIT") >> 4) == 6)? 1 : 0;
             // W20 is incomplete dominant
             case "W20":
-                if (getGene("KIT") == (7 << 4) + 7)
+                boolean w1 = getAllele("KIT", 0) == 13 
+                                || getAllele("KIT", 0) == 7;
+                boolean w2 = getAllele("KIT", 1) == 13 
+                                || getAllele("KIT", 1) == 7;
+                if (w1 && w2)
                 {
                     return 2;
                 }
                 else
                 {
-                    return ((getGene("KIT") & 15) == 7) 
-                            || ((getGene("KIT") >> 4) == 7)? 1 : 0;
+                    return (w1 || w2)? 1 : 0;
                 }
             case "flashy_white":
                 return ((getGene("KIT") & 15) == 8
@@ -508,14 +507,17 @@ public class EntityHorseFelinoid extends AbstractHorse
                             || ((getGene("KIT") >> 4) == 12)? 1 : 0;
                 }
             case "tobiano":
-                if (getGene("KIT") == (13 << 4) + 13)
+                boolean tob1 = getAllele("KIT", 0) == 13 
+                                || getAllele("KIT", 0) == 11;
+                boolean tob2 = getAllele("KIT", 1) == 13 
+                                || getAllele("KIT", 1) == 11;
+                if (tob1 && tob2)
                 {
                     return 2;
                 }
                 else
                 {
-                    return ((getGene("KIT") & 15) == 13) 
-                            || ((getGene("KIT") >> 4) == 13)? 1 : 0;
+                    return (tob1 || tob2)? 1 : 0;
                 }
             case "roan":
                 return ((getGene("KIT") & 15) == 14 
@@ -584,18 +586,20 @@ public class EntityHorseFelinoid extends AbstractHorse
                 switch(getPhenotype("agouti"))
                 {
                     case 0: return "silver_smoky_cream";
-                    case 1: return "silver_brown_cream";
-                    case 2:
-                    case 3: return "silver_perlino";
+                    case 1:
+                    case 2: return "silver_brown_cream";
+                    case 3:
+                    case 4: return "silver_perlino";
                 }
             }
             // Just a regular double cream. 
             switch(getPhenotype("agouti"))
             {
                 case 0: return "smoky_cream";
-                case 1: return "brown_cream";
-                case 2:
-                case 3: return "perlino";
+                case 1:
+                case 2: return "brown_cream";
+                case 3:
+                case 4: return "perlino";
             }
             
             
@@ -623,17 +627,19 @@ public class EntityHorseFelinoid extends AbstractHorse
                     switch(getPhenotype("agouti"))
                     {
                         case 0: return (getPhenotype("liver") == 0? "dark_" : "") + "silver_smoky_grullo";
-                        case 1: return "silver_smoky_brown_dun";
-                        case 2:
-                        case 3: return "silver_dunskin";
+                        case 1:
+                        case 2: return "silver_smoky_brown_dun";
+                        case 3:
+                        case 4: return "silver_dunskin";
                     }
                 }
                 switch(getPhenotype("agouti"))
                 {
                     case 0: return "smoky_grullo";
-                    case 1: return "smoky_brown_dun";
-                    case 2:
-                    case 3: return "dunskin";
+                    case 1:
+                    case 2: return "smoky_brown_dun";
+                    case 3:
+                    case 4: return "dunskin";
                 }
             }
             // Single cream, no gray, no dun. Check for chestnut base.
@@ -647,18 +653,20 @@ public class EntityHorseFelinoid extends AbstractHorse
                 switch(getPhenotype("agouti"))
                 {
                     case 0: return (getPhenotype("liver") == 0? "dark_" : "") + "silver_grullo";
-                    case 1: return "silver_smoky_brown";
-                    case 2:
-                    case 3: return "silver_buckskin";
+                    case 1:
+                    case 2: return "silver_smoky_brown";
+                    case 3:
+                    case 4: return "silver_buckskin";
                 }
             }
             // Single cream, non-chestnut, with nothing else.
             switch(getPhenotype("agouti"))
             {
                 case 0: return "smoky_black";
-                case 1: return "smoky_brown";
-                case 2:
-                case 3: return "buckskin";
+                case 1:
+                case 2: return "smoky_brown";
+                case 3:
+                case 4: return "buckskin";
             }
         }
         // No cream, check for gray
@@ -700,9 +708,10 @@ public class EntityHorseFelinoid extends AbstractHorse
                 switch(getPhenotype("agouti"))
                 {
                     case 0: return "silver_grullo";
-                    case 1: return "silver_brown_dun";
-                    case 2:
-                    case 3: return "silver_dun";
+                    case 1:
+                    case 2: return "silver_brown_dun";
+                    case 3:
+                    case 4: return "silver_dun";
                 }
             }
 
@@ -710,9 +719,10 @@ public class EntityHorseFelinoid extends AbstractHorse
             switch(getPhenotype("agouti"))
             {
                 case 0: return "grullo";
-                case 1: return "brown_dun";
-                case 2:
-                case 3: return "dun";
+                case 1:
+                case 2: return "brown_dun";
+                case 3:
+                case 4: return "dun";
             }
         }
 
@@ -745,9 +755,10 @@ public class EntityHorseFelinoid extends AbstractHorse
             switch(getPhenotype("agouti"))
             {
                 case 0: return "chocolate";
-                case 1: return "silver_brown";
-                case 2:
-                case 3: return "silver_bay";
+                case 1:
+                case 2: return "silver_brown";
+                case 3:
+                case 4: return "silver_bay";
             }
         }
 
@@ -755,9 +766,10 @@ public class EntityHorseFelinoid extends AbstractHorse
         switch(getPhenotype("agouti"))
         {
             case 0: return "black";
-            case 1: return "seal_brown";
-            case 2:
-            case 3: return "bay";
+            case 1:
+            case 2: return "seal_brown";
+            case 3:
+            case 4: return "bay";
         }
 
         // This point should not be reached, but java wants a return to compile.
@@ -817,6 +829,23 @@ public class EntityHorseFelinoid extends AbstractHorse
     {
         // TODO
         return null;
+    }
+
+    public String getLegs()
+    {
+        if (getPhenotype("extension") == 0
+            && getPhenotype("dun") == 0)
+        {
+            return null;
+        }
+
+        String legs = null;
+        if (getPhenotype("extension") != 0 
+            && getPhenotype("agouti") >= 3)
+        {
+            legs = "bay_legs";
+        }
+        return legs;
     }
 
     public String getGray()
@@ -1004,10 +1033,10 @@ public class EntityHorseFelinoid extends AbstractHorse
         String right_front_leg = null;
         String left_back_leg = null;
         String right_back_leg = null;
-        this.horseTexturesArray[7] = fixPath("pinto", left_front_leg);
-        this.horseTexturesArray[8] = fixPath("pinto", right_front_leg);
-        this.horseTexturesArray[9] = fixPath("pinto", left_back_leg);
-        this.horseTexturesArray[10] = fixPath("pinto", right_back_leg);
+        this.horseTexturesArray[8] = fixPath("pinto", left_front_leg);
+        this.horseTexturesArray[9] = fixPath("pinto", right_front_leg);
+        this.horseTexturesArray[10] = fixPath("pinto", left_back_leg);
+        this.horseTexturesArray[11] = fixPath("pinto", right_back_leg);
     }
 
     @SideOnly(Side.CLIENT)
@@ -1020,6 +1049,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         String sooty = getSooty(base_texture);
         String leopard = getLeopard();
         String mealy = getMealy();
+        String legs = getLegs();
         String gray = getGray();
         String gray_mane = getGrayMane(gray);
         
@@ -1044,17 +1074,19 @@ public class EntityHorseFelinoid extends AbstractHorse
         this.horseTexturesArray[0] = fixPath("base", base_texture);
         this.horseTexturesArray[1] = fixPath("sooty",  sooty);
         this.horseTexturesArray[2] = fixPath("mealy", mealy);
-        this.horseTexturesArray[3] = fixPath("roan", roan);
-        this.horseTexturesArray[4] = fixPath("roan", gray);
-        this.horseTexturesArray[5] = fixPath("roan", gray_mane);
-        this.horseTexturesArray[6] = fixPath("pinto", face_marking);
-        this.horseTexturesArray[11] = fixPath("leopard", leopard);
-        this.horseTexturesArray[12] = fixPath("pinto", pinto);
-        this.horseTexturesArray[13] = texture;
+        this.horseTexturesArray[3] = fixPath("legs", legs);
+        this.horseTexturesArray[4] = fixPath("roan", roan);
+        this.horseTexturesArray[5] = fixPath("roan", gray);
+        this.horseTexturesArray[6] = fixPath("roan", gray_mane);
+        this.horseTexturesArray[7] = fixPath("pinto", face_marking);
+        this.horseTexturesArray[12] = fixPath("leopard", leopard);
+        this.horseTexturesArray[13] = fixPath("pinto", pinto);
+        this.horseTexturesArray[14] = texture;
 
         String base_abv = base_texture == null? "" : base_texture;
         String sooty_abv = sooty == null? "" : sooty;
         String mealy_abv = mealy == null? "" : mealy;
+        String legs_abv = legs == null? "" : legs;
         String roan_abv = roan == null? "" : roan;
         String gray_abv = gray == null? "" : gray;
         String gray_mane_abv = gray_mane == null? "" : gray_mane;
@@ -1547,6 +1579,8 @@ public class EntityHorseFelinoid extends AbstractHorse
         }
         else if (type == "2")
         {
+            // Initialize any bits currently unused to random values
+            setHorseVariant(this.rand.nextInt(), "2");
             int i = this.rand.nextInt();
             setGeneRandom("slow_gray2", n, 16, 0);
         }
