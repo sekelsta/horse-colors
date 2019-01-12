@@ -25,6 +25,8 @@ public class HorseReplacer {
                 newHorse.setLocationAndAngles(event.getEntity().posX, event.getEntity().posY, event.getEntity().posZ, event.getEntity().rotationYaw, event.getEntity().rotationPitch);
                 newHorse.randomize();
                 event.getWorld().spawnEntity(newHorse);
+                // This will remove it from any save file it might be part of
+                horse.setDead();
             }
             event.setCanceled(true);
         }
