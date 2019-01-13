@@ -524,6 +524,10 @@ public class EntityHorseFelinoid extends AbstractHorse
                 return ((getGene("KIT") & 15) == 14 
                         || (getGene("KIT") >> 4) == 14)? 1 : 0;
             case "dominant_white":
+                if (getGene("KIT") == (15 << 4) + 15)
+                {
+                    return 2;
+                }
                 return ((getGene("KIT") & 15) == 15
                         || (getGene("KIT") >> 4) == 15)? 1 : 0;
             case "white":
@@ -1576,6 +1580,13 @@ public class EntityHorseFelinoid extends AbstractHorse
                 + "\n");
                 //test();
         }
+        // Dominant white is homozygous lethal early in pregnancy. No child
+        // is born.
+        if (((EntityHorseFelinoid)abstracthorse).getPhenotype("dominant_white")
+                == 2)
+        {
+            return null;
+        }
 
         this.setOffspringAttributes(ageable, abstracthorse);
         ((EntityHorseFelinoid)abstracthorse).useGeneticAttributes();
@@ -1651,9 +1662,19 @@ public class EntityHorseFelinoid extends AbstractHorse
             int kit = i % 4 == 0? (((i >> 2) % 8) + 8) % 8 
                                 : (((i >> 2) % 16) + 16) % 16;
             setGene("KIT", kit << (n * getGeneSize("KIT")));
+            // Homozygote dominant whites will be replaced with heterozygotes
+            if (getPhenotype("dominant_white") == 2)
+            {
+                setGene("KIT", 15);
+            }
             i >>= 6;
 
             setGeneRandom("frame", n, 32, 0);
+            // Replace lethal white overos with heterozygotes
+            if (getPhenotype("frame") == 2)
+            {
+                setGene("frame", 1);
+            }
             setGeneRandom("splash", n, 16, 0);
             setGeneRandom("leopard", n, 32, 0);
             setGeneRandom("PATN1", n, 16, 0);
