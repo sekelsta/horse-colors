@@ -1111,6 +1111,12 @@ public class EntityHorseFelinoid extends AbstractHorse
     @SideOnly(Side.CLIENT)
     private void setLegMarkings()
     {
+        // Skip when the legs are going to be white anyway
+        if (getPhenotype("tobiano") != 0 
+            || getPhenotype("splash") ==2)
+        {
+            return;
+        }
         // TODO
         String left_front_leg = null;
         String right_front_leg = null;
@@ -1154,6 +1160,12 @@ public class EntityHorseFelinoid extends AbstractHorse
         ItemStack armorStack = this.dataManager.get(HORSE_ARMOR_STACK);
         String texture = !armorStack.isEmpty() ? armorStack.getItem().getHorseArmorTexture(this, armorStack) : HorseArmorType.getByOrdinal(this.dataManager.get(HORSE_ARMOR)).getTextureName(); //If armorStack is empty, the server is vanilla so the texture should be determined the vanilla way
 
+        /*
+        // For testing
+        gray_mane = rand.nextInt() % 2 == 0? "gray_mane" : "black_mane";
+        base_texture = "light_gray";
+        sooty = rand.nextInt() % 2 == 0? "sooty_dappled_dark" : "sooty_dappled";
+        */
         this.horseTexturesArray[0] = fixPath("base", base_texture);
         this.horseTexturesArray[1] = fixPath("sooty",  sooty);
         this.horseTexturesArray[2] = fixPath("mealy", mealy);
@@ -1623,19 +1635,20 @@ public class EntityHorseFelinoid extends AbstractHorse
 
         if (type == "0")
         {
-            int i = this.rand.nextInt();
+            // logical bitshift to make unsigned
+            int i = this.rand.nextInt() >>> 1;
             setGene("extension", (i & 1) << (n * getGeneSize("extension")));
             i >>= 1;
             setGeneRandom("gray", n, 20, 0);
-            int d = i % 32;
-            int dun = (d % 8 == 0? 2 : 0) + ((d/8) % 4 == 0? 1: 0);
+            int dun = (this.rand.nextInt() % 7 == 0? 2 : 0) + (i % 4 == 0? 1: 0);
             setGene("dun", dun << (n * getGeneSize("dun")));
-            i >>= 5;
+            i >>= 2;
 
-            int ag = i % 32;
-            int agouti = ag == 0? 3 : (ag < 18? 2 : (ag < 20? 1: 0));
+            int ag = i % 8;
+            System.out.println(i);
+            int agouti = ag == 0? 3 : (ag < 4? 2 : (ag == 4? 1: 0));
             setGene("agouti", agouti << (n * getGeneSize("agouti")));
-            i >>= 5;
+            i >>= 3;
 
             setGeneRandom("silver", n, 32, 0);
             setGeneRandom("cream", n, 32, 0);
