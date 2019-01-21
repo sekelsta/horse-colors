@@ -8,15 +8,17 @@ import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.passive.AbstractHorse;
+import net.minecraft.inventory.ContainerHorseChest;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityDonkey;
 import net.minecraft.entity.passive.EntityMule;
 import net.minecraft.entity.passive.HorseArmorType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
@@ -38,6 +40,7 @@ import net.minecraft.entity.ai.*;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.init.MobEffects;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import java.util.Arrays;
 
@@ -101,6 +104,35 @@ public class EntityHorseFelinoid extends AbstractHorse
     public EntityHorseFelinoid(World worldIn)
     {
         super(worldIn);
+    }
+
+    public void copyAbstractHorse(AbstractHorse horse)
+    {
+        // Copy location
+        this.setLocationAndAngles(horse.posX, horse.posY, horse.posZ, horse.rotationYaw, horse.rotationPitch);
+        // Set tamed
+        this.setHorseTamed(horse.isTame());
+        // We don't know the player, so don't call setTamedBy
+        // Set temper, in case it isn't tamed
+        this.setTemper(horse.getTemper());
+        // Do not transfer isRearing, isBreeding, or isEatingHaystack.
+        // Set age
+        this.setGrowingAge(horse.getGrowingAge());
+        // Transfer inventory
+        ContainerHorseChest inv = 
+            ReflectionHelper.<ContainerHorseChest, AbstractHorse>getPrivateValue(AbstractHorse.class, horse, "horseChest");
+        this.horseChest.setInventorySlotContents(0, inv.getStackInSlot(0));
+        this.horseChest.setInventorySlotContents(1, inv.getStackInSlot(1));
+        this.updateHorseSlots();
+        // Copy over speed, health, and jump
+        double health = horse.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).getBaseValue();
+        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(health);
+
+        double jump = horse.getEntityAttribute(JUMP_STRENGTH).getBaseValue();
+        this.getEntityAttribute(JUMP_STRENGTH).setBaseValue(jump);
+
+        double speed = horse.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getBaseValue();
+        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(speed);
     }
 
     @Override

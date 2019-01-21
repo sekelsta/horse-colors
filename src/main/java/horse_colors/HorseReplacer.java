@@ -32,21 +32,20 @@ public class HorseReplacer {
     {
         // We don't want to replace subclasses of horses
         if (event.getEntity().getClass() == EntityHorse.class
-            && HorseConfig.blockVanillaHorseSpawns)
+            && HorseConfig.blockVanillaHorseSpawns 
+            && !event.getWorld().isRemote 
+            && HorseConfig.convertVanillaHorses)
         {
-            if (!event.getWorld().isRemote && HorseConfig.convertVanillaHorses)
-            {
-                // TODO: also copy over tameness and equipment
-                EntityHorse horse = (EntityHorse)event.getEntity();
-                EntityHorseFelinoid newHorse = new EntityHorseFelinoid(event.getWorld());
-                newHorse.setLocationAndAngles(event.getEntity().posX, event.getEntity().posY, event.getEntity().posZ, event.getEntity().rotationYaw, event.getEntity().rotationPitch);
-                newHorse.randomize();
-                // Need to set tamed
-                // Need to transfer inventory
-                event.getWorld().spawnEntity(newHorse);
-                // This will remove it from any save file it might be part of
-                horse.setDead();
-            }
+            EntityHorse horse = (EntityHorse)event.getEntity();
+            EntityHorseFelinoid newHorse = new EntityHorseFelinoid(event.getWorld());
+            newHorse.copyAbstractHorse(horse);
+            newHorse.randomize();
+            // Spawn the new horse
+            event.getWorld().spawnEntity(newHorse);
+            // This will remove it from any save file it might be part of
+            horse.setDead();
+            // And cancel the event just for good measure. I'm not sure this
+            // is actaully necessary anymore.
             event.setCanceled(true);
         }
 	}
