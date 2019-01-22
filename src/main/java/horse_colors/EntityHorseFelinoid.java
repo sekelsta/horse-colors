@@ -605,576 +605,31 @@ public class EntityHorseFelinoid extends AbstractHorse
         }
     }
 
-    public String getBaseTexture()
+    public boolean showsLegMarkings()
     {
-        // First handle double cream dilutes
-        if (getPhenotype("cream") == 2)
-        {
-            // Gray could change the hairs to properly white
-            if (getPhenotype("gray") != 0)
-            {
-                return "white";
-            }
-            // Not gray, so check if base color is chestnut
-            if (getPhenotype("extension") == 0)
-            {
-                return "cremello";
-            }
-            // Base color is black or bay. Check for silver.
-            if (getPhenotype("silver") != 0)
-            {
-                switch(getPhenotype("agouti"))
-                {
-                    case 0: return "silver_smoky_cream";
-                    case 1:
-                    case 2: return "silver_brown_cream";
-                    case 3:
-                    case 4: return "silver_perlino";
-                }
-            }
-            // Just a regular double cream. 
-            switch(getPhenotype("agouti"))
-            {
-                case 0: return "smoky_cream";
-                case 1:
-                case 2: return "brown_cream";
-                case 3:
-                case 4: return "perlino";
-            }
-            
-            
-        }
-        // Single cream dilutes
-        else if (getPhenotype("cream") == 1)
-        {
-            // Check for gray
-            if (getPhenotype("gray") != 0)
-            {
-                return "light_gray";
-            }
-            // Single cream, no gray. Check for dun.
-            if (getPhenotype("dun") == 3)
-            {
-                // Dun + single cream.
-                // Check for chestnut before looking for silver.
-                if (getPhenotype("extension") == 0)
-                {
-                    return "dunalino";
-                }
-                // Black-based, so check for silver.
-                if (getPhenotype("silver") != 0)
-                {
-                    switch(getPhenotype("agouti"))
-                    {
-                        case 0: return (getPhenotype("liver") == 0? "dark_" : "") + "silver_smoky_grullo";
-                        case 1:
-                        case 2: return "silver_smoky_brown_dun";
-                        case 3:
-                        case 4: return "silver_dunskin";
-                    }
-                }
-                switch(getPhenotype("agouti"))
-                {
-                    case 0: return "smoky_grullo";
-                    case 1:
-                    case 2: return "smoky_brown_dun";
-                    case 3:
-                    case 4: return "dunskin";
-                }
-            }
-            // Single cream, no gray, no dun. Check for chestnut base.
-            if (getPhenotype("extension") == 0)
-            {
-                return "palomino";
-            }
-            // Non-chestnut, so check for silver.
-            if (getPhenotype("silver") != 0)
-            {
-                switch(getPhenotype("agouti"))
-                {
-                    case 0: return (getPhenotype("liver") == 0? "dark_" : "") + "silver_grullo";
-                    case 1:
-                    case 2: return "silver_smoky_brown";
-                    case 3:
-                    case 4: return "silver_buckskin";
-                }
-            }
-            // Single cream, non-chestnut, with nothing else.
-            switch(getPhenotype("agouti"))
-            {
-                case 0: return "smoky_black";
-                case 1:
-                case 2: return "smoky_brown";
-                case 3:
-                case 4: return "buckskin";
-            }
-        }
-        // No cream, check for gray
-        if (getPhenotype("gray") != 0)
-        {
-            // TODO: I have more than one gray and need to decide which to use.
-            return "light_gray";
-        }
-
-        // No cream, no gray. Check for dun.
-        if (getPhenotype("dun") == 3)
-        {
-            // Dun. Check for chestnut.
-            if (getPhenotype("extension") == 0)
-            {
-                // Red dun. Check for liver.
-                if (getPhenotype("liver") == 0)
-                {
-                    // Check for flaxen.
-                    switch(getPhenotype("flaxen"))
-                    {
-                        case 0: return "liver_dun";
-                        case 1: return "partly_flaxen_liver_dun";
-                        case 2: return "flaxen_liver_dun";
-                    }
-                }
-                // Not liver. Check for flaxen.
-                switch(getPhenotype("flaxen"))
-                {
-                    case 0: return "red_dun";
-                    case 1: return "partly_flaxen_dun";
-                    case 2: return "flaxen_dun";
-                }
-            }
-
-            // Dun, non-chestnut. Check for silver.
-            if (getPhenotype("silver") != 0)
-            {
-                switch(getPhenotype("agouti"))
-                {
-                    case 0: return "silver_grullo";
-                    case 1:
-                    case 2: return "silver_brown_dun";
-                    case 3:
-                    case 4: return "silver_dun";
-                }
-            }
-
-            // Dun, non-chestnut, no other dilutions.
-            switch(getPhenotype("agouti"))
-            {
-                case 0: return "grullo";
-                case 1:
-                case 2: return "brown_dun";
-                case 3:
-                case 4: return "dun";
-            }
-        }
-
-        // No cream, gray, or dun. Check for chestnut.
-        if (getPhenotype("extension") == 0)
-        {
-            String result = "chestnut";
-            // So far just chestnut. Check for liver.
-            if (getPhenotype("liver") == 0)
-            {
-                result = "liver_" + result;
-            }
-            // Check for flaxen.
-            switch(getPhenotype("flaxen"))
-            {
-                case 1:
-                    result = "partly_flaxen_" + result;
-                    break;
-                case 2:
-                    result = "flaxen_" + result;
-            }
-
-
-            return result;
-        }
-
-        // Non-chestnut with no cream, gray, or dun. check for silver.
-        if (getPhenotype("silver") != 0)
-        {
-            switch(getPhenotype("agouti"))
-            {
-                case 0: return "chocolate";
-                case 1:
-                case 2: return "silver_brown";
-                case 3:
-                case 4: return "silver_bay";
-            }
-        }
-
-        // Non-chestnut with your basic, undiluted, unmodified coat.
-        switch(getPhenotype("agouti"))
-        {
-            case 0: return "black";
-            case 1:
-            case 2: return "seal_brown";
-            case 3:
-            case 4: return "bay";
-        }
-
-        // This point should not be reached, but java wants a return to compile.
-        System.out.println("[horse_colors]: Texture not found for horse with variant "
-            + getHorseVariant("0") + ".");
-        return "no texture found";
-    }
-
-    public String getSooty(String base_color)
-    {
-        if (getPhenotype("cream") == 2)
-        {
-            return null;
-        }
-        int sooty_level = 0;
-        if (getPhenotype("gray") == 0)
-        {
-            sooty_level = getPhenotype("sooty");
-        }
-        else
-        {
-            sooty_level = getPhenotype("slow_gray");
-        }
-        if (sooty_level == 0)
-        {
-            return null;
-        }
-
-        boolean is_dun = getPhenotype("dun") == 3 && getPhenotype("gray") == 0;
-        String suffix = "";
-        if (is_dun)
-        {
-            if (sooty_level == 0)
-            {
-                return "sooty_dun";
-            }
-            sooty_level -= 1;
-            suffix = "_dun";
-        }
-
-        if (sooty_level == 3)
-        {
-            suffix += "_dark";
-        }
-        else if (sooty_level == 1)
-        {
-            suffix += "_light";
-        }
-
-        String type = "countershaded";
-        boolean is_chestnut = getPhenotype("extension") == 0
-            && getPhenotype("cream") == 0
-            && getPhenotype("liver") != 0;
-        if (getPhenotype("gray") != 0)
-        {
-            type = "dappled";
-        }
-        else if (getPhenotype("dapple") != 0)
-        {
-            type = is_chestnut? "even" : "dappled";
-        }
-
-        return "sooty_" + type + suffix;
-    }
-
-    public String getMealy()
-    {
-        // TODO
-        return null;
-    }
-
-    public String getLegs()
-    {
-        if ((getPhenotype("extension") == 0 && getPhenotype("dun") == 0)
-            || getPhenotype("gray") != 0)
-        {
-            return null;
-        }
-
-        String legs = null;
-        if (getPhenotype("extension") != 0 
-            && (getPhenotype("agouti") >= 3 || getPhenotype("dun") != 0))
-        {
-            if (getPhenotype("cream") == 2)
-            {
-                legs = "perlino_legs";
-            }
-            else if (getPhenotype("silver") != 0)
-            {
-                legs = "silver_legs";
-            }
-            else
-            {
-                legs = "bay_legs";
-            }
-        }
-        else
-        {
-            // TODO: red-based dun legs
-        }
-        return legs;
-    }
-
-    public String getGray()
-    {
-        // TODO
-        return null;
-    }
-
-    public String getGrayMane(String gray)
-    {
-        // TODO
-        return null;
-    }
-
-    public String getFaceMarking()
-    {
-        if (getPhenotype("white_suppression") != 0)
-        {
-            return null;
-        }
-
-        if (getPhenotype("draft_sabino") != 0
-            || getPhenotype("W20") == 2)
-        {
-            return "blaze";
-        }
-
-        int face_marking = 0;
-        int random = Math.abs(getHorseVariant("random"));
-        if (getPhenotype("tobiano") == 2)
-        {
-            // 1/4 chance none, 1/2 chance star, 1/8 chance strip, 1/8 for blaze
-            if (random % 2 == 0)
-            {
-                face_marking += 1;
-            }
-            else if ((random >> 1) % 2 == 0)
-            {
-                face_marking += 2 + ((random >> 2) % 2);
-            }
-            random >>= 3;
-        }
-        else if (getPhenotype("tobiano") != 0)
-        {
-            // 1/4 chance star, 1/8 chance strip, the rest none
-            if (random % 4 == 0)
-            {
-                face_marking += 1 + ((random >> 2) % 2);
-            }
-            random >>= 3;
-        }
-
-        if (getPhenotype("flashy_white") != 0)
-        {
-            // 1/2 chance blaze, 1/4 chance strip, 1/4 chance star
-            if (random % 2 == 0)
-            {
-                face_marking += 3;
-            }
-            else
-            {
-                face_marking += 1 + ((random >> 1) % 2);
-            }
-            random >>= 2;
-        }
-
-        assert getPhenotype("W20") != 2;
-        if (getPhenotype("W20") == 1)
-        {
-            // 1/2 chance strip, 1/4 chance star, 1/8 chance blaze or none
-            if (random % 2 == 0)
-            {
-                face_marking += 2;
-            }
-            else if ((random >> 1) % 2 == 0)
-            {
-                face_marking += 1;
-            }
-            else if ((random >> 2) % 2 == 0)
-            {
-                face_marking += 3;
-            }
-            random >>= 3;
-        }
-
-        if (getPhenotype("markings") != 0)
-        {
-            // 1/2 chance strip, 1/4 chance star, 1/4 chance blaze
-            if (random % 2 == 0)
-            {
-                face_marking += 2;
-            }
-            else
-            {
-                face_marking += 1 + 2 * ((random >> 1) % 2);
-            }
-            random >>= 2;
-        }
-
-        if (getPhenotype("half-socks") != 0)
-        {
-            face_marking += random % 8 == 0? 1 : 0;
-            random >>= 3;
-        }
-
-        if (getPhenotype("strip") != 0)
-        {
-            // 1/2 chance strip, 1/4 chance star, 1/8 chance blaze or none
-            if (random % 2 == 0)
-            {
-                face_marking += 2;
-            }
-            else if ((random >> 1) % 2 == 0)
-            {
-                face_marking += 1;
-            }
-            else if ((random >> 2) % 2 == 0)
-            {
-                face_marking += 3;
-            }
-            random >>= 3;
-        }
-        else if (getPhenotype("star") != 0)
-        {
-            // 1/4 chance strip, 1/2 chance star, 1/4 chance none
-            if (random % 2 == 0)
-            {
-                face_marking += 1;
-            }
-            else if ((random >> 1) % 2 == 0)
-            {
-                face_marking += 2;
-            }
-            random >>= 2;
-        }
-
-        if (getPhenotype("white_boost") != 0)
-        {
-            // 1/2 chance star, 1/2 chance none
-            face_marking += random % 2;
-            random >>= 1;
-        }
-        switch (face_marking)
-        {
-            case 0:
-                return null;
-            case 1:
-                return "star";
-            case 2:
-                return "strip";
-            case 3:
-                return "blaze";
-            default:
-                return "blaze";
-        }
-    }
-
-    public String getPinto()
-    {
-        if (getPhenotype("white") == 1)
-        {
-            return "white";
-        }
-        String pinto = null;
-        int tobiano = getPhenotype("tobiano");
-        int sabino = getPhenotype("sabino1");
-        int splash = getPhenotype("splash");
-        int frame = getPhenotype("frame");
-
-        if (tobiano != 0)
-        {
-            if (frame == 1)
-            {
-                if (splash == 2)
-                {
-                    pinto = "medicine_hat";
-                }
-                else
-                {
-                    pinto = "war_shield";
-                }
-            }
-            else
-            {
-                pinto = "tobiano";
-            }
-        }
-        else if (frame == 1)
-        {
-            pinto = "frame";
-        }
-        else if (splash == 2)
-        {
-            pinto = "splash";
-        }
-        else if (sabino == 1)
-        {
-            pinto = "sabino";
-        }
-        else if (getPhenotype("W20") == 2 || getPhenotype("draft_sabino") != 0)
-        {
-            pinto = "stockings";
-        }
-        return pinto;
-    }
-
-    public String getLeopard()
-    {
-        if (getPhenotype("leopard") == 0)
-        {
-            return null;
-        }
-        int patn = getPhenotype("PATN");
-        if (patn == 0)
-        {
-            return "varnish_roan";
-        }
-        if (getPhenotype("leopard") == 1)
-        {
-            // TODO: different coverage based on the value of patn
-            return "leopard";
-        }
-        else
-        {
-            // TODO: different coverage based on the value of patn
-            return "fewspot";
-        }
-    }
-
-    @SideOnly(Side.CLIENT)
-    private void setLegMarkings()
-    {
-        // Skip when the legs are going to be white anyway
-        if (getPhenotype("tobiano") != 0 
-            || getPhenotype("splash") ==2)
-        {
-            return;
-        }
-        // TODO
-        String left_front_leg = null;
-        String right_front_leg = null;
-        String left_back_leg = null;
-        String right_back_leg = null;
-        this.horseTexturesArray[8] = fixPath("pinto", left_front_leg);
-        this.horseTexturesArray[9] = fixPath("pinto", right_front_leg);
-        this.horseTexturesArray[10] = fixPath("pinto", left_back_leg);
-        this.horseTexturesArray[11] = fixPath("pinto", right_back_leg);
+        return getPhenotype("tobiano") == 0 && getPhenotype("splash") != 2
+                && getPhenotype("white") == 0;
     }
 
     @SideOnly(Side.CLIENT)
     private void setHorseTexturePaths()
     {
-        String base_texture = getBaseTexture();
+        String base_texture = HorseColorCalculator.getBaseTexture(this);
 
         String roan = getPhenotype("roan") != 0? "roan" : null;
-        String face_marking = getFaceMarking();
-        String sooty = getSooty(base_texture);
-        String leopard = getLeopard();
-        String mealy = getMealy();
-        String legs = getLegs();
-        String gray = getGray();
-        String gray_mane = getGrayMane(gray);
+        String face_marking = HorseColorCalculator.getFaceMarking(this);
+        String sooty = HorseColorCalculator.getSooty(this, base_texture);
+        String leopard = HorseColorCalculator.getLeopard(this);
+        String mealy = HorseColorCalculator.getMealy(this);
+        String legs = HorseColorCalculator.getLegs(this);
+        String gray = HorseColorCalculator.getGray(this);
+        String gray_mane = HorseColorCalculator.getGrayMane(this, gray);
+        String left_front_leg = null;
+        String right_front_leg = null;
+        String left_back_leg = null;
+        String right_back_leg = null;
         
-        String pinto = getPinto();
+        String pinto = HorseColorCalculator.getPinto(this);
         if (pinto == "white")
         {
             sooty = null;
@@ -1184,9 +639,12 @@ public class EntityHorseFelinoid extends AbstractHorse
             leopard = null;
             mealy = null;
         }
-        else
+        else if (showsLegMarkings())
         {
-            setLegMarkings();
+            left_front_leg = HorseColorCalculator.getLegMarking(this, 0);
+            right_front_leg = HorseColorCalculator.getLegMarking(this, 1);
+            left_back_leg = HorseColorCalculator.getLegMarking(this, 2);
+            right_back_leg = HorseColorCalculator.getLegMarking(this, 3);
         }
 
         ItemStack armorStack = this.dataManager.get(HORSE_ARMOR_STACK);
@@ -1206,6 +664,10 @@ public class EntityHorseFelinoid extends AbstractHorse
         this.horseTexturesArray[5] = fixPath("roan", gray);
         this.horseTexturesArray[6] = fixPath("roan", gray_mane);
         this.horseTexturesArray[7] = fixPath("pinto", face_marking);
+        this.horseTexturesArray[8] = fixPath("pinto", left_front_leg);
+        this.horseTexturesArray[9] = fixPath("pinto", right_front_leg);
+        this.horseTexturesArray[10] = fixPath("pinto", left_back_leg);
+        this.horseTexturesArray[11] = fixPath("pinto", right_back_leg);
         this.horseTexturesArray[12] = fixPath("leopard", leopard);
         this.horseTexturesArray[13] = fixPath("pinto", pinto);
         this.horseTexturesArray[14] = texture;
@@ -1219,10 +681,10 @@ public class EntityHorseFelinoid extends AbstractHorse
         String gray_mane_abv = gray_mane == null? "" : gray_mane;
         String face_marking_abv = face_marking == null? "" : face_marking;
         String leg_marking_abv = 
-            (horseTexturesArray[5] == null? "-" : horseTexturesArray[5]) 
-            + (horseTexturesArray[6] == null? "-" : horseTexturesArray[6]) 
-            + (horseTexturesArray[7] == null? "-" : horseTexturesArray[7]) 
-            + (horseTexturesArray[8] == null? "-" : horseTexturesArray[8]);
+            (left_front_leg == null? "-" : left_front_leg) 
+            + (right_front_leg == null? "-" : right_front_leg) 
+            + (left_back_leg == null? "-" : left_back_leg) 
+            + (right_back_leg == null? "-" : right_back_leg);
         String pinto_abv = pinto == null? "" : pinto;
         String leopard_abv = leopard == null? "" : leopard;
         this.texturePrefix = "horse/cache_" + base_abv + sooty_abv + mealy_abv 
@@ -1605,24 +1067,6 @@ public class EntityHorseFelinoid extends AbstractHorse
 
             i =  this.rand.nextInt();
             ((EntityHorseFelinoid)abstracthorse).setHorseVariant(i, "random");
-
-            /* Print debugging information. */
-            System.out.print("Mating:\n    Variant: " 
-                + Integer.toBinaryString(this.getHorseVariant("0")) + ", " 
-                + Integer.toBinaryString(this.getHorseVariant("1")) 
-                + "\n    Color: " + this.getBaseTexture() 
-                + "\n\n    Variant: " 
-                + Integer.toBinaryString(entityhorse.getHorseVariant("0")) 
-                + ", " + Integer.toBinaryString(entityhorse.getHorseVariant("1")) 
-                + "\n    Color: " + entityhorse.getBaseTexture() + "\n\n    "
-                + "Baby Variant: " 
-                + Integer.toBinaryString(((EntityHorseFelinoid)abstracthorse).getHorseVariant("0"))
-                + ", " + Integer.toBinaryString(((EntityHorseFelinoid)abstracthorse).getHorseVariant("1"))
-                + "\n    Color: " 
-                + ((EntityHorseFelinoid)abstracthorse).getBaseTexture() 
-                + "\n" + Integer.toString(((EntityHorseFelinoid)abstracthorse).getPhenotype("dun")) 
-                + "\n");
-                //test();
         }
         // Dominant white is homozygous lethal early in pregnancy. No child
         // is born.
