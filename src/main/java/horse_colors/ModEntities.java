@@ -21,7 +21,7 @@ public class ModEntities {
     private static int ID = 0;
 
 	@SubscribeEvent
-	public static void registerEntites(RegistryEvent.Register<EntityEntry> event) {
+	public static void registerEntities(RegistryEvent.Register<EntityEntry> event) {
         String horse_name = "horse_felinoid";
 		EntityEntry entry = EntityEntryBuilder.create()
             .entity(EntityHorseFelinoid.class)

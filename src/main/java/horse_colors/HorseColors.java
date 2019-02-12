@@ -28,6 +28,7 @@ public class HorseColors
     @Mod.EventHandler
     public void preInit(final FMLPreInitializationEvent event) 
     {
+        MinecraftForge.EVENT_BUS.register(ModItems.class);
         MinecraftForge.EVENT_BUS.register(ModEntities.class);
         MinecraftForge.EVENT_BUS.register(HorseReplacer.class);
     }
