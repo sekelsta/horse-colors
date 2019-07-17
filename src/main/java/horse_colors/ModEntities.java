@@ -28,7 +28,7 @@ public class ModEntities {
             // Last parameter is network ID, which needs to be unique per mod.
             .id(new ResourceLocation(HorseColors.MODID, horse_name), ID++)
             .name(horse_name)
-            .egg(0xFFFFFF, 0xAAAAAA)
+            .egg(0x7F4320, 0x110E0D)
             .tracker(64, 2, false)
             .spawn(EnumCreatureType.CREATURE, HorseConfig.spawnWeight, 
                 HorseConfig.minHerdSize, HorseConfig.maxHerdSize, 
