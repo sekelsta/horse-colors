@@ -1129,15 +1129,15 @@ public class EntityHorseFelinoid extends AbstractHorse
             setGeneRandom("silver", n, 32, 0);
             setGeneRandom("cream", n, 32, 0);
             setGeneRandom("liver", n, 3, 1);
-            setGeneRandom("flaxen1", n, 6, 1);
-            setGeneRandom("flaxen2", n, 6, 1);
+            setGeneRandom("flaxen1", n, 5, 1);
+            setGeneRandom("flaxen2", n, 5, 1);
 
             setGene("dapple", (i % 2) << (n * getGeneSize("dapple")));
             i >>= 1;
 
-            setGeneRandom("sooty1", n, 8, 1);
-            setGeneRandom("sooty2", n, 8, 1);
-            setGeneRandom("sooty3", n, 4, 1);
+            setGeneRandom("sooty1", n, 4, 1);
+            setGeneRandom("sooty2", n, 4, 1);
+            setGeneRandom("sooty3", n, 2, 1);
             setGeneRandom("mealy1", n, 4, 1);
         }
         else if (type == "1")
