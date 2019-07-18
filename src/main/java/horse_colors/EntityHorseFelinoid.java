@@ -399,7 +399,7 @@ public class EntityHorseFelinoid extends AbstractHorse
     {
         switch(name)
         {
-            /* Simple dominant  or recessive genes. */
+            /* Simple dominant or recessive genes. */
             case "extension":
             case "silver":
             case "liver":
@@ -421,6 +421,8 @@ public class EntityHorseFelinoid extends AbstractHorse
 
             /* Incomplete dominant. */
             case "gray":
+                // TODO: remove debug code
+                return Math.max(1, (getGene(name) & 1) + (getGene(name) >> 1));
             case "cream":
             case "frame":
             case "splash":
@@ -577,9 +579,11 @@ public class EntityHorseFelinoid extends AbstractHorse
                 return base == 0? 0 : base + getPhenotype("W20") 
                                         + getPhenotype("white_boost");
             case "slow_gray":
+                // Larger numbers make a darker horse.
                 int val = getPhenotype("slow_gray1") + getPhenotype("slow_gray2")
-                        + (getPhenotype("gray") == 2? -2 : 0);
-                return Math.max(val, 0);
+                        + (getPhenotype("gray") == 2? -2 : 0)
+                        + (getPhenotype("gray_mane") == 0? 0 : 1);
+                return Math.min(Math.max(val, 0), 3);
                 
         }
         System.out.println("[horse_colors]: Phenotype for " + name + " not found.");
@@ -622,8 +626,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         String leopard = HorseColorCalculator.getLeopard(this);
         String mealy = HorseColorCalculator.getMealy(this);
         String legs = HorseColorCalculator.getLegs(this);
-        String gray = HorseColorCalculator.getGray(this);
-        String gray_mane = HorseColorCalculator.getGrayMane(this, gray);
+        String gray_mane = HorseColorCalculator.getGrayMane(this);
         String left_front_leg = null;
         String right_front_leg = null;
         String left_back_leg = null;
@@ -649,19 +652,12 @@ public class EntityHorseFelinoid extends AbstractHorse
 
         ItemStack armorStack = this.dataManager.get(HORSE_ARMOR_STACK);
         String texture = !armorStack.isEmpty() ? armorStack.getItem().getHorseArmorTexture(this, armorStack) : HorseArmorType.getByOrdinal(this.dataManager.get(HORSE_ARMOR)).getTextureName(); //If armorStack is empty, the server is vanilla so the texture should be determined the vanilla way
-
-        /*
-        // For testing
-        gray_mane = rand.nextInt() % 2 == 0? "gray_mane" : "black_mane";
-        base_texture = "light_gray";
-        sooty = rand.nextInt() % 2 == 0? "sooty_dappled_dark" : "sooty_dappled";
-        */
+        
         this.horseTexturesArray[0] = fixPath("base", base_texture);
-        this.horseTexturesArray[1] = fixPath("sooty",  sooty);
+        this.horseTexturesArray[1] = fixPath("sooty", sooty);
         this.horseTexturesArray[2] = fixPath("mealy", mealy);
         this.horseTexturesArray[3] = fixPath("legs", legs);
         this.horseTexturesArray[4] = fixPath("roan", roan);
-        this.horseTexturesArray[5] = fixPath("roan", gray);
         this.horseTexturesArray[6] = fixPath("roan", gray_mane);
         this.horseTexturesArray[7] = fixPath("pinto", face_marking);
         this.horseTexturesArray[8] = fixPath("pinto", left_front_leg);
@@ -677,7 +673,6 @@ public class EntityHorseFelinoid extends AbstractHorse
         String mealy_abv = mealy == null? "" : mealy;
         String legs_abv = legs == null? "" : legs;
         String roan_abv = roan == null? "" : roan;
-        String gray_abv = gray == null? "" : gray;
         String gray_mane_abv = gray_mane == null? "" : gray_mane;
         String face_marking_abv = face_marking == null? "" : face_marking;
         String leg_marking_abv = 
@@ -688,7 +683,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         String pinto_abv = pinto == null? "" : pinto;
         String leopard_abv = leopard == null? "" : leopard;
         this.texturePrefix = "horse/cache_" + base_abv + sooty_abv + mealy_abv 
-            + roan_abv + gray_abv + gray_mane_abv + face_marking_abv 
+            + roan_abv + gray_mane_abv + face_marking_abv 
             + leg_marking_abv + leopard_abv + pinto_abv + texture;
     }
 
@@ -1170,15 +1165,15 @@ public class EntityHorseFelinoid extends AbstractHorse
             setGeneRandom("PATN2", n, 16, 0);
             setGeneRandom("PATN3", n, 16, 0);
             setGeneRandom("gray_suppression", n, 40, 0);
-            setGeneRandom("gray_mane", n, 16, 0);
-            setGeneRandom("slow_gray1", n, 16, 0);
+            setGeneRandom("gray_mane", n, 4, 0);
+            setGeneRandom("slow_gray1", n, 8, 0);
         }
         else if (type == "2")
         {
             // Initialize any bits currently unused to random values
             setHorseVariant(this.rand.nextInt(), "2");
             int i = this.rand.nextInt();
-            setGeneRandom("slow_gray2", n, 16, 0);
+            setGeneRandom("slow_gray2", n, 4, 0);
         }
 
         answer = getHorseVariant(type);

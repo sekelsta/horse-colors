@@ -2,6 +2,8 @@ package felinoid.horse_colors;
 
 public class HorseColorCalculator
 {
+    private static final int GRAY_LEG_BITS = 2;
+    private static final int FACE_MARKING_BITS = 2;
     public static String getBaseTexture(EntityHorseFelinoid horse)
     {
         // First handle double cream dilutes
@@ -258,6 +260,13 @@ public class HorseColorCalculator
             suffix += "_light";
         }
 
+        if (is_gray)
+        {
+            int random = (horse.getHorseVariant("random") << 1) >>> 1;
+            return ((random % 4 == 1)? "sooty_dappled" : "gray") + suffix;
+        }
+
+        // TODO: change this
         String type = "countershaded";
         boolean is_chestnut = horse.getPhenotype("extension") == 0
             && horse.getPhenotype("cream") == 0
@@ -279,6 +288,21 @@ public class HorseColorCalculator
 
     public static String getLegs(EntityHorseFelinoid horse)
     {
+        // Dappled gray horses can have dark legs
+        if (horse.getPhenotype("gray") != 0
+            && horse.getPhenotype("slow_gray") > 1)
+        {
+            int random = (horse.getHorseVariant("random") << 1) >>> 1;
+            if (random % 4 == 0)
+            {
+                return "bay_legs";
+            }
+            else
+            {
+                return null;
+            }
+        }
+        // Don't do anything about chestnut non-dun horses or light gray horses
         if ((horse.getPhenotype("extension") == 0 
                 && horse.getPhenotype("dun") == 0)
             || horse.getPhenotype("gray") != 0)
@@ -306,21 +330,40 @@ public class HorseColorCalculator
         }
         else
         {
-            // TODO: red-based dun legs
+            // If I do red dun legs separate, here is where they should go
         }
         return legs;
     }
 
-    public static String getGray(EntityHorseFelinoid horse)
+    public static String getGrayMane(EntityHorseFelinoid horse)
     {
-        // TODO
-        return null;
-    }
+        if (horse.getPhenotype("gray") == 2 
+            && horse.getPhenotype("gray_mane") == 2)
+        {
 
-    public static String getGrayMane(EntityHorseFelinoid horse, String gray)
-    {
-        // TODO
-        return null;
+        }
+        // Only for dappled gray horses, not non-gray (0) nor full gray (2)
+        if (horse.getPhenotype("gray") != 1)
+        {
+            return null;
+        }
+        // Doesn't affect double dilute creams
+        if (horse.getPhenotype("cream") == 2)
+        {
+            return null;
+        }
+
+        int gray = horse.getPhenotype("slow_gray");
+        int mane = horse.getPhenotype("gray_mane");
+        if (mane == 2 && gray > 1)
+        {
+            return "black_mane";
+        }
+        else if (mane == 0)
+        {
+            return null;
+        }
+        return "gray_mane";
     }
 
     public static String getFaceMarking(EntityHorseFelinoid horse)
@@ -337,7 +380,10 @@ public class HorseColorCalculator
         }
 
         int face_marking = 0;
-        int random = (horse.getHorseVariant("random") << 1) >>> 1;
+        // Turn a signed integer into unsigned, also drop a few bits 
+        // used elsewhere
+        int random = (horse.getHorseVariant("random") << 1) 
+                        >>> (1 + GRAY_LEG_BITS);
         if (horse.getPhenotype("tobiano") == 2)
         {
             // 1/4 chance none, 1/2 chance star, 1/8 chance strip, 1/8 for blaze
