@@ -22,15 +22,10 @@ public class HorseConfig
     public static boolean useGeneticStats = false;
 
     @Comment({
-        "If enabled, horse information will not appear on the debug screen",
-        "even if the player is in Creative mode."
+        "If enabled, debugging information will appear on the screen when the",
+        "player is holding a stick in their left hand and looks at a horse."
     })
-    public static boolean disableHorseDebug = false;
-    @Comment({
-        "If enabled and disableHorseDebug is not, horse debug information will",
-        "be displayed even for Survival mode players"
-    })
-    public static boolean survivalHorseDebug = false;
+    public static boolean horseDebugInfo = false;
 
     @Comment({
         "If set to true, only horses created by this mod will spawn."

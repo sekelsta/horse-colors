@@ -4,6 +4,8 @@ import java.util.Iterator;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -17,22 +19,27 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 
 // Class for putting horse info on the debug screen
 public class HorseDebug {
+    // Determines when to pring horse debug info on the screen
+    public boolean showDebug(EntityPlayer player)
+    {
+        if (!HorseConfig.horseDebugInfo)
+        {
+            return false;
+        }
+        ItemStack itemStack = player.getHeldItemOffhand();
+        return itemStack != null 
+            && itemStack.getItem() == Items.STICK;
+    }
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void renderOverlayEvent(RenderGameOverlayEvent.Text event)
     {
-        // If the player is in creative mode and looking at a horse, add 
+        // If the player is looking at a horse and all conditions are met, add 
         // genetic information about that horse to the debug screen
 
-        if (!Minecraft.getMinecraft().gameSettings.showDebugInfo
-            || HorseConfig.disableHorseDebug)
-        {
-            return;
-        }
-
         EntityPlayer player = Minecraft.getMinecraft().player;
-        if (player.capabilities.isCreativeMode || HorseConfig.survivalHorseDebug)
+        if (showDebug(player))
         {
             // Check if we're looking at a horse
             if (Minecraft.getMinecraft().objectMouseOver != null
