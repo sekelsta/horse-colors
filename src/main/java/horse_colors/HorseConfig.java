@@ -23,7 +23,8 @@ public class HorseConfig
 
     @Comment({
         "If enabled, debugging information will appear on the screen when the",
-        "player is holding a stick in their left hand and looks at a horse."
+        "player is holding a stick in their left hand and looks at a horse.",
+        "For most users, it is probably better to leave this as false."
     })
     public static boolean horseDebugInfo = false;
 

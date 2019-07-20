@@ -9,7 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 
 public class ItemHorseBook extends Item
-{
+{/*TODO
     public ItemHorseBook()
     {
         String name = "ItemHorseBook";
@@ -17,10 +17,10 @@ public class ItemHorseBook extends Item
         this.setUnlocalizedName(this.getRegistryName().toString());
         this.setCreativeTab(ModItems.tabHorseColors);
     }
-
+*/
     /**
      * Returns true if the item can be used on the given entity, e.g. shears on sheep.
-     */
+     *//*
     public boolean itemInteractionForEntity(ItemStack stack, EntityPlayer playerIn, EntityLivingBase target, EnumHand hand)
     {
         if (!(target instanceof EntityHorseFelinoid))
@@ -40,5 +40,5 @@ public class ItemHorseBook extends Item
 
         stack.shrink(1);
         return true;
-    }
+    }*/
 }

@@ -16,6 +16,7 @@ import net.minecraftforge.registries.*;
 
 public class ModItems {
     // Make creative mode tab
+    /* TODO:
     static final CreativeTabs tabHorseColors = (new CreativeTabs("tabHorseColors")
     {
         @Override
@@ -25,7 +26,7 @@ public class ModItems {
     });
 
     public static Item item_horse_book = new ItemHorseBook();
-	
+	*/
 	public static void preInit() {}
 
 	public static void init() {}
@@ -33,7 +34,8 @@ public class ModItems {
 	
 	@SubscribeEvent
 	public static void registerItems(RegistryEvent.Register<Item> event) {
-		event.getRegistry().register(item_horse_book);
+        // TODO: 
+		// event.getRegistry().register(item_horse_book);
 	}
 
 	private static void registerItemModel(Item item)
@@ -45,6 +47,7 @@ public class ModItems {
 	@SubscribeEvent
 	public static void registerModels(ModelRegistryEvent event)
     {
-		registerItemModel(item_horse_book);
+        // TODO:
+		// registerItemModel(item_horse_book);
     }
 }

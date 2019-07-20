@@ -420,13 +420,13 @@ public class EntityHorseFelinoid extends AbstractHorse
                 return getGene(name) == 0? 0 : 1;
 
             /* Incomplete dominant. */
+            case "leopard":
+                // TODO
+                return 0;
             case "gray":
-                // TODO: remove debug code
-                return Math.max(1, (getGene(name) & 1) + (getGene(name) >> 1));
             case "cream":
             case "frame":
             case "splash":
-            case "leopard":
             case "PATN1":
             case "gray_mane":
             case "slow_gray2":
