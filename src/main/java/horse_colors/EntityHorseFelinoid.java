@@ -1,7 +1,10 @@
 package felinoid.horse_colors;
 
+import java.util.Arrays;
 import java.util.UUID;
+import java.lang.reflect.Method;
 import javax.annotation.Nullable;
+
 import net.minecraft.block.SoundType;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.IEntityLivingData;
@@ -42,7 +45,6 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.init.MobEffects;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
-import java.util.Arrays;
 
 public class EntityHorseFelinoid extends AbstractHorse
 {
@@ -946,14 +948,22 @@ public class EntityHorseFelinoid extends AbstractHorse
         {
             return false;
         }
-        // If I make my own donkey I should change this so they can make mules
-        else if (!(otherAnimal instanceof EntityHorseFelinoid))
+        // Mate with other horses or donkeys
+        else if (otherAnimal instanceof EntityHorseFelinoid)
         {
-            return false;
+            return this.canMate() && ((EntityHorseFelinoid)otherAnimal).canMate();
+        }
+        else if (otherAnimal instanceof EntityDonkey)
+        {
+            AbstractHorse other = (AbstractHorse)otherAnimal;
+            // This is the same as calling other.canMate() but doesn't require
+            // reflection
+            boolean otherCanMate = !other.isBeingRidden() && !other.isRiding() && other.isTame() && !other.isChild() && other.getHealth() >= other.getMaxHealth() && other.isInLove();
+            return this.canMate() && otherCanMate;
         }
         else
         {
-            return this.canMate() && ((EntityHorseFelinoid)otherAnimal).canMate();
+            return false;
         }
     }
 
@@ -1062,17 +1072,21 @@ public class EntityHorseFelinoid extends AbstractHorse
 
             i =  this.rand.nextInt();
             ((EntityHorseFelinoid)abstracthorse).setHorseVariant(i, "random");
-        }
-        // Dominant white is homozygous lethal early in pregnancy. No child
-        // is born.
-        if (((EntityHorseFelinoid)abstracthorse).getPhenotype("dominant_white")
-                == 2)
-        {
-            return null;
+
+            // Dominant white is homozygous lethal early in pregnancy. No child
+            // is born.
+            if (((EntityHorseFelinoid)abstracthorse).getPhenotype("dominant_white")
+                    == 2)
+            {
+                return null;
+            }
         }
 
         this.setOffspringAttributes(ageable, abstracthorse);
-        ((EntityHorseFelinoid)abstracthorse).useGeneticAttributes();
+        if (abstracthorse instanceof EntityHorseFelinoid)
+        {
+            ((EntityHorseFelinoid)abstracthorse).useGeneticAttributes();
+        }
         return abstracthorse;
     }
 

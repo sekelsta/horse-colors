@@ -22,8 +22,9 @@ public class ModEntities {
 
 	@SubscribeEvent
 	public static void registerEntities(RegistryEvent.Register<EntityEntry> event) {
+        // Horse
         String horse_name = "horse_felinoid";
-		EntityEntry entry = EntityEntryBuilder.create()
+		EntityEntry horse_entry = EntityEntryBuilder.create()
             .entity(EntityHorseFelinoid.class)
             // Last parameter is network ID, which needs to be unique per mod.
             .id(new ResourceLocation(HorseColors.MODID, horse_name), ID++)
@@ -37,6 +38,6 @@ public class ModEntities {
                 HorseConfig.minHerdSize, HorseConfig.maxHerdSize, 
                 BiomeDictionary.getBiomes(Type.SAVANNA))
             .build();
-        event.getRegistry().register(entry);
+        event.getRegistry().register(horse_entry);
 	}
 }

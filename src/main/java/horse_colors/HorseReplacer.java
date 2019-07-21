@@ -3,6 +3,7 @@ package felinoid.horse_colors;
 import java.util.Iterator;
 
 import net.minecraft.entity.passive.EntityHorse;
+import net.minecraft.entity.passive.EntityDonkey;
 import net.minecraft.world.biome.Biome.SpawnListEntry;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
