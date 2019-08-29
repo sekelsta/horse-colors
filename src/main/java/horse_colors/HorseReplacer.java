@@ -33,20 +33,20 @@ public class HorseReplacer {
     {
         // We don't want to replace subclasses of horses
         if (event.getEntity().getClass() == EntityHorse.class
-            && HorseConfig.blockVanillaHorseSpawns 
             && !event.getWorld().isRemote 
             && HorseConfig.convertVanillaHorses)
         {
             EntityHorse horse = (EntityHorse)event.getEntity();
-            EntityHorseFelinoid newHorse = new EntityHorseFelinoid(event.getWorld());
-            newHorse.copyAbstractHorse(horse);
-            newHorse.randomize();
-            // Spawn the new horse
-            event.getWorld().spawnEntity(newHorse);
-            // This will remove it from any save file it might be part of
-            horse.setDead();
-            // And cancel the event just for good measure. I'm not sure this
-            // is actaully necessary anymore.
+            if (!horse.getEntityData().hasKey("converted")) {
+                EntityHorseFelinoid newHorse = new EntityHorseFelinoid(event.getWorld());
+                newHorse.copyAbstractHorse(horse);
+                newHorse.randomize();
+                // Spawn the new horse
+                event.getWorld().spawnEntity(newHorse);
+                // Don't convert the same horse twice
+                horse.getEntityData().setBoolean("converted", true);
+            }
+            // Cancel the event regardless
             event.setCanceled(true);
         }
 	}

@@ -95,8 +95,37 @@ public class EntityHorseFelinoid extends AbstractHorse
 
     /* Mealy turns some red hairs to white, generally on the belly or
     undersides. It's recessive, and, like flaxen, is a polygenetic trait. */
-    public static final String[] genes = new String[] {"extension", "agouti", "dun", "gray", "cream", "silver", "liver", "flaxen1", "flaxen2", "dapple", "sooty1", "sooty2", "sooty3", "mealy1", 
-        "mealy2", "mealy3", "white_suppression", "KIT", "frame", "splash", "leopard", "PATN1", "PATN2", "PATN3", "gray_suppression", "gray_mane", "slow_gray1", "slow_gray2"};
+    public static final String[] genes = new String[] {
+        "extension", 
+        "agouti", 
+        "dun", 
+        "gray", 
+        "cream", 
+        "silver", 
+        "liver", 
+        "flaxen1", 
+        "flaxen2", 
+        "dapple", 
+        "sooty1", 
+        "sooty2", 
+        "sooty3", 
+        "mealy1", 
+        "mealy2", 
+        "mealy3", 
+        "white_suppression", 
+        "KIT", 
+        "frame", 
+        "MITF", 
+        "PAX3", 
+        "leopard",
+        "PATN1", 
+        "PATN2", 
+        "PATN3", 
+        "gray_suppression",
+        "gray_mane", 
+        "slow_gray1", 
+        "slow_gray2"
+    };
 
     private String texturePrefix;
 
@@ -122,7 +151,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         this.setGrowingAge(horse.getGrowingAge());
         // Transfer inventory
         ContainerHorseChest inv = 
-            ReflectionHelper.<ContainerHorseChest, AbstractHorse>getPrivateValue(AbstractHorse.class, horse, "horseChest");
+            ReflectionHelper.<ContainerHorseChest, AbstractHorse>getPrivateValue(AbstractHorse.class, horse, "horseChest", "field_110296_bG");
         this.horseChest.setInventorySlotContents(0, inv.getStackInSlot(0));
         this.horseChest.setInventorySlotContents(1, inv.getStackInSlot(1));
         this.updateHorseSlots();
@@ -318,12 +347,15 @@ public class EntityHorseFelinoid extends AbstractHorse
         {
             case "KIT": return 4;
 
-            case "agouti":
+            case "extension":
+            case "agouti": return 3;
+
+            case "MITF":
+            case "PAX3":
+            case "cream":
             case "dun": return 2;
 
-            case "extension":
             case "gray":
-            case "cream":
             case "silver":
             case "liver":
             case "flaxen1":
@@ -337,7 +369,6 @@ public class EntityHorseFelinoid extends AbstractHorse
             case "mealy3":
             case "white_suppression":
             case "frame":
-            case "splash":
             case "leopard":
             case "PATN1":
             case "PATN2":
@@ -397,12 +428,35 @@ public class EntityHorseFelinoid extends AbstractHorse
         return count;
     }
 
+    public boolean hasAllele(String name, int allele)
+    {
+        return getAllele(name, 0) == allele || getAllele(name, 1) == allele;
+    }
+
+    public int getMaxAllele(String name)
+    {
+        return Math.max(getAllele(name, 0), getAllele(name, 1));
+    }
+
+    public boolean isHomozygous(String name, int allele)
+    {
+        return  getAllele(name, 0) == allele && getAllele(name, 1) == allele;
+    }
+
+    public boolean isChestnut()
+    {
+        int e = getMaxAllele("extension");
+        return e == HorseAlleles.E_RED 
+                || e == HorseAlleles.E_RED2
+                || e == HorseAlleles.E_RED3
+                || e == HorseAlleles.E_RED4;
+    }
+
     public int getPhenotype(String name)
     {
         switch(name)
         {
             /* Simple dominant or recessive genes. */
-            case "extension":
             case "silver":
             case "liver":
             case "flaxen1":
@@ -419,7 +473,7 @@ public class EntityHorseFelinoid extends AbstractHorse
             case "PATN3":
             case "gray_suppression":
             case "slow_gray1":
-                return getGene(name) == 0? 0 : 1;
+                return getMaxAllele(name);
 
             /* Incomplete dominant. */
             case "leopard":
@@ -428,7 +482,6 @@ public class EntityHorseFelinoid extends AbstractHorse
             case "gray":
             case "cream":
             case "frame":
-            case "splash":
             case "PATN1":
             case "gray_mane":
             case "slow_gray2":
@@ -445,8 +498,13 @@ public class EntityHorseFelinoid extends AbstractHorse
                         - getPhenotype("sooty3");
             case "mealy":
                 return 2 - getPhenotype("mealy1") - getPhenotype("mealy2");
+            case "splash":
+                // TODO
+                return -1;
 
             /* Genes with multiple alleles. */
+            case "extension":
+                return Math.max(getAllele(name, 0), getAllele(name, 1));
             case "agouti":
                 if (getGene("agouti") == 1 || getGene("agouti") == 4)
                 {
@@ -622,17 +680,14 @@ public class EntityHorseFelinoid extends AbstractHorse
     {
         String base_texture = HorseColorCalculator.getBaseTexture(this);
 
-        String roan = getPhenotype("roan") != 0? "roan" : null;
+        String roan = hasAllele("KIT", HorseAlleles.KIT_ROAN)? "roan" : null;
         String face_marking = HorseColorCalculator.getFaceMarking(this);
-        String sooty = HorseColorCalculator.getSooty(this, base_texture);
+        String sooty = HorseColorCalculator.getSooty(this);
         String leopard = HorseColorCalculator.getLeopard(this);
         String mealy = HorseColorCalculator.getMealy(this);
         String legs = HorseColorCalculator.getLegs(this);
         String gray_mane = HorseColorCalculator.getGrayMane(this);
-        String left_front_leg = null;
-        String right_front_leg = null;
-        String left_back_leg = null;
-        String right_back_leg = null;
+        String[] leg_markings = new String[4];
         
         String pinto = HorseColorCalculator.getPinto(this);
         if (pinto == "white")
@@ -646,10 +701,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         }
         else if (showsLegMarkings())
         {
-            left_front_leg = HorseColorCalculator.getLegMarking(this, 0);
-            right_front_leg = HorseColorCalculator.getLegMarking(this, 1);
-            left_back_leg = HorseColorCalculator.getLegMarking(this, 2);
-            right_back_leg = HorseColorCalculator.getLegMarking(this, 3);
+            leg_markings = HorseColorCalculator.getLegMarkings(this);
         }
 
         ItemStack armorStack = this.dataManager.get(HORSE_ARMOR_STACK);
@@ -662,10 +714,10 @@ public class EntityHorseFelinoid extends AbstractHorse
         this.horseTexturesArray[4] = fixPath("roan", roan);
         this.horseTexturesArray[6] = fixPath("roan", gray_mane);
         this.horseTexturesArray[7] = fixPath("pinto", face_marking);
-        this.horseTexturesArray[8] = fixPath("pinto", left_front_leg);
-        this.horseTexturesArray[9] = fixPath("pinto", right_front_leg);
-        this.horseTexturesArray[10] = fixPath("pinto", left_back_leg);
-        this.horseTexturesArray[11] = fixPath("pinto", right_back_leg);
+        this.horseTexturesArray[8] = fixPath("pinto", leg_markings[0]);
+        this.horseTexturesArray[9] = fixPath("pinto", leg_markings[1]);
+        this.horseTexturesArray[10] = fixPath("pinto", leg_markings[2]);
+        this.horseTexturesArray[11] = fixPath("pinto", leg_markings[3]);
         this.horseTexturesArray[12] = fixPath("leopard", leopard);
         this.horseTexturesArray[13] = fixPath("pinto", pinto);
         this.horseTexturesArray[14] = texture;
@@ -678,10 +730,10 @@ public class EntityHorseFelinoid extends AbstractHorse
         String gray_mane_abv = gray_mane == null? "" : gray_mane;
         String face_marking_abv = face_marking == null? "" : face_marking;
         String leg_marking_abv = 
-            (left_front_leg == null? "-" : left_front_leg) 
-            + (right_front_leg == null? "-" : right_front_leg) 
-            + (left_back_leg == null? "-" : left_back_leg) 
-            + (right_back_leg == null? "-" : right_back_leg);
+            (leg_markings[0] == null? "-" : leg_markings[0]) 
+            + (leg_markings[1] == null? "-" : leg_markings[1]) 
+            + (leg_markings[2] == null? "-" : leg_markings[2]) 
+            + (leg_markings[3] == null? "-" : leg_markings[3]);
         String pinto_abv = pinto == null? "" : pinto;
         String leopard_abv = leopard == null? "" : leopard;
         this.texturePrefix = "horse/cache_" + base_abv + sooty_abv + mealy_abv 
@@ -1122,37 +1174,48 @@ public class EntityHorseFelinoid extends AbstractHorse
         {
             // logical bitshift to make unsigned
             int i = this.rand.nextInt() >>> 1;
-            setGene("extension", (i & 1) << (n * getGeneSize("extension")));
-            i >>= 1;
+            setGene("extension", (i & 7) << (n * getGeneSize("extension")));
+            i >>= 3;
             setGeneRandom("gray", n, 20, 0);
             int dun = (this.rand.nextInt() % 7 == 0? 2 : 0) + (i % 4 == 0? 1: 0);
             setGene("dun", dun << (n * getGeneSize("dun")));
             i >>= 2;
 
-            int ag = i % 8;
-            System.out.println(i);
-            int agouti = ag == 0? 3 : (ag < 4? 2 : (ag == 4? 1: 0));
+            int ag = i % 16;
+            int agouti = ag == 0? HorseAlleles.A_BAY_MEALY 
+                       : ag == 1? HorseAlleles.A_BAY_WILD
+                       : ag < 4? HorseAlleles.A_BAY_LIGHT
+                       : ag < 6? HorseAlleles.A_BAY
+                       : ag < 8? HorseAlleles.A_BAY_DARK
+                       : ag == 8? HorseAlleles.A_BROWN
+                       : ag == 9? HorseAlleles.A_SEAL
+                       : HorseAlleles.A_BLACK;
             setGene("agouti", agouti << (n * getGeneSize("agouti")));
-            i >>= 3;
+            i >>= 4;
 
             setGeneRandom("silver", n, 32, 0);
-            setGeneRandom("cream", n, 32, 0);
+            int cr = i % 32;
+            int cream = cr == 0? HorseAlleles.CREAM
+                      : cr == 1? HorseAlleles.PEARL
+                      : cr == 2? HorseAlleles.NONCREAM2
+                      : HorseAlleles.NONCREAM;
+            setGene("cream", cream << (n * getGeneSize("cream")));
+            i >>= 5;
             setGeneRandom("liver", n, 3, 1);
             setGeneRandom("flaxen1", n, 5, 1);
             setGeneRandom("flaxen2", n, 5, 1);
 
             setGene("dapple", (i % 2) << (n * getGeneSize("dapple")));
             i >>= 1;
-
-            setGeneRandom("sooty1", n, 4, 1);
-            setGeneRandom("sooty2", n, 4, 1);
-            setGeneRandom("sooty3", n, 2, 1);
-            setGeneRandom("mealy1", n, 4, 1);
         }
         else if (type == "1")
         {
             int i = this.rand.nextInt();
 
+            setGeneRandom("sooty1", n, 4, 1);
+            setGeneRandom("sooty2", n, 4, 1);
+            setGeneRandom("sooty3", n, 2, 1);
+            setGeneRandom("mealy1", n, 4, 1);
             setGeneRandom("mealy2", n, 4, 1);
             setGeneRandom("mealy3", n, 4, 1);
             setGeneRandom("white_suppression", n, 32, 0);
@@ -1160,20 +1223,17 @@ public class EntityHorseFelinoid extends AbstractHorse
             int kit = i % 4 == 0? (((i >> 2) % 8) + 8) % 8 
                                 : (((i >> 2) % 16) + 16) % 16;
             setGene("KIT", kit << (n * getGeneSize("KIT")));
-            // Homozygote dominant whites will be replaced with heterozygotes
-            if (getPhenotype("dominant_white") == 2)
-            {
-                setGene("KIT", 15);
-            }
             i >>= 6;
 
             setGeneRandom("frame", n, 32, 0);
-            // Replace lethal white overos with heterozygotes
-            if (getPhenotype("frame") == 2)
-            {
-                setGene("frame", 1);
-            }
-            setGeneRandom("splash", n, 16, 0);
+            setGeneRandom("MITF", n, 16, 0);
+            setGeneRandom("PAX3", n, 16, 0);
+        }
+        else if (type == "2")
+        {
+            // Initialize any bits currently unused to random values
+            setHorseVariant(this.rand.nextInt(), "2");
+            int i = this.rand.nextInt();
             setGeneRandom("leopard", n, 32, 0);
             setGeneRandom("PATN1", n, 16, 0);
             setGeneRandom("PATN2", n, 16, 0);
@@ -1181,12 +1241,6 @@ public class EntityHorseFelinoid extends AbstractHorse
             setGeneRandom("gray_suppression", n, 40, 0);
             setGeneRandom("gray_mane", n, 4, 0);
             setGeneRandom("slow_gray1", n, 8, 0);
-        }
-        else if (type == "2")
-        {
-            // Initialize any bits currently unused to random values
-            setHorseVariant(this.rand.nextInt(), "2");
-            int i = this.rand.nextInt();
             setGeneRandom("slow_gray2", n, 4, 0);
         }
 
@@ -1208,6 +1262,18 @@ public class EntityHorseFelinoid extends AbstractHorse
         randomizeSingleVariant("0");
         randomizeSingleVariant("1");
         randomizeSingleVariant("2");
+
+        // Replace lethal white overos with heterozygotes
+        if (getPhenotype("frame") == 2)
+        {
+            setGene("frame", 1);
+        }
+
+        // Homozygote dominant whites will be replaced with heterozygotes
+        if (getPhenotype("dominant_white") == 2)
+        {
+            setGene("KIT", 15);
+        }
 
         setHorseVariant(this.rand.nextInt(), "speed");
         setHorseVariant(this.rand.nextInt(), "jump");
