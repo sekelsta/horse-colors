@@ -693,10 +693,6 @@ public class EntityHorseFelinoid extends AbstractHorse
         String[] leg_markings = new String[4];
         
         String pinto = HorseColorCalculator.getPinto(this);
-        // TODO: remove after adding proper sabino graphics
-        if (pinto == "sabino") {
-            pinto = null;
-        }
         if (pinto == "white")
         {
             sooty = null;
@@ -1235,8 +1231,12 @@ public class EntityHorseFelinoid extends AbstractHorse
             setGeneRandom("frame", n, 32, 0);
             int mitf = i % 8 == 0? (((i >> 3) % 4) + 4) % 4
                 : HorseAlleles.MITF_WILDTYPE;
+            // Make SW1 less common
+            if (mitf == HorseAlleles.MITF_SW1) {
+                mitf = (i >> 5) % 2 == 0? HorseAlleles.MITF_WILDTYPE : mitf;
+            }
             setGene("MITF", mitf << (n * getGeneSize("MIFT")));
-            i >>= 5;
+            i >>= 6;
             setGene("PAX3", ((i % 4) + 4) % 4);
         }
         else if (type == "2")
