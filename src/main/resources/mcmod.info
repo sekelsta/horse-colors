@@ -1,7 +1,7 @@
 [{
   "modid": "horse_colors",
-  "name": "Realistic Horse Colors",
+  "name": "Realistic Horse Genetics",
   "description": "All the pretty ponies!",
   "mcversion": "${mcversion}",
-  "authorList": ["felinoid"]
+  "authorList": ["sekelsta"]
 }]
