@@ -263,13 +263,13 @@ public class HorseColorCalculator
         }
 
         // TODO: change this
-        String type = "countershaded";
+        String type = "dappled";
         boolean is_chestnut = horse.isChestnut()
-            && horse.hasAllele("cream", HorseAlleles.CREAM)
+            && !horse.hasAllele("cream", HorseAlleles.CREAM)
             && horse.getPhenotype("liver") != 0;
-        if (horse.getPhenotype("dapple") != 0)
+        if (horse.getPhenotype("dapple") == 0)
         {
-            type = is_chestnut? "even" : "dappled";
+            type = is_chestnut? "even" : "countershaded";
         }
 
         String prefix = is_gray? "gray" : "sooty_" + type;

@@ -91,6 +91,12 @@ public class HorseAlleles
     // Frame overo
     public static final int NONFRAME = 0;
     public static final int FRAME = 1;
+
+    // Splashed white
+    public static final int MITF_SW1 = 0;
+    public static final int MITF_UNUSED1 = 1;
+    public static final int MITF_UNUSED2 = 2;
+    public static final int MITF_WILDTYPE = 3;
   /*  TODO
         "dapple",  
         "white_suppression", 

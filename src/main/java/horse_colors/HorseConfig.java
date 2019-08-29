@@ -29,16 +29,16 @@ public class HorseConfig
     public static boolean horseDebugInfo = false;
 
     @Comment({
-        "If set to true, only horses created by this mod will spawn."
+        "If set to true, only horses created by this mod will spawn.",
+        "This mainly affects newly generated areas."
     })
     public static boolean blockVanillaHorseSpawns = true;
 
     @Comment({
-        "If enabled, each vanilla horse will be replaced by a random modded horse.",
-        "This is for loading a vanilla world. For creating a new world, the",
-        "recommended setting is false.",
-        "If blockVanillaHorseSpawns is set to false, this option won't do",
-        "anything."
+        "If enabled, each vanilla horse will be replaced by a horse",
+        "from this mod.",
+        "This matters for worlds where vanilla horses have already spawned",
+        "or will spawn."
     })
     public static boolean convertVanillaHorses = true;
 

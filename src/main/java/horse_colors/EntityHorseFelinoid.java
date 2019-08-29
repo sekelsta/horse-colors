@@ -500,7 +500,8 @@ public class EntityHorseFelinoid extends AbstractHorse
                 return 2 - getPhenotype("mealy1") - getPhenotype("mealy2");
             case "splash":
                 // TODO
-                return -1;
+                return isHomozygous("MITF", HorseAlleles.MITF_SW1)? 2 
+                    : hasAllele("MITF", HorseAlleles.MITF_SW1)? 1 : 0;
 
             /* Genes with multiple alleles. */
             case "extension":
@@ -684,12 +685,18 @@ public class EntityHorseFelinoid extends AbstractHorse
         String face_marking = HorseColorCalculator.getFaceMarking(this);
         String sooty = HorseColorCalculator.getSooty(this);
         String leopard = HorseColorCalculator.getLeopard(this);
+        // TODO: remove after adding proper leopard graphics
+        leopard = null;
         String mealy = HorseColorCalculator.getMealy(this);
         String legs = HorseColorCalculator.getLegs(this);
         String gray_mane = HorseColorCalculator.getGrayMane(this);
         String[] leg_markings = new String[4];
         
         String pinto = HorseColorCalculator.getPinto(this);
+        // TODO: remove after adding proper sabino graphics
+        if (pinto == "sabino") {
+            pinto = null;
+        }
         if (pinto == "white")
         {
             sooty = null;
@@ -1220,14 +1227,17 @@ public class EntityHorseFelinoid extends AbstractHorse
             setGeneRandom("mealy3", n, 4, 1);
             setGeneRandom("white_suppression", n, 32, 0);
 
-            int kit = i % 4 == 0? (((i >> 2) % 8) + 8) % 8 
-                                : (((i >> 2) % 16) + 16) % 16;
+            int kit = i % 2 == 0? (((i >> 1) % 8) + 8) % 8 
+                                : (((i >> 1) % 16) + 16) % 16;
             setGene("KIT", kit << (n * getGeneSize("KIT")));
             i >>= 6;
 
             setGeneRandom("frame", n, 32, 0);
-            setGeneRandom("MITF", n, 16, 0);
-            setGeneRandom("PAX3", n, 16, 0);
+            int mitf = i % 8 == 0? (((i >> 3) % 4) + 4) % 4
+                : HorseAlleles.MITF_WILDTYPE;
+            setGene("MITF", mitf << (n * getGeneSize("MIFT")));
+            i >>= 5;
+            setGene("PAX3", ((i % 4) + 4) % 4);
         }
         else if (type == "2")
         {
