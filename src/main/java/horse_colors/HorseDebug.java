@@ -6,23 +6,20 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
-
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 
 // Class for putting horse info on the debug screen
+@Mod.EventBusSubscriber(value = Dist.CLIENT, modid = "horse_colors", bus = Mod.EventBusSubscriber.Bus.MOD)
 public class HorseDebug {
-    // Determines when to pring horse debug info on the screen
+    // Determines when to print horse debug info on the screen
     public boolean showDebug(EntityPlayer player)
     {
-        if (!HorseConfig.horseDebugInfo)
+        if (!HorseConfig.COMMON.horseDebugInfo.get())
         {
             return false;
         }
@@ -31,23 +28,23 @@ public class HorseDebug {
             && itemStack.getItem() == Items.STICK;
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public void renderOverlayEvent(RenderGameOverlayEvent.Text event)
     {
         // If the player is looking at a horse and all conditions are met, add 
         // genetic information about that horse to the debug screen
 
-        EntityPlayer player = Minecraft.getMinecraft().player;
+        EntityPlayer player = Minecraft.getInstance().player;
         if (showDebug(player))
         {
             // Check if we're looking at a horse
-            if (Minecraft.getMinecraft().objectMouseOver != null
-                && Minecraft.getMinecraft().objectMouseOver.entityHit != null
-                && Minecraft.getMinecraft().objectMouseOver.entityHit instanceof EntityHorseFelinoid)
+            if (Minecraft.getInstance().objectMouseOver != null
+                && Minecraft.getInstance().objectMouseOver.entity != null
+                && Minecraft.getInstance().objectMouseOver.entity instanceof EntityHorseFelinoid)
             {
                 // If so, print information about it to the debug screen
-                EntityHorseFelinoid horse = (EntityHorseFelinoid)Minecraft.getMinecraft().objectMouseOver.entityHit;
+                EntityHorseFelinoid horse = (EntityHorseFelinoid)Minecraft.getInstance().objectMouseOver.entity;
                 // I thought I would need this to make everything fit on debug 
                 // mode, but it fits if I make the GUI smaller
                 // event.getRight().clear();

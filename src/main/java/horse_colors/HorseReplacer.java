@@ -7,8 +7,7 @@ import net.minecraft.entity.passive.EntityDonkey;
 import net.minecraft.world.biome.Biome.SpawnListEntry;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class HorseReplacer {
 	public static void preInit() {}
@@ -16,12 +15,12 @@ public class HorseReplacer {
 	public static void init() {}
 
     //Removes initial spawns
-	@SubscribeEvent(priority = EventPriority.NORMAL)
+	@SubscribeEvent
 	public void onEntitySpawn(WorldEvent.PotentialSpawns event) {
 		for(Iterator<SpawnListEntry> iter = event.getList().iterator(); iter.hasNext(); )
 		{
-			String className = iter.next().entityClass.getName();
-            if(HorseConfig.blockVanillaHorseSpawns && className.equals("net.minecraft.entity.passive.EntityHorse"))
+			String className = iter.next().entityType.getEntityClass().getName();
+            if(HorseConfig.COMMON.blockVanillaHorseSpawns.get() && className.equals("net.minecraft.entity.passive.EntityHorse"))
             {
 				iter.remove();
             }
@@ -34,7 +33,7 @@ public class HorseReplacer {
         // We don't want to replace subclasses of horses
         if (event.getEntity().getClass() == EntityHorse.class
             && !event.getWorld().isRemote 
-            && HorseConfig.convertVanillaHorses)
+            && HorseConfig.COMMON.convertVanillaHorses.get())
         {
             EntityHorse horse = (EntityHorse)event.getEntity();
             if (!horse.getEntityData().hasKey("converted")) {

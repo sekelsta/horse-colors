@@ -5,23 +5,24 @@ import java.util.UUID;
 import java.lang.reflect.Method;
 import javax.annotation.Nullable;
 
-import net.minecraft.block.SoundType;
-import net.minecraft.entity.EntityAgeable;
-import net.minecraft.entity.IEntityLivingData;
-import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.passive.AbstractHorse;
 import net.minecraft.inventory.ContainerHorseChest;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityDonkey;
 import net.minecraft.entity.passive.EntityMule;
 import net.minecraft.entity.passive.HorseArmorType;
+
+import net.minecraft.block.SoundType;
+import net.minecraft.entity.EntityAgeable;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.IEntityLivingData;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
+import net.minecraft.item.ItemSpawnEgg;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
@@ -31,19 +32,17 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
-import net.minecraft.util.datafix.DataFixer;
-import net.minecraft.util.datafix.FixTypes;
-import net.minecraft.util.datafix.walkers.ItemStackData;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.loot.LootTableList;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.minecraft.entity.ai.*;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.init.MobEffects;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 
 public class EntityHorseFelinoid extends AbstractHorse
@@ -134,7 +133,7 @@ public class EntityHorseFelinoid extends AbstractHorse
 
     public EntityHorseFelinoid(World worldIn)
     {
-        super(worldIn);
+        super(ModEntities.HORSE_FELINOID, worldIn);
     }
 
     public void copyAbstractHorse(AbstractHorse horse)
@@ -151,19 +150,19 @@ public class EntityHorseFelinoid extends AbstractHorse
         this.setGrowingAge(horse.getGrowingAge());
         // Transfer inventory
         ContainerHorseChest inv = 
-            ReflectionHelper.<ContainerHorseChest, AbstractHorse>getPrivateValue(AbstractHorse.class, horse, "horseChest", "field_110296_bG");
+            ObfuscationReflectionHelper.<ContainerHorseChest, AbstractHorse>getPrivateValue(AbstractHorse.class, horse, "horseChest");
         this.horseChest.setInventorySlotContents(0, inv.getStackInSlot(0));
         this.horseChest.setInventorySlotContents(1, inv.getStackInSlot(1));
         this.updateHorseSlots();
         // Copy over speed, health, and jump
-        double health = horse.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).getBaseValue();
-        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(health);
+        double health = horse.getAttribute(SharedMonsterAttributes.MAX_HEALTH).getBaseValue();
+        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(health);
 
-        double jump = horse.getEntityAttribute(JUMP_STRENGTH).getBaseValue();
-        this.getEntityAttribute(JUMP_STRENGTH).setBaseValue(jump);
+        double jump = horse.getAttribute(JUMP_STRENGTH).getBaseValue();
+        this.getAttribute(JUMP_STRENGTH).setBaseValue(jump);
 
-        double speed = horse.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getBaseValue();
-        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(speed);
+        double speed = horse.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getBaseValue();
+        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(speed);
     }
 
     @Override
@@ -180,9 +179,9 @@ public class EntityHorseFelinoid extends AbstractHorse
     }
 
     @Override
-    protected void entityInit()
+    protected void registerData()
     {
-        super.entityInit();
+        super.registerData();
         this.dataManager.register(HORSE_VARIANT, Integer.valueOf(0));
         this.dataManager.register(HORSE_VARIANT2, Integer.valueOf(0));
         this.dataManager.register(HORSE_VARIANT3, Integer.valueOf(0));
@@ -194,30 +193,24 @@ public class EntityHorseFelinoid extends AbstractHorse
         this.dataManager.register(HORSE_ARMOR_STACK, ItemStack.EMPTY);
     }
 
-    public static void registerFixesHorse(DataFixer fixer)
-    {
-        AbstractHorse.registerFixesAbstractHorse(fixer, EntityHorseFelinoid.class);
-        fixer.registerWalker(FixTypes.ENTITY, new ItemStackData(EntityHorseFelinoid.class, new String[] {"ArmorItem"}));
-    }
-
     /**
      * (abstract) Protected helper method to write subclass entity data to NBT.
      */
     @Override
-    public void writeEntityToNBT(NBTTagCompound compound)
+    public void writeAdditional(NBTTagCompound compound)
     {
-        super.writeEntityToNBT(compound);
-        compound.setInteger("Variant", this.getHorseVariant("0"));
-        compound.setInteger("Variant2", this.getHorseVariant("1"));
-        compound.setInteger("Variant3", this.getHorseVariant("2"));
-        compound.setInteger("SpeedGenes", this.getHorseVariant("speed"));
-        compound.setInteger("JumpGenes", this.getHorseVariant("jump"));
-        compound.setInteger("HealthGenes", this.getHorseVariant("health"));
-        compound.setInteger("Random", this.getHorseVariant("random"));
+        super.writeAdditional(compound);
+        compound.setInt("Variant", this.getHorseVariant("0"));
+        compound.setInt("Variant2", this.getHorseVariant("1"));
+        compound.setInt("Variant3", this.getHorseVariant("2"));
+        compound.setInt("SpeedGenes", this.getHorseVariant("speed"));
+        compound.setInt("JumpGenes", this.getHorseVariant("jump"));
+        compound.setInt("HealthGenes", this.getHorseVariant("health"));
+        compound.setInt("Random", this.getHorseVariant("random"));
 
         if (!this.horseChest.getStackInSlot(1).isEmpty())
         {
-            compound.setTag("ArmorItem", this.horseChest.getStackInSlot(1).writeToNBT(new NBTTagCompound()));
+            compound.setTag("ArmorItem", this.horseChest.getStackInSlot(1).write(new NBTTagCompound()));
         }
     }
 
@@ -225,20 +218,20 @@ public class EntityHorseFelinoid extends AbstractHorse
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
     @Override
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
-        super.readEntityFromNBT(compound);
-        this.setHorseVariant(compound.getInteger("Variant"), "0");
-        this.setHorseVariant(compound.getInteger("Variant2"), "1");
-        this.setHorseVariant(compound.getInteger("Variant3"), "2");
-        this.setHorseVariant(compound.getInteger("SpeedGenes"), "speed");
-        this.setHorseVariant(compound.getInteger("JumpGenes"), "jump");
-        this.setHorseVariant(compound.getInteger("HealthGenes"), "health");
-        this.setHorseVariant(compound.getInteger("Random"), "random");
+        super.readAdditional(compound);
+        this.setHorseVariant(compound.getInt("Variant"), "0");
+        this.setHorseVariant(compound.getInt("Variant2"), "1");
+        this.setHorseVariant(compound.getInt("Variant3"), "2");
+        this.setHorseVariant(compound.getInt("SpeedGenes"), "speed");
+        this.setHorseVariant(compound.getInt("JumpGenes"), "jump");
+        this.setHorseVariant(compound.getInt("HealthGenes"), "health");
+        this.setHorseVariant(compound.getInt("Random"), "random");
 
-        if (compound.hasKey("ArmorItem", 10))
+        if (compound.contains("ArmorItem", 10))
         {
-            ItemStack itemstack = new ItemStack(compound.getCompoundTag("ArmorItem"));
+            ItemStack itemstack = ItemStack.read(compound.getCompound("ArmorItem"));
 
             if (!itemstack.isEmpty() && isArmor(itemstack))
             {
@@ -656,7 +649,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         this.texturePrefix = null;
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private static String fixPath(String folder, String inStr) {
         if (inStr == null || inStr.contains(".png")) {
             return inStr;
@@ -676,7 +669,7 @@ public class EntityHorseFelinoid extends AbstractHorse
                 && getPhenotype("white") == 0;
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private void setHorseTexturePaths()
     {
         String base_texture = HorseColorCalculator.getBaseTexture(this);
@@ -707,8 +700,8 @@ public class EntityHorseFelinoid extends AbstractHorse
             leg_markings = HorseColorCalculator.getLegMarkings(this);
         }
 
-        ItemStack armorStack = this.dataManager.get(HORSE_ARMOR_STACK);
-        String texture = !armorStack.isEmpty() ? armorStack.getItem().getHorseArmorTexture(this, armorStack) : HorseArmorType.getByOrdinal(this.dataManager.get(HORSE_ARMOR)).getTextureName(); //If armorStack is empty, the server is vanilla so the texture should be determined the vanilla way
+
+        HorseArmorType horsearmortype = this.getHorseArmorType();
         
         this.horseTexturesArray[0] = fixPath("base", base_texture);
         this.horseTexturesArray[1] = fixPath("sooty", sooty);
@@ -723,7 +716,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         this.horseTexturesArray[11] = fixPath("pinto", leg_markings[3]);
         this.horseTexturesArray[12] = fixPath("leopard", leopard);
         this.horseTexturesArray[13] = fixPath("pinto", pinto);
-        this.horseTexturesArray[14] = texture;
+        this.horseTexturesArray[14] = horsearmortype.getTextureName();
 
         String base_abv = base_texture == null? "" : base_texture;
         String sooty_abv = sooty == null? "" : sooty;
@@ -741,10 +734,10 @@ public class EntityHorseFelinoid extends AbstractHorse
         String leopard_abv = leopard == null? "" : leopard;
         this.texturePrefix = "horse/cache_" + base_abv + sooty_abv + mealy_abv 
             + roan_abv + gray_mane_abv + face_marking_abv 
-            + leg_marking_abv + leopard_abv + pinto_abv + texture;
+            + leg_marking_abv + leopard_abv + pinto_abv + horsearmortype.getHash();
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public String getHorseTexture()
     {
         if (this.texturePrefix == null)
@@ -755,7 +748,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         return this.texturePrefix;
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public String[] getVariantTexturePaths()
     {
         if (this.texturePrefix == null)
@@ -788,21 +781,21 @@ public class EntityHorseFelinoid extends AbstractHorse
 
         if (!this.world.isRemote)
         {
-            this.getEntityAttribute(SharedMonsterAttributes.ARMOR).removeModifier(ARMOR_MODIFIER_UUID);
+            this.getAttribute(SharedMonsterAttributes.ARMOR).removeModifier(ARMOR_MODIFIER_UUID);
             int i = horsearmortype.getProtection();
 
             if (i != 0)
             {
-                this.getEntityAttribute(SharedMonsterAttributes.ARMOR).applyModifier((new AttributeModifier(ARMOR_MODIFIER_UUID, "Horse armor bonus", (double)i, 0)).setSaved(false));
+                this.getAttribute(SharedMonsterAttributes.ARMOR).applyModifier((new AttributeModifier(ARMOR_MODIFIER_UUID, "Horse armor bonus", (double)i, 0)).setSaved(false));
             }
         }
     }
 
-    public HorseArmorType getHorseArmorType()
+    public HorseArmorType getHorseArmorType() 
     {
-        HorseArmorType armor = HorseArmorType.getByItemStack(this.dataManager.get(HORSE_ARMOR_STACK)); //First check the Forge armor DataParameter
-        if (armor == HorseArmorType.NONE) armor = HorseArmorType.getByOrdinal(this.dataManager.get(HORSE_ARMOR)); //If the Forge armor DataParameter returns NONE, fallback to the vanilla armor DataParameter. This is necessary to prevent issues with Forge clients connected to vanilla servers.
-        return armor;
+      ItemStack stack = this.dataManager.get(HORSE_ARMOR_STACK);
+      if (!stack.isEmpty()) return stack.getHorseArmorType();
+      return HorseArmorType.getByOrdinal(this.dataManager.get(HORSE_ARMOR));
     }
 
     /**
@@ -834,7 +827,7 @@ public class EntityHorseFelinoid extends AbstractHorse
 
     private void useGeneticAttributes()
     {
-        if (HorseConfig.useGeneticStats)
+        if (HorseConfig.COMMON.useGeneticStats.get())
         {
             // Default horse health ranges from 15 to 30, but ours goes from
             // 15 to 31
@@ -844,28 +837,28 @@ public class EntityHorseFelinoid extends AbstractHorse
             // Vanilla horse jump strength ranges from 0.4 to 1.0, as does ours
             double jumpStrength = 0.4D + getStat("jump") * (0.6D / 32.0D);
 
-            this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(maxHealth);
-            this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(movementSpeed);
-            this.getEntityAttribute(JUMP_STRENGTH).setBaseValue(jumpStrength);
+            this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(maxHealth);
+            this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(movementSpeed);
+            this.getAttribute(JUMP_STRENGTH).setBaseValue(jumpStrength);
         }
     }
 
     @Override
-    protected void applyEntityAttributes()
+    protected void registerAttributes()
     {
-        super.applyEntityAttributes();
-        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue((double)this.getModifiedMaxHealth());
-        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(this.getModifiedMovementSpeed());
-        this.getEntityAttribute(JUMP_STRENGTH).setBaseValue(this.getModifiedJumpStrength());
+        super.registerAttributes();
+        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue((double)this.getModifiedMaxHealth());
+        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(this.getModifiedMovementSpeed());
+        this.getAttribute(JUMP_STRENGTH).setBaseValue(this.getModifiedJumpStrength());
     }
 
     /**
      * Called to update the entity's position/logic.
      */
     @Override
-    public void onUpdate()
+    public void tick()
     {
-        super.onUpdate();
+        super.tick();
 
         if (this.world.isRemote && this.dataManager.isDirty())
         {
@@ -873,7 +866,8 @@ public class EntityHorseFelinoid extends AbstractHorse
             this.resetTexturePrefix();
         }
         ItemStack armor = this.horseChest.getStackInSlot(1);
-        if (isArmor(armor)) armor.getItem().onHorseArmorTick(world, this, armor);
+        if (isArmor(armor)) armor.onHorseArmorTick(world, this);
+        // Overo lethal white syndrome
         if ((!this.world.isRemote || true)
             && this.getPhenotype("frame") == 2
             && this.ticksExisted > 80)
@@ -928,7 +922,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         ItemStack itemstack = player.getHeldItem(hand);
         boolean flag = !itemstack.isEmpty();
 
-        if (flag && itemstack.getItem() == Items.SPAWN_EGG)
+        if (flag && itemstack.getItem() instanceof ItemSpawnEgg)
         {
             return super.processInteract(player, hand);
         }
@@ -952,7 +946,7 @@ public class EntityHorseFelinoid extends AbstractHorse
             {
                 if (this.handleEating(player, itemstack))
                 {
-                    if (!player.capabilities.isCreativeMode)
+                    if (!player.abilities.isCreativeMode)
                     {
                         itemstack.shrink(1);
                     }
@@ -1013,7 +1007,7 @@ public class EntityHorseFelinoid extends AbstractHorse
             AbstractHorse other = (AbstractHorse)otherAnimal;
             // This is the same as calling other.canMate() but doesn't require
             // reflection
-            boolean otherCanMate = !other.isBeingRidden() && !other.isRiding() && other.isTame() && !other.isChild() && other.getHealth() >= other.getMaxHealth() && other.isInLove();
+            boolean otherCanMate = !other.isBeingRidden() && !other.isPassenger() && other.isTame() && !other.isChild() && other.getHealth() >= other.getMaxHealth() && other.isInLove();
             return this.canMate() && otherCanMate;
         }
         else
@@ -1297,9 +1291,10 @@ public class EntityHorseFelinoid extends AbstractHorse
      * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
      */
     @Nullable
-    public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata)
+    @Override
+    public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata, @Nullable NBTTagCompound itemNbt)
     {
-        livingdata = super.onInitialSpawn(difficulty, livingdata);
+        livingdata = super.onInitialSpawn(difficulty, livingdata, itemNbt);
 
         // TODO
         /*

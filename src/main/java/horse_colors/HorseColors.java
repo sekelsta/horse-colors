@@ -2,44 +2,42 @@ package felinoid.horse_colors;
 
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.Mod.Instance;
-import net.minecraftforge.fml.common.event.*;
-import net.minecraft.block.Block;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.SidedProxy;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
-@Mod(modid = HorseColors.MODID, name = HorseColors.NAME, version = HorseColors.VERSION)
-
+@Mod(HorseColors.MODID)
 public class HorseColors
 {
-    public static final String NAME = "Realistic Horse Colors";
     public static final String MODID = "horse_colors";
-    public static final String VERSION = "1.12.2-1.0.0";
 
-
-    @SidedProxy(clientSide="felinoid.horse_colors.ClientProxy",  serverSide="felinoid.horse_colors.CommonProxy")
-    public static CommonProxy proxy;
-    
-    @Mod.Instance("horse_colors")
     public static HorseColors instance;
-    
-    @Mod.EventHandler
-    public void preInit(final FMLPreInitializationEvent event) 
+
+    public static Logger logger = LogManager.getLogger(MODID);
+
+    public HorseColors()
     {
-        MinecraftForge.EVENT_BUS.register(ModItems.class);
+    	instance = this;
+
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
+
+		HorseConfig.register(ModLoadingContext.get());
+    }
+
+    private void commonSetup(final FMLCommonSetupEvent event)
+    {
         MinecraftForge.EVENT_BUS.register(ModEntities.class);
         MinecraftForge.EVENT_BUS.register(HorseReplacer.class);
     }
-    
-    @Mod.EventHandler
-    public void init(final FMLInitializationEvent event) 
+
+    private void clientSetup(final FMLClientSetupEvent event)
     {
-        proxy.registerRenderers();
-        proxy.registerEventListeners();
+        ModEntities.registerRenders();
     }
-    
-    @Mod.EventHandler
-    public void postInit(final FMLPostInitializationEvent event) {}
 }
