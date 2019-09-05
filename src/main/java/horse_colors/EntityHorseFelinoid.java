@@ -1235,7 +1235,7 @@ public class EntityHorseFelinoid extends AbstractHorse
             if (mitf == HorseAlleles.MITF_SW1) {
                 mitf = (i >> 5) % 2 == 0? HorseAlleles.MITF_WILDTYPE : mitf;
             }
-            setGene("MITF", mitf << (n * getGeneSize("MIFT")));
+            setGene("MITF", mitf << (n * getGeneSize("MITF")));
             i >>= 6;
             setGene("PAX3", ((i % 4) + 4) % 4);
         }
