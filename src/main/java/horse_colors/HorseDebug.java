@@ -14,10 +14,10 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 // Class for putting horse info on the debug screen
-@Mod.EventBusSubscriber(value = Dist.CLIENT, modid = "horse_colors", bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(value = Dist.CLIENT, modid = "horse_colors", bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class HorseDebug {
     // Determines when to print horse debug info on the screen
-    public boolean showDebug(EntityPlayer player)
+    public static boolean showDebug(EntityPlayer player)
     {
         if (!HorseConfig.COMMON.horseDebugInfo.get())
         {
@@ -30,7 +30,7 @@ public class HorseDebug {
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public void renderOverlayEvent(RenderGameOverlayEvent.Text event)
+    public static void renderOverlayEvent(RenderGameOverlayEvent.Text event)
     {
         // If the player is looking at a horse and all conditions are met, add 
         // genetic information about that horse to the debug screen

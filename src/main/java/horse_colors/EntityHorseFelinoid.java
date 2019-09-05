@@ -638,7 +638,8 @@ public class EntityHorseFelinoid extends AbstractHorse
                         + (getPhenotype("gray") == 2? -2 : 0)
                         + (getPhenotype("gray_mane") == 0? 0 : 1);
                 return Math.min(Math.max(val, 0), 3);
-                
+            case "MITF": return -1;
+            case "PAX3": return -1;         
         }
         System.out.println("[horse_colors]: Phenotype for " + name + " not found.");
         return -1;
@@ -686,7 +687,8 @@ public class EntityHorseFelinoid extends AbstractHorse
         String[] leg_markings = new String[4];
         
         String pinto = HorseColorCalculator.getPinto(this);
-        if (pinto == "white")
+        // Doesn't work if this code gets run?
+        /*if (pinto == "white")
         {
             sooty = null;
             roan = null;
@@ -695,7 +697,7 @@ public class EntityHorseFelinoid extends AbstractHorse
             leopard = null;
             mealy = null;
         }
-        else if (showsLegMarkings())
+        else */if (showsLegMarkings())
         {
             leg_markings = HorseColorCalculator.getLegMarkings(this);
         }
@@ -1229,7 +1231,7 @@ public class EntityHorseFelinoid extends AbstractHorse
             if (mitf == HorseAlleles.MITF_SW1) {
                 mitf = (i >> 5) % 2 == 0? HorseAlleles.MITF_WILDTYPE : mitf;
             }
-            setGene("MITF", mitf << (n * getGeneSize("MIFT")));
+            setGene("MITF", mitf << (n * getGeneSize("MITF")));
             i >>= 6;
             setGene("PAX3", ((i % 4) + 4) % 4);
         }

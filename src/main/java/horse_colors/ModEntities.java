@@ -5,6 +5,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemSpawnEgg;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.api.distmarker.Dist;
@@ -21,7 +24,26 @@ import net.minecraftforge.registries.ObjectHolder;
 import java.util.List;
 
 public class ModEntities {
+    //@ObjectHolder("horse_colors:horse_felinoid")
     public static EntityType<EntityHorseFelinoid> HORSE_FELINOID = null;
+    //@ObjectHolder("horse_colors:horse_felinoid_spawn_egg")
+    public static Item HORSE_SPAWN_EGG = null;
+
+    public static final int horseEggPrimary = 0x7F4320;
+    public static final int horseEggSecondary = 0x110E0D;
+    static
+    {
+            System.out.println("registering horse\n");
+			final ResourceLocation registryName = new ResourceLocation(HorseColors.MODID, "horse_felinoid");
+			HORSE_FELINOID = EntityType.Builder.create(EntityHorseFelinoid.class, EntityHorseFelinoid::new).build(registryName.toString());
+			HORSE_FELINOID.setRegistryName(registryName);
+
+            System.out.println("registering horse egg\n");
+            assert(HORSE_FELINOID != null);
+            Item spawnEgg = new ItemSpawnEgg(HORSE_FELINOID, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(ItemGroup.MISC));
+            spawnEgg.setRegistryName(new ResourceLocation(HorseColors.MODID, "horse_felinoid_spawn_egg"));
+            HORSE_SPAWN_EGG = spawnEgg;
+    }
 
 	@Mod.EventBusSubscriber(modid = HorseColors.MODID, bus = Bus.MOD)
 	public static class RegistrationHandler {
@@ -32,36 +54,25 @@ public class ModEntities {
 		 */
 		@SubscribeEvent
 		public static void registerEntities(final RegistryEvent.Register<EntityType<?>> event) {
-			final EntityType<EntityHorseFelinoid> horseFelinoid = build(
-					"horse_felinoid",
-					EntityType.Builder.create(EntityHorseFelinoid.class, EntityHorseFelinoid::new)
-			);
 
 			event.getRegistry().registerAll(
-					horseFelinoid
+					HORSE_FELINOID
 			);
+		}
 
+        @SubscribeEvent
+        public static void registerSpawnEggs(RegistryEvent.Register<Item> event) {
+
+            event.getRegistry().register(HORSE_SPAWN_EGG);
+        }
+
+        // This needs to be called AFTER registerEntities()
+        public static void addSpawns()
+        {
+            assert(HORSE_FELINOID != null);
 			addSpawn(HORSE_FELINOID, HorseConfig.COMMON.spawnWeight.get(), HorseConfig.COMMON.minHerdSize.get(), HorseConfig.COMMON.maxHerdSize.get(), EnumCreatureType.CREATURE, getBiomes(BiomeDictionary.Type.PLAINS));
 			addSpawn(HORSE_FELINOID, HorseConfig.COMMON.spawnWeight.get(), HorseConfig.COMMON.minHerdSize.get(), HorseConfig.COMMON.maxHerdSize.get(), EnumCreatureType.CREATURE, getBiomes(BiomeDictionary.Type.SAVANNA));
-		}
-
-		/**
-		 * Build an {@link EntityType} from a {@link EntityType.Builder} using the specified name.
-		 *
-		 * @param name    The entity type name
-		 * @param builder The entity type builder to build
-		 * @return The built entity type
-		 */
-		private static <T extends Entity> EntityType<T> build(final String name, final EntityType.Builder<T> builder) {
-			final ResourceLocation registryName = new ResourceLocation(HorseColors.MODID, name);
-
-			final EntityType<T> entityType = builder
-					.build(registryName.toString());
-
-			entityType.setRegistryName(registryName);
-
-			return entityType;
-		}
+        }
 
 		/**
 		 * Add a spawn entry for the supplied entity in the supplied {@link Biome} list.
