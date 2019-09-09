@@ -704,6 +704,11 @@ public class EntityHorseFelinoid extends AbstractHorse
 
 
         HorseArmorType horsearmortype = this.getHorseArmorType();
+        String armor = horsearmortype.getTextureName();
+        if (armor != null)
+        {
+            armor = "horse_colors:" + armor;
+        }
         
         this.horseTexturesArray[0] = fixPath("base", base_texture);
         this.horseTexturesArray[1] = fixPath("sooty", sooty);
@@ -718,7 +723,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         this.horseTexturesArray[11] = fixPath("pinto", leg_markings[3]);
         this.horseTexturesArray[12] = fixPath("leopard", leopard);
         this.horseTexturesArray[13] = fixPath("pinto", pinto);
-        this.horseTexturesArray[14] = horsearmortype.getTextureName();
+        this.horseTexturesArray[14] = fixPath("armor", armor);
 
         String base_abv = base_texture == null? "" : base_texture;
         String sooty_abv = sooty == null? "" : sooty;
