@@ -149,8 +149,9 @@ public class EntityHorseFelinoid extends AbstractHorse
         // Set age
         this.setGrowingAge(horse.getGrowingAge());
         // Transfer inventory
+        // field_110296_bG maps to horseChest
         ContainerHorseChest inv = 
-            ObfuscationReflectionHelper.<ContainerHorseChest, AbstractHorse>getPrivateValue(AbstractHorse.class, horse, "horseChest");
+            ObfuscationReflectionHelper.<ContainerHorseChest, AbstractHorse>getPrivateValue(AbstractHorse.class, horse, "field_110296_bG");
         this.horseChest.setInventorySlotContents(0, inv.getStackInSlot(0));
         this.horseChest.setInventorySlotContents(1, inv.getStackInSlot(1));
         this.updateHorseSlots();
