@@ -1223,21 +1223,19 @@ public class EntityHorseFelinoid extends AbstractHorse
             setGeneRandom("mealy3", n, 4, 1);
             setGeneRandom("white_suppression", n, 32, 0);
 
-            int kit = i % 2 == 0? (((i >> 1) % 8) + 8) % 8 
-                                : (((i >> 1) % 16) + 16) % 16;
+            int kit = i % 2 == 0? 0
+//                                : (i >> 1) % 2 == 0? (i >> 2) % 8
+                                : (i >> 2) % 16;
             setGene("KIT", kit << (n * getGeneSize("KIT")));
-            i >>= 6;
+            i >>= 7;
 
             setGeneRandom("frame", n, 32, 0);
-            int mitf = i % 8 == 0? (((i >> 3) % 4) + 4) % 4
+            int mitf = i % 4 == 0? HorseAlleles.MITF_WILDTYPE
+                : (i >> 2) % 2 == 0? (i >> 3) % 4
                 : HorseAlleles.MITF_WILDTYPE;
-            // Make SW1 less common
-            if (mitf == HorseAlleles.MITF_SW1) {
-                mitf = (i >> 5) % 2 == 0? HorseAlleles.MITF_WILDTYPE : mitf;
-            }
             setGene("MITF", mitf << (n * getGeneSize("MITF")));
-            i >>= 6;
-            setGene("PAX3", ((i % 4) + 4) % 4);
+            i >>= 4;
+            setGene("PAX3", (i % 4) << (n * getGeneSize("PAX3")));
         }
         else if (type == "2")
         {
