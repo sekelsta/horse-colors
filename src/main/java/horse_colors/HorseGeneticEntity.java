@@ -1,62 +1,70 @@
-package felinoid.horse_colors;
+package sekelsta.horse_colors;
 
 import java.util.Arrays;
 import java.util.UUID;
 import java.lang.reflect.Method;
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.passive.AbstractHorse;
-import net.minecraft.inventory.ContainerHorseChest;
-import net.minecraft.entity.passive.EntityAnimal;
-import net.minecraft.entity.passive.EntityDonkey;
-import net.minecraft.entity.passive.EntityMule;
-import net.minecraft.entity.passive.HorseArmorType;
+import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraft.entity.passive.horse.AbstractHorseEntity;
+import net.minecraft.entity.passive.horse.DonkeyEntity;
+import net.minecraft.entity.passive.horse.MuleEntity;
 
 import net.minecraft.block.SoundType;
-import net.minecraft.entity.EntityAgeable;
+import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.IEntityLivingData;
+import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemSpawnEgg;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.item.HorseArmorItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.item.Items;
+import net.minecraft.item.SpawnEggItem;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Hand;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
-import net.minecraft.world.storage.loot.LootTableList;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import net.minecraft.entity.ai.*;
+import net.minecraft.entity.ai.goal.BreedGoal;
+import net.minecraft.entity.ai.goal.FollowParentGoal;
+import net.minecraft.entity.ai.goal.LookAtGoal;
+import net.minecraft.entity.ai.goal.LookRandomlyGoal;
+import net.minecraft.entity.ai.goal.PanicGoal;
+import net.minecraft.entity.ai.goal.RunAroundLikeCrazyGoal;
+import net.minecraft.entity.ai.goal.SwimGoal;
+import net.minecraft.entity.ai.goal.WaterAvoidingRandomWalkingGoal;
+
 import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionEffect;
-import net.minecraft.init.MobEffects;
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.potion.Effects;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 
-public class EntityHorseFelinoid extends AbstractHorse
+public class HorseGeneticEntity extends AbstractHorseEntity
 {
     private static final UUID ARMOR_MODIFIER_UUID = UUID.fromString("556E1665-8B10-40C8-8F9D-CF9B1667F295");
-    private static final DataParameter<Integer> HORSE_VARIANT = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
-    private static final DataParameter<Integer> HORSE_VARIANT2 = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
-    private static final DataParameter<Integer> HORSE_VARIANT3 = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
-    private static final DataParameter<Integer> HORSE_SPEED = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
-    private static final DataParameter<Integer> HORSE_JUMP = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
-    private static final DataParameter<Integer> HORSE_HEALTH = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
-    private static final DataParameter<Integer> HORSE_RANDOM = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
-    private static final DataParameter<Integer> HORSE_ARMOR = EntityDataManager.<Integer>createKey(EntityHorseFelinoid.class, DataSerializers.VARINT);
-    private static final DataParameter<ItemStack> HORSE_ARMOR_STACK = EntityDataManager.<ItemStack>createKey(EntityHorseFelinoid.class, DataSerializers.ITEM_STACK);
+    private static final DataParameter<Integer> HORSE_VARIANT = EntityDataManager.<Integer>createKey(HorseGeneticEntity.class, DataSerializers.VARINT);
+    private static final DataParameter<Integer> HORSE_VARIANT2 = EntityDataManager.<Integer>createKey(HorseGeneticEntity.class, DataSerializers.VARINT);
+    private static final DataParameter<Integer> HORSE_VARIANT3 = EntityDataManager.<Integer>createKey(HorseGeneticEntity.class, DataSerializers.VARINT);
+    private static final DataParameter<Integer> HORSE_SPEED = EntityDataManager.<Integer>createKey(HorseGeneticEntity.class, DataSerializers.VARINT);
+    private static final DataParameter<Integer> HORSE_JUMP = EntityDataManager.<Integer>createKey(HorseGeneticEntity.class, DataSerializers.VARINT);
+    private static final DataParameter<Integer> HORSE_HEALTH = EntityDataManager.<Integer>createKey(HorseGeneticEntity.class, DataSerializers.VARINT);
+    private static final DataParameter<Integer> HORSE_RANDOM = EntityDataManager.<Integer>createKey(HorseGeneticEntity.class, DataSerializers.VARINT);
 
 
     /* Extension is the gene that determines whether black pigment can extend
@@ -93,7 +101,7 @@ public class EntityHorseFelinoid extends AbstractHorse
     dapple pattern. */
 
     /* Mealy turns some red hairs to white, generally on the belly or
-    undersides. It's recessive, and, like flaxen, is a polygenetic trait. */
+    undersides. It's a polygenetic trait. */
     public static final String[] genes = new String[] {
         "extension", 
         "agouti", 
@@ -131,12 +139,12 @@ public class EntityHorseFelinoid extends AbstractHorse
     // See the function that sets this to find what each of  the layers are for
     private final String[] horseTexturesArray = new String[15];
 
-    public EntityHorseFelinoid(World worldIn)
+    public HorseGeneticEntity(EntityType<? extends HorseGeneticEntity> entityType, World worldIn)
     {
-        super(ModEntities.HORSE_FELINOID, worldIn);
+        super(entityType, worldIn);
     }
 
-    public void copyAbstractHorse(AbstractHorse horse)
+    public void copyAbstractHorse(AbstractHorseEntity horse)
     {
         // Copy location
         this.setLocationAndAngles(horse.posX, horse.posY, horse.posZ, horse.rotationYaw, horse.rotationPitch);
@@ -149,8 +157,10 @@ public class EntityHorseFelinoid extends AbstractHorse
         // Set age
         this.setGrowingAge(horse.getGrowingAge());
         // Transfer inventory
-        ContainerHorseChest inv = 
-            ObfuscationReflectionHelper.<ContainerHorseChest, AbstractHorse>getPrivateValue(AbstractHorse.class, horse, "horseChest");
+        // field_110296_bG maps to horseChest in mcp snapshot 20180921-1.13
+        // Also in snapshot 20190719-1.14.3
+        Inventory inv = 
+            ObfuscationReflectionHelper.<Inventory, AbstractHorseEntity>getPrivateValue(AbstractHorseEntity.class, horse, "field_110296_bG");
         this.horseChest.setInventorySlotContents(0, inv.getStackInSlot(0));
         this.horseChest.setInventorySlotContents(1, inv.getStackInSlot(1));
         this.updateHorseSlots();
@@ -166,16 +176,20 @@ public class EntityHorseFelinoid extends AbstractHorse
     }
 
     @Override
-    protected void initEntityAI()
-    {
-        this.tasks.addTask(0, new EntityAISwimming(this));
-        this.tasks.addTask(1, new EntityAIPanic(this, 1.2D));
-        this.tasks.addTask(1, new EntityAIRunAroundLikeCrazy(this, 1.2D));
-        this.tasks.addTask(2, new EntityAIMate(this, 1.0D, AbstractHorse.class));
-        this.tasks.addTask(4, new EntityAIFollowParent(this, 1.0D));
-        this.tasks.addTask(6, new EntityAIWanderAvoidWater(this, 0.7D));
-        this.tasks.addTask(7, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
-        this.tasks.addTask(8, new EntityAILookIdle(this));
+    protected void registerGoals() {
+        this.goalSelector.addGoal(1, new PanicGoal(this, 1.2D));
+        this.goalSelector.addGoal(1, new RunAroundLikeCrazyGoal(this, 1.2D));
+        this.goalSelector.addGoal(2, new BreedGoal(this, 1.0D, AbstractHorseEntity.class));
+        this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.0D));
+        this.goalSelector.addGoal(6, new WaterAvoidingRandomWalkingGoal(this, 0.7D));
+        /*this.goalSelector.addGoal(7, new LookAtGoal(this, PlayerEntity.class, 6.0F));*/
+        this.goalSelector.addGoal(8, new LookRandomlyGoal(this));
+        this.initExtraAI();
+    }
+
+    @Override
+    protected void initExtraAI() {
+        this.goalSelector.addGoal(0, new SwimGoal(this));
     }
 
     @Override
@@ -189,36 +203,39 @@ public class EntityHorseFelinoid extends AbstractHorse
         this.dataManager.register(HORSE_HEALTH, Integer.valueOf(0));
         this.dataManager.register(HORSE_JUMP, Integer.valueOf(0));
         this.dataManager.register(HORSE_RANDOM, Integer.valueOf(0));
-        this.dataManager.register(HORSE_ARMOR, Integer.valueOf(HorseArmorType.NONE.getOrdinal()));
-        this.dataManager.register(HORSE_ARMOR_STACK, ItemStack.EMPTY);
     }
 
     /**
      * (abstract) Protected helper method to write subclass entity data to NBT.
      */
     @Override
-    public void writeAdditional(NBTTagCompound compound)
+    public void writeAdditional(CompoundNBT compound)
     {
         super.writeAdditional(compound);
-        compound.setInt("Variant", this.getHorseVariant("0"));
-        compound.setInt("Variant2", this.getHorseVariant("1"));
-        compound.setInt("Variant3", this.getHorseVariant("2"));
-        compound.setInt("SpeedGenes", this.getHorseVariant("speed"));
-        compound.setInt("JumpGenes", this.getHorseVariant("jump"));
-        compound.setInt("HealthGenes", this.getHorseVariant("health"));
-        compound.setInt("Random", this.getHorseVariant("random"));
+        compound.putInt("Variant", this.getHorseVariant("0"));
+        compound.putInt("Variant2", this.getHorseVariant("1"));
+        compound.putInt("Variant3", this.getHorseVariant("2"));
+        compound.putInt("SpeedGenes", this.getHorseVariant("speed"));
+        compound.putInt("JumpGenes", this.getHorseVariant("jump"));
+        compound.putInt("HealthGenes", this.getHorseVariant("health"));
+        compound.putInt("Random", this.getHorseVariant("random"));
 
         if (!this.horseChest.getStackInSlot(1).isEmpty())
         {
-            compound.setTag("ArmorItem", this.horseChest.getStackInSlot(1).write(new NBTTagCompound()));
+            compound.put("ArmorItem", this.horseChest.getStackInSlot(1).write(new CompoundNBT()));
         }
     }
+
+   private void setArmor(ItemStack itemStackIn) {
+      this.setItemStackToSlot(EquipmentSlotType.CHEST, itemStackIn);
+      this.setDropChance(EquipmentSlotType.CHEST, 0.0F);
+   }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
     @Override
-    public void readAdditional(NBTTagCompound compound)
+    public void readAdditional(CompoundNBT compound)
     {
         super.readAdditional(compound);
         this.setHorseVariant(compound.getInt("Variant"), "0");
@@ -233,7 +250,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         {
             ItemStack itemstack = ItemStack.read(compound.getCompound("ArmorItem"));
 
-            if (!itemstack.isEmpty() && isArmor(itemstack))
+            if (!itemstack.isEmpty() && this.isArmor(itemstack))
             {
                 this.horseChest.setInventorySlotContents(1, itemstack);
             }
@@ -702,9 +719,10 @@ public class EntityHorseFelinoid extends AbstractHorse
             leg_markings = HorseColorCalculator.getLegMarkings(this);
         }
 
-
-        HorseArmorType horsearmortype = this.getHorseArmorType();
-        
+/*
+        ItemStack armor = this.getHorseArmor();
+        String armor_texture = HorseArmorer.getTextureName(armor);
+       */ 
         this.horseTexturesArray[0] = fixPath("base", base_texture);
         this.horseTexturesArray[1] = fixPath("sooty", sooty);
         this.horseTexturesArray[2] = fixPath("mealy", mealy);
@@ -718,7 +736,7 @@ public class EntityHorseFelinoid extends AbstractHorse
         this.horseTexturesArray[11] = fixPath("pinto", leg_markings[3]);
         this.horseTexturesArray[12] = fixPath("leopard", leopard);
         this.horseTexturesArray[13] = fixPath("pinto", pinto);
-        this.horseTexturesArray[14] = horsearmortype.getTextureName();
+        //this.horseTexturesArray[14] = fixPath("armor", armor_texture);
 
         String base_abv = base_texture == null? "" : base_texture;
         String sooty_abv = sooty == null? "" : sooty;
@@ -734,9 +752,10 @@ public class EntityHorseFelinoid extends AbstractHorse
             + (leg_markings[3] == null? "-" : leg_markings[3]);
         String pinto_abv = pinto == null? "" : pinto;
         String leopard_abv = leopard == null? "" : leopard;
+        //String armor_abv = HorseArmorer.getHash(armor);
         this.texturePrefix = "horse/cache_" + base_abv + sooty_abv + mealy_abv 
             + roan_abv + gray_mane_abv + face_marking_abv 
-            + leg_marking_abv + leopard_abv + pinto_abv + horsearmortype.getHash();
+            + leg_marking_abv + leopard_abv + pinto_abv/* + armor_abv*/;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -776,28 +795,21 @@ public class EntityHorseFelinoid extends AbstractHorse
      */
     public void setHorseArmorStack(ItemStack itemStackIn)
     {
-        HorseArmorType horsearmortype = HorseArmorType.getByItemStack(itemStackIn);
-        this.dataManager.set(HORSE_ARMOR, Integer.valueOf(horsearmortype.getOrdinal()));
-        this.dataManager.set(HORSE_ARMOR_STACK, itemStackIn);
-        this.resetTexturePrefix();
-
-        if (!this.world.isRemote)
-        {
-            this.getAttribute(SharedMonsterAttributes.ARMOR).removeModifier(ARMOR_MODIFIER_UUID);
-            int i = horsearmortype.getProtection();
-
-            if (i != 0)
-            {
-                this.getAttribute(SharedMonsterAttributes.ARMOR).applyModifier((new AttributeModifier(ARMOR_MODIFIER_UUID, "Horse armor bonus", (double)i, 0)).setSaved(false));
+      this.setArmor(itemStackIn);
+      if (!this.world.isRemote) {
+         this.getAttribute(SharedMonsterAttributes.ARMOR).removeModifier(ARMOR_MODIFIER_UUID);
+         if (this.isArmor(itemStackIn)) {
+            // getProtection, possibly
+            int i = ((HorseArmorItem)itemStackIn.getItem()).func_219977_e();
+            if (i != 0) {
+               this.getAttribute(SharedMonsterAttributes.ARMOR).applyModifier((new AttributeModifier(ARMOR_MODIFIER_UUID, "Horse armor bonus", (double)i, AttributeModifier.Operation.ADDITION)).setSaved(false));
             }
-        }
+         }
+      }
     }
 
-    public HorseArmorType getHorseArmorType() 
-    {
-      ItemStack stack = this.dataManager.get(HORSE_ARMOR_STACK);
-      if (!stack.isEmpty()) return stack.getHorseArmorType();
-      return HorseArmorType.getByOrdinal(this.dataManager.get(HORSE_ARMOR));
+    public ItemStack getHorseArmor() {
+        return this.getItemStackFromSlot(EquipmentSlotType.CHEST);
     }
 
     /**
@@ -806,12 +818,11 @@ public class EntityHorseFelinoid extends AbstractHorse
     @Override
     public void onInventoryChanged(IInventory invBasic)
     {
-        HorseArmorType horsearmortype = this.getHorseArmorType();
+        ItemStack itemstack = this.getHorseArmor();
         super.onInventoryChanged(invBasic);
-        HorseArmorType horsearmortype1 = this.getHorseArmorType();
+        ItemStack itemstack1 = this.getHorseArmor();
 
-        if (this.ticksExisted > 20 && horsearmortype != horsearmortype1 && horsearmortype1 != HorseArmorType.NONE)
-        {
+        if (this.ticksExisted > 20 && this.isArmor(itemstack1) && itemstack != itemstack1) {
             this.playSound(SoundEvents.ENTITY_HORSE_ARMOR, 0.5F, 1.0F);
         }
     }
@@ -874,13 +885,13 @@ public class EntityHorseFelinoid extends AbstractHorse
             && this.getPhenotype("frame") == 2
             && this.ticksExisted > 80)
         {
-            if (!this.isPotionActive(MobEffects.POISON))
+            if (!this.isPotionActive(Effects.POISON))
             {
-                this.addPotionEffect(new PotionEffect(MobEffects.POISON, 100, 3));
+                this.addPotionEffect(new EffectInstance(Effects.POISON, 100, 3));
             }
             if (this.getHealth() < 2)
             {
-                this.addPotionEffect(new PotionEffect(MobEffects.INSTANT_DAMAGE, 1, 3));
+                this.addPotionEffect(new EffectInstance(Effects.INSTANT_DAMAGE, 1, 3));
             }
         }
     }
@@ -913,18 +924,13 @@ public class EntityHorseFelinoid extends AbstractHorse
         return SoundEvents.ENTITY_HORSE_ANGRY;
     }
 
-    protected ResourceLocation getLootTable()
-    {
-        return LootTableList.ENTITIES_HORSE;
-    }
-
     @Override
-    public boolean processInteract(EntityPlayer player, EnumHand hand)
+    public boolean processInteract(PlayerEntity player, Hand hand)
     {
         ItemStack itemstack = player.getHeldItem(hand);
-        boolean flag = !itemstack.isEmpty();
+        boolean notEmpty = !itemstack.isEmpty();
 
-        if (flag && itemstack.getItem() instanceof ItemSpawnEgg)
+        if (notEmpty && itemstack.getItem() instanceof SpawnEggItem)
         {
             return super.processInteract(player, hand);
         }
@@ -944,7 +950,7 @@ public class EntityHorseFelinoid extends AbstractHorse
                 }
             }
 
-            if (flag)
+            if (notEmpty)
             {
                 if (this.handleEating(player, itemstack))
                 {
@@ -967,10 +973,9 @@ public class EntityHorseFelinoid extends AbstractHorse
                     return true;
                 }
 
-                boolean flag1 = HorseArmorType.getByItemStack(itemstack) != HorseArmorType.NONE;
-                boolean flag2 = !this.isChild() && !this.isHorseSaddled() && itemstack.getItem() == Items.SADDLE;
+                boolean saddle = !this.isChild() && !this.isHorseSaddled() && itemstack.getItem() == Items.SADDLE;
 
-                if (flag1 || flag2)
+                if (this.isArmor(itemstack) || saddle)
                 {
                     this.openGUI(player);
                     return true;
@@ -993,20 +998,20 @@ public class EntityHorseFelinoid extends AbstractHorse
      * Returns true if the mob is currently able to mate with the specified mob.
      */
     @Override
-    public boolean canMateWith(EntityAnimal otherAnimal)
+    public boolean canMateWith(AnimalEntity otherAnimal)
     {
         if (otherAnimal == this)
         {
             return false;
         }
         // Mate with other horses or donkeys
-        else if (otherAnimal instanceof EntityHorseFelinoid)
+        else if (otherAnimal instanceof HorseGeneticEntity)
         {
-            return this.canMate() && ((EntityHorseFelinoid)otherAnimal).canMate();
+            return this.canMate() && ((HorseGeneticEntity)otherAnimal).canMate();
         }
-        else if (otherAnimal instanceof EntityDonkey)
+        else if (otherAnimal instanceof DonkeyEntity)
         {
-            AbstractHorse other = (AbstractHorse)otherAnimal;
+            AbstractHorseEntity other = (AbstractHorseEntity)otherAnimal;
             // This is the same as calling other.canMate() but doesn't require
             // reflection
             boolean otherCanMate = !other.isBeingRidden() && !other.isPassenger() && other.isTame() && !other.isChild() && other.getHealth() >= other.getMaxHealth() && other.isInLove();
@@ -1075,58 +1080,58 @@ public class EntityHorseFelinoid extends AbstractHorse
     }
 
     @Override
-    public EntityAgeable createChild(EntityAgeable ageable)
+    public AgeableEntity createChild(AgeableEntity ageable)
     {
-        AbstractHorse abstracthorse;
+        AbstractHorseEntity abstracthorse;
 
-        if (ageable instanceof EntityDonkey)
+        if (ageable instanceof DonkeyEntity)
         {
-            abstracthorse = new EntityMule(this.world);
+            abstracthorse = EntityType.MULE.create(this.world);
         }
         else
         {
-            EntityHorseFelinoid entityhorse = (EntityHorseFelinoid)ageable;
-            abstracthorse = new EntityHorseFelinoid(this.world);
+            HorseGeneticEntity entityhorse = (HorseGeneticEntity)ageable;
+            abstracthorse = ModEntities.HORSE_GENETIC.create(this.world);
 
             int mother = this.getRandomGenes(1, 0);
             int father = entityhorse.getRandomGenes(0, 0);
             int i = mother | father;
-            ((EntityHorseFelinoid)abstracthorse).setHorseVariant(i, "0");
+            ((HorseGeneticEntity)abstracthorse).setHorseVariant(i, "0");
 
             mother = this.getRandomGenes(1, 1);
             father = entityhorse.getRandomGenes(0, 1);
             i = mother | father;
-            ((EntityHorseFelinoid)abstracthorse).setHorseVariant(i, "1");
+            ((HorseGeneticEntity)abstracthorse).setHorseVariant(i, "1");
 
 
-            ((EntityHorseFelinoid)abstracthorse).setHorseVariant(rand.nextInt(), "2");
+            ((HorseGeneticEntity)abstracthorse).setHorseVariant(rand.nextInt(), "2");
             mother = this.getRandomGenes(1, 2);
             father = entityhorse.getRandomGenes(0, 2);
             i = mother | father;
-            ((EntityHorseFelinoid)abstracthorse).setHorseVariant(i, "2");
+            ((HorseGeneticEntity)abstracthorse).setHorseVariant(i, "2");
 
             // speed, health, and jump
             mother = getRandomGenericGenes(1, getHorseVariant("speed"));
             father = entityhorse.getRandomGenericGenes(0, entityhorse.getHorseVariant("speed"));
             i = mother | father;
-            ((EntityHorseFelinoid)abstracthorse).setHorseVariant(i, "speed");
+            ((HorseGeneticEntity)abstracthorse).setHorseVariant(i, "speed");
 
             mother = getRandomGenericGenes(1, getHorseVariant("health"));
             father = entityhorse.getRandomGenericGenes(0, entityhorse.getHorseVariant("health"));
             i = mother | father;
-            ((EntityHorseFelinoid)abstracthorse).setHorseVariant(i, "health");
+            ((HorseGeneticEntity)abstracthorse).setHorseVariant(i, "health");
 
             mother = getRandomGenericGenes(1, getHorseVariant("jump"));
             father = entityhorse.getRandomGenericGenes(0, entityhorse.getHorseVariant("jump"));
             i = mother | father;
-            ((EntityHorseFelinoid)abstracthorse).setHorseVariant(i, "jump");
+            ((HorseGeneticEntity)abstracthorse).setHorseVariant(i, "jump");
 
             i =  this.rand.nextInt();
-            ((EntityHorseFelinoid)abstracthorse).setHorseVariant(i, "random");
+            ((HorseGeneticEntity)abstracthorse).setHorseVariant(i, "random");
 
             // Dominant white is homozygous lethal early in pregnancy. No child
             // is born.
-            if (((EntityHorseFelinoid)abstracthorse).getPhenotype("dominant_white")
+            if (((HorseGeneticEntity)abstracthorse).getPhenotype("dominant_white")
                     == 2)
             {
                 return null;
@@ -1134,9 +1139,9 @@ public class EntityHorseFelinoid extends AbstractHorse
         }
 
         this.setOffspringAttributes(ageable, abstracthorse);
-        if (abstracthorse instanceof EntityHorseFelinoid)
+        if (abstracthorse instanceof HorseGeneticEntity)
         {
-            ((EntityHorseFelinoid)abstracthorse).useGeneticAttributes();
+            ((HorseGeneticEntity)abstracthorse).useGeneticAttributes();
         }
         return abstracthorse;
     }
@@ -1150,7 +1155,7 @@ public class EntityHorseFelinoid extends AbstractHorse
     @Override
     public boolean isArmor(ItemStack stack)
     {
-        return HorseArmorType.isHorseArmor(stack);
+        return stack.getItem() instanceof HorseArmorItem;
     }
 
     // with 1/odds probability gets the gene to 0 or 1, whichever common isn't
@@ -1209,7 +1214,8 @@ public class EntityHorseFelinoid extends AbstractHorse
         }
         else if (type == "1")
         {
-            int i = this.rand.nextInt();
+            // logical bitshift to make unsigned
+            int i = this.rand.nextInt() >>> 1;
 
             setGeneRandom("sooty1", n, 4, 1);
             setGeneRandom("sooty2", n, 4, 1);
@@ -1219,21 +1225,19 @@ public class EntityHorseFelinoid extends AbstractHorse
             setGeneRandom("mealy3", n, 4, 1);
             setGeneRandom("white_suppression", n, 32, 0);
 
-            int kit = i % 2 == 0? (((i >> 1) % 8) + 8) % 8 
-                                : (((i >> 1) % 16) + 16) % 16;
+            int kit = i % 2 == 0? 0
+//                                : (i >> 1) % 2 == 0? (i >> 2) % 8
+                                : (i >> 2) % 16;
             setGene("KIT", kit << (n * getGeneSize("KIT")));
-            i >>= 6;
+            i >>= 7;
 
             setGeneRandom("frame", n, 32, 0);
-            int mitf = i % 8 == 0? (((i >> 3) % 4) + 4) % 4
+            int mitf = i % 4 == 0? HorseAlleles.MITF_WILDTYPE
+                : (i >> 2) % 2 == 0? (i >> 3) % 4
                 : HorseAlleles.MITF_WILDTYPE;
-            // Make SW1 less common
-            if (mitf == HorseAlleles.MITF_SW1) {
-                mitf = (i >> 5) % 2 == 0? HorseAlleles.MITF_WILDTYPE : mitf;
-            }
             setGene("MITF", mitf << (n * getGeneSize("MITF")));
-            i >>= 6;
-            setGene("PAX3", ((i % 4) + 4) % 4);
+            i >>= 4;
+            setGene("PAX3", (i % 4) << (n * getGeneSize("PAX3")));
         }
         else if (type == "2")
         {
@@ -1294,33 +1298,29 @@ public class EntityHorseFelinoid extends AbstractHorse
      */
     @Nullable
     @Override
-    public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata, @Nullable NBTTagCompound itemNbt)
+    public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag)
     {
-        livingdata = super.onInitialSpawn(difficulty, livingdata, itemNbt);
-
-        // TODO
+        spawnDataIn = super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
         /*
-        if (livingdata instanceof EntityHorseFelinoid.GroupData)
-        {
-            int i = ((EntityHorseFelinoid.GroupData)livingdata).variant;
-            this.setHorseVariant(i);
+        int i;
+        if (spawnDataIn instanceof HorseGeneticEntity.HerdData) {
+            i = ((HorseGeneticEntity.HerdData)spawnDataIn).variant;
+        } else {
+         i = this.rand.nextInt(7);
+         spawnDataIn = new HorseGeneticEntity.HerdData(i);
         }
-        else
-        {
-            this.randomize();
-            livingdata = new EntityHorseFelinoid.GroupData(getHorseVariant());
-        }
-        */
 
+        this.setHorseVariant(i | this.rand.nextInt(5) << 8);
+        */
         this.randomize();
-        return livingdata;
+        return spawnDataIn;
     }
 
-    public static class GroupData implements IEntityLivingData
+    public static class HerdData implements ILivingEntityData
         {
             public int variant;
 
-            public GroupData(int variantIn)
+            public HerdData(int variantIn)
             {
                 this.variant = variantIn;
             }

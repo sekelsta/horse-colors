@@ -1,10 +1,10 @@
-package felinoid.horse_colors;
+package sekelsta.horse_colors;
 
 public class HorseColorCalculator
 {
     private static final int GRAY_LEG_BITS = 2;
     private static final int FACE_MARKING_BITS = 2;
-    public static String getBaseTexture(EntityHorseFelinoid horse)
+    public static String getBaseTexture(HorseGeneticEntity horse)
     {
         // Double cream dilute + gray gives white
         if (horse.isHomozygous("cream", HorseAlleles.CREAM)
@@ -213,7 +213,7 @@ public class HorseColorCalculator
         return "no texture found";
     }
 
-    public static String getSooty(EntityHorseFelinoid horse)
+    public static String getSooty(HorseGeneticEntity horse)
     {
         if (horse.isHomozygous("cream", HorseAlleles.CREAM))
         {
@@ -276,13 +276,13 @@ public class HorseColorCalculator
         return prefix + suffix;
     }
 
-    public static String getMealy(EntityHorseFelinoid horse)
+    public static String getMealy(HorseGeneticEntity horse)
     {
         // TODO
         return null;
     }
 
-    public static String getLegs(EntityHorseFelinoid horse)
+    public static String getLegs(HorseGeneticEntity horse)
     {
         // Dappled gray horses can have dark legs
         if (horse.getPhenotype("gray") != 0
@@ -332,7 +332,7 @@ public class HorseColorCalculator
         return legs;
     }
 
-    public static String getGrayMane(EntityHorseFelinoid horse)
+    public static String getGrayMane(HorseGeneticEntity horse)
     {
         if (horse.isHomozygous("gray", HorseAlleles.GRAY)
             && horse.getPhenotype("gray_mane") == 2)
@@ -363,7 +363,7 @@ public class HorseColorCalculator
         return "gray_mane";
     }
 
-    public static String getFaceMarking(EntityHorseFelinoid horse)
+    public static String getFaceMarking(HorseGeneticEntity horse)
     {
         if (horse.getPhenotype("white_suppression") != 0)
         {
@@ -509,13 +509,13 @@ public class HorseColorCalculator
         }
     }
 
-    public static String[] getLegMarkings(EntityHorseFelinoid horse)
+    public static String[] getLegMarkings(HorseGeneticEntity horse)
     {
         // TODO
         return new String[4];
     }
 
-    public static String getPinto(EntityHorseFelinoid horse)
+    public static String getPinto(HorseGeneticEntity horse)
     {
         if (horse.getPhenotype("white") == 1)
         {
@@ -565,7 +565,7 @@ public class HorseColorCalculator
         return pinto;
     }
 
-    public static String getLeopard(EntityHorseFelinoid horse)
+    public static String getLeopard(HorseGeneticEntity horse)
     {
         if (horse.getPhenotype("leopard") == 0)
         {

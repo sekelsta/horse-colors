@@ -1,10 +1,10 @@
-package felinoid.horse_colors;
+package sekelsta.horse_colors;
 
 import java.util.Iterator;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -12,12 +12,14 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.EntityRayTraceResult;
 
 // Class for putting horse info on the debug screen
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = "horse_colors", bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class HorseDebug {
     // Determines when to print horse debug info on the screen
-    public static boolean showDebug(EntityPlayer player)
+    public static boolean showDebug(PlayerEntity player)
     {
         if (!HorseConfig.COMMON.horseDebugInfo.get())
         {
@@ -35,20 +37,23 @@ public class HorseDebug {
         // If the player is looking at a horse and all conditions are met, add 
         // genetic information about that horse to the debug screen
 
-        EntityPlayer player = Minecraft.getInstance().player;
+        PlayerEntity player = Minecraft.getInstance().player;
         if (showDebug(player))
         {
             // Check if we're looking at a horse
-            if (Minecraft.getInstance().objectMouseOver != null
-                && Minecraft.getInstance().objectMouseOver.entity != null
-                && Minecraft.getInstance().objectMouseOver.entity instanceof EntityHorseFelinoid)
+            RayTraceResult mouseOver = Minecraft.getInstance().objectMouseOver;
+            if (mouseOver != null
+                && mouseOver instanceof EntityRayTraceResult
+                && ((EntityRayTraceResult)mouseOver).getEntity() != null
+                //&& Minecraft.getInstance().objectMouseOver.getType == RayTraceResult.Type.ENTITY
+                && ((EntityRayTraceResult)mouseOver).getEntity() instanceof HorseGeneticEntity)
             {
                 // If so, print information about it to the debug screen
-                EntityHorseFelinoid horse = (EntityHorseFelinoid)Minecraft.getInstance().objectMouseOver.entity;
+                HorseGeneticEntity horse = (HorseGeneticEntity)((EntityRayTraceResult)mouseOver).getEntity();
                 // I thought I would need this to make everything fit on debug 
                 // mode, but it fits if I make the GUI smaller
                 // event.getRight().clear();
-                for (String gene : EntityHorseFelinoid.genes)
+                for (String gene : HorseGeneticEntity.genes)
                 {
                     event.getRight().add(gene + ": " + horse.getPhenotype(gene) 
                         + " (" + horse.getAllele(gene, 1) + ", "

@@ -1,4 +1,4 @@
-package felinoid.horse_colors;
+package sekelsta.horse_colors;
 
 public class HorseAlleles
 {

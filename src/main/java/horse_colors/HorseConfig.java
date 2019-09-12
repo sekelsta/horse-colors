@@ -1,4 +1,4 @@
-package felinoid.horse_colors;
+package sekelsta.horse_colors;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

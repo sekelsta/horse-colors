@@ -1,13 +1,13 @@
-package felinoid.horse_colors;
+package sekelsta.horse_colors;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.entity.EntityClassification;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemSpawnEgg;
+import net.minecraft.item.SpawnEggItem;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.api.distmarker.Dist;
@@ -25,7 +25,7 @@ import java.util.List;
 
 public class ModEntities {
     //@ObjectHolder("horse_colors:horse_felinoid")
-    public static EntityType<EntityHorseFelinoid> HORSE_FELINOID = null;
+    public static EntityType<HorseGeneticEntity> HORSE_GENETIC = null;
     //@ObjectHolder("horse_colors:horse_felinoid_spawn_egg")
     public static Item HORSE_SPAWN_EGG = null;
 
@@ -33,17 +33,22 @@ public class ModEntities {
     public static final int horseEggSecondary = 0x110E0D;
     static
     {
+            // Default tracker is fine, or could use .tracker(64, 2, false)
             System.out.println("registering horse\n");
-			final ResourceLocation registryName = new ResourceLocation(HorseColors.MODID, "horse_felinoid");
-			HORSE_FELINOID = EntityType.Builder.create(EntityHorseFelinoid.class, EntityHorseFelinoid::new).build(registryName.toString());
-			HORSE_FELINOID.setRegistryName(registryName);
+			final ResourceLocation registryName = new ResourceLocation(HorseColors.MODID, "horse_genetic");/*
+public static final EntityType<HorseEntity> HORSE = register("horse", EntityType.Builder.create(HorseEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F));*/
+			HORSE_GENETIC = EntityType.Builder.create(HorseGeneticEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F).build(registryName.toString());
+			HORSE_GENETIC.setRegistryName(registryName);
 
-            System.out.println("registering horse egg\n");
-            assert(HORSE_FELINOID != null);
-            Item spawnEgg = new ItemSpawnEgg(HORSE_FELINOID, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(ItemGroup.MISC));
-            spawnEgg.setRegistryName(new ResourceLocation(HorseColors.MODID, "horse_felinoid_spawn_egg"));
+            assert(HORSE_GENETIC != null);
+            Item spawnEgg = new SpawnEggItem(HORSE_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(ItemGroup.MISC));
+            spawnEgg.setRegistryName(new ResourceLocation(HorseColors.MODID, "horse_genetic_spawn_egg"));
             HORSE_SPAWN_EGG = spawnEgg;
     }
+/*
+   private static <T extends Entity> EntityType<T> register(String key, EntityType.Builder<T> builder) {
+      return Registry.register(Registry.ENTITY_TYPE, key, builder.build(key));
+   }*/
 
 	@Mod.EventBusSubscriber(modid = HorseColors.MODID, bus = Bus.MOD)
 	public static class RegistrationHandler {
@@ -56,7 +61,7 @@ public class ModEntities {
 		public static void registerEntities(final RegistryEvent.Register<EntityType<?>> event) {
 
 			event.getRegistry().registerAll(
-					HORSE_FELINOID
+					HORSE_GENETIC
 			);
 		}
 
@@ -69,9 +74,9 @@ public class ModEntities {
         // This needs to be called AFTER registerEntities()
         public static void addSpawns()
         {
-            assert(HORSE_FELINOID != null);
-			addSpawn(HORSE_FELINOID, HorseConfig.COMMON.spawnWeight.get(), HorseConfig.COMMON.minHerdSize.get(), HorseConfig.COMMON.maxHerdSize.get(), EnumCreatureType.CREATURE, getBiomes(BiomeDictionary.Type.PLAINS));
-			addSpawn(HORSE_FELINOID, HorseConfig.COMMON.spawnWeight.get(), HorseConfig.COMMON.minHerdSize.get(), HorseConfig.COMMON.maxHerdSize.get(), EnumCreatureType.CREATURE, getBiomes(BiomeDictionary.Type.SAVANNA));
+            assert(HORSE_GENETIC != null);
+			addSpawn(HORSE_GENETIC, HorseConfig.COMMON.spawnWeight.get(), HorseConfig.COMMON.minHerdSize.get(), HorseConfig.COMMON.maxHerdSize.get(), EntityClassification.CREATURE, getBiomes(BiomeDictionary.Type.PLAINS));
+			addSpawn(HORSE_GENETIC, HorseConfig.COMMON.spawnWeight.get(), HorseConfig.COMMON.minHerdSize.get(), HorseConfig.COMMON.maxHerdSize.get(), EntityClassification.CREATURE, getBiomes(BiomeDictionary.Type.SAVANNA));
         }
 
 		/**
@@ -86,7 +91,7 @@ public class ModEntities {
 		 * @param classification The entity classification
 		 * @param biomes         The biomes to add the spawn to
 		 */
-		private static void addSpawn(final EntityType<? extends EntityLiving> entityType, final int itemWeight, final int minGroupCount, final int maxGroupCount, final EnumCreatureType classification, final Biome... biomes) {
+		private static void addSpawn(final EntityType<? extends LivingEntity> entityType, final int itemWeight, final int minGroupCount, final int maxGroupCount, final EntityClassification classification, final Biome... biomes) {
 			for (final Biome biome : biomes) {
 				final List<Biome.SpawnListEntry> spawns = biome.getSpawns(classification);
 
@@ -116,32 +121,6 @@ public class ModEntities {
     @OnlyIn(Dist.CLIENT)
     public static void registerRenders()
     {
-		RenderingRegistry.registerEntityRenderingHandler(EntityHorseFelinoid.class, renderManager -> new RenderHorseFelinoid(renderManager));
+		RenderingRegistry.registerEntityRenderingHandler(HorseGeneticEntity.class, renderManager -> new HorseGeneticRenderer(renderManager));
 	}
-
-/*        // Horse
-        String horse_name = "horse_felinoid";
-		EntityEntry horse_entry = EntityEntryBuilder.create()
-            .entity(EntityHorseFelinoid.class)
-            // Last parameter is network ID, which needs to be unique per mod.
-            .id(new ResourceLocation(HorseColors.MODID, horse_name), ID++)
-            .name(horse_name)
-            .egg(0x7F4320, 0x110E0D)
-            .tracker(64, 2, false)
-            .spawn(EnumCreatureType.CREATURE, HorseConfig.spawnWeight, 
-                HorseConfig.minHerdSize, HorseConfig.maxHerdSize, 
-                BiomeDictionary.getBiomes(Type.PLAINS))
-            .spawn(EnumCreatureType.CREATURE, HorseConfig.spawnWeight, 
-                HorseConfig.minHerdSize, HorseConfig.maxHerdSize, 
-                BiomeDictionary.getBiomes(Type.SAVANNA))
-            .build();
-        event.getRegistry().register(horse_entry);
-	}
-
-    @OnlyIn(Dist.CLIENT)
-    public void registerRenderers()
-    {
-        RenderHorseFelinoid horseRender = new RenderHorseFelinoid(Minecraft.getMinecraft().getRenderManager());
-        RenderingRegistry.registerEntityRenderingHandler(EntityHorseFelinoid.class, horseRender);
-	}*/
 }
