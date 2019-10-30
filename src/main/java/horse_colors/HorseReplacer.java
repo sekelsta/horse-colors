@@ -40,13 +40,13 @@ public class HorseReplacer {
             && HorseConfig.COMMON.convertVanillaHorses.get())
         {
             HorseEntity horse = (HorseEntity)event.getEntity();
-            if (!horse.getPersistantData().contains("converted")) {
+            if (!horse.getPersistentData().contains("converted")) {
                 HorseGeneticEntity newHorse = ModEntities.HORSE_GENETIC.spawn(event.getWorld(), null, null, null, new BlockPos(horse), SpawnReason.CONVERSION, false, false);
                 newHorse.copyAbstractHorse(horse);
                 newHorse.randomize();
                 
                 // Don't convert the same horse twice
-                horse.getPersistantData().putBoolean("converted", true);
+                horse.getPersistentData().putBoolean("converted", true);
             }
             // Cancel the event regardless
             event.setCanceled(true);

@@ -173,6 +173,11 @@ public class HorseGeneticEntity extends AbstractHorseEntity
 
         double speed = horse.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getBaseValue();
         this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(speed);
+        // Name from nametags
+        if (horse.hasCustomName()) {
+            this.setCustomName(horse.getCustomName());
+            this.setCustomNameVisible(horse.isCustomNameVisible());
+        }
     }
 
     @Override
