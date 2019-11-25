@@ -34,10 +34,10 @@ public class ModEntities {
     static
     {
             // Default tracker is fine, or could use .tracker(64, 2, false)
-			final ResourceLocation registryName = new ResourceLocation(HorseColors.MODID, "horse_felinoid");/*
+            final ResourceLocation registryName = new ResourceLocation(HorseColors.MODID, "horse_felinoid");/*
 public static final EntityType<HorseEntity> HORSE = register("horse", EntityType.Builder.create(HorseEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F));*/
-			HORSE_GENETIC = EntityType.Builder.create(HorseGeneticEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F).build(registryName.toString());
-			HORSE_GENETIC.setRegistryName(registryName);
+            HORSE_GENETIC = EntityType.Builder.create(HorseGeneticEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F).build(registryName.toString());
+            HORSE_GENETIC.setRegistryName(registryName);
 
             assert(HORSE_GENETIC != null);
             Item spawnEgg = new SpawnEggItem(HORSE_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(ItemGroup.MISC));
@@ -49,20 +49,20 @@ public static final EntityType<HorseEntity> HORSE = register("horse", EntityType
       return Registry.register(Registry.ENTITY_TYPE, key, builder.build(key));
    }*/
 
-	@Mod.EventBusSubscriber(modid = HorseColors.MODID, bus = Bus.MOD)
-	public static class RegistrationHandler {
-		/**
-		 * Register this mod's {@link Entity} types.
-		 *
-		 * @param event The event
-		 */
-		@SubscribeEvent
-		public static void registerEntities(final RegistryEvent.Register<EntityType<?>> event) {
+    @Mod.EventBusSubscriber(modid = HorseColors.MODID, bus = Bus.MOD)
+    public static class RegistrationHandler {
+        /**
+         * Register this mod's {@link Entity} types.
+         *
+         * @param event The event
+         */
+        @SubscribeEvent
+        public static void registerEntities(final RegistryEvent.Register<EntityType<?>> event) {
 
-			event.getRegistry().registerAll(
-					HORSE_GENETIC
-			);
-		}
+            event.getRegistry().registerAll(
+                    HORSE_GENETIC
+            );
+        }
 
         @SubscribeEvent
         public static void registerSpawnEggs(RegistryEvent.Register<Item> event) {
@@ -74,52 +74,52 @@ public static final EntityType<HorseEntity> HORSE = register("horse", EntityType
         public static void addSpawns()
         {
             assert(HORSE_GENETIC != null);
-			addSpawn(HORSE_GENETIC, HorseConfig.COMMON.spawnWeight.get(), HorseConfig.COMMON.minHerdSize.get(), HorseConfig.COMMON.maxHerdSize.get(), EntityClassification.CREATURE, getBiomes(BiomeDictionary.Type.PLAINS));
-			addSpawn(HORSE_GENETIC, HorseConfig.COMMON.spawnWeight.get(), HorseConfig.COMMON.minHerdSize.get(), HorseConfig.COMMON.maxHerdSize.get(), EntityClassification.CREATURE, getBiomes(BiomeDictionary.Type.SAVANNA));
+            addSpawn(HORSE_GENETIC, HorseConfig.COMMON.spawnWeight.get(), HorseConfig.COMMON.minHerdSize.get(), HorseConfig.COMMON.maxHerdSize.get(), EntityClassification.CREATURE, getBiomes(BiomeDictionary.Type.PLAINS));
+            addSpawn(HORSE_GENETIC, HorseConfig.COMMON.spawnWeight.get(), HorseConfig.COMMON.minHerdSize.get(), HorseConfig.COMMON.maxHerdSize.get(), EntityClassification.CREATURE, getBiomes(BiomeDictionary.Type.SAVANNA));
         }
 
-		/**
-		 * Add a spawn entry for the supplied entity in the supplied {@link Biome} list.
-		 * <p>
-		 * Adapted from Forge's {@code EntityRegistry.addSpawn} method in 1.12.2.
-		 *
-		 * @param entityType     The entity type
-		 * @param itemWeight     The weight of the spawn list entry (higher weights have a higher chance to be chosen)
-		 * @param minGroupCount  Min spawn count
-		 * @param maxGroupCount  Max spawn count
-		 * @param classification The entity classification
-		 * @param biomes         The biomes to add the spawn to
-		 */
-		private static void addSpawn(final EntityType<? extends LivingEntity> entityType, final int itemWeight, final int minGroupCount, final int maxGroupCount, final EntityClassification classification, final Biome... biomes) {
-			for (final Biome biome : biomes) {
-				final List<Biome.SpawnListEntry> spawns = biome.getSpawns(classification);
+        /**
+         * Add a spawn entry for the supplied entity in the supplied {@link Biome} list.
+         * <p>
+         * Adapted from Forge's {@code EntityRegistry.addSpawn} method in 1.12.2.
+         *
+         * @param entityType     The entity type
+         * @param itemWeight     The weight of the spawn list entry (higher weights have a higher chance to be chosen)
+         * @param minGroupCount  Min spawn count
+         * @param maxGroupCount  Max spawn count
+         * @param classification The entity classification
+         * @param biomes         The biomes to add the spawn to
+         */
+        private static void addSpawn(final EntityType<? extends LivingEntity> entityType, final int itemWeight, final int minGroupCount, final int maxGroupCount, final EntityClassification classification, final Biome... biomes) {
+            for (final Biome biome : biomes) {
+                final List<Biome.SpawnListEntry> spawns = biome.getSpawns(classification);
 
-				// Try to find an existing entry for the entity type
-				spawns.stream()
-						.filter(entry -> entry.entityType == entityType)
-						.findFirst()
-						.ifPresent(spawns::remove); // If there is one, remove it
+                // Try to find an existing entry for the entity type
+                spawns.stream()
+                        .filter(entry -> entry.entityType == entityType)
+                        .findFirst()
+                        .ifPresent(spawns::remove); // If there is one, remove it
 
-				// Add a new one
-				spawns.add(new Biome.SpawnListEntry(entityType, itemWeight, minGroupCount, maxGroupCount));
-			}
-		}
+                // Add a new one
+                spawns.add(new Biome.SpawnListEntry(entityType, itemWeight, minGroupCount, maxGroupCount));
+            }
+        }
 
-		/**
-		 * Get an array of {@link Biome}s with the specified {@link BiomeDictionary.Type}.
-		 *
-		 * @param type The Type
-		 * @return An array of Biomes
-		 */
-		private static Biome[] getBiomes(final BiomeDictionary.Type type) {
-			return BiomeDictionary.getBiomes(type).toArray(new Biome[0]);
-		}
+        /**
+         * Get an array of {@link Biome}s with the specified {@link BiomeDictionary.Type}.
+         *
+         * @param type The Type
+         * @return An array of Biomes
+         */
+        private static Biome[] getBiomes(final BiomeDictionary.Type type) {
+            return BiomeDictionary.getBiomes(type).toArray(new Biome[0]);
+        }
 
-	}
+    }
 
     @OnlyIn(Dist.CLIENT)
     public static void registerRenders()
     {
-		RenderingRegistry.registerEntityRenderingHandler(HorseGeneticEntity.class, renderManager -> new HorseGeneticRenderer(renderManager));
-	}
+        RenderingRegistry.registerEntityRenderingHandler(HorseGeneticEntity.class, renderManager -> new HorseGeneticRenderer(renderManager));
+    }
 }

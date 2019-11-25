@@ -22,12 +22,12 @@ public class HorseColors
 
     public HorseColors()
     {
-    	instance = this;
+        instance = this;
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
 
-		HorseConfig.register(ModLoadingContext.get());
+        HorseConfig.register(ModLoadingContext.get());
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)

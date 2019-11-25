@@ -148,6 +148,8 @@ public class HorseGeneticEntity extends AbstractHorseEntity
     {
         // Copy location
         this.setLocationAndAngles(horse.posX, horse.posY, horse.posZ, horse.rotationYaw, horse.rotationPitch);
+        this.rotationYawHead = this.rotationYaw;
+        this.renderYawOffset = this.rotationYaw;
         // Set tamed
         this.setHorseTamed(horse.isTame());
         // We don't know the player, so don't call setTamedBy

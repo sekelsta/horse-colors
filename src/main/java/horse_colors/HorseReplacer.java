@@ -11,32 +11,41 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.ILivingEntityData;
+import net.minecraft.entity.MobEntity;
+import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.chunk.ChunkStatus;
 
 public class HorseReplacer {
-	public static void preInit() {}
+    public static void preInit() {}
 
-	public static void init() {}
+    public static void init() {}
 
     //Removes initial spawns
-	@SubscribeEvent
-	public void onEntitySpawn(WorldEvent.PotentialSpawns event) {
-		for(Iterator<SpawnListEntry> iter = event.getList().iterator(); iter.hasNext(); )
-		{
-			String className = iter.next().entityType.getClass().getName();
+    @SubscribeEvent
+    public void onEntitySpawn(WorldEvent.PotentialSpawns event) {
+        for(Iterator<SpawnListEntry> iter = event.getList().iterator(); iter.hasNext(); )
+        {
+            String className = iter.next().entityType.getClass().getName();
             if(HorseConfig.COMMON.blockVanillaHorseSpawns.get() 
                && className.equals(EntityType.HORSE.getClass().getName()))
             {
-				iter.remove();
+                iter.remove();
             }
-		}
-	}
+        }
+    }
 
-	@SubscribeEvent
-	public static void replaceHorses(EntityJoinWorldEvent event)
+    @SubscribeEvent
+    public static void replaceHorses(EntityJoinWorldEvent event)
     {
         // We don't want to replace subclasses of horses
         if (event.getEntity().getClass() == HorseEntity.class
-            && !event.getWorld().isRemote 
+            && !event.getWorld().isRemote
             && HorseConfig.COMMON.convertVanillaHorses.get())
         {
             HorseEntity horse = (HorseEntity)event.getEntity();
@@ -44,13 +53,15 @@ public class HorseReplacer {
                 HorseGeneticEntity newHorse = ModEntities.HORSE_GENETIC.spawn(event.getWorld(), null, null, null, new BlockPos(horse), SpawnReason.CONVERSION, false, false);
                 newHorse.copyAbstractHorse(horse);
                 newHorse.randomize();
-                
+
                 // Don't convert the same horse twice
                 horse.getPersistentData().putBoolean("converted", true);
             }
             // Cancel the event regardless
             event.setCanceled(true);
         }
-	}
+    }
 
 }
+
+
