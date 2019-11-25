@@ -34,7 +34,6 @@ public class ModEntities {
     static
     {
             // Default tracker is fine, or could use .tracker(64, 2, false)
-            System.out.println("registering horse\n");
 			final ResourceLocation registryName = new ResourceLocation(HorseColors.MODID, "horse_felinoid");/*
 public static final EntityType<HorseEntity> HORSE = register("horse", EntityType.Builder.create(HorseEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F));*/
 			HORSE_GENETIC = EntityType.Builder.create(HorseGeneticEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F).build(registryName.toString());
