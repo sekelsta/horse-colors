@@ -1,12 +1,18 @@
 package sekelsta.horse_colors;
 
 import java.util.Iterator;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.ArrayList;
 
 import net.minecraft.entity.passive.horse.HorseEntity;
 import net.minecraft.entity.passive.horse.DonkeyEntity;
-import net.minecraft.world.biome.Biome.SpawnListEntry;
-import net.minecraftforge.event.world.WorldEvent;
+import net.minecraft.world.biome.Biome;
+//import net.minecraftforge.event.world.WorldEvent;
+import net.minecraft.entity.EntityClassification;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
@@ -27,39 +33,30 @@ public class HorseReplacer {
     public static void init() {}
 
     //Removes initial spawns
-    @SubscribeEvent
-    public void onEntitySpawn(WorldEvent.PotentialSpawns event) {
-        for(Iterator<SpawnListEntry> iter = event.getList().iterator(); iter.hasNext(); )
-        {
-            String className = iter.next().entityType.getClass().getName();
-            if(HorseConfig.COMMON.blockVanillaHorseSpawns.get() 
-               && className.equals(EntityType.HORSE.getClass().getName()))
-            {
-                iter.remove();
-            }
+    public static void editSpawnTable() {
+        System.out.println("Going through spawn list");
+        Set<Biome> allBiomes = Biome.BIOMES;
+        for (Biome biome : allBiomes) {
+                List<Biome.SpawnListEntry> spawns = biome.getSpawns(EntityClassification.CREATURE);
+                if (spawns.isEmpty()) {
+                    continue;
+                }
+                ArrayList<Biome.SpawnListEntry> horseSpawns = new ArrayList<Biome.SpawnListEntry>();
+                for (Biome.SpawnListEntry entry : spawns) {
+                    if (entry.entityType == EntityType.HORSE) {
+                        horseSpawns.add(entry);
+                    }
+                }
+                if (!horseSpawns.isEmpty()) {
+                    System.out.println(horseSpawns);
+                }
+                if (HorseConfig.COMMON.blockVanillaHorseSpawns.get()) {
+                    for (Biome.SpawnListEntry horseSpawn : horseSpawns) {
+                        spawns.remove(horseSpawn);
+                    }
+                }
         }
-    }
 
-    @SubscribeEvent
-    public static void replaceHorses(EntityJoinWorldEvent event)
-    {
-        // We don't want to replace subclasses of horses
-        if (event.getEntity().getClass() == HorseEntity.class
-            && !event.getWorld().isRemote
-            && HorseConfig.COMMON.convertVanillaHorses.get())
-        {
-            HorseEntity horse = (HorseEntity)event.getEntity();
-            if (!horse.getPersistentData().contains("converted")) {
-                HorseGeneticEntity newHorse = ModEntities.HORSE_GENETIC.spawn(event.getWorld(), null, null, null, new BlockPos(horse), SpawnReason.CONVERSION, false, false);
-                newHorse.copyAbstractHorse(horse);
-                newHorse.randomize();
-
-                // Don't convert the same horse twice
-                horse.getPersistentData().putBoolean("converted", true);
-            }
-            // Cancel the event regardless
-            event.setCanceled(true);
-        }
     }
 
 }

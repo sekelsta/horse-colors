@@ -62,6 +62,7 @@ public static final EntityType<HorseEntity> HORSE = register("horse", EntityType
             event.getRegistry().registerAll(
                     HORSE_GENETIC
             );
+            addSpawns();
         }
 
         @SubscribeEvent
