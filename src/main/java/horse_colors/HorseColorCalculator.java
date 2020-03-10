@@ -372,6 +372,7 @@ public class HorseColorCalculator
             white -= 4;
         }
 
+        white += horse.countAlleles("KIT", HorseAlleles.KIT_WHITE_BOOST);
         white += horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS1);
         white += 2 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS2);
         white += 2 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS3);
@@ -381,13 +382,15 @@ public class HorseColorCalculator
         white += 4 * horse.countAlleles("KIT", HorseAlleles.KIT_FLASHY_WHITE);
 
         white += 6 * horse.countAlleles("MITF", HorseAlleles.MITF_SW1);
-        white += 5 * horse.countAlleles("MITF", HorseAlleles.MITF_SW3);
-        white += 7 * horse.countAlleles("MITF", HorseAlleles.MITF_SW5);
+        white += 9 * horse.countAlleles("MITF", HorseAlleles.MITF_SW3);
+        white += 8 * horse.countAlleles("MITF", HorseAlleles.MITF_SW5);
 
-        white += 5 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW2);
-        white += 3 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW4);
+        white += 7 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW2);
+        white += 8 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW4);
 
-        white += 2 * horse.countAlleles("white_star", 1);
+        white += 3 * horse.countAlleles("white_star", 1);
+        white += horse.countAlleles("white_forelegs", 1);
+        white += horse.countAlleles("white_hindlegs", 1);
 
 
         // Anything after here doesn't create face white from scratch, but
@@ -395,10 +398,6 @@ public class HorseColorCalculator
         if (white <= -2) {
             return null;
         }
-        white += horse.countAlleles("KIT", HorseAlleles.KIT_WHITE_BOOST);
-        white += horse.countAlleles("white_star", 1);
-        white += horse.countAlleles("white_forelegs", 1);
-        white += horse.countAlleles("white_hindlegs", 1);
 
         if (horse.hasMC1RWhiteBoost()) {
             white += 2;
@@ -434,40 +433,40 @@ public class HorseColorCalculator
 
     public static String[] getLegMarkings(HorseGeneticEntity horse)
     {
-        int white = -2;
+        int white = -3;
         if (horse.getPhenotype("white_suppression") != 0)
         {
             white -= 4;
         }
 
-        white += 3 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS1);
-        white += 4 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS2);
-        white += 5 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS3);
-        white += 6 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS4);
-        white += 7 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS5);
-        white += 8 * horse.getPhenotype("W20");
-        white += 9 * horse.countAlleles("KIT", HorseAlleles.KIT_FLASHY_WHITE);
+        white += horse.countAlleles("KIT", HorseAlleles.KIT_WHITE_BOOST);
+        white += 2 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS1);
+        white += 3 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS2);
+        white += 4 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS3);
+        white += 5 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS4);
+        white += 6 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS5);
+        white += 7 * horse.getPhenotype("W20");
+        white += 8 * horse.countAlleles("KIT", HorseAlleles.KIT_FLASHY_WHITE);
 
         white += 2 * horse.countAlleles("MITF", HorseAlleles.MITF_SW1);
-        white += 3 * horse.countAlleles("MITF", HorseAlleles.MITF_SW3);
+        white += 6 * horse.countAlleles("MITF", HorseAlleles.MITF_SW3);
         white += 2 * horse.countAlleles("MITF", HorseAlleles.MITF_SW5);
 
         white += 2 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW2);
-        white += 1 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW4);
+        white += 3 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW4);
+        white += horse.countAlleles("white_star", 1);
 
         int forelegs = white;
-        forelegs += horse.countAlleles("white_forelegs", 1);
+        forelegs += 2 * horse.countAlleles("white_forelegs", 1);
 
         int hindlegs = white;
-        hindlegs += horse.countAlleles("white_hindlegs", 1);
+        hindlegs += 2 * horse.countAlleles("white_hindlegs", 1);
 
         String[] legs = new String[4];
 
         // Anything after here doesn't create leg white from scratch, but
         // only increases the size
         int white_boost = 0;
-        white_boost += horse.countAlleles("KIT", HorseAlleles.KIT_WHITE_BOOST);
-        white_boost += horse.countAlleles("white_star", 1);
 
         if (horse.hasMC1RWhiteBoost()) {
             white_boost += 2;

@@ -6,6 +6,9 @@ public class HorseAlleles
     // dominant ones are given higher numbers
 
     // Extension (MC1R)
+    // There are 3 extra reds and 3 extra blacks. 
+    // This is in case new alleles are found, or very
+    // closely linked genes are discovered.
     public static final int E_RED = 0;
     public static final int E_RED2 = 1;
     public static final int E_RED3 = 2;

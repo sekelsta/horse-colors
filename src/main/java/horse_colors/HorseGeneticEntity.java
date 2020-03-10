@@ -1220,9 +1220,9 @@ public class HorseGeneticEntity extends AbstractHorseEntity
             setGeneRandom("mealy3", n, 4, 1);
             setGeneRandom("white_suppression", n, 32, 0);
 
-            int kit = i % 2 == 0? 0
-//                                : (i >> 1) % 2 == 0? (i >> 2) % 8
-                                : (i >> 2) % 16;
+            int kit = i % 4 != 0? 0
+//                                : (i >> 2) % 2 == 0? (i >> 3) % 8
+                                : (i >> 3) % 16;
             setGene("KIT", kit << (n * getGeneSize("KIT")));
             i >>= 7;
 
@@ -1231,8 +1231,10 @@ public class HorseGeneticEntity extends AbstractHorseEntity
                 : (i >> 2) % 2 == 0? (i >> 3) % 4
                 : HorseAlleles.MITF_WILDTYPE;
             setGene("MITF", mitf << (n * getGeneSize("MITF")));
-            i >>= 4;
-            setGene("PAX3", (i % 4) << (n * getGeneSize("PAX3")));
+            i >>= 5;
+            int pax3 = i % 4 != 0? HorseAlleles.PAX3_WILDTYPE
+                : (i >> 2) % 4;
+            setGene("PAX3", pax3 << (n * getGeneSize("PAX3")));
         }
         else if (type == "2")
         {
