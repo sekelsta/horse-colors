@@ -4,6 +4,7 @@ public class HorseColorCalculator
 {
     private static final int GRAY_LEG_BITS = 2;
     private static final int FACE_MARKING_BITS = 2;
+    private static final int LEG_MARKING_BITS = 12;
     public static String getBaseTexture(HorseGeneticEntity horse)
     {
         // Double cream dilute + gray gives white
@@ -365,135 +366,57 @@ public class HorseColorCalculator
 
     public static String getFaceMarking(HorseGeneticEntity horse)
     {
+        int white = -2;
         if (horse.getPhenotype("white_suppression") != 0)
         {
+            white -= 4;
+        }
+
+        white += horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS1);
+        white += 2 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS2);
+        white += 2 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS3);
+        white += 3 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS4);
+        white += 3 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS5);
+        white += 3 * horse.getPhenotype("W20");
+        white += 4 * horse.countAlleles("KIT", HorseAlleles.KIT_FLASHY_WHITE);
+
+        white += 6 * horse.countAlleles("MITF", HorseAlleles.MITF_SW1);
+        white += 5 * horse.countAlleles("MITF", HorseAlleles.MITF_SW3);
+        white += 7 * horse.countAlleles("MITF", HorseAlleles.MITF_SW5);
+
+        white += 5 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW2);
+        white += 3 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW4);
+
+        white += 2 * horse.countAlleles("white_star", 1);
+
+
+        // Anything after here doesn't create face white from scratch, but
+        // only increases the size
+        if (white <= -2) {
             return null;
         }
+        white += horse.countAlleles("KIT", HorseAlleles.KIT_WHITE_BOOST);
+        white += horse.countAlleles("white_star", 1);
+        white += horse.countAlleles("white_forelegs", 1);
+        white += horse.countAlleles("white_hindlegs", 1);
 
-        if (horse.getPhenotype("draft_sabino") != 0
-            || horse.getPhenotype("W20") == 2)
-        {
-            return "blaze";
+        if (horse.hasMC1RWhiteBoost()) {
+            white += 2;
         }
 
-        int face_marking = 0;
         // Turn a signed integer into unsigned, also drop a few bits 
         // used elsewhere
         int random = (horse.getHorseVariant("random") << 1) 
                         >>> (1 + GRAY_LEG_BITS);
-        if (horse.getPhenotype("tobiano") == 2)
-        {
-            // 1/4 chance none, 1/2 chance star, 1/8 chance strip, 1/8 for blaze
-            if (random % 2 == 0)
-            {
-                face_marking += 1;
-            }
-            else if ((random >> 1) % 2 == 0)
-            {
-                face_marking += 2 + ((random >> 2) % 2);
-            }
-            random >>= 3;
-        }
-        else if (horse.getPhenotype("tobiano") != 0)
-        {
-            // 1/4 chance star, 1/8 chance strip, the rest none
-            if (random % 4 == 0)
-            {
-                face_marking += 1 + ((random >> 2) % 2);
-            }
-            random >>= 3;
-        }
 
-        if (horse.getPhenotype("flashy_white") != 0)
-        {
-            // 1/2 chance blaze, 1/4 chance strip, 1/4 chance star
-            if (random % 2 == 0)
-            {
-                face_marking += 3;
-            }
-            else
-            {
-                face_marking += 1 + ((random >> 1) % 2);
-            }
-            random >>= 2;
-        }
+        white += random & 3;
 
-        assert horse.getPhenotype("W20") != 2;
-        if (horse.getPhenotype("W20") == 1)
-        {
-            // 1/2 chance strip, 1/4 chance star, 1/8 chance blaze or none
-            if (random % 2 == 0)
-            {
-                face_marking += 2;
-            }
-            else if ((random >> 1) % 2 == 0)
-            {
-                face_marking += 1;
-            }
-            else if ((random >> 2) % 2 == 0)
-            {
-                face_marking += 3;
-            }
-            random >>= 3;
-        }
 
-        if (horse.getPhenotype("markings") != 0)
-        {
-            // 1/2 chance strip, 1/4 chance star, 1/4 chance blaze
-            if (random % 2 == 0)
-            {
-                face_marking += 2;
-            }
-            else
-            {
-                face_marking += 1 + 2 * ((random >> 1) % 2);
-            }
-            random >>= 2;
+        if (white <= 0) {
+            return null;
         }
+        int face_marking = white / 5;
 
-        if (horse.getPhenotype("half-socks") != 0)
-        {
-            face_marking += random % 8 == 0? 1 : 0;
-            random >>= 3;
-        }
-
-        if (horse.getPhenotype("strip") != 0)
-        {
-            // 1/2 chance strip, 1/4 chance star, 1/8 chance blaze or none
-            if (random % 2 == 0)
-            {
-                face_marking += 2;
-            }
-            else if ((random >> 1) % 2 == 0)
-            {
-                face_marking += 1;
-            }
-            else if ((random >> 2) % 2 == 0)
-            {
-                face_marking += 3;
-            }
-            random >>= 3;
-        }
-        else if (horse.getPhenotype("star") != 0)
-        {
-            // 1/4 chance strip, 1/2 chance star, 1/4 chance none
-            if (random % 2 == 0)
-            {
-                face_marking += 1;
-            }
-            else if ((random >> 1) % 2 == 0)
-            {
-                face_marking += 2;
-            }
-            random >>= 2;
-        }
-
-        if (horse.getPhenotype("white_boost") != 0)
-        {
-            // 1/2 chance star, 1/2 chance none
-            face_marking += random % 2;
-            random >>= 1;
-        }
         switch (face_marking)
         {
             case 0:
@@ -511,8 +434,73 @@ public class HorseColorCalculator
 
     public static String[] getLegMarkings(HorseGeneticEntity horse)
     {
-        // TODO
-        return new String[4];
+        int white = -2;
+        if (horse.getPhenotype("white_suppression") != 0)
+        {
+            white -= 4;
+        }
+
+        white += 3 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS1);
+        white += 4 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS2);
+        white += 5 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS3);
+        white += 6 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS4);
+        white += 7 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS5);
+        white += 8 * horse.getPhenotype("W20");
+        white += 9 * horse.countAlleles("KIT", HorseAlleles.KIT_FLASHY_WHITE);
+
+        white += 2 * horse.countAlleles("MITF", HorseAlleles.MITF_SW1);
+        white += 3 * horse.countAlleles("MITF", HorseAlleles.MITF_SW3);
+        white += 2 * horse.countAlleles("MITF", HorseAlleles.MITF_SW5);
+
+        white += 2 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW2);
+        white += 1 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW4);
+
+        int forelegs = white;
+        forelegs += horse.countAlleles("white_forelegs", 1);
+
+        int hindlegs = white;
+        hindlegs += horse.countAlleles("white_hindlegs", 1);
+
+        String[] legs = new String[4];
+
+        // Anything after here doesn't create leg white from scratch, but
+        // only increases the size
+        int white_boost = 0;
+        white_boost += horse.countAlleles("KIT", HorseAlleles.KIT_WHITE_BOOST);
+        white_boost += horse.countAlleles("white_star", 1);
+
+        if (horse.hasMC1RWhiteBoost()) {
+            white_boost += 2;
+        }
+
+        // Turn a signed integer into unsigned, also drop a few bits 
+        // used elsewhere
+        int random = (horse.getHorseVariant("random") << 1) 
+                        >>> (1 + GRAY_LEG_BITS + FACE_MARKING_BITS);
+
+        for (int i = 0; i < 4; ++i) {
+            int r = random & 7;
+            random = random >>> 3;
+            int w = forelegs;
+            if (i >= 2) {
+                w = hindlegs;
+            }
+            // Add bonus from things that don't make socks 
+            // on their own but still increase white
+            if (w > -2) {
+                w += white_boost;
+            }
+
+            if (w < 0) {
+                legs[i] = null;
+            }
+            else {
+                legs[i] = String.valueOf(i) + "_" + String.valueOf(Math.min(7, w / 2 + r));
+            }
+        }
+
+
+        return legs;
     }
 
     public static String getPinto(HorseGeneticEntity horse)
@@ -556,11 +544,6 @@ public class HorseColorCalculator
         else if (sabino == 1)
         {
             pinto = "sabino";
-        }
-        else if (horse.getPhenotype("W20") == 2 
-            || horse.getPhenotype("draft_sabino") != 0)
-        {
-            pinto = "stockings";
         }
         return pinto;
     }

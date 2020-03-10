@@ -131,7 +131,10 @@ public class HorseGeneticEntity extends AbstractHorseEntity
         "gray_suppression",
         "gray_mane", 
         "slow_gray1", 
-        "slow_gray2"
+        "slow_gray2",
+        "white_star",
+        "white_forelegs",
+        "white_hindlegs"
     };
 
     private String texturePrefix;
@@ -338,8 +341,8 @@ public class HorseGeneticEntity extends AbstractHorseEntity
         int i = 0;
         for (String gene : genes)
         {
-            // Special case to keep each gene completely on the same int
             int next = (i + (2 * getGeneSize(gene)));
+            // Special case to keep each gene completely on the same int
             if (next / 32 != i / 32 && next % 32 != 0)
             {
                 i = (i / 32 + 1) * 32;
@@ -393,7 +396,10 @@ public class HorseGeneticEntity extends AbstractHorseEntity
             case "gray_suppression":
             case "gray_mane":
             case "slow_gray1":
-            case "slow_gray2": return 1;
+            case "slow_gray2":
+            case "white_star":
+            case "white_forelegs":
+            case "white_hindlegs": return 1;
         }
         System.out.println("Gene size not found: " + gene);
         return -1;
@@ -460,6 +466,17 @@ public class HorseGeneticEntity extends AbstractHorseEntity
         return  getAllele(name, 0) == allele && getAllele(name, 1) == allele;
     }
 
+    public int countAlleles(String gene, int allele) {
+        int count = 0;
+        if (getAllele(gene, 0) == allele) {
+            count++;
+        }
+        if (getAllele(gene, 1) == allele) {
+            count++;
+        }
+        return count;
+    }
+
     public boolean isChestnut()
     {
         int e = getMaxAllele("extension");
@@ -467,6 +484,14 @@ public class HorseGeneticEntity extends AbstractHorseEntity
                 || e == HorseAlleles.E_RED2
                 || e == HorseAlleles.E_RED3
                 || e == HorseAlleles.E_RED4;
+    }
+
+    // The MC1R ("extension") gene seems to be associated with white
+    // patterning. For now I assume this is caused by MC1R itself,
+    // but if it turns out to be a different gene that's just very
+    // closely linked, I can change this.
+    public boolean hasMC1RWhiteBoost() {
+        return isChestnut();
     }
 
     public int getPhenotype(String name)
@@ -494,14 +519,15 @@ public class HorseGeneticEntity extends AbstractHorseEntity
 
             /* Incomplete dominant. */
             case "leopard":
-                // TODO
-                return 0;
             case "gray":
             case "cream":
             case "frame":
             case "PATN1":
             case "gray_mane":
             case "slow_gray2":
+            case "white_star":
+            case "white_forelegs":
+            case "white_hindlegs":
                 /* Low bit plus high bit. */
                 return (getGene(name) & 1) + (getGene(name) >> 1);
                 
@@ -517,8 +543,7 @@ public class HorseGeneticEntity extends AbstractHorseEntity
                 return 2 - getPhenotype("mealy1") - getPhenotype("mealy2");
             case "splash":
                 // TODO
-                return isHomozygous("MITF", HorseAlleles.MITF_SW1)? 2 
-                    : hasAllele("MITF", HorseAlleles.MITF_SW1)? 1 : 0;
+                return countAlleles("MITF", HorseAlleles.MITF_SW1);
 
             /* Genes with multiple alleles. */
             case "extension":
@@ -556,16 +581,11 @@ public class HorseGeneticEntity extends AbstractHorseEntity
                 return -1;
             /* KIT mappings:
                0: wildtype
-               1: no markings
-               2: white boost: small white boost (star sometimes)
-               3: star (on average)
-               4: strip (on average)
-               5: half-socks (on average)
-               6: markings (strip and half-socks typical)
+               1 to 6: contribute to white markings
                7: W20 (strip and socks typical as heterozygous, 
                     when homozygous, irregular draft sabino with some belly white)
-               8: flashy white: stockings and blaze (on average)
-               9: draft sabino (four stockings and blaze)
+               8: reserved in case I add rabicano to KIT
+               9: flashy white (tends towards stockings and blaze)
                10: wildtype for now
                11: tobiano
                12: sabino1
@@ -573,41 +593,10 @@ public class HorseGeneticEntity extends AbstractHorseEntity
                14: roan
                15: white
             */
-            case "white_boost":
-                return ((getGene("KIT") & 15) == 2
-                        || (getGene("KIT") >> 4) == 2)? 1 : 0;
-            case "star":
-                return ((getGene("KIT") & 15) == 3
-                        || (getGene("KIT") >> 4) == 3)? 1 : 0;
-            case "strip":
-                return ((getGene("KIT") & 15) == 4
-                        || (getGene("KIT") >> 4) == 4)? 1 : 0;
-            case "half-socks":
-                return ((getGene("KIT") & 15) == 5
-                        || (getGene("KIT") >> 4) == 5)? 1 : 0;
-            case "markings":
-                return ((getGene("KIT") & 15) == 6
-                        || (getGene("KIT") >> 4) == 6)? 1 : 0;
             // W20 is incomplete dominant
             case "W20":
-                boolean w1 = getAllele("KIT", 0) == 13 
-                                || getAllele("KIT", 0) == 7;
-                boolean w2 = getAllele("KIT", 1) == 13 
-                                || getAllele("KIT", 1) == 7;
-                if (w1 && w2)
-                {
-                    return 2;
-                }
-                else
-                {
-                    return (w1 || w2)? 1 : 0;
-                }
-            case "flashy_white":
-                return ((getGene("KIT") & 15) == 8
-                        || (getGene("KIT") >> 4) == 8)? 1 : 0;
-            case "draft_sabino":
-                return ((getGene("KIT") & 15) == 9
-                        || (getGene("KIT") >> 4) == 9)? 1 : 0;
+                return countAlleles("KIT", HorseAlleles.KIT_W20) 
+                    + countAlleles("KIT", HorseAlleles.KIT_TOBIANO_W20);
             // Sabino1 and tobiano are also incomplete dominant
             case "sabino1":
                 if (getGene("KIT") == (12 << 4) + 12)
@@ -633,8 +622,7 @@ public class HorseGeneticEntity extends AbstractHorseEntity
                     return (tob1 || tob2)? 1 : 0;
                 }
             case "roan":
-                return ((getGene("KIT") & 15) == 14 
-                        || (getGene("KIT") >> 4) == 14)? 1 : 0;
+                return hasAllele("KIT", HorseAlleles.KIT_ROAN)? 1 : 0;
             case "dominant_white":
                 if (getGene("KIT") == (15 << 4) + 15)
                 {
@@ -736,11 +724,11 @@ public class HorseGeneticEntity extends AbstractHorseEntity
         this.horseTexturesArray[3] = fixPath("legs", legs);
         this.horseTexturesArray[4] = fixPath("roan", roan);
         this.horseTexturesArray[6] = fixPath("roan", gray_mane);
-        this.horseTexturesArray[7] = fixPath("pinto", face_marking);
-        this.horseTexturesArray[8] = fixPath("pinto", leg_markings[0]);
-        this.horseTexturesArray[9] = fixPath("pinto", leg_markings[1]);
-        this.horseTexturesArray[10] = fixPath("pinto", leg_markings[2]);
-        this.horseTexturesArray[11] = fixPath("pinto", leg_markings[3]);
+        this.horseTexturesArray[7] = fixPath("face", face_marking);
+        this.horseTexturesArray[8] = fixPath("socks", leg_markings[0]);
+        this.horseTexturesArray[9] = fixPath("socks", leg_markings[1]);
+        this.horseTexturesArray[10] = fixPath("socks", leg_markings[2]);
+        this.horseTexturesArray[11] = fixPath("socks", leg_markings[3]);
         this.horseTexturesArray[12] = fixPath("leopard", leopard);
         this.horseTexturesArray[13] = fixPath("pinto", pinto);
         //this.horseTexturesArray[14] = fixPath("armor", armor_texture);
