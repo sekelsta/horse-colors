@@ -31,14 +31,7 @@ public class HorseArmorer
         return armor.func_219976_d();
     }
 
-/*    @OnlyIn(Dist.CLIENT)
-    public static ResourceLocation getTexture(ItemStack armorStack)
-    {
-        ResourceLocation vanilla = getVanillaLocation(armorStack);
-        return vanilla == null? 
-            null 
-          : new ResourceLocation(HorseColors.MODID, vanilla.getPath());
-    }*/
+
 
     @OnlyIn(Dist.CLIENT)
     public static ResourceLocation getTexture(HorseArmorItem armor)

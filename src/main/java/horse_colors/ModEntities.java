@@ -121,6 +121,6 @@ public static final EntityType<HorseEntity> HORSE = register("horse", EntityType
     @OnlyIn(Dist.CLIENT)
     public static void registerRenders()
     {
-        RenderingRegistry.registerEntityRenderingHandler(HorseGeneticEntity.class, renderManager -> new HorseGeneticRenderer(renderManager));
+        RenderingRegistry.registerEntityRenderingHandler(HORSE_GENETIC, renderManager -> new HorseGeneticRenderer(renderManager));
     }
 }

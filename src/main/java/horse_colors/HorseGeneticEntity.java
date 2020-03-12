@@ -146,7 +146,7 @@ public class HorseGeneticEntity extends AbstractHorseEntity
     {
         super(entityType, worldIn);
     }
-
+/*
     public void copyAbstractHorse(AbstractHorseEntity horse)
     {
         // Copy location
@@ -184,9 +184,9 @@ public class HorseGeneticEntity extends AbstractHorseEntity
             this.setCustomNameVisible(horse.isCustomNameVisible());
         }
     }
-
+*/
     @Override
-    protected void registerGoals() {
+    protected void registerGoals() {/*
         this.goalSelector.addGoal(1, new PanicGoal(this, 1.2D));
         this.goalSelector.addGoal(1, new RunAroundLikeCrazyGoal(this, 1.2D));
         this.goalSelector.addGoal(2, new BreedGoal(this, 1.0D, AbstractHorseEntity.class));
@@ -194,7 +194,7 @@ public class HorseGeneticEntity extends AbstractHorseEntity
         this.goalSelector.addGoal(6, new WaterAvoidingRandomWalkingGoal(this, 0.7D));
         this.goalSelector.addGoal(7, new LookAtGoal(this, PlayerEntity.class, 6.0F));
         this.goalSelector.addGoal(8, new LookRandomlyGoal(this));
-        this.initExtraAI();
+        this.initExtraAI();*/
     }
 
     @Override
@@ -933,7 +933,8 @@ public class HorseGeneticEntity extends AbstractHorseEntity
         {
             if (!this.isChild())
             {
-                if (this.isTame() && player.isSneaking())
+                //func_226563_dT_() == isSneaking()
+                if (this.isTame() && player.func_226563_dT_())
                 {
                     this.openGUI(player);
                     return true;

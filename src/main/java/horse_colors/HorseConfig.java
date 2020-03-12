@@ -7,20 +7,14 @@ import net.minecraftforge.common.ForgeConfigSpec.EnumValue;
 import net.minecraftforge.common.ForgeConfigSpec.IntValue;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
-//import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class HorseConfig
-{/*
-    private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
-    public static final Common COMMON = new Common(BUILDER);
-    public static final ForgeConfigSpec spec = BUILDER.build();
-*/
+{
     public static class Common {
         public final BooleanValue useGeneticStats;
         public static BooleanValue horseDebugInfo;
         public static BooleanValue blockVanillaHorseSpawns;
-        //public static BooleanValue convertVanillaHorses;
 
         public static IntValue minHerdSize;
         public static IntValue maxHerdSize;
@@ -48,14 +42,6 @@ public class HorseConfig
             "This mainly affects newly generated areas.")
                     .translation("horse_colors.config.common.blockVanillaHorseSpawns")
                     .define("blockVanillaHorseSpawns", true);
-
-            /*convertVanillaHorses = builder
-                    .comment(
-            "If enabled, each vanilla horse will be replaced by a horse",
-            "from this mod.",
-            "This matters for already generated areas, or if blockVanillaHorseSpawns is set to false.")
-                    .translation("horse_colors.config.common.convertVanillaHorses")
-                    .define("convertVanillaHorses", true);*/
 
             minHerdSize = builder
                     .comment("What size groups horses will spawn in")
