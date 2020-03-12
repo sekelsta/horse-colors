@@ -2,6 +2,7 @@ package sekelsta.horse_colors;
 
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -30,7 +31,7 @@ public class HorseColors
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
 
-        HorseConfig.register(ModLoadingContext.get());
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, HorseConfig.spec);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)

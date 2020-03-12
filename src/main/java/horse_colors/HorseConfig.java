@@ -11,14 +11,14 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public class HorseConfig
 {
+    public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+    public static final Common COMMON = new Common(BUILDER);
+    public static final Spawn SPAWN = new Spawn(BUILDER);
+
     public static class Common {
         public final BooleanValue useGeneticStats;
         public static BooleanValue horseDebugInfo;
-        public static BooleanValue blockVanillaHorseSpawns;
 
-        public static IntValue minHerdSize;
-        public static IntValue maxHerdSize;
-        public static IntValue spawnWeight;
 
         Common(final ForgeConfigSpec.Builder builder) {
             builder.comment("Common config settings")
@@ -37,6 +37,20 @@ public class HorseConfig
                     .translation("horse_colors.config.common.horseDebugInfo")
                     .define("horseDebugInfo", false);
 
+            builder.pop();
+        }
+    }
+
+    public static class Spawn {
+        public static BooleanValue blockVanillaHorseSpawns;
+        public static IntValue minHerdSize;
+        public static IntValue maxHerdSize;
+        public static IntValue spawnWeight;
+
+        Spawn(final ForgeConfigSpec.Builder builder) {
+            builder.comment("Horse spawning settings")
+                    .push("spawn");
+
             blockVanillaHorseSpawns = builder
                     .comment("If set to true, only horses created by this mod will spawn.",
             "This mainly affects newly generated areas.")
@@ -54,7 +68,7 @@ public class HorseConfig
                     .defineInRange("maxHerdSize", 8, 0, Integer.MAX_VALUE);
 
             spawnWeight = builder
-                    .comment("How often horses will spawn")
+                    .comment("How often horses will spawn. Set to 0 to disable.")
                     .translation("horse_colors.config.common.spawnWeight")
                     .defineInRange("spawnWeight", 10, 0, Integer.MAX_VALUE);
 
@@ -62,17 +76,6 @@ public class HorseConfig
         }
     }
 
-    // I have no idea what this does
-    private static final ForgeConfigSpec commonSpec;
-    public static final Common COMMON;
 
-    static {
-        final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
-        commonSpec = specPair.getRight();
-        COMMON = specPair.getLeft();
-    }
-
-    public static void register(final ModLoadingContext context) {
-        context.registerConfig(ModConfig.Type.COMMON, commonSpec);
-    }
+    public static final ForgeConfigSpec spec = BUILDER.build();
 }

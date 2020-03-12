@@ -75,8 +75,8 @@ public static final EntityType<HorseEntity> HORSE = register("horse", EntityType
         public static void addSpawns()
         {
             assert(HORSE_GENETIC != null);
-            addSpawn(HORSE_GENETIC, HorseConfig.COMMON.spawnWeight.get(), HorseConfig.COMMON.minHerdSize.get(), HorseConfig.COMMON.maxHerdSize.get(), EntityClassification.CREATURE, getBiomes(BiomeDictionary.Type.PLAINS));
-            addSpawn(HORSE_GENETIC, HorseConfig.COMMON.spawnWeight.get(), HorseConfig.COMMON.minHerdSize.get(), HorseConfig.COMMON.maxHerdSize.get(), EntityClassification.CREATURE, getBiomes(BiomeDictionary.Type.SAVANNA));
+            addSpawn(HORSE_GENETIC, HorseConfig.SPAWN.spawnWeight.get(), HorseConfig.SPAWN.minHerdSize.get(), HorseConfig.SPAWN.maxHerdSize.get(), EntityClassification.CREATURE, getBiomes(BiomeDictionary.Type.PLAINS));
+            addSpawn(HORSE_GENETIC, HorseConfig.SPAWN.spawnWeight.get(), HorseConfig.SPAWN.minHerdSize.get(), HorseConfig.SPAWN.maxHerdSize.get(), EntityClassification.CREATURE, getBiomes(BiomeDictionary.Type.SAVANNA));
         }
 
         /**

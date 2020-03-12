@@ -34,7 +34,6 @@ public class HorseReplacer {
 
     //Removes initial spawns
     public static void editSpawnTable() {
-        System.out.println("Going through spawn list");
         Set<Biome> allBiomes = Biome.BIOMES;
         for (Biome biome : allBiomes) {
                 List<Biome.SpawnListEntry> spawns = biome.getSpawns(EntityClassification.CREATURE);
@@ -50,7 +49,7 @@ public class HorseReplacer {
                 if (!horseSpawns.isEmpty()) {
                     System.out.println(horseSpawns);
                 }
-                if (HorseConfig.COMMON.blockVanillaHorseSpawns.get()) {
+                if (HorseConfig.SPAWN.blockVanillaHorseSpawns.get()) {
                     for (Biome.SpawnListEntry horseSpawn : horseSpawns) {
                         spawns.remove(horseSpawn);
                     }
