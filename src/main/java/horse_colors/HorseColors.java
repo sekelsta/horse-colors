@@ -33,7 +33,6 @@ public class HorseColors
     private void commonSetup(final FMLCommonSetupEvent event)
     {
         MinecraftForge.EVENT_BUS.register(ModEntities.class);
-        MinecraftForge.EVENT_BUS.register(HorseReplacer.class);
     }
 
     private void clientSetup(final FMLClientSetupEvent event)
