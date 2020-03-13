@@ -11,10 +11,6 @@ import net.minecraftforge.common.MinecraftForge;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
-import net.minecraftforge.fml.DeferredWorkQueue;
-
-
 @Mod(HorseColors.MODID)
 public class HorseColors
 {
@@ -37,7 +33,6 @@ public class HorseColors
     private void commonSetup(final FMLCommonSetupEvent event)
     {
         MinecraftForge.EVENT_BUS.register(ModEntities.class);
-        DeferredWorkQueue.runLater(HorseReplacer::editSpawnTable);
     }
 
     private void clientSetup(final FMLClientSetupEvent event)

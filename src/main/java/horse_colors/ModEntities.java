@@ -22,7 +22,11 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ObjectHolder;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 
+@Mod.EventBusSubscriber(modid = HorseColors.MODID, bus = Bus.MOD)
 public class ModEntities {
     //@ObjectHolder("horse_colors:horse_felinoid")
     public static EntityType<HorseGeneticEntity> HORSE_GENETIC = null;
@@ -62,7 +66,6 @@ public static final EntityType<HorseEntity> HORSE = register("horse", EntityType
             event.getRegistry().registerAll(
                     HORSE_GENETIC
             );
-            addSpawns();
         }
 
         @SubscribeEvent
@@ -71,49 +74,99 @@ public static final EntityType<HorseEntity> HORSE = register("horse", EntityType
             event.getRegistry().register(HORSE_SPAWN_EGG);
         }
 
-        // This needs to be called AFTER registerEntities()
-        public static void addSpawns()
-        {
-            assert(HORSE_GENETIC != null);
-            addSpawn(HORSE_GENETIC, HorseConfig.SPAWN.spawnWeight.get(), HorseConfig.SPAWN.minHerdSize.get(), HorseConfig.SPAWN.maxHerdSize.get(), EntityClassification.CREATURE, getBiomes(BiomeDictionary.Type.PLAINS));
-            addSpawn(HORSE_GENETIC, HorseConfig.SPAWN.spawnWeight.get(), HorseConfig.SPAWN.minHerdSize.get(), HorseConfig.SPAWN.maxHerdSize.get(), EntityClassification.CREATURE, getBiomes(BiomeDictionary.Type.SAVANNA));
-        }
+    }
+    // This needs to be called AFTER registerEntities()
+    // Also after the config is parsed
+    public static void addSpawns()
+    {
+        assert(HORSE_GENETIC != null);
 
-        /**
-         * Add a spawn entry for the supplied entity in the supplied {@link Biome} list.
-         * <p>
-         * Adapted from Forge's {@code EntityRegistry.addSpawn} method in 1.12.2.
-         *
-         * @param entityType     The entity type
-         * @param itemWeight     The weight of the spawn list entry (higher weights have a higher chance to be chosen)
-         * @param minGroupCount  Min spawn count
-         * @param maxGroupCount  Max spawn count
-         * @param classification The entity classification
-         * @param biomes         The biomes to add the spawn to
-         */
-        private static void addSpawn(final EntityType<? extends LivingEntity> entityType, final int itemWeight, final int minGroupCount, final int maxGroupCount, final EntityClassification classification, final Biome... biomes) {
-            for (final Biome biome : biomes) {
-                final List<Biome.SpawnListEntry> spawns = biome.getSpawns(classification);
-
-                // Try to find an existing entry for the entity type
-                spawns.stream()
-                        .filter(entry -> entry.entityType == entityType)
-                        .findFirst()
-                        .ifPresent(spawns::remove); // If there is one, remove it
-
-                // Add a new one
-                spawns.add(new Biome.SpawnListEntry(entityType, itemWeight, minGroupCount, maxGroupCount));
+        List<? extends String> excludeList = HorseConfig.Spawn.excludeBiomes.get();
+        HashSet<Biome> excludeBiomes = new HashSet();
+        for (String rawBiome : excludeList) {
+            for (Biome b : getBiomes(HorseConfig.Spawn.BiomeWeight.getType(rawBiome))) {
+                excludeBiomes.add(b);
             }
         }
 
-        /**
-         * Get an array of {@link Biome}s with the specified {@link BiomeDictionary.Type}.
-         *
-         * @param type The Type
-         * @return An array of Biomes
-         */
-        private static Biome[] getBiomes(final BiomeDictionary.Type type) {
-            return BiomeDictionary.getBiomes(type).toArray(new Biome[0]);
+        List<? extends String> rawList = HorseConfig.SPAWN.spawnBiomeWeights.get();
+        for (String rawBiomeWeight : rawList) {
+            HorseConfig.Spawn.BiomeWeight bw = new HorseConfig.Spawn.BiomeWeight(rawBiomeWeight);
+            BiomeDictionary.Type type = HorseConfig.Spawn.BiomeWeight.getType(bw.biome);
+            for (Biome biome : getBiomes(type)) {
+                if (excludeBiomes.contains(biome)) {
+                    continue;
+                }
+                System.out.println("Adding spawn " + String.valueOf(biome));
+                List<Biome.SpawnListEntry> spawns = biome.getSpawns(EntityClassification.CREATURE);
+                spawns.add(new Biome.SpawnListEntry(HORSE_GENETIC, bw.weight, HorseConfig.SPAWN.minHerdSize.get(), HorseConfig.SPAWN.maxHerdSize.get()));
+            }
+        }
+
+    }
+
+    /**
+     * Add a spawn entry for the supplied entity in the supplied {@link Biome} list.
+     * <p>
+     * Adapted from Forge's {@code EntityRegistry.addSpawn} method in 1.12.2.
+     *
+     * @param entityType     The entity type
+     * @param itemWeight     The weight of the spawn list entry (higher weights have a higher chance to be chosen)
+     * @param minGroupCount  Min spawn count
+     * @param maxGroupCount  Max spawn count
+     * @param classification The entity classification
+     * @param biomes         The biomes to add the spawn to
+     */
+    private static void addSpawn(final EntityType<? extends LivingEntity> entityType, final int itemWeight, final int minGroupCount, final int maxGroupCount, final EntityClassification classification, final Biome... biomes) {
+        for (final Biome biome : biomes) {
+            final List<Biome.SpawnListEntry> spawns = biome.getSpawns(classification);
+/*
+            // Try to find an existing entry for the entity type
+            spawns.stream()
+                    .filter(entry -> entry.entityType == entityType)
+                    .findFirst()
+                    .ifPresent(spawns::remove); // If there is one, remove it*/
+
+            // Add a new one
+            spawns.add(new Biome.SpawnListEntry(entityType, itemWeight, minGroupCount, maxGroupCount));
+        }
+    }
+
+    /**
+     * Get an array of {@link Biome}s with the specified {@link BiomeDictionary.Type}.
+     *
+     * @param type The Type
+     * @return An array of Biomes
+     */
+    private static Biome[] getBiomes(final BiomeDictionary.Type type) {
+        assert(type != null);
+        assert(BiomeDictionary.getBiomes(type) != null);
+        return BiomeDictionary.getBiomes(type).toArray(new Biome[0]);
+    }
+
+    //Removes initial vanilla horse spawns
+    public static void editSpawnTable() {
+        if (!HorseConfig.SPAWN.blockVanillaHorseSpawns.get()) {
+            return;
+        }
+        Set<Biome> allBiomes = Biome.BIOMES;
+        for (Biome biome : allBiomes) {
+                List<Biome.SpawnListEntry> spawns = biome.getSpawns(EntityClassification.CREATURE);
+                if (spawns.isEmpty()) {
+                    continue;
+                }
+                ArrayList<Biome.SpawnListEntry> horseSpawns = new ArrayList<Biome.SpawnListEntry>();
+                for (Biome.SpawnListEntry entry : spawns) {
+                    if (entry.entityType == EntityType.HORSE) {
+                        horseSpawns.add(entry);
+                    }
+                }/*
+                if (!horseSpawns.isEmpty()) {
+                    System.out.println(horseSpawns);
+                }*/
+                for (Biome.SpawnListEntry horseSpawn : horseSpawns) {
+                    spawns.remove(horseSpawn);
+                }
         }
 
     }
@@ -122,5 +175,13 @@ public static final EntityType<HorseEntity> HORSE = register("horse", EntityType
     public static void registerRenders()
     {
         RenderingRegistry.registerEntityRenderingHandler(HORSE_GENETIC, renderManager -> new HorseGeneticRenderer(renderManager));
+    }
+
+
+    @SubscribeEvent
+    public static void onLoadComplete(net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent e) {
+        // These need to happen after the config file is read and vanilla horse spawns are added
+        editSpawnTable();
+        addSpawns();
     }
 }

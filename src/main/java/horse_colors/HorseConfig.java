@@ -5,9 +5,11 @@ import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.common.ForgeConfigSpec.EnumValue;
 import net.minecraftforge.common.ForgeConfigSpec.IntValue;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.config.ModConfig;
-import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.List;
+import java.util.*;
+
+import net.minecraftforge.common.BiomeDictionary;
 
 public class HorseConfig
 {
@@ -45,7 +47,77 @@ public class HorseConfig
         public static BooleanValue blockVanillaHorseSpawns;
         public static IntValue minHerdSize;
         public static IntValue maxHerdSize;
-        public static IntValue spawnWeight;
+        public static ForgeConfigSpec.ConfigValue<List<? extends String>> spawnBiomeWeights;
+        public static ForgeConfigSpec.ConfigValue<List<? extends String>> excludeBiomes;
+        public static class BiomeWeight {
+            BiomeWeight(String b, int w) {
+                this.biome = b;
+                this.weight = w;
+            }
+
+            BiomeWeight(String s) {
+                
+                s = s.trim();
+                int comma = s.indexOf(",");
+                String rawBiome = s.substring(0, comma);
+                this.biome = rawBiome.trim();
+                String rawWeight = s.substring(comma + 1, s.length());
+                this.weight = Integer.parseInt(rawWeight.trim());
+            }
+            public int weight;
+            public String biome;
+
+            public String toString() {
+                return biome + ", " + String.valueOf(weight);
+            }
+
+            public static boolean isValid(Object o) {
+                if (!(o instanceof String)) {
+                    return false;
+                }
+                // Check basic format
+                String s = (String)o;
+                s = s.trim();
+                if (s.length() < 3) {
+                    System.out.println(s + " not valid: Too short");
+                    return false;
+                }
+                int comma = s.indexOf(",");
+                if (comma == -1) {
+                    System.out.println(s + " not valid: No comma");
+                    return false;
+                }
+                String rawBiome = s.substring(0, comma);
+                // Check that the int is an int
+                String rawWeight = s.substring(comma + 1, s.length());
+                rawWeight = rawWeight.trim();
+                try {
+                    int weight = Integer.parseInt(rawWeight);
+                    if (weight < 0) {
+                        System.out.println(s + " not valid: Negative weight" + rawWeight);
+                        return false;
+                    }
+                }
+                catch (NumberFormatException e) {
+                    System.out.println(s + " not valid: Unparseable weight" + rawWeight);
+                    return false;
+                }
+                // Check that the biome is a biome
+                if (getType(rawBiome) == null) {
+                    System.out.println(s + "not valid: " + rawBiome + " is not a biome type. Make sure you enter a biome type, not a biome.");
+                }
+                return getType(rawBiome) != null;
+            }
+
+            public static BiomeDictionary.Type getType(String s) {
+                for (BiomeDictionary.Type biome : BiomeDictionary.Type.getAll()) {
+                    if (s.compareToIgnoreCase(biome.toString()) == 0) {
+                        return biome;
+                    }
+                }
+                return null;
+            }
+        }
 
         Spawn(final ForgeConfigSpec.Builder builder) {
             builder.comment("Horse spawning settings")
@@ -54,23 +126,32 @@ public class HorseConfig
             blockVanillaHorseSpawns = builder
                     .comment("If set to true, only horses created by this mod will spawn.",
             "This mainly affects newly generated areas.")
-                    .translation("horse_colors.config.common.blockVanillaHorseSpawns")
+                    .translation("horse_colors.config.spawn.blockVanillaHorseSpawns")
                     .define("blockVanillaHorseSpawns", true);
 
             minHerdSize = builder
                     .comment("What size groups horses will spawn in")
-                    .translation("horse_colors.config.common.minHerdSize")
+                    .translation("horse_colors.config.spawn.minHerdSize")
                     .defineInRange("minHerdSize", 4, 0, Integer.MAX_VALUE);
 
             maxHerdSize = builder
                     .comment("")
-                    .translation("horse_colors.config.common.maxHerdSize")
+                    .translation("horse_colors.config.spawn.maxHerdSize")
                     .defineInRange("maxHerdSize", 8, 0, Integer.MAX_VALUE);
 
-            spawnWeight = builder
-                    .comment("How often horses will spawn. Set to 0 to disable.")
-                    .translation("horse_colors.config.common.spawnWeight")
-                    .defineInRange("spawnWeight", 10, 0, Integer.MAX_VALUE);
+            spawnBiomeWeights = builder
+                    .comment("A list of biomes horses can spawn in, and how often they spawn there.")
+                    .<String>defineList("spawnBiomeWeights", 
+                                Arrays.asList((new BiomeWeight(BiomeDictionary.Type.PLAINS.toString(), 10)).toString(), 
+                                              (new BiomeWeight(BiomeDictionary.Type.SAVANNA.toString(), 10)).toString()), 
+                                BiomeWeight::isValid);
+
+            excludeBiomes = builder
+                    .comment("A list of biome types that should not spawn horses.")
+                    .<String>defineList("excludeBiomes", 
+                                Arrays.asList(BiomeDictionary.Type.MOUNTAIN.toString()),
+                                // Lambda function to check if the biome is valid
+                                o -> BiomeDictionary.Type.getAll().contains(BiomeWeight.getType(String.valueOf(o))));
 
             builder.pop();
         }
