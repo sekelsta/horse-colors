@@ -412,13 +412,38 @@ public class HorseGeneticEntity extends AbstractHorseEntity
         }
     }
 
+    // Get a number where each binary digit has p
+    // probability of being a 1. 
+    public int mutateIntMask(double p) {
+        int mask = 0;
+        if (this.rand.nextDouble() < p) {
+            mask++;
+        }
+        for (int i = 1; i < Integer.SIZE; ++i) {
+            mask <<= 1;
+            if (this.rand.nextDouble() < p) {
+                mask++;
+            }
+        }
+        return mask;
+    }
+
+    public void mutateStat(String name, double p) {
+        // xor with an int where each digit has a p / 2 chance of being 1
+        // This is equivalent to picking a random replacement with p probability
+        // because half the time that would pick the same value as before
+        setHorseVariant(getHorseVariant(name) ^ mutateIntMask(p / 2), name);
+    }
+
     public void mutate() {
-        double p = 0.001;
+        double p = HorseConfig.Common.mutationChance.get();
         for (String gene : genes) {
             mutateAlleleChance(gene, 0, p);
             mutateAlleleChance(gene, 1, p);
         }
-        // TODO: mutate stat genes
+        mutateStat("health", p);
+        mutateStat("speed", p);
+        mutateStat("jump", p);
     }
 
     public int getStat(String name)

@@ -5,6 +5,7 @@ import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.common.ForgeConfigSpec.EnumValue;
 import net.minecraftforge.common.ForgeConfigSpec.IntValue;
+import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
 
 import java.util.List;
 import java.util.*;
@@ -18,8 +19,9 @@ public class HorseConfig
     public static final Spawn SPAWN = new Spawn(BUILDER);
 
     public static class Common {
-        public final BooleanValue useGeneticStats;
+        public static BooleanValue useGeneticStats;
         public static BooleanValue horseDebugInfo;
+        public static DoubleValue mutationChance;
 
 
         Common(final ForgeConfigSpec.Builder builder) {
@@ -38,6 +40,17 @@ public class HorseConfig
             "For most users, it is probably better to leave this as false.")
                     .translation("horse_colors.config.common.horseDebugInfo")
                     .define("horseDebugInfo", false);
+
+            mutationChance = builder
+                    .comment("The chance for each allele to mutate.",
+                             "There are at least 80 genes, each with 2 alleles, and each mutation",
+                             "has about half a chance of having no effect, so with the default",
+                             "value of 0.0005, each foal has a 5% chance of having at least",
+                             "one mutation. For mutationChance = 0.001, that chance becomes about 7%,", 
+                              "and for mutationChance = 0.01 a foal has about a 45% chance of having at", 
+                              "least one mutation. Any higher is not recommended.",
+                              "To disable mutations, set this value to 0.")
+                    .defineInRange("mutationChance", 0.0005, 0.0, 1.0);
 
             builder.pop();
         }
@@ -147,9 +160,11 @@ public class HorseConfig
                                 BiomeWeight::isValid);
 
             excludeBiomes = builder
-                    .comment("A list of biome types that should not spawn horses.")
+                    .comment("A list of biome types that should not spawn horses.",
+                             "For instance, set to [\"MOUNTAIN\", \"HILLS\", \"PLATEAU\"]",
+                             "to prevent horses from spawning in non-flat biomes.")
                     .<String>defineList("excludeBiomes", 
-                                Arrays.asList(BiomeDictionary.Type.MOUNTAIN.toString()),
+                                Arrays.asList(),
                                 // Lambda function to check if the biome is valid
                                 o -> BiomeDictionary.Type.getAll().contains(BiomeWeight.getType(String.valueOf(o))));
 
