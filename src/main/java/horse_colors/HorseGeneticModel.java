@@ -371,13 +371,14 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         float headRotation4 = (-1.0471976F + headRotation3) * rearingAmount + headRotation1 * f7;
         float headRotation5 = (-1.0471976F - headRotation3) * rearingAmount + -headRotation1 * f7;
         this.backLeftLeg.rotateAngleX = headRotation2 + -headRotation0 * 0.5F * limbSwingAmount * f7;
-        this.backLeftShin.rotateAngleX = -0.08726646F * rearingAmount + (-headRotation0 * 0.5F * limbSwingAmount - Math.max(0.0F, headRotation0 * 0.5F * limbSwingAmount)) * f7;
         this.backRightLeg.rotateAngleX = headRotation2 + headRotation0 * 0.5F * limbSwingAmount * f7;
-        this.backRightShin.rotateAngleX = -0.08726646F * rearingAmount + (headRotation0 * 0.5F * limbSwingAmount - Math.max(0.0F, -headRotation0 * 0.5F * limbSwingAmount)) * f7;
         this.frontLeftLeg.rotateAngleX = headRotation4;
-        this.frontLeftShin.rotateAngleX = (this.frontLeftLeg.rotateAngleX + (float)Math.PI * Math.max(0.0F, 0.2F + headRotation3 * 0.2F)) * rearingAmount + (headRotation1 + Math.max(0.0F, headRotation0 * 0.5F * limbSwingAmount)) * f7;
+        this.frontLeftShin.rotateAngleX = (this.frontLeftLeg.rotateAngleX + (float)Math.PI * Math.max(0.0F, 0.2F + headRotation3 * 0.2F)) * rearingAmount + (headRotation1 + Math.max(0.0F, headRotation0 * 0.5F * limbSwingAmount)) * f7 - this.frontLeftLeg.rotateAngleX;
+        // This might do the same thing
+        //this.frontLeftShin.rotateAngleX = ((float)Math.PI * Math.max(0.0F, 0.2F + headRotation3 * 0.2F)) * rearingAmount;
         this.frontRightLeg.rotateAngleX = headRotation5;
-        this.frontRightShin.rotateAngleX = (this.frontRightLeg.rotateAngleX + (float)Math.PI * Math.max(0.0F, 0.2F - headRotation3 * 0.2F)) * rearingAmount + (-headRotation1 + Math.max(0.0F, -headRotation0 * 0.5F * limbSwingAmount)) * f7;
+        this.frontRightShin.rotateAngleX = (this.frontRightLeg.rotateAngleX + (float)Math.PI * Math.max(0.0F, 0.2F - headRotation3 * 0.2F)) * rearingAmount + (-headRotation1 + Math.max(0.0F, -headRotation0 * 0.5F * limbSwingAmount)) * f7 - this.frontRightLeg.rotateAngleX;
+        //this.frontRightShin.rotateAngleX = ((float)Math.PI * Math.max(0.0F, 0.2F - headRotation3 * 0.2F)) * rearingAmount;
 
         if (isSaddled)
         {

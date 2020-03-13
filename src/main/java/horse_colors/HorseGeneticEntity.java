@@ -624,8 +624,7 @@ public class HorseGeneticEntity extends AbstractHorseEntity
             case "PATN":
                 int base = 5 * getPhenotype("PATN1") + getPhenotype("PATN2")
                            + getPhenotype("PATN3");
-                return base == 0? 0 : base + getPhenotype("W20") 
-                                        + getPhenotype("white_boost");
+                return base == 0? 0 : base + getPhenotype("W20");
             case "slow_gray":
                 // Larger numbers make a darker horse.
                 int val = getPhenotype("slow_gray1") + getPhenotype("slow_gray2")
