@@ -146,47 +146,9 @@ public class HorseGeneticEntity extends AbstractHorseEntity
     {
         super(entityType, worldIn);
     }
-/*
-    public void copyAbstractHorse(AbstractHorseEntity horse)
-    {
-        // Copy location
-        this.setLocationAndAngles(horse.posX, horse.posY, horse.posZ, horse.rotationYaw, horse.rotationPitch);
-        this.rotationYawHead = this.rotationYaw;
-        this.renderYawOffset = this.rotationYaw;
-        // Set tamed
-        this.setHorseTamed(horse.isTame());
-        // We don't know the player, so don't call setTamedBy
-        // Set temper, in case it isn't tamed
-        this.setTemper(horse.getTemper());
-        // Do not transfer isRearing, isBreeding, or isEatingHaystack.
-        // Set age
-        this.setGrowingAge(horse.getGrowingAge());
-        // Transfer inventory
-        // field_110296_bG maps to horseChest in mcp snapshot 20180921-1.13
-        // Also in snapshot 20190719-1.14.3
-        Inventory inv = 
-            ObfuscationReflectionHelper.<Inventory, AbstractHorseEntity>getPrivateValue(AbstractHorseEntity.class, horse, "field_110296_bG");
-        this.horseChest.setInventorySlotContents(0, inv.getStackInSlot(0));
-        this.horseChest.setInventorySlotContents(1, inv.getStackInSlot(1));
-        this.updateHorseSlots();
-        // Copy over speed, health, and jump
-        double health = horse.getAttribute(SharedMonsterAttributes.MAX_HEALTH).getBaseValue();
-        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(health);
 
-        double jump = horse.getAttribute(JUMP_STRENGTH).getBaseValue();
-        this.getAttribute(JUMP_STRENGTH).setBaseValue(jump);
-
-        double speed = horse.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getBaseValue();
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(speed);
-        // Name from nametags
-        if (horse.hasCustomName()) {
-            this.setCustomName(horse.getCustomName());
-            this.setCustomNameVisible(horse.isCustomNameVisible());
-        }
-    }
-*/
     @Override
-    protected void registerGoals() {/*
+    protected void registerGoals() {
         this.goalSelector.addGoal(1, new PanicGoal(this, 1.2D));
         this.goalSelector.addGoal(1, new RunAroundLikeCrazyGoal(this, 1.2D));
         this.goalSelector.addGoal(2, new BreedGoal(this, 1.0D, AbstractHorseEntity.class));
@@ -194,7 +156,7 @@ public class HorseGeneticEntity extends AbstractHorseEntity
         this.goalSelector.addGoal(6, new WaterAvoidingRandomWalkingGoal(this, 0.7D));
         this.goalSelector.addGoal(7, new LookAtGoal(this, PlayerEntity.class, 6.0F));
         this.goalSelector.addGoal(8, new LookRandomlyGoal(this));
-        this.initExtraAI();*/
+        this.initExtraAI();
     }
 
     @Override
@@ -325,17 +287,6 @@ public class HorseGeneticEntity extends AbstractHorseEntity
         
     }
 
-    /* For calling when debugging. */
-    public static void test()
-    {
-        System.out.println("");
-        for (String gene : genes)
-        {
-            //System.out.print(gene + ": " + Integer.toBinaryString(getGeneLoci(gene)) + "\n");
-            System.out.print(gene + ": " + getGenePos(gene) + "\n");
-        }
-    }
-
     public static int getGenePos(String name)
     {
         int i = 0;
@@ -437,6 +388,37 @@ public class HorseGeneticEntity extends AbstractHorseEntity
         gene >>= n * getGeneSize(name);
         gene %= 1 << getGeneSize(name);
         return gene;
+    }
+
+    public void setAllele(String name, int n, int v)
+    {
+        int other = getAllele(name, 1 - n);
+        int size = getGeneSize(name);
+        setGene(name, (other << ((1 - n) * size)) | (v << (n * size)));
+    }
+
+    // Replace the given allele with a random one.
+    // It may be the same as before.
+    public void mutateAllele(String gene, int n) {
+        int size = getGeneSize(gene);
+        int v = this.rand.nextInt((int)Math.pow(2, size));
+        setAllele(gene, n, v);
+    }
+
+    // Will mutate with p probability
+    public void mutateAlleleChance(String gene, int n, double p) {
+        if (this.rand.nextDouble() < p) {
+            mutateAllele(gene, n);
+        }
+    }
+
+    public void mutate() {
+        double p = 0.001;
+        for (String gene : genes) {
+            mutateAlleleChance(gene, 0, p);
+            mutateAlleleChance(gene, 1, p);
+        }
+        // TODO: mutate stat genes
     }
 
     public int getStat(String name)
@@ -1137,6 +1119,7 @@ public class HorseGeneticEntity extends AbstractHorseEntity
         this.setOffspringAttributes(ageable, abstracthorse);
         if (abstracthorse instanceof HorseGeneticEntity)
         {
+            ((HorseGeneticEntity)abstracthorse).mutate();
             ((HorseGeneticEntity)abstracthorse).useGeneticAttributes();
         }
         return abstracthorse;
