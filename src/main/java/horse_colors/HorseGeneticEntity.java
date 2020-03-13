@@ -705,17 +705,7 @@ public class HorseGeneticEntity extends AbstractHorseEntity
         String[] leg_markings = new String[4];
         
         String pinto = HorseColorCalculator.getPinto(this);
-        // Doesn't work if this code gets run?
-        /*if (pinto == "white")
-        {
-            sooty = null;
-            roan = null;
-            face_marking = null;
-            base_texture = null;
-            leopard = null;
-            mealy = null;
-        }
-        else */if (showsLegMarkings())
+        if (showsLegMarkings())
         {
             leg_markings = HorseColorCalculator.getLegMarkings(this);
         }
@@ -1257,6 +1247,9 @@ public class HorseGeneticEntity extends AbstractHorseEntity
             setGeneRandom("gray_mane", n, 4, 0);
             setGeneRandom("slow_gray1", n, 8, 0);
             setGeneRandom("slow_gray2", n, 4, 0);
+            setGeneRandom("white_star", n, 4, 0);
+            setGeneRandom("white_forelegs", n, 4, 0);
+            setGeneRandom("white_hindlegs", n, 4, 0);
         }
 
         answer = getHorseVariant(type);
