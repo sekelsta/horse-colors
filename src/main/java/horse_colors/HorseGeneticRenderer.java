@@ -19,9 +19,9 @@ public class HorseGeneticRenderer extends MobRenderer<HorseGeneticEntity, HorseG
     // Stuff from AbstractHorseRenderer
    private final float scale;
 
-   protected void func_225620_a_(HorseGeneticEntity entityIn, MatrixStack p_225620_2_, float p_225620_3_) {
-      p_225620_2_.func_227862_a_(this.scale, this.scale, this.scale);
-      super.func_225620_a_(entityIn, p_225620_2_, p_225620_3_);
+   protected void preRenderCallback(HorseGeneticEntity entitylivingbaseIn, MatrixStack matrixStackIn, float partialTickTime) {
+      matrixStackIn.scale(this.scale, this.scale, this.scale);
+      super.preRenderCallback(entitylivingbaseIn, matrixStackIn, partialTickTime);
    }
 
     // Stuff from HorseRenderer
@@ -47,7 +47,7 @@ public class HorseGeneticRenderer extends MobRenderer<HorseGeneticEntity, HorseG
         {
             resourcelocation = new ResourceLocation(s);
             // func_229263_a_ == loadTexture
-            Minecraft.getInstance().getTextureManager().func_229263_a_(resourcelocation, new LayeredTexture(entity.getVariantTexturePaths()));
+            Minecraft.getInstance().getTextureManager().loadTexture(resourcelocation, new LayeredTexture(entity.getVariantTexturePaths()));
             LAYERED_LOCATION_CACHE.put(s, resourcelocation);
         }
 

@@ -24,13 +24,13 @@ public class HorseArmorLayer extends LayerRenderer<HorseGeneticEntity, HorseGene
 
     @Override
     // Render function
-    public void func_225628_a_(MatrixStack p_225628_1_, IRenderTypeBuffer p_225628_2_, int p_225628_3_, HorseGeneticEntity entityIn, float p_225628_5_, float p_225628_6_, float p_225628_7_, float p_225628_8_, float p_225628_9_, float p_225628_10_) {
+    public void render(MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int p_225628_3_, HorseGeneticEntity entityIn, float p_225628_5_, float p_225628_6_, float p_225628_7_, float p_225628_8_, float p_225628_9_, float p_225628_10_) {
        ItemStack itemstack = entityIn.getHorseArmor();
        if (itemstack.getItem() instanceof HorseArmorItem) {
            HorseArmorItem horsearmoritem = (HorseArmorItem)itemstack.getItem();
-           this.getEntityModel().setModelAttributes(this.horseModel);
+           this.getEntityModel().copyModelAttributesTo(this.horseModel);
            this.horseModel.setLivingAnimations(entityIn, p_225628_5_, p_225628_6_, p_225628_7_);
-           this.horseModel.func_225597_a_(entityIn, p_225628_5_, p_225628_6_, p_225628_8_, p_225628_9_, p_225628_10_);
+           this.horseModel.setRotationAngles(entityIn, p_225628_5_, p_225628_6_, p_225628_8_, p_225628_9_, p_225628_10_);
            float f;
            float f1;
            float f2;
@@ -45,8 +45,8 @@ public class HorseArmorLayer extends LayerRenderer<HorseGeneticEntity, HorseGene
                f2 = 1.0F;
            }
 
-            IVertexBuilder ivertexbuilder = p_225628_2_.getBuffer(RenderType.func_228640_c_(HorseArmorer.getTexture(horsearmoritem)));
-            this.horseModel.func_225598_a_(p_225628_1_, ivertexbuilder, p_225628_3_, OverlayTexture.field_229196_a_, f, f1, f2, 1.0F);
+            IVertexBuilder ivertexbuilder = renderTypeBuffer.getBuffer(RenderType.getEntityCutoutNoCull(HorseArmorer.getTexture(horsearmoritem)));
+            this.horseModel.render(matrixStack, ivertexbuilder, p_225628_3_, OverlayTexture.NO_OVERLAY, f, f1, f2, 1.0F);
         }
     }
 
