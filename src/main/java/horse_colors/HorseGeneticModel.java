@@ -2,6 +2,8 @@ package sekelsta.horse_colors;
 
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.renderer.entity.model.AgeableModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.passive.horse.AbstractHorseEntity;
@@ -9,6 +11,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nonnull;
+import java.util.function.Consumer;
 
 @OnlyIn(Dist.CLIENT)
 public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableModel<T>
@@ -139,6 +143,8 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
 
         this.head = new ModelRenderer(this, 0, 0);
         this.head.addBox(-2.5F, -10.0F, -1.5F, 5, 5, 7.0F, scaleFactor);
+        this.head.setRotationPoint(0.0F, 4.0F, -10.0F);
+        this.head.rotateAngleX = 0.5235988F;
         this.upperMouth = new ModelRenderer(this, 24, 18);
         this.upperMouth.addBox(-2.0F, -10.0F, -7.0F, 4, 3, 6.0F, scaleFactor);
         this.lowerMouth = new ModelRenderer(this, 24, 27);
@@ -164,7 +170,7 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         this.neck.addBox(-2.05F, -9.8F, -2.0F, 4, 14, 8.0F, scaleFactor);
         this.neck.setRotationPoint(0.0F, 4.0F, -10.0F);
         this.neck.rotateAngleX = 0.5235988F;
-        this.neck.addChild(this.head);
+        //this.neck.addChild(this.head);
 
 
         this.muleLeftChest = new ModelRenderer(this, 0, 34);
@@ -241,7 +247,7 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
     }
 
     @Override
-    public void setRotationAngles(T entityIn, float p_225597_2_, float p_225597_3_, float p_225597_4_, float p_225597_5_, float p_225597_6_) {
+    public void setRotationAngles(T entityIn, float p_225597_2_, float p_225597_3_, float p_225597_4_, float limbSwingAmount, float partialTickTime) {
         // Disable things that are not for horses
         this.muleLeftChest.showModel = false;
         this.muleRightChest.showModel = false;
@@ -269,11 +275,11 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
     /**
      * Fixes and offsets a rotation in the ModelHorse class.
      *//* Replaced by MathHelper.func_226167_j_() */
-    private float updateHorseRotation(float p_110683_1_, float p_110683_2_, float p_110683_3_)
+    private float updateHorseRotation(float prevRotation, float currentRotation, float partialTickTime)
     {
         float bodyRotation;
 
-        for (bodyRotation = p_110683_2_ - p_110683_1_; bodyRotation < -180.0F; bodyRotation += 360.0F)
+        for (bodyRotation = currentRotation - prevRotation; bodyRotation < -180.0F; bodyRotation += 360.0F)
         {
             ;
         }
@@ -283,7 +289,7 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
             bodyRotation -= 360.0F;
         }
 
-        return p_110683_1_ + p_110683_3_ * bodyRotation;
+        return prevRotation + partialTickTime * bodyRotation;
     }
 
     // This function renders the list of things given
@@ -298,6 +304,53 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
     protected Iterable<ModelRenderer> getBodyParts() {
         return ImmutableList.of(this.body, this.neck, this.backLeftLeg, this.backRightLeg, this.frontLeftLeg, this.frontRightLeg, this.muleLeftChest, this.muleRightChest);
     }
+
+    // Copied and modified from the familiar horses mod as allowed by the Unlicense
+    /**
+     * Sets the models various rotation angles then renders the model.
+     */
+    @Override
+    public void render(@Nonnull MatrixStack matrixStackIn, @Nonnull IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
+        Consumer<ModelRenderer> render = model -> model.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+        float f1 = 0.5F;
+
+        if (this.isChild) {
+
+            matrixStackIn.push();
+            matrixStackIn.scale(f1, 0.5F + f1 * 0.5F, f1);
+            matrixStackIn.translate(0.0F, 0.95F * (1.0F - f1), 0.0F);
+        }
+
+        ImmutableList.of(this.backLeftLeg, this.backRightLeg, 
+                         this.frontLeftLeg, this.frontRightLeg).forEach(render);
+
+        if (this.isChild) {
+
+            matrixStackIn.pop();
+            matrixStackIn.push();
+            matrixStackIn.scale(f1, f1, f1);
+            matrixStackIn.translate(0.0F, 1.35F * (1.0F - f1), 0.0F);
+        }
+
+        ImmutableList.of(this.body, this.neck).forEach(render);
+
+        if (this.isChild) {
+            matrixStackIn.pop();
+            matrixStackIn.push();
+            float f2 = 0.5F + f1 * f1 * 0.5F;
+            matrixStackIn.scale(f2, f2, f2);
+            //matrixStackIn.translate(0.0F, 0.9F * (1.0F - f1), 0.15F * (1.0F - f1));
+        }
+
+        ImmutableList.of(this.head).forEach(render);
+
+        if (this.isChild) {
+            matrixStackIn.pop();
+        }
+
+        ImmutableList.of(this.muleLeftChest, this.muleRightChest).forEach(render);
+    }
+
 
     /**
      * Used for easily adding entity-dependent animations. The second and third float params here are the same second
@@ -340,8 +393,6 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         float headRotation1 = headRotation0 * 0.8F * limbSwingAmount;
 
         this.neck.setRotationPoint(0.0F, 4.0F, -10.0F);
-        //this.tailBase.rotationPointY = 3.0F;
-        //this.tailThin.rotationPointY = 3.0F;
         this.muleRightChest.rotationPointY = 3.0F;
         this.muleRightChest.rotationPointZ = 10.0F;
         this.body.rotateAngleX = 0.0F;
@@ -351,8 +402,6 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         this.neck.rotateAngleY = rearingAmount * f3 * 0.017453292F + (1.0F - Math.max(rearingAmount, grassEatingAmount)) * this.neck.rotateAngleY;
         this.neck.rotationPointY = rearingAmount * -6.0F + grassEatingAmount * 11.0F + (1.0F - Math.max(rearingAmount, grassEatingAmount)) * this.neck.rotationPointY;
         this.neck.rotationPointZ = rearingAmount * -1.0F + grassEatingAmount * -10.0F + (1.0F - Math.max(rearingAmount, grassEatingAmount)) * this.neck.rotationPointZ;
-        //this.tailBase.rotationPointY = rearingAmount * 9.0F + f7 * this.tailBase.rotationPointY;
-        //this.tailThin.rotationPointY = rearingAmount * 9.0F + f7 * this.tailThin.rotationPointY;
         this.muleRightChest.rotationPointY = rearingAmount * 5.5F + f7 * this.muleRightChest.rotationPointY;
         this.muleRightChest.rotationPointZ = rearingAmount * 15.0F + f7 * this.muleRightChest.rotationPointZ;
         this.body.rotateAngleX = rearingAmount * -((float)Math.PI / 4F) + f7 * this.body.rotateAngleX;
@@ -360,10 +409,13 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         this.lowerMouth.rotationPointY = 0.0F;
         this.upperMouth.rotationPointZ = 0.02F - mouthOpenAmount;
         this.lowerMouth.rotationPointZ = mouthOpenAmount;
-        this.head.rotateAngleX = 0.0F;
+        this.head.rotationPointX = this.neck.rotationPointX;
+        this.head.rotationPointY = this.neck.rotationPointY;
+        this.head.rotationPointZ = this.neck.rotationPointZ;
+        this.head.rotateAngleX = this.neck.rotateAngleX;
         this.upperMouth.rotateAngleX = -0.09424778F * mouthOpenAmount;
         this.lowerMouth.rotateAngleX = 0.15707964F * mouthOpenAmount;
-        this.head.rotateAngleY = 0.0F;
+        this.head.rotateAngleY = this.neck.rotateAngleY;
         this.upperMouth.rotateAngleY = 0.0F;
         this.lowerMouth.rotateAngleY = 0.0F;
         this.muleLeftChest.rotateAngleX = headRotation1 / 5.0F;
@@ -430,5 +482,10 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
 
         this.tailBase.rotateAngleX = tailRotation;
         this.tailThin.rotateAngleX = donkeyTailRotate;
+
+        if (this.isChild) {
+            this.head.rotationPointY += 7.0F;
+            this.head.rotationPointZ += 1.0F;
+        }
     }
 }
