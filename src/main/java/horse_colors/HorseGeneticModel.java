@@ -70,24 +70,26 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         this.body.setRotationPoint(0.0F, 11.0F, 9.0F);
         this.tailBase = new ModelRenderer(this, 44, 0);
         this.tailBase.func_228301_a_(-1.0F, -1.0F, 0.0F, 2.0F, 2.0F, 3.0F, scaleFactor);
-        this.tailBase.setRotationPoint(0.0F, 3.0F, 14.0F);
+        this.tailBase.setRotationPoint(0.0F, -8.0F, 5.0F);
         this.tailBase.rotateAngleX = -1.134464F;
         this.tailMiddle = new ModelRenderer(this, 38, 7);
         this.tailMiddle.func_228301_a_(-1.5F, -2.0F, 3.0F, 3.0F, 4.0F, 7.0F, scaleFactor);
         this.tailBase.addChild(tailMiddle);
         this.tailTip = new ModelRenderer(this, 24, 3);
         this.tailTip.func_228301_a_(-1.5F, -4.5F, 9.0F, 3.0F, 4.0F, 7.0F, scaleFactor);
-        this.tailTip.rotateAngleX = -1.3962634F - -1.134464F;
+        this.tailTip.rotateAngleX = -0.2618004F;
         this.tailMiddle.addChild(tailTip);
+        this.body.addChild(tailBase);
 
         this.tailThin = new ModelRenderer(this, 37, 19);
         this.tailThin.func_228301_a_(-1.5F, -1.0F, 1.0F, 1.0F, 1.0F, 8.0F, scaleFactor);
-        this.tailThin.setRotationPoint(1.0F, 3.0F, 13.0F);
+        this.tailThin.setRotationPoint(1.0F, -8.0F, 4.0F);
         this.tailThin.rotateAngleX = -1.134464F; // This doesn't seem to matter at all
         this.tailTuft = new ModelRenderer(this, 49, 42);
         this.tailTuft.func_228301_a_(-2.0F, -1.5F, 1.0F, 2, 2, 7.0F, scaleFactor);
         this.tailTuft.setRotationPoint(0.0F, 0.0F, 8.0F);
         this.tailThin.addChild(tailTuft);
+        this.body.addChild(tailThin);
 
         // When making something a child that wasn't before, subtract the
         // parent's rotationPoint
@@ -284,13 +286,17 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         return p_110683_1_ + p_110683_3_ * bodyRotation;
     }
 
-    // One or both of these might be what to render that isn't a child of something else
+    // This function renders the list of things given
+    // I suspect this is for parts that are proportionally bigger on children
     public Iterable<ModelRenderer> func_225602_a_() {
-        return ImmutableList.of(this.neck);
+        // In vanilla the neck goes here
+        return ImmutableList.of();
     }
 
+    // This function renders the list of things given
+    // I suspect this is for parts that are always the same proportions
     protected Iterable<ModelRenderer> func_225600_b_() {
-        return ImmutableList.of(this.body, this.tailBase, this.tailThin, this.backLeftLeg, this.backRightLeg, this.frontLeftLeg, this.frontRightLeg, muleLeftChest, muleRightChest);
+        return ImmutableList.of(this.body, this.neck, this.backLeftLeg, this.backRightLeg, this.frontLeftLeg, this.frontRightLeg, this.muleLeftChest, this.muleRightChest);
     }
 
     /**
@@ -334,8 +340,8 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         float headRotation1 = headRotation0 * 0.8F * limbSwingAmount;
 
         this.neck.setRotationPoint(0.0F, 4.0F, -10.0F);
-        this.tailBase.rotationPointY = 3.0F;
-        this.tailThin.rotationPointY = 3.0F;
+        //this.tailBase.rotationPointY = 3.0F;
+        //this.tailThin.rotationPointY = 3.0F;
         this.muleRightChest.rotationPointY = 3.0F;
         this.muleRightChest.rotationPointZ = 10.0F;
         this.body.rotateAngleX = 0.0F;
@@ -345,8 +351,8 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         this.neck.rotateAngleY = rearingAmount * f3 * 0.017453292F + (1.0F - Math.max(rearingAmount, grassEatingAmount)) * this.neck.rotateAngleY;
         this.neck.rotationPointY = rearingAmount * -6.0F + grassEatingAmount * 11.0F + (1.0F - Math.max(rearingAmount, grassEatingAmount)) * this.neck.rotationPointY;
         this.neck.rotationPointZ = rearingAmount * -1.0F + grassEatingAmount * -10.0F + (1.0F - Math.max(rearingAmount, grassEatingAmount)) * this.neck.rotationPointZ;
-        this.tailBase.rotationPointY = rearingAmount * 9.0F + f7 * this.tailBase.rotationPointY;
-        this.tailThin.rotationPointY = rearingAmount * 9.0F + f7 * this.tailThin.rotationPointY;
+        //this.tailBase.rotationPointY = rearingAmount * 9.0F + f7 * this.tailBase.rotationPointY;
+        //this.tailThin.rotationPointY = rearingAmount * 9.0F + f7 * this.tailThin.rotationPointY;
         this.muleRightChest.rotationPointY = rearingAmount * 5.5F + f7 * this.muleRightChest.rotationPointY;
         this.muleRightChest.rotationPointZ = rearingAmount * 15.0F + f7 * this.muleRightChest.rotationPointZ;
         this.body.rotateAngleX = rearingAmount * -((float)Math.PI / 4F) + f7 * this.body.rotateAngleX;
