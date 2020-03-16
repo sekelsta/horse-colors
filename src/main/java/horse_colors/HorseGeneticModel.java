@@ -58,10 +58,13 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
     private final ModelRenderer horseLeftSaddleRope;
     private final ModelRenderer horseRightSaddleRope;
 
-   private final ModelRenderer[] tackArray;
-   private final ModelRenderer[] extraTackArray;
+    private final ModelRenderer[] tackArray;
+    private final ModelRenderer[] extraTackArray;
 
 
+    public HorseGeneticModel() {
+        this(0.0F);
+    }
     // 1.14's HorseModel takes a scale factor as constructor argument
     public HorseGeneticModel(float scaleFactor)
     {
@@ -224,10 +227,12 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
 
         this.tackArray = new ModelRenderer[]{horseSaddleBottom, horseSaddleFront, horseSaddleBack, horseLeftSaddleMetal, horseLeftSaddleRope, horseRightSaddleMetal, horseRightSaddleRope, horseLeftFaceMetal, horseRightFaceMetal, horseFaceRopes};
 
+        // Do not scale the reins, otherwise they don't display properly
+        // I assume scaling doesn't work for things with 0 width./gradle
         ModelRenderer horseLeftRein = new ModelRenderer(this, 44, 10);
-        horseLeftRein.addBox(2.6F, -6.0F, -6.0F, 0, 3, 16.0F, scaleFactor);
+        horseLeftRein.addBox(2.6F, -6.0F, -6.0F, 0, 3, 16);
         ModelRenderer horseRightRein = new ModelRenderer(this, 44, 5);
-        horseRightRein.addBox(-2.6F, -6.0F, -6.0F, 0, 3, 16.0F, scaleFactor);
+        horseRightRein.addBox(-2.6F, -6.0F, -6.0F, 0, 3, 16);
         this.neck.addChild(horseLeftRein);
         this.neck.addChild(horseRightRein);
         horseLeftRein.rotateAngleX = -0.5235988F;
