@@ -33,6 +33,9 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity {
         this.dataManager.register(HORSE_VARIANT, Integer.valueOf(0));
         this.dataManager.register(HORSE_VARIANT2, Integer.valueOf(0));
         this.dataManager.register(HORSE_VARIANT3, Integer.valueOf(0));
+        this.dataManager.register(HORSE_SPEED, Integer.valueOf(0));
+        this.dataManager.register(HORSE_HEALTH, Integer.valueOf(0));
+        this.dataManager.register(HORSE_JUMP, Integer.valueOf(0));
     }
 
     /**
@@ -45,6 +48,9 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity {
         compound.putInt("Variant", this.getHorseVariant("0"));
         compound.putInt("Variant2", this.getHorseVariant("1"));
         compound.putInt("Variant3", this.getHorseVariant("2"));
+        compound.putInt("SpeedGenes", this.getHorseVariant("speed"));
+        compound.putInt("JumpGenes", this.getHorseVariant("jump"));
+        compound.putInt("HealthGenes", this.getHorseVariant("health"));
     }
     /**
      *  Protected helper method to read subclass entity data from NBT.
@@ -57,6 +63,9 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity {
         this.setHorseVariant(compound.getInt("Variant"), "0");
         this.setHorseVariant(compound.getInt("Variant2"), "1");
         this.setHorseVariant(compound.getInt("Variant3"), "2");
+        this.setHorseVariant(compound.getInt("SpeedGenes"), "speed");
+        this.setHorseVariant(compound.getInt("JumpGenes"), "jump");
+        this.setHorseVariant(compound.getInt("HealthGenes"), "health");
     }
 
     public void setHorseVariant(int variant, String type)
@@ -71,6 +80,15 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity {
             case "2":
                 this.dataManager.set(HORSE_VARIANT3, Integer.valueOf(variant));
                 break;
+            case "speed":
+                this.dataManager.set(HORSE_SPEED, Integer.valueOf(variant));
+                return;
+            case "jump":
+                this.dataManager.set(HORSE_JUMP, Integer.valueOf(variant));
+                return;
+            case "health":
+                this.dataManager.set(HORSE_HEALTH, Integer.valueOf(variant));
+                return;
             default:
                 System.out.print("Unrecognized horse data for setting: "
                                  + type + "\n");
@@ -87,6 +105,12 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity {
                 return ((Integer)this.dataManager.get(HORSE_VARIANT2)).intValue();
             case "2":
                 return ((Integer)this.dataManager.get(HORSE_VARIANT3)).intValue();
+            case "speed":
+                return ((Integer)this.dataManager.get(HORSE_SPEED)).intValue();
+            case "jump":
+                return ((Integer)this.dataManager.get(HORSE_JUMP)).intValue();
+            case "health":
+                return ((Integer)this.dataManager.get(HORSE_HEALTH)).intValue();
             default:
                 System.out.print("Unrecognized horse data for getting: " 
                                 + type + "\n");
@@ -163,6 +187,13 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity {
         "white_star",
         "white_forelegs",
         "white_hindlegs"
+        // TODO
+        // mealy switch (no light points, in donkeys)
+        // gaitkeeper
+        // unicorn
+        // ivory (for donkeys)
+        // some gait decider genes
+        // some unicorn trait genes
     };
 
 
@@ -306,6 +337,37 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity {
             }
         }
         return mask;
+    }
+
+
+    public void mutateStat(String name, double p) {
+        // xor with an int where each digit has a p / 2 chance of being 1
+        // This is equivalent to picking a random replacement with p probability
+        // because half the time that would pick the same value as before
+        setHorseVariant(getHorseVariant(name) ^ mutateIntMask(p / 2), name);
+    }
+
+    public void mutate() {
+        double p = HorseConfig.Common.mutationChance.get();
+        for (String gene : genes) {
+            mutateAlleleChance(gene, 0, p);
+            mutateAlleleChance(gene, 1, p);
+        }
+        mutateStat("health", p);
+        mutateStat("speed", p);
+        mutateStat("jump", p);
+    }
+
+    public int getStat(String name)
+    {
+        int val = getHorseVariant(name);
+        int count = 0;
+        for (int i = 0; i < 32; ++i)
+        {
+            count += ((val % 2) + 2) % 2;
+            val >>= 1;
+        }
+        return count;
     }
 
 

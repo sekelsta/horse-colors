@@ -75,9 +75,6 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     protected void registerData()
     {
         super.registerData();
-        this.dataManager.register(HORSE_SPEED, Integer.valueOf(0));
-        this.dataManager.register(HORSE_HEALTH, Integer.valueOf(0));
-        this.dataManager.register(HORSE_JUMP, Integer.valueOf(0));
         this.dataManager.register(HORSE_RANDOM, Integer.valueOf(0));
     }
 
@@ -88,9 +85,6 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     public void writeAdditional(CompoundNBT compound)
     {
         super.writeAdditional(compound);
-        compound.putInt("SpeedGenes", this.getHorseVariant("speed"));
-        compound.putInt("JumpGenes", this.getHorseVariant("jump"));
-        compound.putInt("HealthGenes", this.getHorseVariant("health"));
         compound.putInt("Random", this.getHorseVariant("random"));
 
         if (!this.horseChest.getStackInSlot(1).isEmpty())
@@ -111,9 +105,6 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     public void readAdditional(CompoundNBT compound)
     {
         super.readAdditional(compound);
-        this.setHorseVariant(compound.getInt("SpeedGenes"), "speed");
-        this.setHorseVariant(compound.getInt("JumpGenes"), "jump");
-        this.setHorseVariant(compound.getInt("HealthGenes"), "health");
         this.setHorseVariant(compound.getInt("Random"), "random");
 
         if (compound.contains("ArmorItem", 10))
@@ -132,15 +123,6 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     public void setHorseVariant(int variant, String type)
     {
         switch(type) {
-            case "speed":
-                this.dataManager.set(HORSE_SPEED, Integer.valueOf(variant));
-                return;
-            case "jump":
-                this.dataManager.set(HORSE_JUMP, Integer.valueOf(variant));
-                return;
-            case "health":
-                this.dataManager.set(HORSE_HEALTH, Integer.valueOf(variant));
-                return;
             case "random":
                 this.dataManager.set(HORSE_RANDOM, Integer.valueOf(variant));
                 break;
@@ -153,49 +135,12 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     public int getHorseVariant(String type)
     {
         switch(type) {
-            case "speed":
-                return ((Integer)this.dataManager.get(HORSE_SPEED)).intValue();
-            case "jump":
-                return ((Integer)this.dataManager.get(HORSE_JUMP)).intValue();
-            case "health":
-                return ((Integer)this.dataManager.get(HORSE_HEALTH)).intValue();
             case "random":
                 return ((Integer)this.dataManager.get(HORSE_RANDOM)).intValue();
             default:
                 return super.getHorseVariant(type);
         }
         
-    }
-
-
-    public void mutateStat(String name, double p) {
-        // xor with an int where each digit has a p / 2 chance of being 1
-        // This is equivalent to picking a random replacement with p probability
-        // because half the time that would pick the same value as before
-        setHorseVariant(getHorseVariant(name) ^ mutateIntMask(p / 2), name);
-    }
-
-    public void mutate() {
-        double p = HorseConfig.Common.mutationChance.get();
-        for (String gene : genes) {
-            mutateAlleleChance(gene, 0, p);
-            mutateAlleleChance(gene, 1, p);
-        }
-        mutateStat("health", p);
-        mutateStat("speed", p);
-        mutateStat("jump", p);
-    }
-
-    public int getStat(String name)
-    {
-        int val = getHorseVariant(name);
-        int count = 0;
-        for (int i = 0; i < 32; ++i)
-        {
-            count += ((val % 2) + 2) % 2;
-            val >>= 1;
-        }
-        return count;
     }
 
 

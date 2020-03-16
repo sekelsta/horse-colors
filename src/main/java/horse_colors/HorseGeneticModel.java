@@ -230,6 +230,8 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         horseRightRein.addBox(-2.6F, -6.0F, -6.0F, 0, 3, 16.0F, scaleFactor);
         this.neck.addChild(horseLeftRein);
         this.neck.addChild(horseRightRein);
+        horseLeftRein.rotateAngleX = -0.5235988F;
+        horseRightRein.rotateAngleX = -0.5235988F;
         this.extraTackArray = new ModelRenderer[]{horseLeftRein, horseRightRein};
 
         this.mane = new ModelRenderer(this, 58, 0);
@@ -312,9 +314,6 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
     @Override
     public void render(@Nonnull MatrixStack matrixStackIn, @Nonnull IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
         Consumer<ModelRenderer> render = model -> model.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
-        // Previously used
-        //float f = abstracthorse.getGrassEatingAmount(0.0F);
-        // But that should be about the same as
         float f = (this.head.rotateAngleX - 0.5235988F) * 0.6031134647F;
         float f1 = 0.5F;
 
@@ -362,6 +361,17 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         ImmutableList.of(this.muleLeftChest, this.muleRightChest).forEach(render);
     }
 
+    private void setMouthAnimations(float mouthOpenAmount) {
+        this.upperMouth.rotationPointY = 0.02F;
+        this.lowerMouth.rotationPointY = 0.0F;
+        this.upperMouth.rotationPointZ = 0.02F - mouthOpenAmount;
+        this.lowerMouth.rotationPointZ = mouthOpenAmount;
+        this.upperMouth.rotateAngleX = -0.09424778F * mouthOpenAmount;
+        this.lowerMouth.rotateAngleX = 0.15707964F * mouthOpenAmount;
+        this.upperMouth.rotateAngleY = 0.0F;
+        this.lowerMouth.rotateAngleY = 0.0F;
+    }
+
 
     /**
      * Used for easily adding entity-dependent animations. The second and third float params here are the same second
@@ -372,18 +382,18 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         super.setLivingAnimations(entityIn, limbSwing, limbSwingAmount, partialTickTime);
         float bodyRotation = this.updateHorseRotation(entityIn.prevRenderYawOffset, entityIn.renderYawOffset, partialTickTime);
         float headRotation = this.updateHorseRotation(entityIn.prevRotationYawHead, entityIn.rotationYawHead, partialTickTime);
-        float f2 = entityIn.prevRotationPitch + (entityIn.rotationPitch - entityIn.prevRotationPitch) * partialTickTime;
-        float f3 = headRotation - bodyRotation;
-        float f4 = f2 * 0.017453292F;
+        float interpolatedPitch = entityIn.prevRotationPitch + (entityIn.rotationPitch - entityIn.prevRotationPitch) * partialTickTime;
+        float headRelativeRotation = headRotation - bodyRotation;
+        float f4 = interpolatedPitch * 0.017453292F;
 
-        if (f3 > 20.0F)
+        if (headRelativeRotation > 20.0F)
         {
-            f3 = 20.0F;
+            headRelativeRotation = 20.0F;
         }
 
-        if (f3 < -20.0F)
+        if (headRelativeRotation < -20.0F)
         {
-            f3 = -20.0F;
+            headRelativeRotation = -20.0F;
         }
 
         if (limbSwingAmount > 0.2F)
@@ -394,60 +404,56 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         AbstractHorseEntity abstracthorse = (AbstractHorseEntity)entityIn;
         float grassEatingAmount = abstracthorse.getGrassEatingAmount(partialTickTime);
         float rearingAmount = abstracthorse.getRearingAmount(partialTickTime);
-        float f7 = 1.0F - rearingAmount;
-        float mouthOpenAmount = abstracthorse.getMouthOpennessAngle(partialTickTime);
+        float notRearingAmount = 1.0F - rearingAmount;
         boolean flag = abstracthorse.tailCounter != 0;
         boolean isSaddled = abstracthorse.isHorseSaddled();
         boolean isBeingRidden = abstracthorse.isBeingRidden();
-        float f9 = (float)entityIn.ticksExisted + partialTickTime;
-        float headRotation0 = MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI);
-        float headRotation1 = headRotation0 * 0.8F * limbSwingAmount;
+        float ticks = (float)entityIn.ticksExisted + partialTickTime;
+        float legRotationBase = MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI);
+        float legRotation1 = legRotationBase * 0.8F * limbSwingAmount;
+        float neckBend = rearingAmount + 1.0F - Math.max(rearingAmount, grassEatingAmount);
+
+
+        float mouthOpenAmount = abstracthorse.getMouthOpennessAngle(partialTickTime);
+        this.setMouthAnimations(mouthOpenAmount);
 
         this.neck.setRotationPoint(0.0F, 4.0F, -10.0F);
-        this.muleRightChest.rotationPointY = 3.0F;
-        this.muleRightChest.rotationPointZ = 10.0F;
-        this.body.rotateAngleX = 0.0F;
-        this.neck.rotateAngleX = 0.5235988F + f4;
-        this.neck.rotateAngleY = f3 * 0.017453292F;
-        this.neck.rotateAngleX = rearingAmount * (0.2617994F + f4) + grassEatingAmount * 2.1816616F + (1.0F - Math.max(rearingAmount, grassEatingAmount)) * this.neck.rotateAngleX;
-        this.neck.rotateAngleY = rearingAmount * f3 * 0.017453292F + (1.0F - Math.max(rearingAmount, grassEatingAmount)) * this.neck.rotateAngleY;
+        this.neck.rotateAngleX = rearingAmount * (0.2617994F + f4) + grassEatingAmount * 2.1816616F + (1.0F - Math.max(rearingAmount, grassEatingAmount)) * 0.5235988F + f4;
+        this.neck.rotateAngleY = neckBend * headRelativeRotation * 0.017453292F;
         this.neck.rotationPointY = rearingAmount * -6.0F + grassEatingAmount * 11.0F + (1.0F - Math.max(rearingAmount, grassEatingAmount)) * this.neck.rotationPointY;
         this.neck.rotationPointZ = rearingAmount * -1.0F + grassEatingAmount * -10.0F + (1.0F - Math.max(rearingAmount, grassEatingAmount)) * this.neck.rotationPointZ;
-        this.muleRightChest.rotationPointY = rearingAmount * 5.5F + f7 * this.muleRightChest.rotationPointY;
-        this.muleRightChest.rotationPointZ = rearingAmount * 15.0F + f7 * this.muleRightChest.rotationPointZ;
-        this.body.rotateAngleX = rearingAmount * -((float)Math.PI / 4F) + f7 * this.body.rotateAngleX;
-        this.upperMouth.rotationPointY = 0.02F;
-        this.lowerMouth.rotationPointY = 0.0F;
-        this.upperMouth.rotationPointZ = 0.02F - mouthOpenAmount;
-        this.lowerMouth.rotationPointZ = mouthOpenAmount;
+        this.body.rotateAngleX = rearingAmount * -((float)Math.PI / 4F);
         this.head.rotationPointX = this.neck.rotationPointX;
         this.head.rotationPointY = this.neck.rotationPointY;
         this.head.rotationPointZ = this.neck.rotationPointZ;
         this.head.rotateAngleX = this.neck.rotateAngleX;
-        this.upperMouth.rotateAngleX = -0.09424778F * mouthOpenAmount;
-        this.lowerMouth.rotateAngleX = 0.15707964F * mouthOpenAmount;
         this.head.rotateAngleY = this.neck.rotateAngleY;
-        this.upperMouth.rotateAngleY = 0.0F;
-        this.lowerMouth.rotateAngleY = 0.0F;
-        this.muleLeftChest.rotateAngleX = headRotation1 / 5.0F;
-        this.muleRightChest.rotateAngleX = -headRotation1 / 5.0F;
-        float headRotation2 = 0.2617994F * rearingAmount;
-        float headRotation3 = MathHelper.cos(f9 * 0.6F + (float)Math.PI);
-        this.frontLeftLeg.rotationPointY = -2.0F * rearingAmount + 9.0F * f7;
-        this.frontLeftLeg.rotationPointZ = -2.0F * rearingAmount + -8.0F * f7;
+        float legRotationRearing = 0.2617994F * rearingAmount;
+        float legRotationTicks = MathHelper.cos(ticks * 0.6F + (float)Math.PI);
+        this.frontLeftLeg.rotationPointY = -2.0F * rearingAmount + 9.0F * notRearingAmount;
+        this.frontLeftLeg.rotationPointZ = -2.0F * rearingAmount + -8.0F * notRearingAmount;
         this.frontRightLeg.rotationPointY = this.frontLeftLeg.rotationPointY;
         this.frontRightLeg.rotationPointZ = this.frontLeftLeg.rotationPointZ;
-        float headRotation4 = (-1.0471976F + headRotation3) * rearingAmount + headRotation1 * f7;
-        float headRotation5 = (-1.0471976F - headRotation3) * rearingAmount + -headRotation1 * f7;
-        this.backLeftLeg.rotateAngleX = headRotation2 + -headRotation0 * 0.5F * limbSwingAmount * f7;
-        this.backRightLeg.rotateAngleX = headRotation2 + headRotation0 * 0.5F * limbSwingAmount * f7;
-        this.frontLeftLeg.rotateAngleX = headRotation4;
-        this.frontLeftShin.rotateAngleX = (this.frontLeftLeg.rotateAngleX + (float)Math.PI * Math.max(0.0F, 0.2F + headRotation3 * 0.2F)) * rearingAmount + (headRotation1 + Math.max(0.0F, headRotation0 * 0.5F * limbSwingAmount)) * f7 - this.frontLeftLeg.rotateAngleX;
+        float legRotation4 = (-1.0471976F + legRotationTicks) * rearingAmount + legRotation1 * notRearingAmount;
+        float legRotation5 = (-1.0471976F - legRotationTicks) * rearingAmount + -legRotation1 * notRearingAmount;
+        this.backLeftLeg.rotateAngleX = legRotationRearing + -legRotationBase * 0.5F * limbSwingAmount * notRearingAmount;
+        this.backRightLeg.rotateAngleX = legRotationRearing + legRotationBase * 0.5F * limbSwingAmount * notRearingAmount;
+        this.frontLeftLeg.rotateAngleX = legRotation4;
+        this.frontLeftShin.rotateAngleX = (this.frontLeftLeg.rotateAngleX + (float)Math.PI * Math.max(0.0F, 0.2F + legRotationTicks * 0.2F)) * rearingAmount + (legRotation1 + Math.max(0.0F, legRotationBase * 0.5F * limbSwingAmount)) * notRearingAmount - this.frontLeftLeg.rotateAngleX;
         // This might do the same thing
-        //this.frontLeftShin.rotateAngleX = ((float)Math.PI * Math.max(0.0F, 0.2F + headRotation3 * 0.2F)) * rearingAmount;
-        this.frontRightLeg.rotateAngleX = headRotation5;
-        this.frontRightShin.rotateAngleX = (this.frontRightLeg.rotateAngleX + (float)Math.PI * Math.max(0.0F, 0.2F - headRotation3 * 0.2F)) * rearingAmount + (-headRotation1 + Math.max(0.0F, -headRotation0 * 0.5F * limbSwingAmount)) * f7 - this.frontRightLeg.rotateAngleX;
-        //this.frontRightShin.rotateAngleX = ((float)Math.PI * Math.max(0.0F, 0.2F - headRotation3 * 0.2F)) * rearingAmount;
+        //this.frontLeftShin.rotateAngleX = ((float)Math.PI * Math.max(0.0F, 0.2F + legRotationTicks * 0.2F)) * rearingAmount;
+        this.frontRightLeg.rotateAngleX = legRotation5;
+        this.frontRightShin.rotateAngleX = (this.frontRightLeg.rotateAngleX + (float)Math.PI * Math.max(0.0F, 0.2F - legRotationTicks * 0.2F)) * rearingAmount + (-legRotation1 + Math.max(0.0F, -legRotationBase * 0.5F * limbSwingAmount)) * notRearingAmount - this.frontRightLeg.rotateAngleX;
+        //this.frontRightShin.rotateAngleX = ((float)Math.PI * Math.max(0.0F, 0.2F - legRotationTicks * 0.2F)) * rearingAmount;
+
+        this.muleRightChest.rotationPointY = 3.0F;
+        this.muleRightChest.rotationPointZ = 10.0F;
+        this.muleRightChest.rotationPointY = rearingAmount * 5.5F + notRearingAmount * this.muleRightChest.rotationPointY;
+        this.muleRightChest.rotationPointZ = rearingAmount * 15.0F + notRearingAmount * this.muleRightChest.rotationPointZ;
+        this.muleLeftChest.rotateAngleX = legRotation1 / 5.0F;
+        this.muleRightChest.rotateAngleX = -legRotation1 / 5.0F;
+        //this.extraTackArray[0].rotateAngleX = f4 - this.neck.rotateAngleX;
+        //this.extraTackArray[1].rotateAngleX = f4;
 
         if (isSaddled)
         {
@@ -463,10 +469,10 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
             }
             else
             {
-                this.horseLeftSaddleRope.rotateAngleX = headRotation1 / 3.0F;
-                this.horseRightSaddleRope.rotateAngleX = headRotation1 / 3.0F;
-                this.horseLeftSaddleRope.rotateAngleZ = headRotation1 / 5.0F;
-                this.horseRightSaddleRope.rotateAngleZ = -headRotation1 / 5.0F;
+                this.horseLeftSaddleRope.rotateAngleX = legRotation1 / 3.0F;
+                this.horseRightSaddleRope.rotateAngleX = legRotation1 / 3.0F;
+                this.horseLeftSaddleRope.rotateAngleZ = legRotation1 / 5.0F;
+                this.horseRightSaddleRope.rotateAngleZ = -legRotation1 / 5.0F;
             }
         }
 
@@ -480,8 +486,8 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
 
         if (flag)
         {
-            this.tailBase.rotateAngleY = MathHelper.cos(f9 * 0.7F);
-            this.tailThin.rotateAngleY = MathHelper.cos(f9 * 0.7F);
+            this.tailBase.rotateAngleY = MathHelper.cos(ticks * 0.7F);
+            this.tailThin.rotateAngleY = MathHelper.cos(ticks * 0.7F);
             tailRotation = 0.0F;
             donkeyTailRotate = 0.0F;
         }
