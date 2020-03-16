@@ -312,6 +312,10 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
     @Override
     public void render(@Nonnull MatrixStack matrixStackIn, @Nonnull IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
         Consumer<ModelRenderer> render = model -> model.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+        // Previously used
+        //float f = abstracthorse.getGrassEatingAmount(0.0F);
+        // But that should be about the same as
+        float f = (this.head.rotateAngleX - 0.5235988F) * 0.6031134647F;
         float f1 = 0.5F;
 
         if (this.isChild) {
@@ -339,7 +343,14 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
             matrixStackIn.push();
             float f2 = 0.5F + f1 * f1 * 0.5F;
             matrixStackIn.scale(f2, f2, f2);
-            //matrixStackIn.translate(0.0F, 0.9F * (1.0F - f1), 0.15F * (1.0F - f1));
+            if (f <= 0.0F)
+            {
+                matrixStackIn.translate(0.0F, 1.35F * (1.0F - f1), 0.0F);
+            }
+            else
+            {
+                matrixStackIn.translate(0.0F, 0.9F * (1.0F - f1) * f + 1.35F * (1.0F - f1) * (1.0F - f), 0.15F * (1.0F - f1) * f);
+            }
         }
 
         ImmutableList.of(this.head).forEach(render);
@@ -482,10 +493,11 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
 
         this.tailBase.rotateAngleX = tailRotation;
         this.tailThin.rotateAngleX = donkeyTailRotate;
-
+        // Partially corrects for scaling but still needs some translation
+/*
         if (this.isChild) {
             this.head.rotationPointY += 7.0F;
             this.head.rotationPointZ += 1.0F;
-        }
+        }*/
     }
 }

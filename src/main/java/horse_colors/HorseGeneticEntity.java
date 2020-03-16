@@ -55,7 +55,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     }
 
     @Override
-    protected void registerGoals() {/*
+    protected void registerGoals() {
         this.goalSelector.addGoal(1, new PanicGoal(this, 1.2D));
         this.goalSelector.addGoal(1, new RunAroundLikeCrazyGoal(this, 1.2D));
         this.goalSelector.addGoal(2, new BreedGoal(this, 1.0D, AbstractHorseEntity.class));
@@ -63,7 +63,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         this.goalSelector.addGoal(6, new WaterAvoidingRandomWalkingGoal(this, 0.7D));
         this.goalSelector.addGoal(7, new LookAtGoal(this, PlayerEntity.class, 6.0F));
         this.goalSelector.addGoal(8, new LookRandomlyGoal(this));
-        this.initExtraAI();*/
+        this.initExtraAI();
     }
 
     @Override
