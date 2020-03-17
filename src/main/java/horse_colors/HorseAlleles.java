@@ -94,14 +94,17 @@ public class HorseAlleles
 
     // Splashed white
     public static final int MITF_SW1 = 0;
-    public static final int MITF_UNUSED1 = 1;
-    public static final int MITF_UNUSED2 = 2;
+    public static final int MITF_SW3 = 1;
+    public static final int MITF_SW5 = 2;
     public static final int MITF_WILDTYPE = 3;
+
+    public static final int PAX3_WILDTYPE = 0;
+    public static final int PAX3_SW2 = 1;
+    public static final int PAX3_SW4 = 2;
+    public static final int PAX3_UNUSED = 3;
   /*  TODO
         "dapple",  
         "white_suppression", 
-        "mitf", 
-        "pax3", 
         "gray_suppression",
         "gray_mane", 
         "slow_gray1", 

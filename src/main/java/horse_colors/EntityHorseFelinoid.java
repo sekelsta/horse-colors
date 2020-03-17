@@ -124,7 +124,10 @@ public class EntityHorseFelinoid extends AbstractHorse
         "gray_suppression",
         "gray_mane", 
         "slow_gray1", 
-        "slow_gray2"
+        "slow_gray2",
+        "white_star",
+        "white_forelegs",
+        "white_hindlegs"
     };
 
     private String texturePrefix;
@@ -376,7 +379,10 @@ public class EntityHorseFelinoid extends AbstractHorse
             case "gray_suppression":
             case "gray_mane":
             case "slow_gray1":
-            case "slow_gray2": return 1;
+            case "slow_gray2":
+            case "white_star":
+            case "white_forelegs":
+            case "white_hindlegs": return 1;
         }
         System.out.println("Gene size not found: " + gene);
         return -1;
@@ -1213,7 +1219,8 @@ public class EntityHorseFelinoid extends AbstractHorse
         }
         else if (type == "1")
         {
-            int i = this.rand.nextInt();
+            // logical bitshift to make unsigned
+            int i = this.rand.nextInt() >>> 1;
 
             setGeneRandom("sooty1", n, 4, 1);
             setGeneRandom("sooty2", n, 4, 1);
@@ -1223,9 +1230,9 @@ public class EntityHorseFelinoid extends AbstractHorse
             setGeneRandom("mealy3", n, 4, 1);
             setGeneRandom("white_suppression", n, 32, 0);
 
-            int kit = i % 2 == 0? 0
-//                                : (i >> 1) % 2 == 0? (i >> 2) % 8
-                                : (i >> 2) % 16;
+            int kit = i % 4 != 0? 0
+//                                : (i >> 2) % 2 == 0? (i >> 3) % 8
+                                : (i >> 3) % 16;
             setGene("KIT", kit << (n * getGeneSize("KIT")));
             i >>= 7;
 
@@ -1234,8 +1241,10 @@ public class EntityHorseFelinoid extends AbstractHorse
                 : (i >> 2) % 2 == 0? (i >> 3) % 4
                 : HorseAlleles.MITF_WILDTYPE;
             setGene("MITF", mitf << (n * getGeneSize("MITF")));
-            i >>= 4;
-            setGene("PAX3", (i % 4) << (n * getGeneSize("PAX3")));
+            i >>= 5;
+            int pax3 = i % 4 != 0? HorseAlleles.PAX3_WILDTYPE
+                : (i >> 2) % 4;
+            setGene("PAX3", pax3 << (n * getGeneSize("PAX3")));
         }
         else if (type == "2")
         {
@@ -1250,6 +1259,9 @@ public class EntityHorseFelinoid extends AbstractHorse
             setGeneRandom("gray_mane", n, 4, 0);
             setGeneRandom("slow_gray1", n, 8, 0);
             setGeneRandom("slow_gray2", n, 4, 0);
+            setGeneRandom("white_star", n, 4, 0);
+            setGeneRandom("white_forelegs", n, 4, 0);
+            setGeneRandom("white_hindlegs", n, 4, 0);
         }
 
         answer = getHorseVariant(type);
