@@ -42,7 +42,7 @@ public class HorseConfig
         "This matters for worlds where vanilla horses have already spawned",
         "or will spawn."
     })
-    public static boolean convertVanillaHorses = true;
+    public static boolean convertVanillaHorses = false;
 
     @Comment("What size groups horses will spawn in")
     @RangeInt(min = 0)
