@@ -5,7 +5,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.event.*;
-import net.minecraft.block.Block;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.SidedProxy;
 
@@ -28,7 +27,6 @@ public class HorseColors
     @Mod.EventHandler
     public void preInit(final FMLPreInitializationEvent event) 
     {
-        MinecraftForge.EVENT_BUS.register(ModItems.class);
         MinecraftForge.EVENT_BUS.register(ModEntities.class);
         MinecraftForge.EVENT_BUS.register(HorseReplacer.class);
     }
