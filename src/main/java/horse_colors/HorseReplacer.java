@@ -15,19 +15,6 @@ public class HorseReplacer {
 
 	public static void init() {}
 
-    //Removes initial spawns
-	@SubscribeEvent(priority = EventPriority.NORMAL)
-	public void onEntitySpawn(WorldEvent.PotentialSpawns event) {
-		for(Iterator<SpawnListEntry> iter = event.getList().iterator(); iter.hasNext(); )
-		{
-			String className = iter.next().entityClass.getName();
-            if(HorseConfig.blockVanillaHorseSpawns && className.equals("net.minecraft.entity.passive.EntityHorse"))
-            {
-				iter.remove();
-            }
-		}
-	}
-
 	@SubscribeEvent
 	public static void replaceHorses(EntityJoinWorldEvent event)
     {

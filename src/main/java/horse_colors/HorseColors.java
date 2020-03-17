@@ -39,5 +39,7 @@ public class HorseColors
     }
     
     @Mod.EventHandler
-    public void postInit(final FMLPostInitializationEvent event) {}
+    public void postInit(final FMLPostInitializationEvent event) {
+        ModEntities.removeVanillaHorseSpawns();
+    }
 }
