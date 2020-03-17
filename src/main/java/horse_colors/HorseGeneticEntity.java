@@ -39,6 +39,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import sekelsta.horse_colors.ComplexLayeredTexture.Layer;
+
 
 public class HorseGeneticEntity extends AbstractHorseGenetic
 {
@@ -47,7 +49,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
 
 
     // See the function that sets this to find what each of  the layers are for
-    private final String[] horseTexturesArray = new String[15];
+    private final Layer[] horseTexturesArray = new Layer[15];
 
     public HorseGeneticEntity(EntityType<? extends HorseGeneticEntity> entityType, World worldIn)
     {
@@ -307,17 +309,19 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     }
 
     @OnlyIn(Dist.CLIENT)
-    private static String fixPath(String folder, String inStr) {
+    private static Layer fixPath(String folder, String inStr) {
+        Layer l = new Layer();
         if (inStr == null || inStr.contains(".png")) {
-            return inStr;
+            l.name = inStr;
         }
         else if (inStr == "")
         {
-            return null;
+            l.name = null;
         }
         else {
-            return "horse_colors:textures/entity/horse/" + folder + "/" + inStr +".png";
+            l.name = "horse_colors:textures/entity/horse/" + folder + "/" + inStr +".png";
         }
+        return l;
     }
 
     public boolean showsLegMarkings()
@@ -399,7 +403,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     }
 
     @OnlyIn(Dist.CLIENT)
-    public String[] getVariantTexturePaths()
+    public ComplexLayeredTexture.Layer[] getVariantTexturePaths()
     {
         if (this.texturePrefix == null)
         {
@@ -653,6 +657,11 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         }
     }
 
+    private int inheritStats(AbstractHorseGenetic other, String chromosome) {
+            int mother = this.getRandomGenericGenes(1, this.getHorseVariant(chromosome));
+            int father = other.getRandomGenericGenes(0, other.getHorseVariant(chromosome));
+            return mother | father;
+    }
 
     @Override
     public AgeableEntity createChild(AgeableEntity ageable)
@@ -665,41 +674,34 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         }
         else
         {
-            HorseGeneticEntity entityhorse = (HorseGeneticEntity)ageable;
+            HorseGeneticEntity entityHorse = (HorseGeneticEntity)ageable;
             abstracthorse = ModEntities.HORSE_GENETIC.create(this.world);
 
             int mother = this.getRandomGenes(1, 0);
-            int father = entityhorse.getRandomGenes(0, 0);
+            int father = entityHorse.getRandomGenes(0, 0);
             int i = mother | father;
             ((HorseGeneticEntity)abstracthorse).setHorseVariant(i, "0");
 
             mother = this.getRandomGenes(1, 1);
-            father = entityhorse.getRandomGenes(0, 1);
+            father = entityHorse.getRandomGenes(0, 1);
             i = mother | father;
             ((HorseGeneticEntity)abstracthorse).setHorseVariant(i, "1");
 
 
             ((HorseGeneticEntity)abstracthorse).setHorseVariant(rand.nextInt(), "2");
             mother = this.getRandomGenes(1, 2);
-            father = entityhorse.getRandomGenes(0, 2);
+            father = entityHorse.getRandomGenes(0, 2);
             i = mother | father;
             ((HorseGeneticEntity)abstracthorse).setHorseVariant(i, "2");
 
             // speed, health, and jump
-            mother = getRandomGenericGenes(1, getHorseVariant("speed"));
-            father = entityhorse.getRandomGenericGenes(0, entityhorse.getHorseVariant("speed"));
-            i = mother | father;
-            ((HorseGeneticEntity)abstracthorse).setHorseVariant(i, "speed");
+            int speed = inheritStats(entityHorse, "speed");
+            ((HorseGeneticEntity)abstracthorse).setHorseVariant(speed, "speed");
+            int health = inheritStats(entityHorse, "health");
+            ((HorseGeneticEntity)abstracthorse).setHorseVariant(health, "health");
+            int jump = inheritStats(entityHorse, "jump");
+            ((HorseGeneticEntity)abstracthorse).setHorseVariant(jump, "jump");
 
-            mother = getRandomGenericGenes(1, getHorseVariant("health"));
-            father = entityhorse.getRandomGenericGenes(0, entityhorse.getHorseVariant("health"));
-            i = mother | father;
-            ((HorseGeneticEntity)abstracthorse).setHorseVariant(i, "health");
-
-            mother = getRandomGenericGenes(1, getHorseVariant("jump"));
-            father = entityhorse.getRandomGenericGenes(0, entityhorse.getHorseVariant("jump"));
-            i = mother | father;
-            ((HorseGeneticEntity)abstracthorse).setHorseVariant(i, "jump");
 
             i =  this.rand.nextInt();
             ((HorseGeneticEntity)abstracthorse).setHorseVariant(i, "random");
