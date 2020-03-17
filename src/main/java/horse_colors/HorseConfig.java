@@ -11,6 +11,8 @@ import net.minecraftforge.common.config.Config.RequiresMcRestart;
 import net.minecraftforge.common.config.Config.Type;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @Config(modid = "horse_colors")
 public class HorseConfig
@@ -51,6 +53,20 @@ public class HorseConfig
     @Comment ("How often horses will spawn")
     public static int spawnWeight = 10;
     
+	@Mod.EventBusSubscriber(modid = HorseColors.MODID)
+	private static class EventHandler {
 
+		/**
+		 * Inject the new values and save to the config file when the config has been changed from the GUI.
+		 *
+		 * @param event The event
+		 */
+		@SubscribeEvent
+		public static void onConfigChanged(final OnConfigChangedEvent event) {
+			if (event.getModID().equals(HorseColors.MODID)) {
+				ConfigManager.sync(HorseColors.MODID, Config.Type.INSTANCE);
+			}
+		}
+	}
 
 }
