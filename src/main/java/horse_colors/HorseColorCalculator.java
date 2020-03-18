@@ -62,10 +62,16 @@ public class HorseColorCalculator
             layer.blue = 0x1c;
     }
 
-    public static void setSmokeyBlack(Layer layer) {
-            layer.red = 0x21;
+    public static void setSmokyBlack(Layer layer) {
+            layer.red = 0x25;
             layer.green = 0x1f;
             layer.blue = 0x1c;
+    }
+
+    public static void setSmokyCream(Layer layer) {
+            layer.red = 0xed;
+            layer.green = 0xd3;
+            layer.blue = 0xa8;
     }
 
     public static void setBrownBlack(Layer layer) {
@@ -74,14 +80,26 @@ public class HorseColorCalculator
             layer.blue = 0x11;
     }
 
+    public static void setChocolate(Layer layer) {
+            layer.red = 0x3f;
+            layer.green = 0x28;
+            layer.blue = 0x1d;
+    }
+
+    public static void setSmokySilver(Layer layer) {
+            layer.red = 0x3f;
+            layer.green = 0x29;
+            layer.blue = 0x1d;
+    }
+
     public static Layer getRedBody(AbstractHorseGenetic horse) {
         Layer layer = new Layer();
         layer.name = fixPath("", "base");
         layer.shading = fixPath("", "shading");
-        if (horse.isHomozygous("cream", HorseAlleles.CREAM)) {
+        if (horse.isDoubleCream()) {
             setCreamy(layer);
         }
-        else if (horse.hasAllele("cream", HorseAlleles.CREAM)) {
+        else if (horse.hasCream()) {
             setGolden(layer);
         }
         else if (horse.isHomozygous("liver", HorseAlleles.LIVER)) {
@@ -98,11 +116,53 @@ public class HorseColorCalculator
             return null;
         }
         Layer layer = new Layer();
-        // TODO
-        return new Layer();
+        layer.shading = fixPath("", "shading");
+
+        switch(horse.getMaxAllele("agouti"))
+        {
+            case HorseAlleles.A_BLACK:
+                layer.name = fixPath("", "base");
+                break;
+            case HorseAlleles.A_SEAL:
+            case HorseAlleles.A_BROWN:
+                layer.name = fixPath("", "brown");
+                break;
+            case HorseAlleles.A_BAY_DARK:
+            case HorseAlleles.A_BAY:
+            case HorseAlleles.A_BAY_LIGHT:
+            case HorseAlleles.A_BAY_WILD:
+            case HorseAlleles.A_BAY_MEALY:
+                layer.name = fixPath("", "bay");
+        }
+        if (horse.hasAllele("silver", HorseAlleles.SILVER)) {
+            if (horse.isDoubleCream()) {
+                setSmokyCream(layer);
+            }
+            else if (horse.hasCream()) {
+                setSmokySilver(layer);
+            }
+            else {
+                setChocolate(layer);
+            }
+        }
+        else {
+            if (horse.isDoubleCream()) {
+                setSmokyCream(layer);
+            }
+            else if (horse.hasCream()) {
+                setSmokyBlack(layer);
+            }
+            else {
+                setBlack(layer);
+            }
+        }
+        return layer;
     }
 
     public static Layer getRedManeTail(AbstractHorseGenetic horse) {
+        if (!horse.isChestnut()) {
+            return null;
+        }
         Layer layer = new Layer();
         layer.shading = fixPath("", "shading");
         if (horse.hasAllele("cream", HorseAlleles.CREAM)) {
@@ -130,8 +190,13 @@ public class HorseColorCalculator
         if (horse.isChestnut()) {
             return null;
         }
+        if (!horse.hasAllele("silver", HorseAlleles.SILVER)) {
+            return null;
+        }
         Layer layer = new Layer();
-        // TODO
+        layer.name = fixPath("", "flaxen");
+        layer.shading = fixPath("", "shading");
+        setFlaxen(layer);
         return layer;
     }
 
@@ -158,37 +223,13 @@ public class HorseColorCalculator
         }
 
         // Handle double cream dilutes
-        if (horse.isHomozygous("cream", HorseAlleles.CREAM))
+        if (horse.isDoubleCream())
         {
-            if (horse.isChestnut())
-            {
-                return null;//"cremello";
-            }
-            // Base color is black or bay
-            String base = "";
-            switch(horse.getMaxAllele("agouti"))
-            {
-                case HorseAlleles.A_BLACK: base = "smoky_cream";
-                case HorseAlleles.A_SEAL:
-                case HorseAlleles.A_BROWN: base = "brown_cream";
-                case HorseAlleles.A_BAY_DARK:
-                case HorseAlleles.A_BAY:
-                case HorseAlleles.A_BAY_LIGHT:
-                case HorseAlleles.A_BAY_WILD:
-                case HorseAlleles.A_BAY_MEALY: base = "perlino";
-            }
-            // Check for silver dapple
-            if (horse.hasAllele("silver", HorseAlleles.SILVER))
-            {
-                base = "silver_" + base;
-            }
-            return base;
-            
-            
+            return null;  
         }
 
         // Single cream dilutes
-        else if (horse.hasAllele("cream", HorseAlleles.CREAM))
+        else if (horse.hasCream())
         {
             // Single cream, no gray. Check for dun.
             if (horse.hasAllele("dun", HorseAlleles.DUN)
@@ -220,30 +261,8 @@ public class HorseColorCalculator
                 }
                 return base;
             }
-            // Single cream, no gray, no dun. Check for chestnut base.
-            if (horse.isChestnut())
-            {
-                return null;//"palomino";
-            }
-            // Base color is smoky black or buckskin
-            String base = "";
-            switch(horse.getMaxAllele("agouti"))
-            {
-                case HorseAlleles.A_BLACK: base = "smoky_black";
-                case HorseAlleles.A_SEAL:
-                case HorseAlleles.A_BROWN: base = "smoky_brown";
-                case HorseAlleles.A_BAY_DARK:
-                case HorseAlleles.A_BAY:
-                case HorseAlleles.A_BAY_LIGHT:
-                case HorseAlleles.A_BAY_WILD:
-                case HorseAlleles.A_BAY_MEALY: base = "buckskin";
-            }
-            // Check for silver dapple
-            if (horse.hasAllele("silver", HorseAlleles.SILVER))
-            {
-                return "silver_" + base;
-            }
-            return base;
+            // Single cream, no gray, no dun.
+            return null;
         }
 
         // No cream, no gray. Check for dun.
@@ -256,21 +275,9 @@ public class HorseColorCalculator
                 // Red dun. Check for liver.
                 if (horse.getMaxAllele("liver") == HorseAlleles.LIVER)
                 {
-                    // Check for flaxen.
-                    switch(horse.getPhenotype("flaxen"))
-                    {
-                        case 0: return "liver_dun";
-                        case 1: return "partly_flaxen_liver_dun";
-                        case 2: return "flaxen_liver_dun";
-                    }
+                    return "liver_dun";
                 }
-                // Not liver. Check for flaxen.
-                switch(horse.getPhenotype("flaxen"))
-                {
-                    case 0: return "red_dun";
-                    case 1: return "partly_flaxen_dun";
-                    case 2: return "flaxen_dun";
-                }
+                return "red_dun";
             }
 
             // Dun, non-chestnut.
@@ -293,46 +300,8 @@ public class HorseColorCalculator
             }
             return base;
         }
-
-        // No cream, gray, or dun. Check for chestnut.
-        if (horse.isChestnut())
-        {
-            return null;
-        }
-
-        // Non-chestnut with no cream, gray, or dun. Check for silver.
-        if (horse.hasAllele("silver", HorseAlleles.SILVER))
-        {
-            switch(horse.getMaxAllele("agouti"))
-            {
-                case HorseAlleles.A_BLACK: return "chocolate";
-                case HorseAlleles.A_SEAL:
-                case HorseAlleles.A_BROWN: return "silver_brown";
-                case HorseAlleles.A_BAY_DARK:
-                case HorseAlleles.A_BAY:
-                case HorseAlleles.A_BAY_LIGHT:
-                case HorseAlleles.A_BAY_WILD:
-                case HorseAlleles.A_BAY_MEALY: return "silver_bay";
-            }
-        }
-
-        // Non-chestnut with your basic, undiluted, unmodified coat.
-        switch(horse.getMaxAllele("agouti"))
-        {
-            case HorseAlleles.A_BLACK: return "black";
-            case HorseAlleles.A_SEAL:
-            case HorseAlleles.A_BROWN: return "seal_brown";
-            case HorseAlleles.A_BAY_DARK:
-            case HorseAlleles.A_BAY:
-            case HorseAlleles.A_BAY_LIGHT:
-            case HorseAlleles.A_BAY_WILD:
-            case HorseAlleles.A_BAY_MEALY: return "bay";
-        }
-
-        // This point should not be reached, but java wants a return to compile.
-        System.out.println("[horse_colors]: Texture not found for horse with variant "
-            + horse.getHorseVariant("0") + ".");
-        return "no texture found";
+        // No cream, gray, or dun.
+        return null;
     }
 
     public static String getSooty(HorseGeneticEntity horse)
