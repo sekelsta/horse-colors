@@ -49,7 +49,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
 
 
     // See the function that sets this to find what each of  the layers are for
-    private final Layer[] horseTexturesArray = new Layer[15];
+    private final Layer[] horseTexturesArray = new Layer[16];
 
     public HorseGeneticEntity(EntityType<? extends HorseGeneticEntity> entityType, World worldIn)
     {
@@ -308,40 +308,69 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         return -1;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    private static Layer fixPath(String folder, String inStr) {
-        Layer l = new Layer();
-        if (inStr == null || inStr.contains(".png")) {
-            l.name = inStr;
-        }
-        else if (inStr == "")
-        {
-            l.name = null;
-        }
-        else {
-            l.name = "horse_colors:textures/entity/horse/" + folder + "/" + inStr +".png";
-        }
-        return l;
-    }
-
     public boolean showsLegMarkings()
     {
         return getPhenotype("tobiano") == 0 && getPhenotype("splash") != 2
                 && getPhenotype("white") == 0;
     }
 
+    public String getAbv(Layer layer) {
+        if (layer == null || layer.name == null) {
+            return "";
+        }        
+        String abv = layer.name;
+        int i = abv.lastIndexOf("/");
+        if (i > -1) {
+            abv = abv.substring(i + 1);
+        }
+        if (abv.endsWith(".png")) {
+            abv = abv.substring(0, abv.length() - 4);
+        }
+        abv += "-" + Integer.toHexString(layer.alpha);
+        abv += Integer.toHexString(layer.red);
+        abv += Integer.toHexString(layer.green);
+        abv += Integer.toHexString(layer.blue) + "_";
+        return abv;
+    }
+
     @OnlyIn(Dist.CLIENT)
     private void setHorseTexturePaths()
     {
+        this.horseTexturesArray[0] = HorseColorCalculator.getRedBody(this);
+        this.horseTexturesArray[1] = HorseColorCalculator.getRedManeTail(this);
+        this.horseTexturesArray[2] = HorseColorCalculator.getBlackBody(this);
+        this.horseTexturesArray[3] = HorseColorCalculator.getBlackManeTail(this);
+
+
+        Layer common = new Layer();
+        common.name = HorseColorCalculator.fixPath("", "common");
+        this.horseTexturesArray[4] = common;
+
+        this.texturePrefix = "horse/cache_";
+
+        for (int i = 0; i < 4; ++i) {
+            this.texturePrefix += getAbv(this.horseTexturesArray[i]);
+        }
+
+
+
+        this.horseTexturesArray[5] = new Layer();
+        this.horseTexturesArray[6] = new Layer();
+        this.horseTexturesArray[7] = new Layer();
+        this.horseTexturesArray[8] = new Layer();
+        this.horseTexturesArray[9] = new Layer();
+        this.horseTexturesArray[10] = new Layer();
+        this.horseTexturesArray[11] = new Layer();
+        this.horseTexturesArray[12] = new Layer();
+        this.horseTexturesArray[13] = new Layer();
+        this.horseTexturesArray[14] = new Layer();
+        this.horseTexturesArray[15] = new Layer();
+
         String base_texture = HorseColorCalculator.getBaseTexture(this);
 
         String roan = hasAllele("KIT", HorseAlleles.KIT_ROAN)? "roan" : null;
         String face_marking = HorseColorCalculator.getFaceMarking(this);
         String sooty = HorseColorCalculator.getSooty(this);
-        String leopard = HorseColorCalculator.getLeopard(this);
-        // TODO: remove after adding proper leopard graphics
-        leopard = null;
-        String mealy = HorseColorCalculator.getMealy(this);
         String legs = HorseColorCalculator.getLegs(this);
         String gray_mane = HorseColorCalculator.getGrayMane(this);
         String[] leg_markings = new String[4];
@@ -352,28 +381,20 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
             leg_markings = HorseColorCalculator.getLegMarkings(this);
         }
 
-/*
-        ItemStack armor = this.getHorseArmor();
-        String armor_texture = HorseArmorer.getTextureName(armor);
-       */ 
-        this.horseTexturesArray[0] = fixPath("base", base_texture);
-        this.horseTexturesArray[1] = fixPath("sooty", sooty);
-        this.horseTexturesArray[2] = fixPath("mealy", mealy);
-        this.horseTexturesArray[3] = fixPath("legs", legs);
-        this.horseTexturesArray[4] = fixPath("roan", roan);
-        this.horseTexturesArray[6] = fixPath("roan", gray_mane);
-        this.horseTexturesArray[7] = fixPath("face", face_marking);
-        this.horseTexturesArray[8] = fixPath("socks", leg_markings[0]);
-        this.horseTexturesArray[9] = fixPath("socks", leg_markings[1]);
-        this.horseTexturesArray[10] = fixPath("socks", leg_markings[2]);
-        this.horseTexturesArray[11] = fixPath("socks", leg_markings[3]);
-        this.horseTexturesArray[12] = fixPath("leopard", leopard);
-        this.horseTexturesArray[13] = fixPath("pinto", pinto);
-        //this.horseTexturesArray[14] = fixPath("armor", armor_texture);
+        this.horseTexturesArray[5].name = HorseColorCalculator.fixPath("base", base_texture);
+        this.horseTexturesArray[6].name = HorseColorCalculator.fixPath("sooty", sooty);
+        this.horseTexturesArray[7].name = HorseColorCalculator.fixPath("legs", legs);
+        this.horseTexturesArray[8].name = HorseColorCalculator.fixPath("roan", roan);
+        this.horseTexturesArray[9].name = HorseColorCalculator.fixPath("roan", gray_mane);
+        this.horseTexturesArray[10].name = HorseColorCalculator.fixPath("face", face_marking);
+        this.horseTexturesArray[11].name = HorseColorCalculator.fixPath("socks", leg_markings[0]);
+        this.horseTexturesArray[12].name = HorseColorCalculator.fixPath("socks", leg_markings[1]);
+        this.horseTexturesArray[13].name = HorseColorCalculator.fixPath("socks", leg_markings[2]);
+        this.horseTexturesArray[14].name = HorseColorCalculator.fixPath("socks", leg_markings[3]);
+        this.horseTexturesArray[15].name = HorseColorCalculator.fixPath("pinto", pinto);
 
         String base_abv = base_texture == null? "" : base_texture;
         String sooty_abv = sooty == null? "" : sooty;
-        String mealy_abv = mealy == null? "" : mealy;
         String legs_abv = legs == null? "" : legs;
         String roan_abv = roan == null? "" : roan;
         String gray_mane_abv = gray_mane == null? "" : gray_mane;
@@ -384,11 +405,9 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
             + (leg_markings[2] == null? "-" : leg_markings[2]) 
             + (leg_markings[3] == null? "-" : leg_markings[3]);
         String pinto_abv = pinto == null? "" : pinto;
-        String leopard_abv = leopard == null? "" : leopard;
-        //String armor_abv = HorseArmorer.getHash(armor);
-        this.texturePrefix = "horse/cache_" + base_abv + sooty_abv + mealy_abv 
+        this.texturePrefix += base_abv + sooty_abv 
             + roan_abv + gray_mane_abv + face_marking_abv 
-            + leg_marking_abv + leopard_abv + pinto_abv/* + armor_abv*/;
+            + leg_marking_abv + pinto_abv;
     }
 
     @OnlyIn(Dist.CLIENT)

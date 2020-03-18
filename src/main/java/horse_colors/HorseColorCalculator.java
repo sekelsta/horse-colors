@@ -1,10 +1,116 @@
 package sekelsta.horse_colors;
+import sekelsta.horse_colors.ComplexLayeredTexture.Layer;
 
 public class HorseColorCalculator
 {
     private static final int GRAY_LEG_BITS = 2;
     private static final int FACE_MARKING_BITS = 2;
     private static final int LEG_MARKING_BITS = 12;
+
+    public static String fixPath(String folder, String inStr) {
+        if (inStr == null || inStr.contains(".png")) {
+            return inStr;
+        }
+        else if (inStr == "")
+        {
+            return null;
+        }
+        else {
+            if (folder != null && folder != "") {
+                folder = folder + "/";
+            }
+            else {
+                folder = "";
+            }
+            return "horse_colors:textures/entity/horse/" + folder + inStr +".png";
+        }
+    }
+
+    public static void setChestnut(Layer layer) {
+            layer.red = 0xa6;
+            layer.green = 0x57;
+            layer.blue = 0x2e;
+    }
+
+    public static void setLiverChestnut(Layer layer) {
+            layer.red = 0x38;
+            layer.green = 0x1b;
+            layer.blue = 0x0b;
+    }
+
+    public static void setGolden(Layer layer) {
+            layer.red = 0xdc;
+            layer.green = 0xa3;
+            layer.blue = 0x61;
+    }
+
+    public static void setCreamy(Layer layer) {
+            layer.red = 0xfd;
+            layer.green = 0xed;
+            layer.blue = 0xd2;
+    }
+
+    public static Layer getRedBody(AbstractHorseGenetic horse) {
+        Layer layer = new Layer();
+        layer.name = fixPath("", "base");
+        layer.shading = fixPath("", "shading");
+        if (horse.isHomozygous("cream", HorseAlleles.CREAM)) {
+            setCreamy(layer);
+        }
+        else if (horse.hasAllele("cream", HorseAlleles.CREAM)) {
+            setGolden(layer);
+        }
+        else if (horse.isHomozygous("liver", HorseAlleles.LIVER)) {
+            setLiverChestnut(layer);
+        }
+        else {
+            setChestnut(layer);
+        }
+        return layer;
+    }
+
+    public static Layer getBlackBody(AbstractHorseGenetic horse) {
+        if (horse.isChestnut()) {
+            return null;
+        }
+        Layer layer = new Layer();
+        // TODO
+        return new Layer();
+    }
+
+    public static Layer getRedManeTail(AbstractHorseGenetic horse) {
+        Layer layer = new Layer();
+        layer.name = fixPath("", "manetail");
+        layer.shading = fixPath("", "shading");
+        if (horse.hasAllele("cream", HorseAlleles.CREAM)) {
+            setCreamy(layer);
+        }
+        else if (horse.isHomozygous("liver", HorseAlleles.LIVER)) {
+            setLiverChestnut(layer);
+        }
+        else {
+            setChestnut(layer);
+        }
+        return layer;
+    }
+
+    public static Layer getBlackManeTail(AbstractHorseGenetic horse) {
+        if (horse.isChestnut()) {
+            return null;
+        }
+        Layer layer = new Layer();
+        // TODO
+        return layer;
+    }
+
+    public static Layer getDun(AbstractHorseGenetic horse) {
+        Layer layer = new Layer();
+        // TODO
+        return layer;
+    }
+
+
+
     public static String getBaseTexture(HorseGeneticEntity horse)
     {
         // Double cream dilute + gray gives white
@@ -24,7 +130,7 @@ public class HorseColorCalculator
         {
             if (horse.isChestnut())
             {
-                return "cremello";
+                return null;//"cremello";
             }
             // Base color is black or bay
             String base = "";
@@ -85,7 +191,7 @@ public class HorseColorCalculator
             // Single cream, no gray, no dun. Check for chestnut base.
             if (horse.isChestnut())
             {
-                return "palomino";
+                return null;//"palomino";
             }
             // Base color is smoky black or buckskin
             String base = "";
@@ -174,7 +280,9 @@ public class HorseColorCalculator
                 case 2:
                     result = "flaxen_" + result;
             }
-
+            if (!result.contains("flaxen")) {
+                return null;
+            }
 
             return result;
         }
