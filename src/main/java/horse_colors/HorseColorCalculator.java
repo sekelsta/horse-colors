@@ -33,9 +33,9 @@ public class HorseColorCalculator
     }
 
     public static void setLiverChestnut(Layer layer) {
-            layer.red = 0x38;
-            layer.green = 0x1b;
-            layer.blue = 0x0b;
+            layer.red = 0x47;
+            layer.green = 0x22;
+            layer.blue = 0x0e;
     }
 
     public static void setGolden(Layer layer) {
@@ -48,6 +48,30 @@ public class HorseColorCalculator
             layer.red = 0xfd;
             layer.green = 0xed;
             layer.blue = 0xd2;
+    }
+
+    public static void setFlaxen(Layer layer) {
+            layer.red = 0xea;
+            layer.green = 0xce;
+            layer.blue = 0xb3;
+    }
+
+    public static void setBlack(Layer layer) {
+            layer.red = 0x18;
+            layer.green = 0x1a;
+            layer.blue = 0x1c;
+    }
+
+    public static void setSmokeyBlack(Layer layer) {
+            layer.red = 0x21;
+            layer.green = 0x1f;
+            layer.blue = 0x1c;
+    }
+
+    public static void setBrownBlack(Layer layer) {
+            layer.red = 0x16;
+            layer.green = 0x11;
+            layer.blue = 0x11;
     }
 
     public static Layer getRedBody(AbstractHorseGenetic horse) {
@@ -80,16 +104,24 @@ public class HorseColorCalculator
 
     public static Layer getRedManeTail(AbstractHorseGenetic horse) {
         Layer layer = new Layer();
-        layer.name = fixPath("", "manetail");
         layer.shading = fixPath("", "shading");
         if (horse.hasAllele("cream", HorseAlleles.CREAM)) {
+            layer.name = fixPath("", "manetail");
             setCreamy(layer);
         }
-        else if (horse.isHomozygous("liver", HorseAlleles.LIVER)) {
-            setLiverChestnut(layer);
+        else if (horse.isHomozygous("flaxen1", HorseAlleles.FLAXEN) 
+                && horse.isHomozygous("flaxen2", HorseAlleles.FLAXEN)) {
+            layer.name = fixPath("", "flaxen");
+            setFlaxen(layer);
+        }
+        else if (horse.isHomozygous("flaxen1", HorseAlleles.FLAXEN) 
+                || horse.isHomozygous("flaxen2", HorseAlleles.FLAXEN)) {
+            layer.name = fixPath("", "flaxen");
+            layer.alpha = 255 / 3;
+            setFlaxen(layer);
         }
         else {
-            setChestnut(layer);
+            return null;
         }
         return layer;
     }
@@ -265,26 +297,7 @@ public class HorseColorCalculator
         // No cream, gray, or dun. Check for chestnut.
         if (horse.isChestnut())
         {
-            String result = "chestnut";
-            // So far just chestnut. Check for liver.
-            if (horse.getMaxAllele("liver") == HorseAlleles.LIVER)
-            {
-                result = "liver_" + result;
-            }
-            // Check for flaxen.
-            switch(horse.getPhenotype("flaxen"))
-            {
-                case 1:
-                    result = "partly_flaxen_" + result;
-                    break;
-                case 2:
-                    result = "flaxen_" + result;
-            }
-            if (!result.contains("flaxen")) {
-                return null;
-            }
-
-            return result;
+            return null;
         }
 
         // Non-chestnut with no cream, gray, or dun. Check for silver.
