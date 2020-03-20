@@ -474,6 +474,9 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity {
         abv += Integer.toHexString(layer.red);
         abv += Integer.toHexString(layer.green);
         abv += Integer.toHexString(layer.blue) + "_";
+        if (layer.next != null) {
+            abv += ".-" + getAbv(layer.next) + "-.";
+        }
         return abv;
     }
 
@@ -486,18 +489,20 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity {
     private void setHorseTexturePaths()
     {
         Layer red = HorseColorCalculator.getRedBody(this);
+        HorseColorCalculator.setDun(this, red);
         Layer black = HorseColorCalculator.getBlackBody(this);
+        HorseColorCalculator.setDun(this, black);
         this.horseTexturesArray[0] = red;
         this.horseTexturesArray[1] = HorseColorCalculator.getRedManeTail(this);
-        this.horseTexturesArray[2] = HorseColorCalculator.getDun(this, red);
-        this.horseTexturesArray[3] = HorseColorCalculator.getNose(this);
-        this.horseTexturesArray[4] = black;
-        this.horseTexturesArray[5] = HorseColorCalculator.getBlackManeTail(this);
-        this.horseTexturesArray[6] = HorseColorCalculator.getDun(this, black);
-        this.horseTexturesArray[7] = HorseColorCalculator.getGray(this);
+        this.horseTexturesArray[2] = HorseColorCalculator.getNose(this);
+        this.horseTexturesArray[3] = black;
+        this.horseTexturesArray[4] = HorseColorCalculator.getBlackManeTail(this);
+        this.horseTexturesArray[5] = HorseColorCalculator.getGray(this);
 
 
 
+        this.horseTexturesArray[6] = new Layer();
+        this.horseTexturesArray[7] = new Layer();
         this.horseTexturesArray[8] = new Layer();
         this.horseTexturesArray[9] = new Layer();
         this.horseTexturesArray[10] = new Layer();
@@ -522,7 +527,7 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity {
         {
             leg_markings = HorseColorCalculator.getLegMarkings(this);
         }
-
+/*
         this.horseTexturesArray[8].name = HorseColorCalculator.fixPath("sooty", sooty);
         this.horseTexturesArray[9].name = HorseColorCalculator.fixPath("legs", legs);
         this.horseTexturesArray[10].name = HorseColorCalculator.fixPath("roan", roan);
@@ -533,7 +538,7 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity {
         this.horseTexturesArray[15].name = HorseColorCalculator.fixPath("socks", leg_markings[2]);
         this.horseTexturesArray[16].name = HorseColorCalculator.fixPath("socks", leg_markings[3]);
         this.horseTexturesArray[17].name = HorseColorCalculator.fixPath("pinto", pinto);
-
+*/
 
         Layer common = new Layer();
         common.name = HorseColorCalculator.fixPath("", "common");

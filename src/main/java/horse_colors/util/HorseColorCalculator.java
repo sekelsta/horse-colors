@@ -215,12 +215,12 @@ public class HorseColorCalculator
         return layer;
     }
 
-    public static Layer getDun(AbstractHorseGenetic horse, Layer base) {
+    public static void setDun(AbstractHorseGenetic horse, Layer base) {
         if (base == null) {
-            return null;
+            return;
         }
         if (!horse.isDun()) {
-            return null;
+            return;
         }
         Layer layer = new Layer();
         layer.name = base.name;
@@ -242,8 +242,8 @@ public class HorseColorCalculator
         layer.red = Math.min(255, (int)(c + red * multiplier));
         layer.green = Math.min(255, (int)(c + green * multiplier));
         layer.blue = Math.min(255, (int)(c + blue * multiplier));
-        layer.alpha = base.alpha / 2;
-        return layer;
+        layer.alpha = base.alpha * 2 / 3;
+        base.next = layer;
     }
 
     public static Layer getGray(AbstractHorseGenetic horse) {

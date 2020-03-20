@@ -26,7 +26,41 @@ public class ComplexLayeredTexture extends Texture {
         }
     }
 
-    public void colorLayer(NativeImage base, NativeImage image, NativeImage shading, NativeImage mask, Layer layer) {
+    public NativeImage getLayer(IResourceManager manager, Layer layer) {
+        try (IResource iresource = manager.getResource(new ResourceLocation(layer.name))) {
+            NativeImage image = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(layer.name), manager);
+            NativeImage shading = null;
+            NativeImage mask = null;
+            if (layer.shading != null) {
+                try (IResource iresources = manager.getResource(new ResourceLocation(layer.shading))) {
+                    shading = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(layer.shading), manager);
+                }
+            }
+            if (layer.mask != null) {
+                try (IResource iresources = manager.getResource(new ResourceLocation(layer.mask))) {
+                    mask = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(layer.mask), manager);
+                }
+            }
+            colorLayer(image, shading, mask, layer);
+            if (layer.next != null) {
+                blendLayer(image, getLayer(manager, layer.next));
+            }
+            return image;
+        } catch (IOException ioexception) {
+            LOGGER.error("Couldn't load layered image", (Throwable)ioexception);
+        }
+        return null;
+    }
+
+    public void blendLayer(NativeImage base, NativeImage image) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                base.blendPixel(j, i, image.getPixelRGBA(j, i));
+            }
+        }
+    }
+
+    public void colorLayer(NativeImage image, NativeImage shading, NativeImage mask, Layer layer) {
         for(int i = 0; i < image.getHeight(); ++i) {
             for(int j = 0; j < image.getWidth(); ++j) {
                 int color = image.getPixelRGBA(j, i);
@@ -40,12 +74,7 @@ public class ComplexLayeredTexture extends Texture {
                 if (mask != null) {
                     finalColor = layer.mask(finalColor, mask.getPixelRGBA(j, i));
                 }
-                if (base == null) {
-                    image.setPixelRGBA(j, i, finalColor);
-                }
-                else {
-                    base.blendPixel(j, i, finalColor);
-                }
+                image.setPixelRGBA(j, i, finalColor);
             }
         }
     }
@@ -53,58 +82,25 @@ public class ComplexLayeredTexture extends Texture {
     public void loadTexture(IResourceManager manager) throws IOException {
         Iterator<Layer> iterator = this.layers.iterator();
         Layer baselayer = iterator.next();
-        try (IResource iresource = manager.getResource(new ResourceLocation(baselayer.name))) {
-            NativeImage baseimage = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(baselayer.name), manager);
-            NativeImage baseshading = null;
-            NativeImage basemask = null;
-            if (baselayer.shading != null) {
-                try (IResource iresources = manager.getResource(new ResourceLocation(baselayer.shading))) {
-                    baseshading = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(baselayer.shading), manager);
-                }
-            }
-            if (baselayer.mask != null) {
-                try (IResource iresources = manager.getResource(new ResourceLocation(baselayer.mask))) {
-                    basemask = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(baselayer.mask), manager);
-                }
-            }
-            colorLayer(null, baseimage, baseshading, basemask, baselayer);
+        NativeImage baseimage = getLayer(manager, baselayer);
 
-            while(iterator.hasNext()) {
-                Layer layer = iterator.next();
-                if (layer == null) {
-                    continue;
-                }
-                if (layer.name != null) {
-                    try (
-                        IResource iresource1 = manager.getResource(new ResourceLocation(layer.name));
-                        NativeImage layerimage = NativeImage.read(iresource1.getInputStream());
-                    ) {
-                        NativeImage shading = null;
-                        NativeImage mask = null;
-                        if (layer.shading != null) {
-                            try (IResource iresources = manager.getResource(new ResourceLocation(layer.shading))) {
-                                shading = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(layer.shading), manager);
-                            }
-                        }
-                        if (layer.mask != null) {
-                            try (IResource iresources = manager.getResource(new ResourceLocation(layer.shading))) {
-                                mask = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(layer.mask), manager);
-                            }
-                        }
-                        colorLayer(baseimage, layerimage, shading, mask, layer);
-                    }
-                }
+        while(iterator.hasNext()) {
+            Layer layer = iterator.next();
+            if (layer == null) {
+                continue;
             }
+            if (layer.name != null) {
+                NativeImage image = getLayer(manager, layer);
+                blendLayer(baseimage, image);
+            }
+        }
 
-            if (!RenderSystem.isOnRenderThreadOrInit()) {
-                RenderSystem.recordRenderCall(() -> {
-                    this.loadImage(baseimage);
-                });
-            } else {
+        if (!RenderSystem.isOnRenderThreadOrInit()) {
+            RenderSystem.recordRenderCall(() -> {
                 this.loadImage(baseimage);
-            }
-        } catch (IOException ioexception) {
-            LOGGER.error("Couldn't load layered image", (Throwable)ioexception);
+            });
+        } else {
+            this.loadImage(baseimage);
         }
    }
 
@@ -121,6 +117,10 @@ public class ComplexLayeredTexture extends Texture {
         public int red;
         public int green;
         public int blue;
+        // Don't go overboard and chain thousands of layers together
+        // They all have to fit in memory at once and are rendered
+        // recursively so therer is potential for stack overflow
+        public Layer next;
         public Layer() {
             name = null;
             shading = null;
