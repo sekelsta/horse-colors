@@ -242,7 +242,13 @@ public class HorseColorCalculator
         layer.red = Math.min(255, (int)(c + red * multiplier));
         layer.green = Math.min(255, (int)(c + green * multiplier));
         layer.blue = Math.min(255, (int)(c + blue * multiplier));
-        layer.alpha = base.alpha * 2 / 3;
+        layer.alpha = base.alpha * 2 / 3;/*
+        float dunpower = 0.2F;
+        layer.red = Math.min(255, (int)(255.0F * dunpower + ((float)base.red) * (1.0F - dunpower)));
+        layer.green = Math.min(255, (int)(255.0F * dunpower + ((float)base.green) * (1.0F - dunpower)));
+        layer.blue = Math.min(255, (int)(255.0F * dunpower + ((float)base.blue) * (1.0F - dunpower)));
+        System.out.println(String.valueOf(base.red) + ", " + String.valueOf(base.green) + ", " + String.valueOf(base.blue) + " to");
+        System.out.println(String.valueOf(layer.red) + ", " + String.valueOf(layer.green) + ", " + String.valueOf(layer.blue));*/
         base.next = layer;
     }
 

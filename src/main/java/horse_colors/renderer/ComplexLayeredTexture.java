@@ -43,7 +43,7 @@ public class ComplexLayeredTexture extends Texture {
             }
             colorLayer(image, shading, mask, layer);
             if (layer.next != null) {
-                blendLayer(image, getLayer(manager, layer.next));
+                blendLayerKeepAlpha(image, getLayer(manager, layer.next));
             }
             return image;
         } catch (IOException ioexception) {
@@ -56,6 +56,29 @@ public class ComplexLayeredTexture extends Texture {
         for(int i = 0; i < image.getHeight(); ++i) {
             for(int j = 0; j < image.getWidth(); ++j) {
                 base.blendPixel(j, i, image.getPixelRGBA(j, i));
+            }
+        }
+    }
+
+    public void blendLayerKeepAlpha(NativeImage base, NativeImage image) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                int cb = base.getPixelRGBA(j, i);
+                int ci = image.getPixelRGBA(j, i);
+                float a = NativeImage.getAlpha(ci) / 255.0F;
+                float r = NativeImage.getRed(ci);
+                float g = NativeImage.getGreen(ci);
+                float b = NativeImage.getBlue(ci);
+                float br = NativeImage.getRed(cb);
+                float bg = NativeImage.getGreen(cb);
+                float bb = NativeImage.getBlue(cb);
+                int fa = NativeImage.getAlpha(cb);
+                int fr = (int)(r * a + br * (1.0F-a));
+                int fg = (int)(g * a + bg * (1.0F-a));
+                int fb = (int)(b * a + bb * (1.0F-a));
+                /*if (fa > 0 && a > 0) {
+                System.out.println(String.valueOf(fr) + ", " + String.valueOf(fg) + ", " + String.valueOf(fb) + ", " + String.valueOf(fa));}*/
+                base.setPixelRGBA(j, i, NativeImage.getCombined(fa, fb, fg, fr));
             }
         }
     }

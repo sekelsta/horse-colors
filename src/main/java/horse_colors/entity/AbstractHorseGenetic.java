@@ -494,9 +494,9 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity {
         HorseColorCalculator.setDun(this, black);
         this.horseTexturesArray[0] = red;
         this.horseTexturesArray[1] = HorseColorCalculator.getRedManeTail(this);
-        this.horseTexturesArray[2] = HorseColorCalculator.getNose(this);
-        this.horseTexturesArray[3] = black;
-        this.horseTexturesArray[4] = HorseColorCalculator.getBlackManeTail(this);
+        //this.horseTexturesArray[2] = black;
+        //this.horseTexturesArray[3] = HorseColorCalculator.getBlackManeTail(this);
+        this.horseTexturesArray[4] = HorseColorCalculator.getNose(this);
         this.horseTexturesArray[5] = HorseColorCalculator.getGray(this);
 
 
