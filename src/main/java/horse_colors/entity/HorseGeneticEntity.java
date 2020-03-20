@@ -290,6 +290,18 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         return SoundEvents.ENTITY_HORSE_ANGRY;
     }
 
+    public boolean fluffyTail() {
+        return true;
+    }
+
+    public boolean longEars() {
+        return false;
+    }
+
+    public boolean thinMane() {
+        return false;
+    }
+
     @Override
     public boolean processInteract(PlayerEntity player, Hand hand)
     {

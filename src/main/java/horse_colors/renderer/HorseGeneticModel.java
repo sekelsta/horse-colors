@@ -1,12 +1,12 @@
 package sekelsta.horse_colors.renderer;
 
+import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.renderer.entity.model.AgeableModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 @OnlyIn(Dist.CLIENT)
-public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableModel<T>
+public class HorseGeneticModel<T extends AbstractHorseGenetic> extends AgeableModel<T>
 {
     private final ModelRenderer head;
     private final ModelRenderer horn;
@@ -241,6 +241,7 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
 
         this.mane = new ModelRenderer(this, 58, 0);
         this.mane.addBox(-1.0F, -11.5F, 5.0F, 2, 16, 4.0F, scaleFactor);
+        this.mane.setRotationPoint(0.0F, 0.0F, -1.0F);
         this.neck.addChild(mane);
 
         int hornLength = 7;
@@ -258,9 +259,12 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         // Disable things that are not for horses
         this.muleLeftChest.showModel = false;
         this.muleRightChest.showModel = false;
-        this.muleLeftEar.showModel = false;
-        this.muleRightEar.showModel = false;
-        this.tailThin.showModel = false;
+        this.muleLeftEar.showModel = entityIn.longEars();
+        this.muleRightEar.showModel = entityIn.longEars();
+        this.horseLeftEar.showModel = !entityIn.longEars();
+        this.horseRightEar.showModel = !entityIn.longEars();
+        this.tailBase.showModel = entityIn.fluffyTail();
+        this.tailThin.showModel = !entityIn.fluffyTail();
         this.horn.showModel = false;
         this.babyHorn.showModel = false;
 
@@ -406,7 +410,7 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
             f4 += MathHelper.cos(limbSwing * 0.4F) * 0.15F * limbSwingAmount;
         }
 
-        AbstractHorseEntity abstracthorse = (AbstractHorseEntity)entityIn;
+        AbstractHorseGenetic abstracthorse = (AbstractHorseGenetic)entityIn;
         float grassEatingAmount = abstracthorse.getGrassEatingAmount(partialTickTime);
         float rearingAmount = abstracthorse.getRearingAmount(partialTickTime);
         float notRearingAmount = 1.0F - rearingAmount;
@@ -504,6 +508,14 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
 
         this.tailBase.rotateAngleX = tailRotation;
         this.tailThin.rotateAngleX = donkeyTailRotate;
+
+        // Make donkeys have a thinner mane
+        if (abstracthorse.thinMane()) {
+            this.mane.rotationPointZ = -1.0F;
+        }
+        else {
+            this.mane.rotationPointZ = 0.0F;
+        }
         // Partially corrects for scaling but still needs some translation
 /*
         if (this.isChild) {

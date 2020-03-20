@@ -29,6 +29,18 @@ public class DonkeyGeneticEntity extends AbstractChestHorseGenetic {
       return SoundEvents.ENTITY_DONKEY_HURT;
    }
 
+    public boolean fluffyTail() {
+        return false;
+    }
+
+    public boolean longEars() {
+        return true;
+    }
+
+    public boolean thinMane() {
+        return true;
+    }
+
    /**
     * Returns true if the mob is currently able to mate with the specified mob.
     */

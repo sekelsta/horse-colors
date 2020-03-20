@@ -28,6 +28,18 @@ public class MuleGeneticEntity extends AbstractChestHorseGenetic {
       return SoundEvents.ENTITY_MULE_HURT;
    }
 
+    public boolean fluffyTail() {
+        return true;
+    }
+
+    public boolean longEars() {
+        return true;
+    }
+
+    public boolean thinMane() {
+        return false;
+    }
+
    protected void playChestEquipSound() {
       this.playSound(SoundEvents.ENTITY_MULE_CHEST, 1.0F, (this.rand.nextFloat() - this.rand.nextFloat()) * 0.2F + 1.0F);
    }
