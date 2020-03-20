@@ -1,4 +1,4 @@
-package sekelsta.horse_colors;
+package sekelsta.horse_colors.util;
 
 public class HorseAlleles
 {

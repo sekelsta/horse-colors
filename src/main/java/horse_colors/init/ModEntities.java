@@ -1,5 +1,9 @@
-package sekelsta.horse_colors;
+package sekelsta.horse_colors.init;
+import sekelsta.horse_colors.HorseColors;
+import sekelsta.horse_colors.config.HorseConfig;
 
+import sekelsta.horse_colors.entity.*;
+import sekelsta.horse_colors.renderer.HorseGeneticRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -28,25 +32,38 @@ import java.util.HashSet;
 
 @Mod.EventBusSubscriber(modid = HorseColors.MODID, bus = Bus.MOD)
 public class ModEntities {
-    //@ObjectHolder("horse_colors:horse_felinoid")
     public static EntityType<HorseGeneticEntity> HORSE_GENETIC = null;
-    //@ObjectHolder("horse_colors:horse_felinoid_spawn_egg")
-    public static Item HORSE_SPAWN_EGG = null;
+    public static EntityType<DonkeyGeneticEntity> DONKEY_GENETIC = null;
+    public static EntityType<MuleGeneticEntity> MULE_GENETIC = null;
+    public static SpawnEggItem HORSE_SPAWN_EGG = null;
+    public static SpawnEggItem DONKEY_SPAWN_EGG = null;
+    public static SpawnEggItem MULE_SPAWN_EGG = null;
 
     public static final int horseEggPrimary = 0x7F4320;
     public static final int horseEggSecondary = 0x110E0D;
     static
     {
             // Default tracker is fine, or could use .tracker(64, 2, false)
-            final ResourceLocation registryName = new ResourceLocation(HorseColors.MODID, "horse_felinoid");/*
-public static final EntityType<HorseEntity> HORSE = register("horse", EntityType.Builder.create(HorseEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F));*/
-            HORSE_GENETIC = EntityType.Builder.create(HorseGeneticEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F).build(registryName.toString());
-            HORSE_GENETIC.setRegistryName(registryName);
+            final ResourceLocation horseRegistryName = new ResourceLocation(HorseColors.MODID, "horse_felinoid");
+            HORSE_GENETIC = EntityType.Builder.create(HorseGeneticEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F).build(horseRegistryName.toString());
+            HORSE_GENETIC.setRegistryName(horseRegistryName);
 
-            assert(HORSE_GENETIC != null);
-            Item spawnEgg = new SpawnEggItem(HORSE_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(ItemGroup.MISC));
-            spawnEgg.setRegistryName(new ResourceLocation(HorseColors.MODID, "horse_genetic_spawn_egg"));
-            HORSE_SPAWN_EGG = spawnEgg;
+            final ResourceLocation donkeyRegistryName = new ResourceLocation(HorseColors.MODID, "donkey_genetic");
+            DONKEY_GENETIC = EntityType.Builder.create(DonkeyGeneticEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F).build(donkeyRegistryName.toString());
+            DONKEY_GENETIC.setRegistryName(donkeyRegistryName);
+
+            final ResourceLocation muleRegistryName = new ResourceLocation(HorseColors.MODID, "mule_genetic");
+            MULE_GENETIC = EntityType.Builder.create(MuleGeneticEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F).build(muleRegistryName.toString());
+            MULE_GENETIC.setRegistryName(muleRegistryName);
+
+            HORSE_SPAWN_EGG = new SpawnEggItem(HORSE_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(ItemGroup.MISC));
+            HORSE_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "horse_genetic_spawn_egg"));
+
+            DONKEY_SPAWN_EGG = new SpawnEggItem(DONKEY_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(ItemGroup.MISC));
+            DONKEY_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "donkey_genetic_spawn_egg"));
+
+            MULE_SPAWN_EGG = new SpawnEggItem(MULE_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(ItemGroup.MISC));
+            MULE_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "mule_genetic_spawn_egg"));
     }
 /*
    private static <T extends Entity> EntityType<T> register(String key, EntityType.Builder<T> builder) {
@@ -64,7 +81,9 @@ public static final EntityType<HorseEntity> HORSE = register("horse", EntityType
         public static void registerEntities(final RegistryEvent.Register<EntityType<?>> event) {
 
             event.getRegistry().registerAll(
-                    HORSE_GENETIC
+                    HORSE_GENETIC,
+                    DONKEY_GENETIC,
+                    MULE_GENETIC
             );
         }
 
@@ -72,6 +91,8 @@ public static final EntityType<HorseEntity> HORSE = register("horse", EntityType
         public static void registerSpawnEggs(RegistryEvent.Register<Item> event) {
 
             event.getRegistry().register(HORSE_SPAWN_EGG);
+            event.getRegistry().register(DONKEY_SPAWN_EGG);
+            event.getRegistry().register(MULE_SPAWN_EGG);
         }
 
     }
@@ -175,6 +196,8 @@ public static final EntityType<HorseEntity> HORSE = register("horse", EntityType
     public static void registerRenders()
     {
         RenderingRegistry.registerEntityRenderingHandler(HORSE_GENETIC, renderManager -> new HorseGeneticRenderer(renderManager));
+        RenderingRegistry.registerEntityRenderingHandler(DONKEY_GENETIC, renderManager -> new HorseGeneticRenderer(renderManager));
+        RenderingRegistry.registerEntityRenderingHandler(MULE_GENETIC, renderManager -> new HorseGeneticRenderer(renderManager));
     }
 
 

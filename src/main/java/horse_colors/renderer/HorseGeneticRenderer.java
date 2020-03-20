@@ -1,4 +1,6 @@
-package sekelsta.horse_colors;
+package sekelsta.horse_colors.renderer;
+
+import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.google.common.collect.Maps;
@@ -14,12 +16,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 // Can't inherit from AbstractHorseRenderer because that uses HorseModel
 @OnlyIn(Dist.CLIENT)
-public class HorseGeneticRenderer extends MobRenderer<HorseGeneticEntity, HorseGeneticModel<HorseGeneticEntity>>
+public class HorseGeneticRenderer extends MobRenderer<AbstractHorseGenetic, HorseGeneticModel<AbstractHorseGenetic>>
 {
     // Stuff from AbstractHorseRenderer
    private final float scale;
 
-   protected void preRenderCallback(HorseGeneticEntity entitylivingbaseIn, MatrixStack matrixStackIn, float partialTickTime) {
+   protected void preRenderCallback(AbstractHorseGenetic entitylivingbaseIn, MatrixStack matrixStackIn, float partialTickTime) {
       matrixStackIn.scale(this.scale, this.scale, this.scale);
       super.preRenderCallback(entitylivingbaseIn, matrixStackIn, partialTickTime);
    }
@@ -29,7 +31,7 @@ public class HorseGeneticRenderer extends MobRenderer<HorseGeneticEntity, HorseG
 
     public HorseGeneticRenderer(EntityRendererManager renderManager)
     {
-        super(renderManager, new HorseGeneticModel<HorseGeneticEntity>(0.0F), 0.75F);
+        super(renderManager, new HorseGeneticModel<AbstractHorseGenetic>(0.0F), 0.75F);
         this.scale = 1.1F;
         this.addLayer(new HorseArmorLayer(this));
     }
@@ -38,7 +40,7 @@ public class HorseGeneticRenderer extends MobRenderer<HorseGeneticEntity, HorseG
      * Returns the location of an entity's texture. Doesn't seem to be called unless you call EntityRenderer.bindEntityTexture.
      */
     @Override
-    public ResourceLocation getEntityTexture(HorseGeneticEntity entity)
+    public ResourceLocation getEntityTexture(AbstractHorseGenetic entity)
     {
         String s = entity.getHorseTexture();
         ResourceLocation resourcelocation = LAYERED_LOCATION_CACHE.get(s);

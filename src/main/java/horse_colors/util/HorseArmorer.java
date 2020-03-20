@@ -1,4 +1,5 @@
-package sekelsta.horse_colors;
+package sekelsta.horse_colors.util;
+import sekelsta.horse_colors.HorseColors;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.item.ItemStack;

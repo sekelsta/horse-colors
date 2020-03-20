@@ -1,5 +1,8 @@
-package sekelsta.horse_colors;
+package sekelsta.horse_colors.renderer;
 
+import sekelsta.horse_colors.entity.AbstractHorseGenetic;
+import sekelsta.horse_colors.entity.HorseGeneticEntity;
+import sekelsta.horse_colors.util.HorseArmorer;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
@@ -15,22 +18,26 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 
 @OnlyIn(Dist.CLIENT)
-public class HorseArmorLayer extends LayerRenderer<HorseGeneticEntity, HorseGeneticModel<HorseGeneticEntity>> {
-    private final HorseGeneticModel<HorseGeneticEntity> horseModel = new HorseGeneticModel<>(0.1F);
+public class HorseArmorLayer extends LayerRenderer<AbstractHorseGenetic, HorseGeneticModel<AbstractHorseGenetic>> {
+    private final HorseGeneticModel<AbstractHorseGenetic> horseModel = new HorseGeneticModel<>(0.1F);
 
-    public HorseArmorLayer(IEntityRenderer<HorseGeneticEntity, HorseGeneticModel<HorseGeneticEntity>> model) {
+    public HorseArmorLayer(IEntityRenderer<AbstractHorseGenetic, HorseGeneticModel<AbstractHorseGenetic>> model) {
        super(model);
     }
 
     @Override
     // Render function
-    public void render(MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int p_225628_3_, HorseGeneticEntity entityIn, float p_225628_5_, float p_225628_6_, float p_225628_7_, float p_225628_8_, float p_225628_9_, float p_225628_10_) {
-       ItemStack itemstack = entityIn.getHorseArmor();
+    public void render(MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int p_225628_3_, AbstractHorseGenetic entityIn, float p_225628_5_, float p_225628_6_, float p_225628_7_, float p_225628_8_, float p_225628_9_, float p_225628_10_) {
+        if (!(entityIn instanceof HorseGeneticEntity)) {
+            return;
+        }
+        HorseGeneticEntity horse = (HorseGeneticEntity)entityIn;
+       ItemStack itemstack = horse.getHorseArmor();
        if (itemstack.getItem() instanceof HorseArmorItem) {
            HorseArmorItem horsearmoritem = (HorseArmorItem)itemstack.getItem();
            this.getEntityModel().copyModelAttributesTo(this.horseModel);
-           this.horseModel.setLivingAnimations(entityIn, p_225628_5_, p_225628_6_, p_225628_7_);
-           this.horseModel.setRotationAngles(entityIn, p_225628_5_, p_225628_6_, p_225628_8_, p_225628_9_, p_225628_10_);
+           this.horseModel.setLivingAnimations(horse, p_225628_5_, p_225628_6_, p_225628_7_);
+           this.horseModel.setRotationAngles(horse, p_225628_5_, p_225628_6_, p_225628_8_, p_225628_9_, p_225628_10_);
            float f;
            float f1;
            float f2;

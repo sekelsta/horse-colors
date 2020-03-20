@@ -1,5 +1,8 @@
 package sekelsta.horse_colors;
 
+import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.init.*;
+
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;

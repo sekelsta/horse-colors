@@ -1,4 +1,4 @@
-package sekelsta.horse_colors;
+package sekelsta.horse_colors.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
@@ -68,7 +68,7 @@ public class HorseConfig
                 this.weight = w;
             }
 
-            BiomeWeight(String s) {
+            public BiomeWeight(String s) {
                 
                 s = s.trim();
                 int comma = s.indexOf(",");

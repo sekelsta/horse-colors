@@ -1,5 +1,7 @@
-package sekelsta.horse_colors;
-import sekelsta.horse_colors.ComplexLayeredTexture.Layer;
+package sekelsta.horse_colors.util;
+import sekelsta.horse_colors.renderer.ComplexLayeredTexture.Layer;
+import sekelsta.horse_colors.entity.AbstractHorseGenetic;
+import sekelsta.horse_colors.entity.HorseGeneticEntity;
 
 public class HorseColorCalculator
 {
@@ -258,7 +260,7 @@ public class HorseColorCalculator
         return layer;
     }
 
-    public static String getSooty(HorseGeneticEntity horse)
+    public static String getSooty(AbstractHorseGenetic horse)
     {
         if (horse.isHomozygous("cream", HorseAlleles.CREAM))
         {
@@ -321,13 +323,13 @@ public class HorseColorCalculator
         return prefix + suffix;
     }
 
-    public static String getMealy(HorseGeneticEntity horse)
+    public static String getMealy(AbstractHorseGenetic horse)
     {
         // TODO
         return null;
     }
 
-    public static String getLegs(HorseGeneticEntity horse)
+    public static String getLegs(AbstractHorseGenetic horse)
     {
         // Dappled gray horses can have dark legs
         if (horse.getPhenotype("gray") != 0
@@ -346,7 +348,7 @@ public class HorseColorCalculator
         return null;
     }
 
-    public static String getGrayMane(HorseGeneticEntity horse)
+    public static String getGrayMane(AbstractHorseGenetic horse)
     {
         if (horse.isHomozygous("gray", HorseAlleles.GRAY)
             && horse.getPhenotype("gray_mane") == 2)
@@ -377,7 +379,7 @@ public class HorseColorCalculator
         return "gray_mane";
     }
 
-    public static String getFaceMarking(HorseGeneticEntity horse)
+    public static String getFaceMarking(AbstractHorseGenetic horse)
     {
         int white = -2;
         if (horse.getPhenotype("white_suppression") != 0)
@@ -444,7 +446,7 @@ public class HorseColorCalculator
         }
     }
 
-    public static String[] getLegMarkings(HorseGeneticEntity horse)
+    public static String[] getLegMarkings(AbstractHorseGenetic horse)
     {
         int white = -3;
         if (horse.getPhenotype("white_suppression") != 0)
@@ -515,7 +517,7 @@ public class HorseColorCalculator
         return legs;
     }
 
-    public static String getPinto(HorseGeneticEntity horse)
+    public static String getPinto(AbstractHorseGenetic horse)
     {
         if (horse.getPhenotype("white") == 1)
         {
@@ -560,7 +562,7 @@ public class HorseColorCalculator
         return pinto;
     }
 
-    public static String getLeopard(HorseGeneticEntity horse)
+    public static String getLeopard(AbstractHorseGenetic horse)
     {
         if (horse.getPhenotype("leopard") == 0)
         {

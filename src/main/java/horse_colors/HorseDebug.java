@@ -1,5 +1,8 @@
 package sekelsta.horse_colors;
 
+import sekelsta.horse_colors.entity.HorseGeneticEntity;
+import sekelsta.horse_colors.config.HorseConfig;
+
 import java.util.Iterator;
 
 import net.minecraft.client.Minecraft;
