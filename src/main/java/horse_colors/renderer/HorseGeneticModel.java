@@ -1,6 +1,7 @@
 package sekelsta.horse_colors.renderer;
 
 import sekelsta.horse_colors.entity.AbstractHorseGenetic;
+import sekelsta.horse_colors.entity.AbstractChestHorseGenetic;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -256,9 +257,6 @@ public class HorseGeneticModel<T extends AbstractHorseGenetic> extends AgeableMo
 
     @Override
     public void setRotationAngles(T entityIn, float p_225597_2_, float p_225597_3_, float p_225597_4_, float limbSwingAmount, float partialTickTime) {
-        // Disable things that are not for horses
-        this.muleLeftChest.showModel = false;
-        this.muleRightChest.showModel = false;
         this.muleLeftEar.showModel = entityIn.longEars();
         this.muleRightEar.showModel = entityIn.longEars();
         this.horseLeftEar.showModel = !entityIn.longEars();
@@ -267,6 +265,13 @@ public class HorseGeneticModel<T extends AbstractHorseGenetic> extends AgeableMo
         this.tailThin.showModel = !entityIn.fluffyTail();
         this.horn.showModel = false;
         this.babyHorn.showModel = false;
+
+        boolean hasChest = false;
+        if (entityIn instanceof AbstractChestHorseGenetic) {
+            hasChest = ((AbstractChestHorseGenetic)entityIn).hasChest();
+        }
+        this.muleLeftChest.showModel = hasChest;
+        this.muleRightChest.showModel = hasChest;
 
         boolean isSaddled = entityIn.isHorseSaddled();
         boolean isRidden = entityIn.isBeingRidden();
