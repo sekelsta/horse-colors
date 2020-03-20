@@ -46,7 +46,6 @@ public class HorseGeneticRenderer extends MobRenderer<HorseGeneticEntity, HorseG
         if (resourcelocation == null)
         {
             resourcelocation = new ResourceLocation(s);
-            System.out.println(resourcelocation);
             Minecraft.getInstance().getTextureManager().loadTexture(resourcelocation, new ComplexLayeredTexture(entity.getVariantTexturePaths()));
             LAYERED_LOCATION_CACHE.put(s, resourcelocation);
         }

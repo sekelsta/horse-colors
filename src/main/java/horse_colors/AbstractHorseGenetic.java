@@ -418,6 +418,15 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity {
         return this.hasAllele("silver", HorseAlleles.SILVER);
     }
 
+    public boolean isGray() {
+        return this.hasAllele("gray", HorseAlleles.GRAY);
+    }
+
+    public boolean isDun() {
+        return this.hasAllele("dun", HorseAlleles.DUN)
+            || this.hasAllele("dun", HorseAlleles.DUN_IBERIAN);
+    }
+
     // The MC1R ("extension") gene seems to be associated with white
     // patterning. For now I assume this is caused by MC1R itself,
     // but if it turns out to be a different gene that's just very

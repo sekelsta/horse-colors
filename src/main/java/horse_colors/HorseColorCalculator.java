@@ -33,9 +33,9 @@ public class HorseColorCalculator
     }
 
     public static void setLiverChestnut(Layer layer) {
-            layer.red = 0x47;
-            layer.green = 0x22;
-            layer.blue = 0x0e;
+            layer.red = 0x76;
+            layer.green = 0x3e;
+            layer.blue = 0x1f;
     }
 
     public static void setGolden(Layer layer) {
@@ -75,9 +75,9 @@ public class HorseColorCalculator
     }
 
     public static void setBrownBlack(Layer layer) {
-            layer.red = 0x16;
-            layer.green = 0x11;
-            layer.blue = 0x11;
+            layer.red = 0x1d;
+            layer.green = 0x1b;
+            layer.blue = 0x1a;
     }
 
     public static void setChocolate(Layer layer) {
@@ -200,108 +200,62 @@ public class HorseColorCalculator
         return layer;
     }
 
-    public static Layer getDun(AbstractHorseGenetic horse) {
+    public static Layer getNose(AbstractHorseGenetic horse) {
         Layer layer = new Layer();
-        // TODO
+        layer.name = fixPath("", "nose");
+        if (horse.isDoubleCream()) {
+            // The base texture already comes with a pink nose
+            return null;
+        }
+        else {
+            setBlack(layer);
+        }
         return layer;
     }
 
-
-
-    public static String getBaseTexture(HorseGeneticEntity horse)
-    {
-        // Double cream dilute + gray gives white
-        if (horse.isHomozygous("cream", HorseAlleles.CREAM)
-                && horse.hasAllele("gray", HorseAlleles.GRAY))
-        {
-            return "white";
-        }
-        // Other gray
-        if (horse.hasAllele("gray", HorseAlleles.GRAY))
-        {
-            return "gray";
-        }
-
-        // Handle double cream dilutes
-        if (horse.isDoubleCream())
-        {
-            return null;  
-        }
-
-        // Single cream dilutes
-        else if (horse.hasCream())
-        {
-            // Single cream, no gray. Check for dun.
-            if (horse.hasAllele("dun", HorseAlleles.DUN)
-                || horse.hasAllele("dun", HorseAlleles.DUN_IBERIAN))
-            {
-                // Dun + single cream.
-                // Check for chestnut before looking for silver.
-                if (horse.isChestnut())
-                {
-                    return "dunalino";
-                }
-                // Smoky grullo or dunskin
-                String base = "";
-                switch(horse.getMaxAllele("agouti"))
-                {
-                    case HorseAlleles.A_BLACK: base = "smoky_grullo";
-                    case HorseAlleles.A_SEAL:
-                    case HorseAlleles.A_BROWN: base = "smoky_brown_dun";
-                    case HorseAlleles.A_BAY_DARK:
-                    case HorseAlleles.A_BAY:
-                    case HorseAlleles.A_BAY_LIGHT:
-                    case HorseAlleles.A_BAY_WILD:
-                    case HorseAlleles.A_BAY_MEALY: base = "dunskin";
-                }
-                // Check for silver dapple
-                if (horse.hasAllele("silver", HorseAlleles.SILVER))
-                {
-                    return "silver_" + base;
-                }
-                return base;
-            }
-            // Single cream, no gray, no dun.
+    public static Layer getDun(AbstractHorseGenetic horse, Layer base) {
+        if (base == null) {
             return null;
         }
-
-        // No cream, no gray. Check for dun.
-        if (horse.hasAllele("dun", HorseAlleles.DUN)
-            || horse.hasAllele("dun", HorseAlleles.DUN_IBERIAN))
-        {
-            // Dun. Check for chestnut.
-            if (horse.isChestnut())
-            {
-                // Red dun. Check for liver.
-                if (horse.getMaxAllele("liver") == HorseAlleles.LIVER)
-                {
-                    return "liver_dun";
-                }
-                return "red_dun";
-            }
-
-            // Dun, non-chestnut.
-            String base = "";
-            switch(horse.getMaxAllele("agouti"))
-            {
-                case HorseAlleles.A_BLACK: base = "grullo";
-                case HorseAlleles.A_SEAL:
-                case HorseAlleles.A_BROWN: base = "brown_dun";
-                case HorseAlleles.A_BAY_DARK:
-                case HorseAlleles.A_BAY:
-                case HorseAlleles.A_BAY_LIGHT:
-                case HorseAlleles.A_BAY_WILD:
-                case HorseAlleles.A_BAY_MEALY: base = "dun";
-            }
-            // Check for silver
-            if (horse.hasAllele("silver", HorseAlleles.SILVER))
-            {
-                return "silver_" + base;
-            }
-            return base;
+        if (!horse.isDun()) {
+            return null;
         }
-        // No cream, gray, or dun.
-        return null;
+        Layer layer = new Layer();
+        layer.name = base.name;
+        layer.shading = base.shading;
+        layer.mask = fixPath("", "dun");
+        float dunPower = 0.5F;
+        // Add 1 to each color because 0 isn't allowed
+        // Cap at 255
+        float red = Math.min(255, base.red + 1);
+        float green = Math.min(255, base.green + 1);
+        float blue = Math.min(255, base.blue + 1);
+        float avg = (red + green + blue) / 3.0F;
+        float targetAvg = 255.0F * dunPower + avg * (1.0F - dunPower);
+        float multiplier = targetAvg / avg;
+        if (multiplier < 1.0F) {
+            System.out.println("Error: dun is too dark");
+        }
+        int c = 255 / 4;
+        layer.red = Math.min(255, (int)(c + red * multiplier));
+        layer.green = Math.min(255, (int)(c + green * multiplier));
+        layer.blue = Math.min(255, (int)(c + blue * multiplier));
+        layer.alpha = base.alpha / 2;
+        return layer;
+    }
+
+    public static Layer getGray(AbstractHorseGenetic horse) {
+        if (!horse.isGray()) {
+            return null;
+        }
+        Layer layer = new Layer();
+        if (horse.isDoubleCream()) {
+            layer.name = fixPath("base", "white");
+        }
+        else {
+            layer.name = fixPath("base", "gray");
+        }
+        return layer;
     }
 
     public static String getSooty(HorseGeneticEntity horse)
@@ -389,38 +343,7 @@ public class HorseColorCalculator
                 return null;
             }
         }
-        // Don't do anything about chestnut non-dun horses or light gray horses
-        if ((horse.isChestnut()
-                && horse.getPhenotype("dun") == 0)
-            || horse.getPhenotype("gray") != 0)
-        {
-            return null;
-        }
-
-        String legs = null;
-        if (!horse.isChestnut()
-            && (horse.getMaxAllele("agouti") >= HorseAlleles.A_BROWN 
-                || horse.hasAllele("dun", HorseAlleles.DUN) 
-                || horse.hasAllele("dun", HorseAlleles.DUN_IBERIAN)))
-        {
-            if (horse.isHomozygous("cream", HorseAlleles.CREAM))
-            {
-                legs = "perlino_legs";
-            }
-            else if (horse.hasAllele("silver", HorseAlleles.SILVER))
-            {
-                legs = "silver_legs";
-            }
-            else
-            {
-                legs = "bay_legs";
-            }
-        }
-        else
-        {
-            // If I do red dun legs separate, here is where they should go
-        }
-        return legs;
+        return null;
     }
 
     public static String getGrayMane(HorseGeneticEntity horse)
