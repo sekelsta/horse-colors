@@ -136,6 +136,8 @@ public class MuleGeneticEntity extends MuleEntity implements IHorseShape, IGenet
                 return ((Integer)this.dataManager.get(HORSE_JUMP)).intValue();
             case "health":
                 return ((Integer)this.dataManager.get(HORSE_HEALTH)).intValue();
+            case "random":
+                return ((Integer)this.dataManager.get(HORSE_RANDOM)).intValue();
             default:
                 System.out.print("Unrecognized horse data for getting: " 
                                 + name + "\n");
@@ -165,6 +167,9 @@ public class MuleGeneticEntity extends MuleEntity implements IHorseShape, IGenet
                 return;
             case "health":
                 this.dataManager.set(HORSE_HEALTH, variant);
+                return;
+            case "random":
+                this.dataManager.set(HORSE_RANDOM, variant);
                 return;
             default:
                 System.out.print("Unrecognized horse data for setting: "
