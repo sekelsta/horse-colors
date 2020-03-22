@@ -76,8 +76,10 @@ public class ComplexLayeredTexture extends Texture {
                 int fr = (int)(r * a + br * (1.0F-a));
                 int fg = (int)(g * a + bg * (1.0F-a));
                 int fb = (int)(b * a + bb * (1.0F-a));
-                /*if (fa > 0 && a > 0) {
-                System.out.println(String.valueOf(fr) + ", " + String.valueOf(fg) + ", " + String.valueOf(fb) + ", " + String.valueOf(fa));}*/
+                if (i == 66 && j == 58) {
+                System.out.println("Blending (" + Integer.toHexString((int)r) + ", " + Integer.toHexString((int)g) + ", " + Integer.toHexString((int)b) + ")");
+                System.out.println("    onto (" + Integer.toHexString((int)br) + ", " + Integer.toHexString((int)bg) + ", " + Integer.toHexString((int)bb) + ")");
+                System.out.println(Integer.toHexString((int)fr) + ", " + Integer.toHexString((int)fg) + ", " + Integer.toHexString((int)fb) + ", " + Integer.toHexString((int)fa));}
                 base.setPixelRGBA(j, i, NativeImage.getCombined(fa, fb, fg, fr));
             }
         }
@@ -175,8 +177,6 @@ public class ComplexLayeredTexture extends Texture {
             float sg = NativeImage.getGreen(shading);
             float sb = NativeImage.getBlue(shading);
             float a = (float)NativeImage.getAlpha(shading) / 255.0F;
-            //float value = (float)Math.max(Math.max(this.red, this.green), this.blue) / 255.0F;
-            //float lightness = ((float)Math.min(Math.min(this.red, this.green), this.blue) / 255.0F + value) / 2.0F;
             float avg = (float)(this.red + this.green + this.blue) / 255.0F / 3.0F;
             a *= (1.0F - 3.0f/4.0f*avg);
             float na = 1.0F - a;
@@ -188,7 +188,6 @@ public class ComplexLayeredTexture extends Texture {
         }
         
         public int mask(int color, int mask) {
-            color = this.multiply(color);
             float a = NativeImage.getAlpha(color) * NativeImage.getAlpha(mask);
             a /= 255.0F;
             int r = NativeImage.getRed(color);
