@@ -1,6 +1,6 @@
 package sekelsta.horse_colors.renderer;
 
-import sekelsta.horse_colors.entity.AbstractHorseGenetic;
+import sekelsta.horse_colors.genetics.IGeneticEntity;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.google.common.collect.Maps;
@@ -10,18 +10,19 @@ import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.layers.LeatherHorseArmorLayer;
 import net.minecraft.client.renderer.texture.LayeredTexture;
+import net.minecraft.entity.passive.horse.*;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 // Can't inherit from AbstractHorseRenderer because that uses HorseModel
 @OnlyIn(Dist.CLIENT)
-public class HorseGeneticRenderer extends MobRenderer<AbstractHorseGenetic, HorseGeneticModel<AbstractHorseGenetic>>
+public class HorseGeneticRenderer extends MobRenderer<AbstractHorseEntity, HorseGeneticModel<AbstractHorseEntity>>
 {
     // Stuff from AbstractHorseRenderer
    private final float scale;
 
-   protected void preRenderCallback(AbstractHorseGenetic entitylivingbaseIn, MatrixStack matrixStackIn, float partialTickTime) {
+   protected void preRenderCallback(AbstractHorseEntity entitylivingbaseIn, MatrixStack matrixStackIn, float partialTickTime) {
       matrixStackIn.scale(this.scale, this.scale, this.scale);
       super.preRenderCallback(entitylivingbaseIn, matrixStackIn, partialTickTime);
    }
@@ -31,7 +32,7 @@ public class HorseGeneticRenderer extends MobRenderer<AbstractHorseGenetic, Hors
 
     public HorseGeneticRenderer(EntityRendererManager renderManager)
     {
-        super(renderManager, new HorseGeneticModel<AbstractHorseGenetic>(0.0F), 0.75F);
+        super(renderManager, new HorseGeneticModel<AbstractHorseEntity>(0.0F), 0.75F);
         this.scale = 1.1F;
         this.addLayer(new HorseArmorLayer(this));
     }
@@ -40,18 +41,22 @@ public class HorseGeneticRenderer extends MobRenderer<AbstractHorseGenetic, Hors
      * Returns the location of an entity's texture. Doesn't seem to be called unless you call EntityRenderer.bindEntityTexture.
      */
     @Override
-    public ResourceLocation getEntityTexture(AbstractHorseGenetic entity)
+    public ResourceLocation getEntityTexture(AbstractHorseEntity entity)
     {
-        String s = entity.getHorseTexture();
-        ResourceLocation resourcelocation = LAYERED_LOCATION_CACHE.get(s);
+        if (entity instanceof IGeneticEntity) {
+            String s = ((IGeneticEntity)entity).getGenes().getTexture();
+            ResourceLocation resourcelocation = LAYERED_LOCATION_CACHE.get(s);
 
-        if (resourcelocation == null)
-        {
-            resourcelocation = new ResourceLocation(s);
-            Minecraft.getInstance().getTextureManager().loadTexture(resourcelocation, new ComplexLayeredTexture(entity.getVariantTexturePaths()));
-            LAYERED_LOCATION_CACHE.put(s, resourcelocation);
+            if (resourcelocation == null)
+            {
+                resourcelocation = new ResourceLocation(s);
+                Minecraft.getInstance().getTextureManager().loadTexture(resourcelocation, new ComplexLayeredTexture(((IGeneticEntity)entity).getGenes().getVariantTexturePaths()));
+                LAYERED_LOCATION_CACHE.put(s, resourcelocation);
+            }
+
+            return resourcelocation;
         }
-
-        return resourcelocation;
+        System.out.println("Trying to render an ineligible entity");
+        return null;
     }
 }

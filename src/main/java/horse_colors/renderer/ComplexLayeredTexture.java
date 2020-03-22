@@ -19,7 +19,7 @@ public class ComplexLayeredTexture extends Texture {
     private static final Logger LOGGER = LogManager.getLogger();
     public final List<Layer> layers;
 
-    public ComplexLayeredTexture(Layer... textures) {
+    public ComplexLayeredTexture(List<Layer> textures) {
         this.layers = Lists.newArrayList(textures);
         if (this.layers.isEmpty()) {
             throw new IllegalStateException("Layered texture with no layers.");

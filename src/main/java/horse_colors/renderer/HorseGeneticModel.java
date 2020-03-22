@@ -1,8 +1,6 @@
 package sekelsta.horse_colors.renderer;
 
-import sekelsta.horse_colors.entity.AbstractHorseGenetic;
-import sekelsta.horse_colors.entity.AbstractChestHorseGenetic;
-
+import net.minecraft.entity.passive.horse.*;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
@@ -12,11 +10,13 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import sekelsta.horse_colors.entity.IHorseShape;
+
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 @OnlyIn(Dist.CLIENT)
-public class HorseGeneticModel<T extends AbstractHorseGenetic> extends AgeableModel<T>
+public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableModel<T>
 {
     private final ModelRenderer head;
     private final ModelRenderer horn;
@@ -257,18 +257,24 @@ public class HorseGeneticModel<T extends AbstractHorseGenetic> extends AgeableMo
 
     @Override
     public void setRotationAngles(T entityIn, float p_225597_2_, float p_225597_3_, float p_225597_4_, float limbSwingAmount, float partialTickTime) {
-        this.muleLeftEar.showModel = entityIn.longEars();
-        this.muleRightEar.showModel = entityIn.longEars();
-        this.horseLeftEar.showModel = !entityIn.longEars();
-        this.horseRightEar.showModel = !entityIn.longEars();
-        this.tailBase.showModel = entityIn.fluffyTail();
-        this.tailThin.showModel = !entityIn.fluffyTail();
+        if (entityIn instanceof IHorseShape) {
+            IHorseShape horse = (IHorseShape)entityIn;
+            this.muleLeftEar.showModel = horse.longEars();
+            this.muleRightEar.showModel = horse.longEars();
+            this.horseLeftEar.showModel = !horse.longEars();
+            this.horseRightEar.showModel = !horse.longEars();
+            this.tailBase.showModel = horse.fluffyTail();
+            this.tailThin.showModel = !horse.fluffyTail();
+        }
+        else {
+            System.out.println("Attempting to use HorseGeneticModel on an unsupported entity type");
+        }
         this.horn.showModel = false;
         this.babyHorn.showModel = false;
 
         boolean hasChest = false;
-        if (entityIn instanceof AbstractChestHorseGenetic) {
-            hasChest = ((AbstractChestHorseGenetic)entityIn).hasChest();
+        if (entityIn instanceof AbstractChestedHorseEntity) {
+            hasChest = ((AbstractChestedHorseEntity)entityIn).hasChest();
         }
         this.muleLeftChest.showModel = hasChest;
         this.muleRightChest.showModel = hasChest;
@@ -415,7 +421,7 @@ public class HorseGeneticModel<T extends AbstractHorseGenetic> extends AgeableMo
             f4 += MathHelper.cos(limbSwing * 0.4F) * 0.15F * limbSwingAmount;
         }
 
-        AbstractHorseGenetic abstracthorse = (AbstractHorseGenetic)entityIn;
+        AbstractHorseEntity abstracthorse = (AbstractHorseEntity)entityIn;
         float grassEatingAmount = abstracthorse.getGrassEatingAmount(partialTickTime);
         float rearingAmount = abstracthorse.getRearingAmount(partialTickTime);
         float notRearingAmount = 1.0F - rearingAmount;
@@ -515,7 +521,7 @@ public class HorseGeneticModel<T extends AbstractHorseGenetic> extends AgeableMo
         this.tailThin.rotateAngleX = donkeyTailRotate;
 
         // Make donkeys have a thinner mane
-        if (abstracthorse.thinMane()) {
+        if (abstracthorse instanceof IHorseShape && ((IHorseShape)abstracthorse).thinMane()) {
             this.mane.rotationPointZ = -1.0F;
         }
         else {

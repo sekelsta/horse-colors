@@ -1,6 +1,5 @@
 package sekelsta.horse_colors.renderer;
 
-import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 import sekelsta.horse_colors.entity.HorseGeneticEntity;
 import sekelsta.horse_colors.util.HorseArmorer;
 
@@ -10,6 +9,7 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.IEntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.entity.passive.horse.*;
 import net.minecraft.item.DyeableHorseArmorItem;
 import net.minecraft.item.HorseArmorItem;
 import net.minecraft.item.ItemStack;
@@ -18,16 +18,16 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 
 @OnlyIn(Dist.CLIENT)
-public class HorseArmorLayer extends LayerRenderer<AbstractHorseGenetic, HorseGeneticModel<AbstractHorseGenetic>> {
-    private final HorseGeneticModel<AbstractHorseGenetic> horseModel = new HorseGeneticModel<>(0.1F);
+public class HorseArmorLayer extends LayerRenderer<AbstractHorseEntity, HorseGeneticModel<AbstractHorseEntity>> {
+    private final HorseGeneticModel<AbstractHorseEntity> horseModel = new HorseGeneticModel<>(0.1F);
 
-    public HorseArmorLayer(IEntityRenderer<AbstractHorseGenetic, HorseGeneticModel<AbstractHorseGenetic>> model) {
+    public HorseArmorLayer(IEntityRenderer<AbstractHorseEntity, HorseGeneticModel<AbstractHorseEntity>> model) {
        super(model);
     }
 
     @Override
     // Render function
-    public void render(MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int p_225628_3_, AbstractHorseGenetic entityIn, float p_225628_5_, float p_225628_6_, float p_225628_7_, float p_225628_8_, float p_225628_9_, float p_225628_10_) {
+    public void render(MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int p_225628_3_, AbstractHorseEntity entityIn, float p_225628_5_, float p_225628_6_, float p_225628_7_, float p_225628_8_, float p_225628_9_, float p_225628_10_) {
         if (!(entityIn instanceof HorseGeneticEntity)) {
             return;
         }

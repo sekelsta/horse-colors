@@ -1,7 +1,5 @@
-package sekelsta.horse_colors.util;
+package sekelsta.horse_colors.genetics;
 import sekelsta.horse_colors.renderer.ComplexLayeredTexture.Layer;
-import sekelsta.horse_colors.entity.AbstractHorseGenetic;
-import sekelsta.horse_colors.entity.HorseGeneticEntity;
 
 public class HorseColorCalculator
 {
@@ -94,7 +92,7 @@ public class HorseColorCalculator
             layer.blue = 0x1d;
     }
 
-    public static Layer getRedBody(AbstractHorseGenetic horse) {
+    public static Layer getRedBody(HorseGenome horse) {
         Layer layer = new Layer();
         layer.name = fixPath("", "base");
         layer.shading = fixPath("", "shading");
@@ -113,7 +111,7 @@ public class HorseColorCalculator
         return layer;
     }
 
-    public static Layer getBlackBody(AbstractHorseGenetic horse) {
+    public static Layer getBlackBody(HorseGenome horse) {
         if (horse.isChestnut()) {
             return null;
         }
@@ -161,7 +159,7 @@ public class HorseColorCalculator
         return layer;
     }
 
-    public static Layer getRedManeTail(AbstractHorseGenetic horse) {
+    public static Layer getRedManeTail(HorseGenome horse) {
         if (!horse.isChestnut()) {
             return null;
         }
@@ -188,7 +186,7 @@ public class HorseColorCalculator
         return layer;
     }
 
-    public static Layer getBlackManeTail(AbstractHorseGenetic horse) {
+    public static Layer getBlackManeTail(HorseGenome horse) {
         if (horse.isChestnut()) {
             return null;
         }
@@ -202,7 +200,7 @@ public class HorseColorCalculator
         return layer;
     }
 
-    public static Layer getNose(AbstractHorseGenetic horse) {
+    public static Layer getNose(HorseGenome horse) {
         Layer layer = new Layer();
         layer.name = fixPath("", "nose");
         if (horse.isDoubleCream()) {
@@ -215,7 +213,7 @@ public class HorseColorCalculator
         return layer;
     }
 
-    public static void setDun(AbstractHorseGenetic horse, Layer base) {
+    public static void setDun(HorseGenome horse, Layer base) {
         if (base == null) {
             return;
         }
@@ -252,7 +250,7 @@ public class HorseColorCalculator
         base.next = layer;
     }
 
-    public static Layer getGray(AbstractHorseGenetic horse) {
+    public static Layer getGray(HorseGenome horse) {
         if (!horse.isGray()) {
             return null;
         }
@@ -266,15 +264,14 @@ public class HorseColorCalculator
         return layer;
     }
 
-    public static String getSooty(AbstractHorseGenetic horse)
+    public static String getSooty(HorseGenome horse)
     {
         if (horse.isHomozygous("cream", HorseAlleles.CREAM))
         {
             return null;
         }
         int sooty_level = 0;
-        boolean is_gray = horse.getPhenotype("gray") != 0;
-        if (!is_gray)
+        if (!horse.isGray())
         {
             sooty_level = horse.getPhenotype("sooty");
         }
@@ -288,7 +285,7 @@ public class HorseColorCalculator
         }
 
         boolean is_dun = horse.getPhenotype("dun") == 3 
-                        && horse.getPhenotype("gray") == 0;
+                        && !horse.isGray();
         String suffix = "";
         if (is_dun)
         {
@@ -309,9 +306,9 @@ public class HorseColorCalculator
             suffix += "_light";
         }
 
-        if (is_gray)
+        if (horse.isGray())
         {
-            int random = (horse.getHorseVariant("random") << 1) >>> 1;
+            int random = (horse.getChromosome("random") << 1) >>> 1;
             return ((random % 4 == 1)? "sooty_dappled" : "gray") + suffix;
         }
 
@@ -325,23 +322,23 @@ public class HorseColorCalculator
             type = is_chestnut? "even" : "dappled";
         }
 
-        String prefix = is_gray? "gray" : "sooty_" + type;
+        String prefix = horse.isGray()? "gray" : "sooty_" + type;
         return prefix + suffix;
     }
 
-    public static String getMealy(AbstractHorseGenetic horse)
+    public static String getMealy(HorseGenome horse)
     {
         // TODO
         return null;
     }
 
-    public static String getLegs(AbstractHorseGenetic horse)
+    public static String getLegs(HorseGenome horse)
     {
         // Dappled gray horses can have dark legs
-        if (horse.getPhenotype("gray") != 0
+        if (horse.isGray()
             && horse.getPhenotype("slow_gray") > 1)
         {
-            int random = (horse.getHorseVariant("random") << 1) >>> 1;
+            int random = (horse.getChromosome("random") << 1) >>> 1;
             if (random % 4 == 0)
             {
                 return "bay_legs";
@@ -354,7 +351,7 @@ public class HorseColorCalculator
         return null;
     }
 
-    public static String getGrayMane(AbstractHorseGenetic horse)
+    public static String getGrayMane(HorseGenome horse)
     {
         if (horse.isHomozygous("gray", HorseAlleles.GRAY)
             && horse.getPhenotype("gray_mane") == 2)
@@ -362,7 +359,7 @@ public class HorseColorCalculator
 
         }
         // Only for dappled gray horses, not non-gray (0) nor full gray (2)
-        if (horse.getPhenotype("gray") != 1)
+        if (horse.countAlleles("gray", HorseAlleles.GRAY) != 1)
         {
             return null;
         }
@@ -385,10 +382,10 @@ public class HorseColorCalculator
         return "gray_mane";
     }
 
-    public static String getFaceMarking(AbstractHorseGenetic horse)
+    public static String getFaceMarking(HorseGenome horse)
     {
         int white = -2;
-        if (horse.getPhenotype("white_suppression") != 0)
+        if (horse.hasAllele("white_suppression", 1))
         {
             white -= 4;
         }
@@ -426,7 +423,7 @@ public class HorseColorCalculator
 
         // Turn a signed integer into unsigned, also drop a few bits 
         // used elsewhere
-        int random = (horse.getHorseVariant("random") << 1) 
+        int random = (horse.getChromosome("random") << 1) 
                         >>> (1 + GRAY_LEG_BITS);
 
         white += random & 3;
@@ -452,10 +449,10 @@ public class HorseColorCalculator
         }
     }
 
-    public static String[] getLegMarkings(AbstractHorseGenetic horse)
+    public static String[] getLegMarkings(HorseGenome horse)
     {
         int white = -3;
-        if (horse.getPhenotype("white_suppression") != 0)
+        if (horse.hasAllele("white_suppression", 1))
         {
             white -= 4;
         }
@@ -495,7 +492,7 @@ public class HorseColorCalculator
 
         // Turn a signed integer into unsigned, also drop a few bits 
         // used elsewhere
-        int random = (horse.getHorseVariant("random") << 1) 
+        int random = (horse.getChromosome("random") << 1) 
                         >>> (1 + GRAY_LEG_BITS + FACE_MARKING_BITS);
 
         for (int i = 0; i < 4; ++i) {
@@ -523,23 +520,19 @@ public class HorseColorCalculator
         return legs;
     }
 
-    public static String getPinto(AbstractHorseGenetic horse)
+    public static String getPinto(HorseGenome horse)
     {
-        if (horse.getPhenotype("white") == 1)
+        if (horse.isWhite())
         {
             return "white";
         }
         String pinto = null;
-        int tobiano = horse.getPhenotype("tobiano");
-        int sabino = horse.getPhenotype("sabino1");
-        int splash = horse.getPhenotype("splash");
-        int frame = horse.getPhenotype("frame");
 
-        if (tobiano != 0)
+        if (horse.isTobiano())
         {
-            if (frame == 1)
+            if (horse.hasAllele("frame", HorseAlleles.FRAME))
             {
-                if (splash == 2)
+                if (horse.isHomozygous("MITF", HorseAlleles.MITF_SW1))
                 {
                     pinto = "medicine_hat";
                 }
@@ -553,23 +546,23 @@ public class HorseColorCalculator
                 pinto = "tobiano";
             }
         }
-        else if (frame == 1)
+        else if (horse.hasAllele("frame", HorseAlleles.FRAME))
         {
             pinto = "frame";
         }
-        else if (splash == 2)
+        else if (horse.isHomozygous("MITF", HorseAlleles.MITF_SW1))
         {
             pinto = "splash";
         }
-        else if (sabino == 1)
+        else if (horse.hasAllele("KIT", HorseAlleles.KIT_SABINO1))
         {
             pinto = "sabino";
         }
         return pinto;
     }
 
-    public static String getLeopard(AbstractHorseGenetic horse)
-    {
+    public static String getLeopard(HorseGenome horse)
+    {/*
         if (horse.getPhenotype("leopard") == 0)
         {
             return null;
@@ -588,6 +581,6 @@ public class HorseColorCalculator
         {
             // TODO: different coverage based on the value of patn
             return "fewspot";
-        }
+        }*/return null;
     }
 }

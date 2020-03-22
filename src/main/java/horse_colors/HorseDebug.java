@@ -56,20 +56,8 @@ public class HorseDebug {
                 // I thought I would need this to make everything fit on debug 
                 // mode, but it fits if I make the GUI smaller
                 // event.getRight().clear();
-                for (String gene : HorseGeneticEntity.genes)
-                {
-                    event.getRight().add(gene + ": " + horse.getPhenotype(gene) 
-                        + " (" + horse.getAllele(gene, 1) + ", "
-                        + horse.getAllele(gene, 0) + ")");
-                }
-                event.getLeft().add("speed: " + horse.getStat("speed") + "-"
-                    + Integer.toBinaryString(horse.getHorseVariant("speed")));
-                event.getLeft().add("health: "  + horse.getStat("health") + "-"
-                    + Integer.toBinaryString(horse.getHorseVariant("health")));
-                event.getLeft().add("jump: "  + horse.getStat("jump") + "-"
-                    + Integer.toBinaryString(horse.getHorseVariant("jump")));
-                event.getLeft().add("random: " 
-                    + Integer.toHexString(horse.getHorseVariant("random")));
+                event.getRight().add(horse.getGenes().humanReadableNamedGenes());
+                event.getLeft().add(horse.getGenes().humanReadableStats());
             }
         }
     }

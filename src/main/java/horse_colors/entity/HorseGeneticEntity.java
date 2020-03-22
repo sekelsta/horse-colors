@@ -4,7 +4,6 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.SoundType;
-import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
@@ -28,56 +27,51 @@ import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.init.ModEntities;
-import sekelsta.horse_colors.renderer.ComplexLayeredTexture;
-import sekelsta.horse_colors.renderer.ComplexLayeredTexture.Layer;
-import sekelsta.horse_colors.util.HorseAlleles;
-import sekelsta.horse_colors.util.HorseColorCalculator;
+import sekelsta.horse_colors.genetics.*;
+import sekelsta.horse_colors.util.Util;
 
 
-public class HorseGeneticEntity extends AbstractHorseGenetic
+public class HorseGeneticEntity extends HorseEntity implements IHorseShape, IGeneticEntity
 {
-    private static final UUID ARMOR_MODIFIER_UUID = UUID.fromString("556E1665-8B10-40C8-8F9D-CF9B1667F295");
+    private HorseGenome genes;
+    //protected static final DataParameter<Integer> HORSE_VARIANT = EntityDataManager.<Integer>createKey(HorseGeneticEntity.class, DataSerializers.VARINT);
+    protected static final DataParameter<Integer> HORSE_VARIANT2 = EntityDataManager.<Integer>createKey(HorseGeneticEntity.class, DataSerializers.VARINT);
+    protected static final DataParameter<Integer> HORSE_VARIANT3 = EntityDataManager.<Integer>createKey(HorseGeneticEntity.class, DataSerializers.VARINT);
+    protected static final DataParameter<Integer> HORSE_SPEED = EntityDataManager.<Integer>createKey(HorseGeneticEntity.class, DataSerializers.VARINT);
+    protected static final DataParameter<Integer> HORSE_JUMP = EntityDataManager.<Integer>createKey(HorseGeneticEntity.class, DataSerializers.VARINT);
+    protected static final DataParameter<Integer> HORSE_HEALTH = EntityDataManager.<Integer>createKey(HorseGeneticEntity.class, DataSerializers.VARINT);
     private static final DataParameter<Integer> HORSE_RANDOM = EntityDataManager.<Integer>createKey(HorseGeneticEntity.class, DataSerializers.VARINT);
-
-
 
     public HorseGeneticEntity(EntityType<? extends HorseGeneticEntity> entityType, World worldIn)
     {
         super(entityType, worldIn);
+        genes = new HorseGenome(this);
     }
 
-    @Override
-    protected void registerGoals() {
-        this.goalSelector.addGoal(1, new PanicGoal(this, 1.2D));
-        this.goalSelector.addGoal(1, new RunAroundLikeCrazyGoal(this, 1.2D));
-        this.goalSelector.addGoal(2, new BreedGoal(this, 1.0D, AbstractHorseEntity.class));
-        this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.0D));
-        this.goalSelector.addGoal(6, new WaterAvoidingRandomWalkingGoal(this, 0.7D));
-        this.goalSelector.addGoal(7, new LookAtGoal(this, PlayerEntity.class, 6.0F));
-        this.goalSelector.addGoal(8, new LookRandomlyGoal(this));
-        this.initExtraAI();
+    public HorseGenome getGenes() {
+        return genes;
     }
 
-    @Override
-    protected void initExtraAI() {
-        this.goalSelector.addGoal(0, new SwimGoal(this));
+    public java.util.Random getRand() {
+        return this.rand;
     }
 
     @Override
     protected void registerData()
     {
         super.registerData();
+        //this.dataManager.register(HORSE_VARIANT, Integer.valueOf(0));
+        this.dataManager.register(HORSE_VARIANT2, Integer.valueOf(0));
+        this.dataManager.register(HORSE_VARIANT3, Integer.valueOf(0));
+        this.dataManager.register(HORSE_SPEED, Integer.valueOf(0));
+        this.dataManager.register(HORSE_HEALTH, Integer.valueOf(0));
+        this.dataManager.register(HORSE_JUMP, Integer.valueOf(0));
         this.dataManager.register(HORSE_RANDOM, Integer.valueOf(0));
     }
 
@@ -88,19 +82,24 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     public void writeAdditional(CompoundNBT compound)
     {
         super.writeAdditional(compound);
-        compound.putInt("Random", this.getHorseVariant("random"));
-
-        if (!this.horseChest.getStackInSlot(1).isEmpty())
-        {
-            compound.put("ArmorItem", this.horseChest.getStackInSlot(1).write(new CompoundNBT()));
-        }
+        //compound.putInt("Variant", this.getHorseVariant());
+        compound.putInt("Variant2", this.getChromosome("1"));
+        compound.putInt("Variant3", this.getChromosome("2"));
+        compound.putInt("SpeedGenes", this.getChromosome("speed"));
+        compound.putInt("JumpGenes", this.getChromosome("jump"));
+        compound.putInt("HealthGenes", this.getChromosome("health"));
+        compound.putInt("Random", this.getChromosome("random"));
     }
 
+    public ItemStack getHorseArmor() {
+        return this.getItemStackFromSlot(EquipmentSlotType.CHEST);
+    }
+/*
    private void setArmor(ItemStack itemStackIn) {
       this.setItemStackToSlot(EquipmentSlotType.CHEST, itemStackIn);
       this.setDropChance(EquipmentSlotType.CHEST, 0.0F);
    }
-
+*/
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
@@ -108,57 +107,20 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     public void readAdditional(CompoundNBT compound)
     {
         super.readAdditional(compound);
-        this.setHorseVariant(compound.getInt("Random"), "random");
-
-        if (compound.contains("ArmorItem", 10))
-        {
-            ItemStack itemstack = ItemStack.read(compound.getCompound("ArmorItem"));
-
-            if (!itemstack.isEmpty() && this.isArmor(itemstack))
-            {
-                this.horseChest.setInventorySlotContents(1, itemstack);
-            }
-        }
+        //this.setHorseVariant(compound.getInt("Variant"));
+        this.setChromosome("1", compound.getInt("Variant2"));
+        this.setChromosome("2", compound.getInt("Variant3"));
+        this.setChromosome("speed", compound.getInt("SpeedGenes"));
+        this.setChromosome("jump", compound.getInt("JumpGenes"));
+        this.setChromosome("health", compound.getInt("HealthGenes"));
+        this.setChromosome("random", compound.getInt("Random"));
 
         this.updateHorseSlots();
     }
 
-    public void setHorseVariant(int variant, String type)
-    {
-        switch(type) {
-            case "random":
-                this.dataManager.set(HORSE_RANDOM, Integer.valueOf(variant));
-                break;
-            default:
-                super.setHorseVariant(variant, type);
-        }
-        this.resetTexturePrefix();
-    }
-
-    public int getHorseVariant(String type)
-    {
-        switch(type) {
-            case "random":
-                return ((Integer)this.dataManager.get(HORSE_RANDOM)).intValue();
-            default:
-                return super.getHorseVariant(type);
-        }
-        
-    }
-
-    /**
-     * Updates the items in the saddle and armor slots of the horse's inventory.
-     */
-    @Override
-    protected void updateHorseSlots()
-    {
-        super.updateHorseSlots();
-        this.setHorseArmorStack(this.horseChest.getStackInSlot(1));
-    }
-
     /**
      * Set horse armor stack (for example: new ItemStack(Items.iron_horse_armor))
-     */
+     *//*
     public void setHorseArmorStack(ItemStack itemStackIn)
     {
       this.setArmor(itemStackIn);
@@ -172,37 +134,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
             }
          }
       }
-    }
-
-    public ItemStack getHorseArmor() {
-        return this.getItemStackFromSlot(EquipmentSlotType.CHEST);
-    }
-
-    /**
-     * Called by InventoryBasic.onInventoryChanged() on a array that is never filled.
-     */
-    @Override
-    public void onInventoryChanged(IInventory invBasic)
-    {
-        ItemStack itemstack = this.getHorseArmor();
-        super.onInventoryChanged(invBasic);
-        ItemStack itemstack1 = this.getHorseArmor();
-
-        if (this.ticksExisted > 20 && this.isArmor(itemstack1) && itemstack != itemstack1) {
-            this.playSound(SoundEvents.ENTITY_HORSE_ARMOR, 0.5F, 1.0F);
-        }
-    }
-
-    @Override
-    protected void playGallopSound(SoundType p_190680_1_)
-    {
-        super.playGallopSound(p_190680_1_);
-
-        if (this.rand.nextInt(10) == 0)
-        {
-            this.playSound(SoundEvents.ENTITY_HORSE_BREATHE, p_190680_1_.getVolume() * 0.6F, p_190680_1_.getPitch());
-        }
-    }
+    }*/
 
     private void useGeneticAttributes()
     {
@@ -210,11 +142,11 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         {
             // Default horse health ranges from 15 to 30, but ours goes from
             // 15 to 31
-            float maxHealth = 15.0F + getStat("health") * 0.5F;
+            float maxHealth = 15.0F + this.getGenes().getStat("health") * 0.5F;
             // Vanilla horse speed ranges from 0.1125 to 0.3375, as does ours
-            double movementSpeed = 0.1125D + getStat("speed") * (0.225D / 32.0D);
+            double movementSpeed = 0.1125D + this.getGenes().getStat("speed") * (0.225D / 32.0D);
             // Vanilla horse jump strength ranges from 0.4 to 1.0, as does ours
-            double jumpStrength = 0.4D + getStat("jump") * (0.6D / 32.0D);
+            double jumpStrength = 0.4D + this.getGenes().getStat("jump") * (0.6D / 32.0D);
 
             this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(maxHealth);
             this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(movementSpeed);
@@ -239,16 +171,9 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     {
         super.tick();
 
-        if (this.world.isRemote && this.dataManager.isDirty())
-        {
-            this.dataManager.setClean();
-            this.resetTexturePrefix();
-        }
-        ItemStack armor = this.horseChest.getStackInSlot(1);
-        if (isArmor(armor)) armor.onHorseArmorTick(world, this);
         // Overo lethal white syndrome
         if ((!this.world.isRemote || true)
-            && this.getPhenotype("frame") == 2
+            && this.getGenes().isLethalWhite()
             && this.ticksExisted > 80)
         {
             if (!this.isPotionActive(Effects.POISON))
@@ -262,34 +187,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         }
     }
 
-    @Override
-    protected SoundEvent getAmbientSound()
-    {
-        super.getAmbientSound();
-        return SoundEvents.ENTITY_HORSE_AMBIENT;
-    }
-
-    @Override
-    protected SoundEvent getDeathSound()
-    {
-        super.getDeathSound();
-        return SoundEvents.ENTITY_HORSE_DEATH;
-    }
-
-    @Override
-    protected SoundEvent getHurtSound(DamageSource damageSourceIn)
-    {
-        super.getHurtSound(damageSourceIn);
-        return SoundEvents.ENTITY_HORSE_HURT;
-    }
-
-    @Override
-    protected SoundEvent getAngrySound()
-    {
-        super.getAngrySound();
-        return SoundEvents.ENTITY_HORSE_ANGRY;
-    }
-
+    // For IHorseShape
     public boolean fluffyTail() {
         return true;
     }
@@ -302,75 +200,61 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         return false;
     }
 
-    @Override
-    public boolean processInteract(PlayerEntity player, Hand hand)
+    public void setChromosome(String name, int variant)
     {
-        ItemStack itemstack = player.getHeldItem(hand);
-        boolean notEmpty = !itemstack.isEmpty();
-
-        if (notEmpty && itemstack.getItem() instanceof SpawnEggItem)
-        {
-            return super.processInteract(player, hand);
+        switch(name) {
+            // Break for anything that affects color, return otherwise
+            case "0":
+                this.setHorseVariant(variant);
+                break;
+            case "1":
+                this.dataManager.set(HORSE_VARIANT2, variant);
+                break;
+            case "2":
+                this.dataManager.set(HORSE_VARIANT3, variant);
+                break;
+            case "speed":
+                this.dataManager.set(HORSE_SPEED, variant);
+                return;
+            case "jump":
+                this.dataManager.set(HORSE_JUMP, variant);
+                return;
+            case "health":
+                this.dataManager.set(HORSE_HEALTH, variant);
+                return;
+            case "random":
+                this.dataManager.set(HORSE_RANDOM, Integer.valueOf(variant));
+                break;
+            default:
+                System.out.print("Unrecognized horse data for setting: "
+                                 + name + "\n");
         }
-        else
-        {
-            if (!this.isChild())
-            {
-                //func_226563_dT_() == isSneaking()
-                if (this.isTame() && player.func_226563_dT_())
-                {
-                    this.openGUI(player);
-                    return true;
-                }
+        this.getGenes().resetTexture();
+    }
 
-                if (this.isBeingRidden())
-                {
-                    return super.processInteract(player, hand);
-                }
-            }
-
-            if (notEmpty)
-            {
-                if (this.handleEating(player, itemstack))
-                {
-                    if (!player.abilities.isCreativeMode)
-                    {
-                        itemstack.shrink(1);
-                    }
-
-                    return true;
-                }
-
-                if (itemstack.interactWithEntity(player, this, hand))
-                {
-                    return true;
-                }
-
-                if (!this.isTame())
-                {
-                    this.makeMad();
-                    return true;
-                }
-
-                boolean saddle = !this.isChild() && !this.isHorseSaddled() && itemstack.getItem() == Items.SADDLE;
-
-                if (this.isArmor(itemstack) || saddle)
-                {
-                    this.openGUI(player);
-                    return true;
-                }
-            }
-
-            if (this.isChild())
-            {
-                return super.processInteract(player, hand);
-            }
-            else
-            {
-                this.mountTo(player);
-                return true;
-            }
+    public int getChromosome(String name)
+    {
+        switch(name) {
+            case "0":
+                return this.getHorseVariant();
+            case "1":
+                return ((Integer)this.dataManager.get(HORSE_VARIANT2)).intValue();
+            case "2":
+                return ((Integer)this.dataManager.get(HORSE_VARIANT3)).intValue();
+            case "speed":
+                return ((Integer)this.dataManager.get(HORSE_SPEED)).intValue();
+            case "jump":
+                return ((Integer)this.dataManager.get(HORSE_JUMP)).intValue();
+            case "health":
+                return ((Integer)this.dataManager.get(HORSE_HEALTH)).intValue();
+            case "random":
+                return ((Integer)this.dataManager.get(HORSE_RANDOM)).intValue();
+            default:
+                System.out.print("Unrecognized horse data for getting: " 
+                                + name + "\n");
+                return 0;
         }
+        
     }
 
     /**
@@ -383,16 +267,12 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         {
             return false;
         }
-        // Mate with other horses or donkeys
-        else if (otherAnimal instanceof HorseGeneticEntity)
-        {
-            return this.canMate() && ((HorseGeneticEntity)otherAnimal).canMate();
-        }
-        else if (otherAnimal instanceof HorseEntity 
+        else if (otherAnimal instanceof DonkeyGeneticEntity 
+                || otherAnimal instanceof HorseGeneticEntity
                 || otherAnimal instanceof DonkeyEntity 
-                || otherAnimal instanceof DonkeyGeneticEntity)
+                || otherAnimal instanceof HorseEntity)
         {
-         return this.canMate() && otherCanMate((AbstractHorseEntity)otherAnimal);
+            return this.canMate() && Util.horseCanMate((AbstractHorseEntity)otherAnimal);
         }
         else
         {
@@ -400,227 +280,55 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         }
     }
 
-    private int inheritStats(AbstractHorseGenetic other, String chromosome) {
-            int mother = this.getRandomGenericGenes(1, this.getHorseVariant(chromosome));
-            int father = other.getRandomGenericGenes(0, other.getHorseVariant(chromosome));
-            return mother | father;
-    }
-
     @Override
     public AgeableEntity createChild(AgeableEntity ageable)
     {
         AbstractHorseEntity abstracthorse;
 
-        if (ageable instanceof DonkeyEntity || ageable instanceof DonkeyGeneticEntity)
+        if (ageable instanceof DonkeyGeneticEntity)
         {
-            abstracthorse = EntityType.MULE.create(this.world);
-        }
-        else if (ageable instanceof HorseEntity) {
-            HorseEntity horse = (HorseEntity)ageable;
-            return horse.createChild(horse);
-        }
-        else
-        {
-            HorseGeneticEntity entityHorse = (HorseGeneticEntity)ageable;
-            abstracthorse = ModEntities.HORSE_GENETIC.create(this.world);
+            abstracthorse = ModEntities.MULE_GENETIC.create(this.world);
+            DonkeyGeneticEntity entityHorse = (DonkeyGeneticEntity)ageable;
+            this.getGenes().setChildGenes(entityHorse.getGenes(), ((MuleGeneticEntity)abstracthorse));
 
-            int mother = this.getRandomGenes(1, 0);
-            int father = entityHorse.getRandomGenes(0, 0);
-            int i = mother | father;
-            ((HorseGeneticEntity)abstracthorse).setHorseVariant(i, "0");
-
-            mother = this.getRandomGenes(1, 1);
-            father = entityHorse.getRandomGenes(0, 1);
-            i = mother | father;
-            ((HorseGeneticEntity)abstracthorse).setHorseVariant(i, "1");
-
-
-            ((HorseGeneticEntity)abstracthorse).setHorseVariant(rand.nextInt(), "2");
-            mother = this.getRandomGenes(1, 2);
-            father = entityHorse.getRandomGenes(0, 2);
-            i = mother | father;
-            ((HorseGeneticEntity)abstracthorse).setHorseVariant(i, "2");
-
-            // speed, health, and jump
-            int speed = inheritStats(entityHorse, "speed");
-            ((HorseGeneticEntity)abstracthorse).setHorseVariant(speed, "speed");
-            int health = inheritStats(entityHorse, "health");
-            ((HorseGeneticEntity)abstracthorse).setHorseVariant(health, "health");
-            int jump = inheritStats(entityHorse, "jump");
-            ((HorseGeneticEntity)abstracthorse).setHorseVariant(jump, "jump");
-
-
-            i =  this.rand.nextInt();
-            ((HorseGeneticEntity)abstracthorse).setHorseVariant(i, "random");
+            int i =  this.rand.nextInt();
+            ((MuleGeneticEntity)abstracthorse).setChromosome("random", i);
 
             // Dominant white is homozygous lethal early in pregnancy. No child
             // is born.
-            if (((HorseGeneticEntity)abstracthorse).getPhenotype("dominant_white")
-                    == 2)
+            if (((MuleGeneticEntity)abstracthorse).getGenes().isEmbryonicLethal())
             {
                 return null;
             }
+            this.setOffspringAttributes(ageable, abstracthorse);
+            ((MuleGeneticEntity)abstracthorse).useGeneticAttributes();
         }
-
-        this.setOffspringAttributes(ageable, abstracthorse);
-        if (abstracthorse instanceof HorseGeneticEntity)
+        else if (ageable instanceof HorseGeneticEntity)
         {
-            ((HorseGeneticEntity)abstracthorse).mutate();
+            abstracthorse = ModEntities.HORSE_GENETIC.create(this.world);
+            HorseGeneticEntity entityHorse = (HorseGeneticEntity)ageable;
+            this.getGenes().setChildGenes(entityHorse.getGenes(), ((HorseGeneticEntity)abstracthorse));
+
+            int i =  this.rand.nextInt();
+            ((HorseGeneticEntity)abstracthorse).setChromosome("random", i);
+
+            // Dominant white is homozygous lethal early in pregnancy. No child
+            // is born.
+            if (((HorseGeneticEntity)abstracthorse).getGenes().isEmbryonicLethal())
+            {
+                return null;
+            }
+            this.setOffspringAttributes(ageable, abstracthorse);
             ((HorseGeneticEntity)abstracthorse).useGeneticAttributes();
         }
+        else
+        {
+            return super.createChild(ageable);
+        }
+
         return abstracthorse;
     }
 
-    @Override
-    public boolean wearsArmor()
-    {
-        return true;
-    }
-
-    @Override
-    public boolean isArmor(ItemStack stack)
-    {
-        return stack.getItem() instanceof HorseArmorItem;
-    }
-
-    // with 1/odds probability gets the gene to 0 or 1, whichever common isn't
-    private void setGeneRandom(String name, int n, int odds, int common)
-    {
-            int i = this.rand.nextInt();
-            int rare = common == 0? 1 : 0;
-            setGene(name, (i % odds == 0? rare : common) 
-                            << (n * getGeneSize(name)));
-    }
-
-    /* This function changes the variant and then puts it back to what it was
-    before. */
-    private int getRandomVariant(int n, String type)
-    {
-        int answer = 0;
-        int startVariant = getHorseVariant(type);
-
-        if (type == "0")
-        {
-            // logical bitshift to make unsigned
-            int i = this.rand.nextInt() >>> 1;
-            setGene("extension", (i & 7) << (n * getGeneSize("extension")));
-            i >>= 3;
-            setGeneRandom("gray", n, 20, 0);
-            int dun = (this.rand.nextInt() % 7 == 0? 2 : 0) + (i % 4 == 0? 1: 0);
-            setGene("dun", dun << (n * getGeneSize("dun")));
-            i >>= 2;
-
-            int ag = i % 16;
-            int agouti = ag == 0? HorseAlleles.A_BAY_MEALY 
-                       : ag == 1? HorseAlleles.A_BAY_WILD
-                       : ag < 4? HorseAlleles.A_BAY_LIGHT
-                       : ag < 6? HorseAlleles.A_BAY
-                       : ag < 8? HorseAlleles.A_BAY_DARK
-                       : ag == 8? HorseAlleles.A_BROWN
-                       : ag == 9? HorseAlleles.A_SEAL
-                       : HorseAlleles.A_BLACK;
-            setGene("agouti", agouti << (n * getGeneSize("agouti")));
-            i >>= 4;
-
-            setGeneRandom("silver", n, 32, 0);
-            int cr = i % 32;
-            int cream = cr == 0? HorseAlleles.CREAM
-                      : cr == 1? HorseAlleles.PEARL
-                      : cr == 2? HorseAlleles.NONCREAM2
-                      : HorseAlleles.NONCREAM;
-            setGene("cream", cream << (n * getGeneSize("cream")));
-            i >>= 5;
-            setGeneRandom("liver", n, 3, 1);
-            setGeneRandom("flaxen1", n, 5, 1);
-            setGeneRandom("flaxen2", n, 5, 1);
-
-            setGene("dapple", (i % 2) << (n * getGeneSize("dapple")));
-            i >>= 1;
-        }
-        else if (type == "1")
-        {
-            // logical bitshift to make unsigned
-            int i = this.rand.nextInt() >>> 1;
-
-            setGeneRandom("sooty1", n, 4, 1);
-            setGeneRandom("sooty2", n, 4, 1);
-            setGeneRandom("sooty3", n, 2, 1);
-            setGeneRandom("mealy1", n, 4, 1);
-            setGeneRandom("mealy2", n, 4, 1);
-            setGeneRandom("mealy3", n, 4, 1);
-            setGeneRandom("white_suppression", n, 32, 0);
-
-            int kit = i % 4 != 0? 0
-//                                : (i >> 2) % 2 == 0? (i >> 3) % 8
-                                : (i >> 3) % 16;
-            setGene("KIT", kit << (n * getGeneSize("KIT")));
-            i >>= 7;
-
-            setGeneRandom("frame", n, 32, 0);
-            int mitf = i % 4 == 0? HorseAlleles.MITF_WILDTYPE
-                : (i >> 2) % 2 == 0? (i >> 3) % 4
-                : HorseAlleles.MITF_WILDTYPE;
-            setGene("MITF", mitf << (n * getGeneSize("MITF")));
-            i >>= 5;
-            int pax3 = i % 4 != 0? HorseAlleles.PAX3_WILDTYPE
-                : (i >> 2) % 4;
-            setGene("PAX3", pax3 << (n * getGeneSize("PAX3")));
-        }
-        else if (type == "2")
-        {
-            // Initialize any bits currently unused to random values
-            setHorseVariant(this.rand.nextInt(), "2");
-            int i = this.rand.nextInt();
-            setGeneRandom("leopard", n, 32, 0);
-            setGeneRandom("PATN1", n, 16, 0);
-            setGeneRandom("PATN2", n, 16, 0);
-            setGeneRandom("PATN3", n, 16, 0);
-            setGeneRandom("gray_suppression", n, 40, 0);
-            setGeneRandom("gray_mane", n, 4, 0);
-            setGeneRandom("slow_gray1", n, 8, 0);
-            setGeneRandom("slow_gray2", n, 4, 0);
-            setGeneRandom("white_star", n, 4, 0);
-            setGeneRandom("white_forelegs", n, 4, 0);
-            setGeneRandom("white_hindlegs", n, 4, 0);
-        }
-
-        answer = getHorseVariant(type);
-        setHorseVariant(startVariant, type);
-        return answer;
-    }
-
-    private void randomizeSingleVariant(String variant)
-    {
-        int i = getRandomVariant(0, variant);
-        int j = getRandomVariant(1, variant);
-        setHorseVariant(i | j, variant);
-    }
-
-    /* Make the horse have random genetics. */
-    public void randomize()
-    {
-        randomizeSingleVariant("0");
-        randomizeSingleVariant("1");
-        randomizeSingleVariant("2");
-
-        // Replace lethal white overos with heterozygotes
-        if (getPhenotype("frame") == 2)
-        {
-            setGene("frame", 1);
-        }
-
-        // Homozygote dominant whites will be replaced with heterozygotes
-        if (getPhenotype("dominant_white") == 2)
-        {
-            setGene("KIT", 15);
-        }
-
-        setHorseVariant(this.rand.nextInt(), "speed");
-        setHorseVariant(this.rand.nextInt(), "jump");
-        setHorseVariant(this.rand.nextInt(), "health");
-        setHorseVariant(this.rand.nextInt(), "random");
-        useGeneticAttributes();
-    }
 
     /**
      * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
@@ -631,17 +339,8 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag)
     {
         spawnDataIn = super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
-        this.randomize();
+        this.getGenes().randomize();
+        this.useGeneticAttributes();
         return spawnDataIn;
     }
-
-    public static class HerdData implements ILivingEntityData
-        {
-            public int variant;
-
-            public HerdData(int variantIn)
-            {
-                this.variant = variantIn;
-            }
-        }
 }
