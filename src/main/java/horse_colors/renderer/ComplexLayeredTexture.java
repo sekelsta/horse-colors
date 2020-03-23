@@ -27,6 +27,12 @@ public class ComplexLayeredTexture extends Texture {
     }
 
     public NativeImage getLayer(IResourceManager manager, Layer layer) {
+        if (layer.name == null) {
+            LOGGER.error("Attempting to load unspecified texture (name is null)\n"
+                + "Shading: " + String.valueOf(layer.shading) + "\n" 
+                + "Mask: " + String.valueOf(layer.mask));
+            return null;
+        }
         try (IResource iresource = manager.getResource(new ResourceLocation(layer.name))) {
             NativeImage image = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(layer.name), manager);
             NativeImage shading = null;
@@ -76,10 +82,6 @@ public class ComplexLayeredTexture extends Texture {
                 int fr = (int)(r * a + br * (1.0F-a));
                 int fg = (int)(g * a + bg * (1.0F-a));
                 int fb = (int)(b * a + bb * (1.0F-a));
-                if (i == 66 && j == 58) {
-                System.out.println("Blending (" + Integer.toHexString((int)r) + ", " + Integer.toHexString((int)g) + ", " + Integer.toHexString((int)b) + ")");
-                System.out.println("    onto (" + Integer.toHexString((int)br) + ", " + Integer.toHexString((int)bg) + ", " + Integer.toHexString((int)bb) + ")");
-                System.out.println(Integer.toHexString((int)fr) + ", " + Integer.toHexString((int)fg) + ", " + Integer.toHexString((int)fb) + ", " + Integer.toHexString((int)fa));}
                 base.setPixelRGBA(j, i, NativeImage.getCombined(fa, fb, fg, fr));
             }
         }
@@ -108,6 +110,10 @@ public class ComplexLayeredTexture extends Texture {
         Iterator<Layer> iterator = this.layers.iterator();
         Layer baselayer = iterator.next();
         NativeImage baseimage = getLayer(manager, baselayer);
+        if (baseimage == null) {
+            // getLayer() will already have logged an error
+            return;
+        }
 
         while(iterator.hasNext()) {
             Layer layer = iterator.next();
@@ -116,7 +122,9 @@ public class ComplexLayeredTexture extends Texture {
             }
             if (layer.name != null) {
                 NativeImage image = getLayer(manager, layer);
-                blendLayer(baseimage, image);
+                if (image != null) {
+                    blendLayer(baseimage, image);
+                }
             }
         }
 
