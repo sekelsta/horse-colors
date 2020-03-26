@@ -25,7 +25,7 @@ public class DonkeyGeneticEntity extends DonkeyEntity implements IHorseShape, IG
     protected static final DataParameter<Integer> HORSE_SPEED = EntityDataManager.<Integer>createKey(DonkeyGeneticEntity.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_JUMP = EntityDataManager.<Integer>createKey(DonkeyGeneticEntity.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_HEALTH = EntityDataManager.<Integer>createKey(DonkeyGeneticEntity.class, DataSerializers.VARINT);
-    private static final DataParameter<Integer> HORSE_RANDOM = EntityDataManager.<Integer>createKey(HorseGeneticEntity.class, DataSerializers.VARINT);
+    private static final DataParameter<Integer> HORSE_RANDOM = EntityDataManager.<Integer>createKey(DonkeyGeneticEntity.class, DataSerializers.VARINT);
 
     public DonkeyGeneticEntity(EntityType<? extends DonkeyGeneticEntity> p_i50239_1_, World p_i50239_2_) {
        super(p_i50239_1_, p_i50239_2_);
