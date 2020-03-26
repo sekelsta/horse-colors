@@ -205,12 +205,38 @@ public class HorseGenome extends Genome {
                 && this.isTobiano());
     }
 
+    public boolean showsLegMarkings() {
+        return !isWhite() && !isTobiano();
+    }
+
+    public boolean isDappleInclined() {
+        return this.hasAllele("dapple", 1);
+    }
+
     public boolean isLethalWhite() {
         return this.isHomozygous("frame", HorseAlleles.FRAME);
     }
 
     public boolean isEmbryonicLethal() {
         return this.isHomozygous("KIT", HorseAlleles.KIT_DOMINANT_WHITE);
+    }
+
+    public int getSootyLevel() {
+        // sooty1 and 2 dominant, 3 recessive
+        return 1 + getMaxAllele("sooty1") + getMaxAllele("sooty2") 
+                        - getMaxAllele("sooty3");
+    }
+
+    public int getSlowGrayLevel() {
+        int base = isHomozygous("gray", HorseAlleles.GRAY)? -2 : 0;
+        return base + countAlleles("slow_gray1", 1)
+                + getAllele("slow_gray2", 1) + getMaxAllele("gray_mane");
+    }
+
+    // A special case because it has two different alleles
+    public int countW20() {
+        return countAlleles("KIT", HorseAlleles.KIT_W20) 
+                + countAlleles("KIT", HorseAlleles.KIT_TOBIANO_W20);
     }
 
     // with 1/odds probability gets the gene to 0 or 1, whichever common isn't
@@ -397,58 +423,42 @@ public class HorseGenome extends Genome {
     {
         this.textureLayers = new ArrayList();
         Layer red = HorseColorCalculator.getRedBody(this);
-        HorseColorCalculator.setDun(this, red);
         Layer black = HorseColorCalculator.getBlackBody(this);
-        HorseColorCalculator.setDun(this, black);
         this.textureLayers.add(red);
         this.textureLayers.add(HorseColorCalculator.getRedManeTail(this));
         this.textureLayers.add(black);
         this.textureLayers.add(HorseColorCalculator.getBlackManeTail(this));
-        this.textureLayers.add(HorseColorCalculator.getNose(this));
+        this.textureLayers.add(HorseColorCalculator.getSooty(this));
         this.textureLayers.add(HorseColorCalculator.getGray(this));
+        this.textureLayers.add(HorseColorCalculator.getNose(this));
 
-
-/*
-        this.textureLayers[6] = new Layer();
-        this.textureLayers[7] = new Layer();
-        this.textureLayers[8] = new Layer();
-        this.textureLayers[9] = new Layer();
-        this.textureLayers[10] = new Layer();
-        this.textureLayers[11] = new Layer();
-        this.textureLayers[12] = new Layer();
-        this.textureLayers[13] = new Layer();
-        this.textureLayers[14] = new Layer();
-        this.textureLayers[15] = new Layer();
-        this.textureLayers[16] = new Layer();
-        this.textureLayers[17] = new Layer();
-
-        String roan = hasAllele("KIT", HorseAlleles.KIT_ROAN)? "roan" : null;
-        String face_marking = HorseColorCalculator.getFaceMarking(this);
-        String sooty = HorseColorCalculator.getSooty(this);
-        String legs = HorseColorCalculator.getLegs(this);
-        String gray_mane = HorseColorCalculator.getGrayMane(this);
-        String[] leg_markings = new String[4];
-        
-        String pinto = HorseColorCalculator.getPinto(this);
-        if (showsLegMarkings())
-        {
-            leg_markings = HorseColorCalculator.getLegMarkings(this);
+        if (this.hasAllele("KIT", HorseAlleles.KIT_ROAN)) {
+            Layer roan = new Layer();
+            roan.name = HorseColorCalculator.fixPath("roan/roan");
+            this.textureLayers.add(roan);
         }
 
-        this.textureLayers[8].name = HorseColorCalculator.fixPath("sooty", sooty);
-        this.textureLayers[9].name = HorseColorCalculator.fixPath("legs", legs);
-        this.textureLayers[10].name = HorseColorCalculator.fixPath("roan", roan);
-        this.textureLayers[11].name = HorseColorCalculator.fixPath("roan", gray_mane);
-        this.textureLayers[12].name = HorseColorCalculator.fixPath("face", face_marking);
-        this.textureLayers[13].name = HorseColorCalculator.fixPath("socks", leg_markings[0]);
-        this.textureLayers[14].name = HorseColorCalculator.fixPath("socks", leg_markings[1]);
-        this.textureLayers[15].name = HorseColorCalculator.fixPath("socks", leg_markings[2]);
-        this.textureLayers[16].name = HorseColorCalculator.fixPath("socks", leg_markings[3]);
-        this.textureLayers[17].name = HorseColorCalculator.fixPath("pinto", pinto);
+        this.textureLayers.add(HorseColorCalculator.getFaceMarking(this));
+        if (showsLegMarkings())
+        {
+            String[] leg_markings = HorseColorCalculator.getLegMarkings(this);
+            for (String marking : leg_markings) {
+                Layer layer = new Layer();
+                layer.name = marking;
+                this.textureLayers.add(layer);
+            }
+        }
 
+        this.textureLayers.add(HorseColorCalculator.getPinto(this));
+/*
+        String legs = HorseColorCalculator.getLegs(this);
+        String gray_mane = HorseColorCalculator.getGrayMane(this);
+      
+        this.textureLayers[9].name = HorseColorCalculator.fixPath("legs", legs);
+        this.textureLayers[11].name = HorseColorCalculator.fixPath("roan", gray_mane);
 */
         Layer common = new Layer();
-        common.name = HorseColorCalculator.fixPath("", "common");
+        common.name = HorseColorCalculator.fixPath("common");
         this.textureLayers.add(common);
 
         this.textureCacheName = "horse/cache_";
@@ -483,168 +493,5 @@ public class HorseGenome extends Genome {
             childEntity.setChromosome(stat, val);
         }
         childEntity.getGenes().mutate();
-    }
-
-
-    public int getPhenotype(String name)
-    {
-        switch(name)
-        {
-            /* Simple dominant or recessive genes. */
-            case "silver":
-            case "liver":
-            case "flaxen1":
-            case "flaxen2":
-            case "dapple":
-            case "sooty1":
-            case "sooty2":
-            case "sooty3":
-            case "mealy1":
-            case "mealy2":
-            case "mealy3":
-            case "white_suppression":
-            case "PATN2":
-            case "PATN3":
-            case "gray_suppression":
-            case "slow_gray1":
-                return getMaxAllele(name);
-
-            /* Incomplete dominant. */
-            case "leopard":
-            case "gray":
-            case "cream":
-            case "frame":
-            case "PATN1":
-            case "gray_mane":
-            case "slow_gray2":
-            case "white_star":
-            case "white_forelegs":
-            case "white_hindlegs":
-                /* Low bit plus high bit. */
-                return (getNamedGene(name) & 1) + (getNamedGene(name) >> 1);
-                
-            
-            /* Polygenetic traits. */
-            case "flaxen":
-                return 2 - getPhenotype("flaxen1") - getPhenotype("flaxen2");
-            case "sooty":
-                // sooty1 and 2 dominant, 3 recessive
-                return 1 + getPhenotype("sooty1") + getPhenotype("sooty2") 
-                        - getPhenotype("sooty3");
-            case "mealy":
-                return 2 - getPhenotype("mealy1") - getPhenotype("mealy2");
-            case "splash":
-                // TODO
-                return countAlleles("MITF", HorseAlleles.MITF_SW1);
-
-            /* Genes with multiple alleles. */
-            case "extension":
-                return Math.max(getAllele(name, 0), getAllele(name, 1));
-            case "agouti":
-                if (getNamedGene("agouti") == 1 || getNamedGene("agouti") == 4)
-                {
-                    return 1;
-                }
-                int allele = Math.max(getNamedGene("agouti") & 3, getNamedGene("agouti") >> 2);
-                return allele == 0? 0 : allele + 1;
-
-            case "dun":
-                if (getNamedGene(name) <= 1) 
-                {
-                    // 0 for ND2 (no dorsal stripe), 1 for ND1/+ (faint 
-                    // dorsal stripe), 2 for ND1/ND1 (dorsal stripe), 3 for dun
-                    return getNamedGene(name);
-                }
-                else if (getNamedGene(name) == 4)
-                {
-                    return 1;
-                }
-                else if (getNamedGene(name) == 5)
-                {
-                    return 2;
-                }
-                else
-                {
-                    return 3;
-                }
-            // Don't give useful info when asked for KIT, but also don't
-            // give an error
-            case "KIT":
-                return -1;
-            /* KIT mappings:
-               0: wildtype
-               1 to 6: contribute to white markings
-               7: W20 (strip and socks typical as heterozygous, 
-                    when homozygous, irregular draft sabino with some belly white)
-               8: reserved in case I add rabicano to KIT
-               9: flashy white (tends towards stockings and blaze)
-               10: wildtype for now
-               11: tobiano
-               12: sabino1
-               13: tobiano + W20
-               14: roan
-               15: white
-            */
-            // W20 is incomplete dominant
-            case "W20":
-                return countAlleles("KIT", HorseAlleles.KIT_W20) 
-                    + countAlleles("KIT", HorseAlleles.KIT_TOBIANO_W20);
-            // Sabino1 and tobiano are also incomplete dominant
-            case "sabino1":
-                if (getNamedGene("KIT") == (12 << 4) + 12)
-                {
-                    return 2;
-                }
-                else
-                {
-                    return ((getNamedGene("KIT") & 15) == 12) 
-                            || ((getNamedGene("KIT") >> 4) == 12)? 1 : 0;
-                }
-            case "tobiano":
-                boolean tob1 = getAllele("KIT", 0) == 13 
-                                || getAllele("KIT", 0) == 11;
-                boolean tob2 = getAllele("KIT", 1) == 13 
-                                || getAllele("KIT", 1) == 11;
-                if (tob1 && tob2)
-                {
-                    return 2;
-                }
-                else
-                {
-                    return (tob1 || tob2)? 1 : 0;
-                }
-            case "roan":
-                return hasAllele("KIT", HorseAlleles.KIT_ROAN)? 1 : 0;
-            case "dominant_white":
-                if (getNamedGene("KIT") == (15 << 4) + 15)
-                {
-                    return 2;
-                }
-                return ((getNamedGene("KIT") & 15) == 15
-                        || (getNamedGene("KIT") >> 4) == 15)? 1 : 0;
-            case "white":
-                return (getPhenotype("dominant_white") != 0 // dominant white
-                        || getPhenotype("frame") == 2  // lethal white overo
-                        || getPhenotype("sabino1") == 2 // sabino white
-                        || (getPhenotype("sabino1") != 0 
-                            && getPhenotype("frame") != 0
-                            && getPhenotype("tobiano") != 0))
-                                ? 1 : 0;
-            // other KIT: TODO
-            case "PATN":
-                int base = 5 * getPhenotype("PATN1") + getPhenotype("PATN2")
-                           + getPhenotype("PATN3");
-                return base == 0? 0 : base + getPhenotype("W20");
-            case "slow_gray":
-                // Larger numbers make a darker horse.
-                int val = getPhenotype("slow_gray1") + getPhenotype("slow_gray2")
-                        + (getPhenotype("gray") == 2? -2 : 0)
-                        + (getPhenotype("gray_mane") == 0? 0 : 1);
-                return Math.min(Math.max(val, 0), 3);
-            case "MITF": return -1;
-            case "PAX3": return -1;         
-        }
-        System.out.println("[horse_colors]: Phenotype for " + name + " not found.");
-        return -1;
     }
 }

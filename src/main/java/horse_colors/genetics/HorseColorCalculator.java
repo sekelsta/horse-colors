@@ -7,7 +7,7 @@ public class HorseColorCalculator
     private static final int FACE_MARKING_BITS = 2;
     private static final int LEG_MARKING_BITS = 12;
 
-    public static String fixPath(String folder, String inStr) {
+    public static String fixPath(String inStr) {
         if (inStr == null || inStr.contains(".png")) {
             return inStr;
         }
@@ -16,13 +16,7 @@ public class HorseColorCalculator
             return null;
         }
         else {
-            if (folder != null && folder != "") {
-                folder = folder + "/";
-            }
-            else {
-                folder = "";
-            }
-            return "horse_colors:textures/entity/horse/" + folder + inStr +".png";
+            return "horse_colors:textures/entity/horse/" + inStr +".png";
         }
     }
 
@@ -92,48 +86,32 @@ public class HorseColorCalculator
             layer.blue = 0x1d;
     }
 
-    public static Layer getRedBody(HorseGenome horse) {
-        Layer layer = new Layer();
-        layer.name = fixPath("", "base");
-        layer.shading = fixPath("", "shading");
+    public static void colorRedBody(HorseGenome horse, Layer layer) {
         if (horse.isDoubleCream()) {
             setCreamy(layer);
         }
         else if (horse.hasCream()) {
             setGolden(layer);
         }
-        else if (horse.isHomozygous("liver", HorseAlleles.LIVER)) {
+        else if (horse.isChestnut() 
+                && horse.isHomozygous("liver", HorseAlleles.LIVER)) {
             setLiverChestnut(layer);
         }
         else {
             setChestnut(layer);
         }
+        setDun(horse, layer);
+    }
+
+    public static Layer getRedBody(HorseGenome horse) {
+        Layer layer = new Layer();
+        layer.name = fixPath("base");
+        layer.shading = fixPath("shading");
+        colorRedBody(horse, layer);
         return layer;
     }
 
-    public static Layer getBlackBody(HorseGenome horse) {
-        if (horse.isChestnut()) {
-            return null;
-        }
-        Layer layer = new Layer();
-        layer.shading = fixPath("", "shading");
-
-        switch(horse.getMaxAllele("agouti"))
-        {
-            case HorseAlleles.A_BLACK:
-                layer.name = fixPath("", "base");
-                break;
-            case HorseAlleles.A_SEAL:
-            case HorseAlleles.A_BROWN:
-                layer.name = fixPath("", "brown");
-                break;
-            case HorseAlleles.A_BAY_DARK:
-            case HorseAlleles.A_BAY:
-            case HorseAlleles.A_BAY_LIGHT:
-            case HorseAlleles.A_BAY_WILD:
-            case HorseAlleles.A_BAY_MEALY:
-                layer.name = fixPath("", "bay");
-        }
+    public static void colorBlackBody(HorseGenome horse, Layer layer) {
         if (horse.hasAllele("silver", HorseAlleles.SILVER)) {
             if (horse.isDoubleCream()) {
                 setSmokyCream(layer);
@@ -156,6 +134,33 @@ public class HorseColorCalculator
                 setBlack(layer);
             }
         }
+        setDun(horse, layer);
+    }
+
+    public static Layer getBlackBody(HorseGenome horse) {
+        if (horse.isChestnut()) {
+            return null;
+        }
+        Layer layer = new Layer();
+        layer.shading = fixPath("shading");
+
+        switch(horse.getMaxAllele("agouti"))
+        {
+            case HorseAlleles.A_BLACK:
+                layer.name = fixPath("base");
+                break;
+            case HorseAlleles.A_SEAL:
+            case HorseAlleles.A_BROWN:
+                layer.name = fixPath("brown");
+                break;
+            case HorseAlleles.A_BAY_DARK:
+            case HorseAlleles.A_BAY:
+            case HorseAlleles.A_BAY_LIGHT:
+            case HorseAlleles.A_BAY_WILD:
+            case HorseAlleles.A_BAY_MEALY:
+                layer.name = fixPath("bay");
+        }
+        colorBlackBody(horse, layer);
         return layer;
     }
 
@@ -164,19 +169,19 @@ public class HorseColorCalculator
             return null;
         }
         Layer layer = new Layer();
-        layer.shading = fixPath("", "shading");
+        layer.shading = fixPath("shading");
         if (horse.hasAllele("cream", HorseAlleles.CREAM)) {
-            layer.name = fixPath("", "manetail");
+            layer.name = fixPath("manetail");
             setCreamy(layer);
         }
         else if (horse.isHomozygous("flaxen1", HorseAlleles.FLAXEN) 
                 && horse.isHomozygous("flaxen2", HorseAlleles.FLAXEN)) {
-            layer.name = fixPath("", "flaxen");
+            layer.name = fixPath("flaxen");
             setFlaxen(layer);
         }
         else if (horse.isHomozygous("flaxen1", HorseAlleles.FLAXEN) 
                 || horse.isHomozygous("flaxen2", HorseAlleles.FLAXEN)) {
-            layer.name = fixPath("", "flaxen");
+            layer.name = fixPath("flaxen");
             layer.alpha = 255 / 3;
             setFlaxen(layer);
         }
@@ -194,15 +199,15 @@ public class HorseColorCalculator
             return null;
         }
         Layer layer = new Layer();
-        layer.name = fixPath("", "flaxen");
-        layer.shading = fixPath("", "shading");
+        layer.name = fixPath("flaxen");
+        layer.shading = fixPath("shading");
         setFlaxen(layer);
         return layer;
     }
 
     public static Layer getNose(HorseGenome horse) {
         Layer layer = new Layer();
-        layer.name = fixPath("", "nose");
+        layer.name = fixPath("nose");
         if (horse.isDoubleCream()) {
             // The base texture already comes with a pink nose
             return null;
@@ -223,30 +228,21 @@ public class HorseColorCalculator
         Layer layer = new Layer();
         layer.name = base.name;
         layer.shading = base.shading;
-        layer.mask = fixPath("", "dun");
-        float dunPower = 0.5F;
-        // Add 1 to each color because 0 isn't allowed
-        // Cap at 255
-        float red = Math.min(255, base.red + 1);
-        float green = Math.min(255, base.green + 1);
-        float blue = Math.min(255, base.blue + 1);
-        float avg = (red + green + blue) / 3.0F;
-        float targetAvg = 255.0F * dunPower + avg * (1.0F - dunPower);
-        float multiplier = targetAvg / avg;
-        if (multiplier < 1.0F) {
-            System.out.println("Error: dun is too dark");
-        }
-        int c = 255 / 4;
-        layer.red = Math.min(255, (int)(c + red * multiplier));
-        layer.green = Math.min(255, (int)(c + green * multiplier));
-        layer.blue = Math.min(255, (int)(c + blue * multiplier));
-        layer.alpha = base.alpha * 2 / 3;/*
-        float dunpower = 0.2F;
-        layer.red = Math.min(255, (int)(255.0F * dunpower + ((float)base.red) * (1.0F - dunpower)));
-        layer.green = Math.min(255, (int)(255.0F * dunpower + ((float)base.green) * (1.0F - dunpower)));
-        layer.blue = Math.min(255, (int)(255.0F * dunpower + ((float)base.blue) * (1.0F - dunpower)));
-        System.out.println(String.valueOf(base.red) + ", " + String.valueOf(base.green) + ", " + String.valueOf(base.blue) + " to");
-        System.out.println(String.valueOf(layer.red) + ", " + String.valueOf(layer.green) + ", " + String.valueOf(layer.blue));*/
+        layer.mask = fixPath("dun");
+
+        float r = base.red / 255.0F;
+        float g = base.green / 255.0F;
+        float b = base.blue / 255.0F;
+
+        float dunpower = 0.6F;
+        float white = 0.2F * (0.8F - Math.max(Math.max(r, g), b));
+        float red = (float)Math.pow(white + r * (1.0F - white), dunpower) * 255.0F;
+        float green = (float)Math.pow(white + g * (1.0F - white), dunpower) * 255.0F;
+        float blue = (float)Math.pow(white + b * (1.0F - white), dunpower) * 255.0F;
+
+        layer.red = Math.min(255, (int)red);
+        layer.green = Math.min(255, (int)green);
+        layer.blue = Math.min(255, (int)blue);
         base.next = layer;
     }
 
@@ -255,109 +251,57 @@ public class HorseColorCalculator
             return null;
         }
         Layer layer = new Layer();
-        if (horse.isDoubleCream()) {
-            layer.name = fixPath("base", "white");
-        }
-        else {
-            layer.name = fixPath("base", "gray");
+        layer.name = fixPath("base");
+        layer.shading = fixPath("shading");
+        if (!horse.isDoubleCream()) {
+            layer.red = 0xeb;
+            layer.green = 0xeb;
+            layer.blue = 0xeb;
         }
         return layer;
     }
 
-    public static String getSooty(HorseGenome horse)
+    public static Layer getSooty(HorseGenome horse)
     {
-        if (horse.isHomozygous("cream", HorseAlleles.CREAM))
-        {
-            return null;
-        }
-        int sooty_level = 0;
-        if (!horse.isGray())
-        {
-            sooty_level = horse.getPhenotype("sooty");
-        }
-        else
-        {
-            sooty_level = horse.getPhenotype("slow_gray");
-        }
-        if (sooty_level == 0)
-        {
-            return null;
+        Layer layer = new Layer();
+
+        int sooty_level = horse.getSootyLevel();
+        switch (sooty_level) {
+            case 0:
+                return null;
+            case 1:
+                layer.alpha = (int)(0.3F * 255.0F);
+            case 2:
+                layer.alpha = (int)(0.5F * 255.0F);
+            case 3:
+                layer.alpha = (int)(0.7F * 255.0F);
+            default:
+                layer.alpha = 255;
         }
 
-        boolean is_dun = horse.getPhenotype("dun") == 3 
-                        && !horse.isGray();
-        String suffix = "";
-        if (is_dun)
-        {
-            if (sooty_level == 0)
-            {
-                return "sooty_dun";
-            }
-            sooty_level -= 1;
-            suffix = "_dun";
+        layer.name = fixPath("sooty_countershade");
+        if (horse.isDappleInclined()) {
+            layer.name = fixPath("sooty_dapple");
+        }
+        else if (horse.isChestnut()) {
+            layer.name = fixPath("base");
+            layer.alpha -= (int)(0.15f * 255.0F);
         }
 
-        if (sooty_level == 3)
-        {
-            suffix += "_dark";
-        }
-        else if (sooty_level == 1)
-        {
-            suffix += "_light";
-        }
+        layer.shading = fixPath("shading");
+        colorBlackBody(horse, layer);
 
-        if (horse.isGray())
-        {
-            int random = (horse.getChromosome("random") << 1) >>> 1;
-            return ((random % 4 == 1)? "sooty_dappled" : "gray") + suffix;
-        }
-
-        // TODO: change this
-        String type = "countershaded";
-        boolean is_chestnut = horse.isChestnut()
-            && !horse.hasAllele("cream", HorseAlleles.CREAM)
-            && horse.getPhenotype("liver") != 0;
-        if (horse.getPhenotype("dapple") == 1)
-        {
-            type = is_chestnut? "even" : "dappled";
-        }
-
-        String prefix = horse.isGray()? "gray" : "sooty_" + type;
-        return prefix + suffix;
+        return layer;
     }
 
-    public static String getMealy(HorseGenome horse)
+    public static Layer getMealy(HorseGenome horse)
     {
         // TODO
         return null;
     }
 
-    public static String getLegs(HorseGenome horse)
-    {
-        // Dappled gray horses can have dark legs
-        if (horse.isGray()
-            && horse.getPhenotype("slow_gray") > 1)
-        {
-            int random = (horse.getChromosome("random") << 1) >>> 1;
-            if (random % 4 == 0)
-            {
-                return "bay_legs";
-            }
-            else
-            {
-                return null;
-            }
-        }
-        return null;
-    }
-
     public static String getGrayMane(HorseGenome horse)
     {
-        if (horse.isHomozygous("gray", HorseAlleles.GRAY)
-            && horse.getPhenotype("gray_mane") == 2)
-        {
-
-        }
         // Only for dappled gray horses, not non-gray (0) nor full gray (2)
         if (horse.countAlleles("gray", HorseAlleles.GRAY) != 1)
         {
@@ -369,8 +313,8 @@ public class HorseColorCalculator
             return null;
         }
 
-        int gray = horse.getPhenotype("slow_gray");
-        int mane = horse.getPhenotype("gray_mane");
+        int gray = horse.getSlowGrayLevel();
+        int mane = horse.countAlleles("gray_mane", 1);
         if (mane == 2 && gray > 1)
         {
             return "black_mane";
@@ -382,7 +326,7 @@ public class HorseColorCalculator
         return "gray_mane";
     }
 
-    public static String getFaceMarking(HorseGenome horse)
+    public static Layer getFaceMarking(HorseGenome horse)
     {
         int white = -2;
         if (horse.hasAllele("white_suppression", 1))
@@ -396,7 +340,7 @@ public class HorseColorCalculator
         white += 2 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS3);
         white += 3 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS4);
         white += 3 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS5);
-        white += 3 * horse.getPhenotype("W20");
+        white += 3 * horse.countW20();;
         white += 4 * horse.countAlleles("KIT", HorseAlleles.KIT_FLASHY_WHITE);
 
         white += 6 * horse.countAlleles("MITF", HorseAlleles.MITF_SW1);
@@ -409,7 +353,6 @@ public class HorseColorCalculator
         white += 3 * horse.countAlleles("white_star", 1);
         white += horse.countAlleles("white_forelegs", 1);
         white += horse.countAlleles("white_hindlegs", 1);
-
 
         // Anything after here doesn't create face white from scratch, but
         // only increases the size
@@ -434,19 +377,27 @@ public class HorseColorCalculator
         }
         int face_marking = white / 5;
 
+        Layer layer = new Layer();
+        String folder = "face/";
         switch (face_marking)
         {
             case 0:
-                return null;
+                break;
             case 1:
-                return "star";
+                layer.name = fixPath(folder + "star");
+                break;
             case 2:
-                return "strip";
+                layer.name = fixPath(folder + "strip");
+                break;
             case 3:
-                return "blaze";
+                layer.name = fixPath(folder + "blaze");
+                break;
             default:
-                return "blaze";
+                layer.name = fixPath(folder + "blaze");
+                break;
         }
+
+        return layer;
     }
 
     public static String[] getLegMarkings(HorseGenome horse)
@@ -463,7 +414,7 @@ public class HorseColorCalculator
         white += 4 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS3);
         white += 5 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS4);
         white += 6 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS5);
-        white += 7 * horse.getPhenotype("W20");
+        white += 7 * horse.countW20();
         white += 8 * horse.countAlleles("KIT", HorseAlleles.KIT_FLASHY_WHITE);
 
         white += 2 * horse.countAlleles("MITF", HorseAlleles.MITF_SW1);
@@ -512,7 +463,7 @@ public class HorseColorCalculator
                 legs[i] = null;
             }
             else {
-                legs[i] = String.valueOf(i) + "_" + String.valueOf(Math.min(7, w / 2 + r));
+                legs[i] = fixPath("socks/" + String.valueOf(i) + "_" + String.valueOf(Math.min(7, w / 2 + r)));
             }
         }
 
@@ -520,13 +471,17 @@ public class HorseColorCalculator
         return legs;
     }
 
-    public static String getPinto(HorseGenome horse)
+    public static Layer getPinto(HorseGenome horse)
     {
+        Layer layer = new Layer();
         if (horse.isWhite())
         {
-            return "white";
+            layer.name = fixPath("base");
+            layer.shading = fixPath("shading");
+            return layer;
         }
-        String pinto = null;
+
+        String folder = "pinto/";
 
         if (horse.isTobiano())
         {
@@ -534,34 +489,34 @@ public class HorseColorCalculator
             {
                 if (horse.isHomozygous("MITF", HorseAlleles.MITF_SW1))
                 {
-                    pinto = "medicine_hat";
+                    layer.name = fixPath(folder + "medicine_hat");
                 }
                 else
                 {
-                    pinto = "war_shield";
+                    layer.name =  fixPath(folder + "war_shield");
                 }
             }
             else
             {
-                pinto = "tobiano";
+                layer.name = fixPath(folder + "tobiano");
             }
         }
         else if (horse.hasAllele("frame", HorseAlleles.FRAME))
         {
-            pinto = "frame";
+            layer.name = fixPath(folder + "frame");
         }
         else if (horse.isHomozygous("MITF", HorseAlleles.MITF_SW1))
         {
-            pinto = "splash";
+            layer.name = fixPath(folder + "splash");
         }
         else if (horse.hasAllele("KIT", HorseAlleles.KIT_SABINO1))
         {
-            pinto = "sabino";
+            layer.name = fixPath(folder + "sabino");
         }
-        return pinto;
+        return layer;
     }
 
-    public static String getLeopard(HorseGenome horse)
+    public static Layer getLeopard(HorseGenome horse)
     {/*
         if (horse.getPhenotype("leopard") == 0)
         {
