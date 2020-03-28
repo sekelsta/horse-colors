@@ -31,8 +31,8 @@ public class HorseAlleles
     // Dun (TBX3)
     public static final int NONDUN2 = 0;
     public static final int NONDUN1 = 1;
-    public static final int DUN_IBERIAN = 2;
-    public static final int DUN = 3;
+    public static final int DUN = 2;
+    public static final int DUN_UNUSED = 3;
 
     // Gray (STX17)
     public static final int NONGRAY = 0;

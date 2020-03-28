@@ -7,6 +7,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class HorseGenome extends Genome {
 
@@ -180,7 +181,7 @@ public class HorseGenome extends Genome {
 
     public boolean isDun() {
         return this.hasAllele("dun", HorseAlleles.DUN)
-            || this.hasAllele("dun", HorseAlleles.DUN_IBERIAN);
+            || this.hasAllele("dun", HorseAlleles.DUN_UNUSED);
     }
 
     // The MC1R ("extension") gene seems to be associated with white
@@ -239,131 +240,230 @@ public class HorseGenome extends Genome {
                 + countAlleles("KIT", HorseAlleles.KIT_TOBIANO_W20);
     }
 
-    // with 1/odds probability gets the gene to 0 or 1, whichever common isn't
-    public void setGeneRandom(String name, int n, int odds, int common)
-    {
-            int i = this.entity.getRand().nextInt();
-            int rare = common == 0? 1 : 0;
-            setNamedGene(name, (i % odds == 0? rare : common) 
-                            << (n * getGeneSize(name)));
-    }
-
     public int inheritStats(HorseGenome other, String chromosome) {
             int mother = this.getRandomGenericGenes(1, this.getChromosome(chromosome));
             int father = other.getRandomGenericGenes(0, other.getChromosome(chromosome));
             return mother | father;
     }
 
-    /* This function changes the variant and then puts it back to what it was
-    before. */
-    private int getRandomVariant(int n, String type)
-    {
-        int answer = 0;
-        int startVariant = getChromosome(type);
-/*
-        if (type == "0")
-        {
-            // logical bitshift to make unsigned
-            int i = this.rand.nextInt() >>> 1;
-            setGene("extension", (i & 7) << (n * getGeneSize("extension")));
-            i >>= 3;
-            setGeneRandom("gray", n, 20, 0);
-            int dun = (this.rand.nextInt() % 7 == 0? 2 : 0) + (i % 4 == 0? 1: 0);
-            setGene("dun", dun << (n * getGeneSize("dun")));
-            i >>= 2;
-
-            int ag = i % 16;
-            int agouti = ag == 0? HorseAlleles.A_BAY_MEALY 
-                       : ag == 1? HorseAlleles.A_BAY_WILD
-                       : ag < 4? HorseAlleles.A_BAY_LIGHT
-                       : ag < 6? HorseAlleles.A_BAY
-                       : ag < 8? HorseAlleles.A_BAY_DARK
-                       : ag == 8? HorseAlleles.A_BROWN
-                       : ag == 9? HorseAlleles.A_SEAL
-                       : HorseAlleles.A_BLACK;
-            setGene("agouti", agouti << (n * getGeneSize("agouti")));
-            i >>= 4;
-
-            setGeneRandom("silver", n, 32, 0);
-            int cr = i % 32;
-            int cream = cr == 0? HorseAlleles.CREAM
-                      : cr == 1? HorseAlleles.PEARL
-                      : cr == 2? HorseAlleles.NONCREAM2
-                      : HorseAlleles.NONCREAM;
-            setGene("cream", cream << (n * getGeneSize("cream")));
-            i >>= 5;
-            setGeneRandom("liver", n, 3, 1);
-            setGeneRandom("flaxen1", n, 5, 1);
-            setGeneRandom("flaxen2", n, 5, 1);
-
-            setGene("dapple", (i % 2) << (n * getGeneSize("dapple")));
-            i >>= 1;
+    // Distribution should be a series of floats increasing from
+    // 0.0 to 1.0, where the probability of choosing allele i is
+    // the chance that a random uniform number between 0 and 1
+    // is greater than distribution[i-1] but less than distribution[i].
+    public int chooseRandomAllele(List<Float> distribution) {
+        float n = this.entity.getRand().nextFloat();
+        for (int i = 0; i < distribution.size(); ++i) {
+            if (n < distribution.get(i)) {
+                return i;
+            }
         }
-        else if (type == "1")
-        {
-            // logical bitshift to make unsigned
-            int i = this.rand.nextInt() >>> 1;
-
-            setGeneRandom("sooty1", n, 4, 1);
-            setGeneRandom("sooty2", n, 4, 1);
-            setGeneRandom("sooty3", n, 2, 1);
-            setGeneRandom("mealy1", n, 4, 1);
-            setGeneRandom("mealy2", n, 4, 1);
-            setGeneRandom("mealy3", n, 4, 1);
-            setGeneRandom("white_suppression", n, 32, 0);
-
-            int kit = i % 4 != 0? 0
-//                                : (i >> 2) % 2 == 0? (i >> 3) % 8
-                                : (i >> 3) % 16;
-            setGene("KIT", kit << (n * getGeneSize("KIT")));
-            i >>= 7;
-
-            setGeneRandom("frame", n, 32, 0);
-            int mitf = i % 4 == 0? HorseAlleles.MITF_WILDTYPE
-                : (i >> 2) % 2 == 0? (i >> 3) % 4
-                : HorseAlleles.MITF_WILDTYPE;
-            setGene("MITF", mitf << (n * getGeneSize("MITF")));
-            i >>= 5;
-            int pax3 = i % 4 != 0? HorseAlleles.PAX3_WILDTYPE
-                : (i >> 2) % 4;
-            setGene("PAX3", pax3 << (n * getGeneSize("PAX3")));
-        }
-        else if (type == "2")
-        {
-            // Initialize any bits currently unused to random values
-            setHorseVariant(this.rand.nextInt(), "2");
-            int i = this.rand.nextInt();
-            setGeneRandom("leopard", n, 32, 0);
-            setGeneRandom("PATN1", n, 16, 0);
-            setGeneRandom("PATN2", n, 16, 0);
-            setGeneRandom("PATN3", n, 16, 0);
-            setGeneRandom("gray_suppression", n, 40, 0);
-            setGeneRandom("gray_mane", n, 4, 0);
-            setGeneRandom("slow_gray1", n, 8, 0);
-            setGeneRandom("slow_gray2", n, 4, 0);
-            setGeneRandom("white_star", n, 4, 0);
-            setGeneRandom("white_forelegs", n, 4, 0);
-            setGeneRandom("white_hindlegs", n, 4, 0);
-        }
-*/
-        answer = getChromosome(type);
-        entity.setChromosome(type, startVariant);
-        return answer;
+        // In case of floating point rounding errors
+        return distribution.size() - 1;
     }
 
-    private void randomizeSingleVariant(String variant)
-    {
-        int i = getRandomVariant(0, variant);
-        int j = getRandomVariant(1, variant);
-        entity.setChromosome(variant, i | j);
+    public int chooseRandom(List<Float> distribution) {
+        int left = chooseRandomAllele(distribution);
+        int right = chooseRandomAllele(distribution);
+        // Log 2
+        int size = 8 * Integer.BYTES - 1 - Integer.numberOfLeadingZeros(distribution.size());
+        // Round up
+        if (distribution.size() != 1 << size) {
+            size += 1;
+        }
+        return (left << size) | right;
+    }
+
+    public void randomizeNamedGenes() {
+        ImmutableList<Float> extension = ImmutableList.of(
+            0.125f, 0.25f, 0.375f, 0.5f, // Red
+            0.625f, 0.75f, 0.875f, 1.0f  // Black
+        );
+        setNamedGene("extension", chooseRandom(extension));
+
+        ImmutableList<Float> gray = ImmutableList.of(
+            0.95f, // Non-gray
+            1.0f   // Gray
+        );
+        setNamedGene("gray", chooseRandom(gray));
+
+        ImmutableList<Float> dun = ImmutableList.of(
+            0.75f,  // Non-dun 2
+            0.875f, // Non-dun 1
+            1f,     // Dun
+            0f      // Dun unused
+        );
+        setNamedGene("dun", chooseRandom(dun));
+
+        ImmutableList<Float> agouti = ImmutableList.of(
+            0.375f,     // Black
+            0.4375f,    // Seal
+            0.5f,       // Brown - same as seal
+            0.625f,     // Bay_dark - same as bay
+            0.75f,      // Bay
+            0.875f,     // Bay_light - same as bay
+            0.9375f,    // Bay_wild
+            1.0f        // Bay_mealy - same as bay_wild
+        );
+        setNamedGene("agouti", chooseRandom(agouti));
+
+        ImmutableList<Float> silver = ImmutableList.of(
+            31.0f / 32.0f,  // Non-silver
+            1.0f            // Silver
+        );
+        setNamedGene("silver", chooseRandom(silver));
+
+        ImmutableList<Float> cream = ImmutableList.of(
+            30f / 32f,  // Non-cream
+            0f,         // Non-cream unused
+            31f / 32f,  // Pearl
+            1f          // Cream
+        );
+        setNamedGene("cream", chooseRandom(cream));
+
+        ImmutableList<Float> liver = ImmutableList.of(
+            0.25f,  // Liver
+            1f      // Non-liver
+        );
+        setNamedGene("liver", chooseRandom(liver));
+
+        ImmutableList<Float> flaxen = ImmutableList.of(
+            0.2f,   // Flaxen
+            1f      // Non-flaxen
+        );
+        setNamedGene("flaxen1", chooseRandom(flaxen));
+        setNamedGene("flaxen2", chooseRandom(flaxen));
+
+        ImmutableList<Float> dapple = ImmutableList.of(
+            0.5f,   // Non-dapple
+            1f      // Dapple
+        );
+        setNamedGene("dapple", chooseRandom(dapple));
+
+        ImmutableList<Float> sooty = ImmutableList.of(
+            0.75f,  // Non-sooty
+            1f      // Sooty
+        );
+        setNamedGene("sooty1", chooseRandom(sooty));
+        setNamedGene("sooty2", chooseRandom(sooty));
+
+        ImmutableList<Float> sooty3 = ImmutableList.of(
+            0.5f,   // Non-sooty
+            1f      // Sooty
+        );
+        setNamedGene("sooty3", chooseRandom(sooty3));
+
+        ImmutableList<Float> mealy = ImmutableList.of(
+            0.75f,  // Non-mealy
+            1f      // Mealy
+        );
+        setNamedGene("mealy1", chooseRandom(mealy));
+        setNamedGene("mealy2", chooseRandom(mealy));
+        setNamedGene("mealy3", chooseRandom(mealy));
+
+        ImmutableList<Float> white_suppression = ImmutableList.of(
+            31f / 32f,  // Non white-suppression
+            1f          // White suppression
+        );
+        setNamedGene("white_suppression", chooseRandom(white_suppression));
+
+        ImmutableList<Float> kit = ImmutableList.of(
+            0.4f,   // Wildtype
+            0.5f,   // White boost
+            0.55f,  // Markings1
+            0.6f,   // Markings2
+            0.65f,  // Markings3
+            0.7f,   // Markings4
+            0.75f,  // Markings5
+            0.82f,  // W20
+            0f,     // Rabicano / Unused
+            0.86f,  // Flashy white
+            0f,     // Unused
+            0.90f,  // Tobiano
+            0.94f,  // Sabino1
+            0.96f,  // Tobiano + W20
+            0.97f,  // Roan
+            1.0f    // Dominant white
+        );
+        setNamedGene("KIT", chooseRandom(kit));
+
+        ImmutableList<Float> frame = ImmutableList.of(
+            31f / 32f,  // Non-frame
+            1f          // Frame
+        );
+        setNamedGene("frame", chooseRandom(frame));
+
+        ImmutableList<Float> mitf = ImmutableList.of(
+            0.15f,  // SW1
+            0.18f,  // SW3
+            0.20f,  // SW5
+            1.0f    // Wildtype
+        );
+        setNamedGene("MITF", chooseRandom(mitf));
+
+        ImmutableList<Float> pax3 = ImmutableList.of(
+            0.9f,   // Wildtype
+            0.94f,  // SW2
+            0.98f,  // SW4
+            1.0f    // Unused
+        );
+        setNamedGene("PAX3", chooseRandom(pax3));
+
+        ImmutableList<Float> leopard = ImmutableList.of(
+            31f / 32f,  // Non-leopard
+            1f          // Leopard
+        );
+        setNamedGene("leopard", chooseRandom(leopard));
+
+        ImmutableList<Float> patn = ImmutableList.of(
+            15f / 16f,  // Non-PATN
+            1f          // PATN
+        );
+        setNamedGene("PATN1", chooseRandom(patn));
+        setNamedGene("PATN2", chooseRandom(patn));
+        setNamedGene("PATN3", chooseRandom(patn));
+
+        ImmutableList<Float> gray_suppression = ImmutableList.of(
+            0.975f, // Non gray-suppression
+            1f      // Gray suppression
+        );
+        setNamedGene("gray_suppression", chooseRandom(gray_suppression));
+
+        ImmutableList<Float> gray_mane = ImmutableList.of(
+            0.75f,  // Lighter
+            1f      // Darker
+        );
+        setNamedGene("gray_mane", chooseRandom(gray_mane));
+
+        ImmutableList<Float> slow_gray1 = ImmutableList.of(
+            0.875f, // Lighter
+            1f      // Darker
+        );
+        setNamedGene("slow_gray1", chooseRandom(slow_gray1));
+
+        ImmutableList<Float> slow_gray2 = ImmutableList.of(
+            0.75f,  // Lighter
+            1f      // Darker
+        );
+        setNamedGene("slow_gray2", chooseRandom(slow_gray2));
+
+        ImmutableList<Float> white_star = ImmutableList.of(
+            0.75f,  // Less white
+            1f      // More white
+        );
+        setNamedGene("white_star", chooseRandom(white_star));
+
+        ImmutableList<Float> white_legs = ImmutableList.of(
+            0.75f,  // Less white
+            1f      // More white
+        );
+        setNamedGene("white_forelegs", chooseRandom(white_legs));
+        setNamedGene("white_hindlegs", chooseRandom(white_legs));
     }
 
     /* Make the horse have random genetics. */
     public void randomize()
     {
-        randomizeSingleVariant("0");
-        randomizeSingleVariant("1");
-        randomizeSingleVariant("2");
+        randomizeNamedGenes();
 
         // Replace lethal white overos with heterozygotes
         if (isHomozygous("frame", HorseAlleles.FRAME))
