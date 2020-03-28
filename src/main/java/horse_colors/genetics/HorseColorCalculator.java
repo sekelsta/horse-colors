@@ -271,10 +271,13 @@ public class HorseColorCalculator
                 return null;
             case 1:
                 layer.alpha = (int)(0.3F * 255.0F);
+                break;
             case 2:
                 layer.alpha = (int)(0.5F * 255.0F);
+                break;
             case 3:
                 layer.alpha = (int)(0.7F * 255.0F);
+                break;
             default:
                 layer.alpha = 255;
         }
