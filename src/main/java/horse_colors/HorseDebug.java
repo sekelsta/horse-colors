@@ -56,8 +56,12 @@ public class HorseDebug {
                 // I thought I would need this to make everything fit on debug 
                 // mode, but it fits if I make the GUI smaller
                 // event.getRight().clear();
-                event.getRight().add(horse.getGenes().humanReadableNamedGenes());
-                event.getLeft().add(horse.getGenes().humanReadableStats());
+                for (String s : horse.getGenes().humanReadableStats()) {
+                    event.getLeft().add(s);
+                }
+                for (String s : horse.getGenes().humanReadableNamedGenes()) {
+                    event.getRight().add(s);
+                }
             }
         }
     }

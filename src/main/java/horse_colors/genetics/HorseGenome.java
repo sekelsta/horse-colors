@@ -1,8 +1,10 @@
 package sekelsta.horse_colors.genetics;
 
+import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.renderer.ComplexLayeredTexture.Layer;
 
 import com.google.common.collect.ImmutableList;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -78,14 +80,8 @@ public class HorseGenome extends Genome {
         "slow_gray2",
         "white_star",
         "white_forelegs",
-        "white_hindlegs"
-        // TODO
-        // mealy switch (no light points, in donkeys)
-        // gaitkeeper
-        // unicorn
-        // ivory (for donkeys)
-        // some gait decider genes
-        // some unicorn trait genes
+        "white_hindlegs",
+        "gray_melanoma"
     );
 
     public static final ImmutableList<String> stats = ImmutableList.of(
@@ -148,7 +144,8 @@ public class HorseGenome extends Genome {
             case "slow_gray2":
             case "white_star":
             case "white_forelegs":
-            case "white_hindlegs": return 1;
+            case "white_hindlegs":
+            case "gray_melanoma": return 1;
         }
         System.out.println("Gene size not found: " + gene);
         return -1;
@@ -232,6 +229,30 @@ public class HorseGenome extends Genome {
         int base = isHomozygous("gray", HorseAlleles.GRAY)? -2 : 0;
         return base + countAlleles("slow_gray1", 1)
                 + getAllele("slow_gray2", 1) + getMaxAllele("gray_mane");
+    }
+
+    public float getGrayHealthLoss() {
+        int base = countAlleles("gray", HorseAlleles.GRAY);
+        if (isHomozygous("gray_melanoma", 0)) {
+            base -= 1;
+        }
+        return Math.max(0f, base);
+    }
+
+    public float getSilverHealthLoss() {
+        if (isHomozygous("silver", HorseAlleles.SILVER)) {
+            return 1f;
+        }
+        else if (hasAllele("silver", HorseAlleles.SILVER)) {
+            return 0.5f;
+        }
+        else {
+            return 0;
+        }
+    }
+
+    public float getBaseHealth() {
+        return -getGrayHealthLoss() - getSilverHealthLoss();
     }
 
     // A special case because it has two different alleles
@@ -511,11 +532,36 @@ public class HorseGenome extends Genome {
         }
         return abv;
     }
-    public String humanReadableNamedGenes() {
-        return "to do";
+    public ArrayList<String> humanReadableNamedGenes() {
+        ArrayList<String> list = new ArrayList<String>();
+        for (String gene : genes) {
+            TranslationTextComponent translation = new TranslationTextComponent(HorseColors.MODID + ".genes.equus." + gene + ".name");
+            String s = translation.getFormattedText() + ": ";
+            s += getAllele(gene, 0) + ", ";
+            s += getAllele(gene, 1);
+            list.add(s);
+        }
+        return list;
     }
-    public String humanReadableStats() {
-        return "to do";
+    public ArrayList<String> humanReadableStats() {
+        ArrayList<String> list = new ArrayList<String>();
+        for (String stat : stats) {
+            TranslationTextComponent translation = new TranslationTextComponent(HorseColors.MODID + ".stats." + stat);
+            String s = translation.getFormattedText();
+            s += ": " + this.getStat(stat);
+            s += " (";
+            int val = this.getChromosome(stat);
+            for (int i = 16; i >0; i--) {
+                s += (val >>> (2 * i - 1)) & 1;
+                s += (val >>> (2 * i - 2)) & 1;
+                if (i > 1) {
+                    s += " ";
+                }
+            }
+            s += ")";
+            list.add(s);
+        }
+        return list;
     }
 
     @OnlyIn(Dist.CLIENT)

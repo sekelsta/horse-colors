@@ -51,7 +51,6 @@ public class HorseGeneticEntity extends HorseEntity implements IHorseShape, IGen
     public HorseGeneticEntity(EntityType<? extends HorseGeneticEntity> entityType, World worldIn)
     {
         super(entityType, worldIn);
-        genes = new HorseGenome(this);
     }
 
     public HorseGenome getGenes() {
@@ -143,6 +142,7 @@ public class HorseGeneticEntity extends HorseEntity implements IHorseShape, IGen
             // Default horse health ranges from 15 to 30, but ours goes from
             // 15 to 31
             float maxHealth = 15.0F + this.getGenes().getStat("health") * 0.5F;
+            maxHealth += this.getGenes().getBaseHealth();
             // Vanilla horse speed ranges from 0.1125 to 0.3375, as does ours
             double movementSpeed = 0.1125D + this.getGenes().getStat("speed") * (0.225D / 32.0D);
             // Vanilla horse jump strength ranges from 0.4 to 1.0, as does ours
@@ -152,13 +152,19 @@ public class HorseGeneticEntity extends HorseEntity implements IHorseShape, IGen
             this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(movementSpeed);
             this.getAttribute(JUMP_STRENGTH).setBaseValue(jumpStrength);
         }
+        else {
+            float maxHealth = this.getModifiedMaxHealth() + this.getGenes().getBaseHealth();
+            this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue((double)maxHealth);
+        }
     }
 
     @Override
     protected void registerAttributes()
     {
         super.registerAttributes();
-        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue((double)this.getModifiedMaxHealth());
+        genes = new HorseGenome(this);
+        float maxHealth = this.getModifiedMaxHealth() + this.getGenes().getBaseHealth();
+        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue((double)maxHealth);
         this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(this.getModifiedMovementSpeed());
         this.getAttribute(JUMP_STRENGTH).setBaseValue(this.getModifiedJumpStrength());
     }

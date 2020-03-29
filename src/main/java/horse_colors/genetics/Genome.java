@@ -31,8 +31,8 @@ public abstract class Genome {
         this.textureCacheName = null;
     }
 
-    public abstract String humanReadableNamedGenes();
-    public abstract String humanReadableStats();
+    public abstract List<String> humanReadableNamedGenes();
+    public abstract List<String> humanReadableStats();
     public abstract void setTexturePaths();
 
     @OnlyIn(Dist.CLIENT)
