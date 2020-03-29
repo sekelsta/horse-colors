@@ -28,8 +28,7 @@ public class DonkeyGeneticEntity extends DonkeyEntity implements IHorseShape, IG
     private static final DataParameter<Integer> HORSE_RANDOM = EntityDataManager.<Integer>createKey(DonkeyGeneticEntity.class, DataSerializers.VARINT);
 
     public DonkeyGeneticEntity(EntityType<? extends DonkeyGeneticEntity> p_i50239_1_, World p_i50239_2_) {
-       super(p_i50239_1_, p_i50239_2_);
-       this.genes = new HorseGenome(this);
+        super(p_i50239_1_, p_i50239_2_);
     }
 
     @Override
@@ -93,6 +92,7 @@ public class DonkeyGeneticEntity extends DonkeyEntity implements IHorseShape, IG
             // Default horse health ranges from 15 to 30, but ours goes from
             // 15 to 31
             float maxHealth = 15.0F + this.getGenes().getStat("health") * 0.5F;
+            maxHealth += this.getGenes().getBaseHealth();
             // Vanilla horse speed ranges from 0.1125 to 0.3375
             // Vanilla donkeys have 0.175 speed
             double movementSpeed = 0.11D + this.getGenes().getStat("speed") * (0.2D / 32.0D);
@@ -110,7 +110,9 @@ public class DonkeyGeneticEntity extends DonkeyEntity implements IHorseShape, IG
     protected void registerAttributes()
     {
         super.registerAttributes();
-        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue((double)this.getModifiedMaxHealth());
+        this.genes = new HorseGenome(this);
+        float maxHealth = this.getModifiedMaxHealth() + this.getGenes().getBaseHealth();
+        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue((double)maxHealth);
         this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(this.getModifiedMovementSpeed());
         this.getAttribute(JUMP_STRENGTH).setBaseValue(this.getModifiedJumpStrength());
     }

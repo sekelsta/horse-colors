@@ -20,9 +20,9 @@ public class HorseConfig
 
     public static class Common {
         public static BooleanValue useGeneticStats;
+        public static BooleanValue enableHealthEffects;
         public static BooleanValue horseDebugInfo;
         public static DoubleValue mutationChance;
-
 
         Common(final ForgeConfigSpec.Builder builder) {
             builder.comment("Common config settings")
@@ -33,6 +33,13 @@ public class HorseConfig
             "through genetics instead of the default Minecraft way")
                     .translation("horse_colors.config.common.useGeneticStats")
                     .define("useGeneticStats", false);
+
+            enableHealthEffects = builder
+                    .comment("If enabled, certain genes will have a small impact on health,",
+                             "as they do in real life. This does not prevent Overo Lethal",
+                             "White Syndrome.")
+                    .translation("horse_colors.config.common.enableHealthEffects")
+                    .define("enableHealthEffects", true);
 
             horseDebugInfo = builder
                     .comment("If enabled, debugging information will appear on the screen when the",

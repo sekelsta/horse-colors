@@ -1,6 +1,7 @@
 package sekelsta.horse_colors.genetics;
 
 import sekelsta.horse_colors.HorseColors;
+import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.renderer.ComplexLayeredTexture.Layer;
 
 import com.google.common.collect.ImmutableList;
@@ -251,8 +252,26 @@ public class HorseGenome extends Genome {
         }
     }
 
+    public float getDeafHealthLoss() {
+        int white = HorseColorCalculator.getFaceWhiteLevel(this);
+        if (white > 18) {
+            return 1f;
+        }
+        else {
+            return 0f;
+        }
+    }
+
     public float getBaseHealth() {
-        return -getGrayHealthLoss() - getSilverHealthLoss();
+        System.out.println(HorseConfig.COMMON);
+        System.out.println(HorseConfig.COMMON.enableHealthEffects);
+        System.out.println(HorseConfig.COMMON.enableHealthEffects.get());
+        if (HorseConfig.COMMON.enableHealthEffects.get()) {
+            return -getGrayHealthLoss() - getSilverHealthLoss() - getDeafHealthLoss();
+        }
+        else {
+            return 0;
+        }
     }
 
     // A special case because it has two different alleles

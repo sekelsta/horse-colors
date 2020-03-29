@@ -329,8 +329,7 @@ public class HorseColorCalculator
         return "gray_mane";
     }
 
-    public static Layer getFaceMarking(HorseGenome horse)
-    {
+    public static int getFaceWhiteLevel(HorseGenome horse) {
         int white = -2;
         if (horse.hasAllele("white_suppression", 1))
         {
@@ -357,16 +356,15 @@ public class HorseColorCalculator
         white += horse.countAlleles("white_forelegs", 1);
         white += horse.countAlleles("white_hindlegs", 1);
 
-        // Anything after here doesn't create face white from scratch, but
-        // only increases the size
-        if (white <= -2) {
-            return null;
-        }
-
         if (horse.hasMC1RWhiteBoost()) {
             white += 2;
         }
+        return white;
+    }
 
+    public static Layer getFaceMarking(HorseGenome horse)
+    {
+        int white = getFaceWhiteLevel(horse);
         // Turn a signed integer into unsigned, also drop a few bits 
         // used elsewhere
         int random = (horse.getChromosome("random") << 1) 
