@@ -1,5 +1,6 @@
 package sekelsta.horse_colors.init;
 import sekelsta.horse_colors.HorseColors;
+import sekelsta.horse_colors.CreativeTab;
 import sekelsta.horse_colors.config.HorseConfig;
 
 import sekelsta.horse_colors.entity.*;
@@ -56,13 +57,13 @@ public class ModEntities {
             MULE_GENETIC = EntityType.Builder.create(MuleGeneticEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F).build(muleRegistryName.toString());
             MULE_GENETIC.setRegistryName(muleRegistryName);
 
-            HORSE_SPAWN_EGG = new SpawnEggItem(HORSE_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(ItemGroup.MISC));
+            HORSE_SPAWN_EGG = new SpawnEggItem(HORSE_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(CreativeTab.instance));
             HORSE_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "horse_genetic_spawn_egg"));
 
-            DONKEY_SPAWN_EGG = new SpawnEggItem(DONKEY_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(ItemGroup.MISC));
+            DONKEY_SPAWN_EGG = new SpawnEggItem(DONKEY_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(CreativeTab.instance));
             DONKEY_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "donkey_genetic_spawn_egg"));
 
-            MULE_SPAWN_EGG = new SpawnEggItem(MULE_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(ItemGroup.MISC));
+            MULE_SPAWN_EGG = new SpawnEggItem(MULE_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(CreativeTab.instance));
             MULE_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "mule_genetic_spawn_egg"));
     }
 /*

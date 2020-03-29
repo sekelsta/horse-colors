@@ -425,7 +425,7 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         float grassEatingAmount = abstracthorse.getGrassEatingAmount(partialTickTime);
         float rearingAmount = abstracthorse.getRearingAmount(partialTickTime);
         float notRearingAmount = 1.0F - rearingAmount;
-        boolean flag = abstracthorse.tailCounter != 0;
+        boolean isSwishingTail = abstracthorse.tailCounter != 0;
         boolean isSaddled = abstracthorse.isHorseSaddled();
         boolean isBeingRidden = abstracthorse.isBeingRidden();
         float ticks = (float)entityIn.ticksExisted + partialTickTime;
@@ -504,7 +504,7 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
             tailRotation = 0.0F;
         }
 
-        if (flag)
+        if (isSwishingTail)
         {
             this.tailBase.rotateAngleY = MathHelper.cos(ticks * 0.7F);
             this.tailThin.rotateAngleY = MathHelper.cos(ticks * 0.7F);
