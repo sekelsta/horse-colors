@@ -17,31 +17,27 @@ import org.apache.logging.log4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class ComplexLayeredTexture extends Texture {
     private static final Logger LOGGER = LogManager.getLogger();
+    public final String shading_name;
     public final List<Layer> layers;
 
-    public ComplexLayeredTexture(List<Layer> textures) {
+    public ComplexLayeredTexture(List<Layer> textures, String shading) {
         this.layers = Lists.newArrayList(textures);
         if (this.layers.isEmpty()) {
             throw new IllegalStateException("Layered texture with no layers.");
         }
+        this.shading_name = shading;
     }
 
-    public NativeImage getLayer(IResourceManager manager, Layer layer) {
+    public NativeImage getLayer(IResourceManager manager, Layer layer, NativeImage shading) {
         if (layer.name == null) {
             LOGGER.error("Attempting to load unspecified texture (name is null)\n"
-                + "Shading: " + String.valueOf(layer.shading) + "\n" 
+                + "Shading: " + String.valueOf(shading_name) + "\n" 
                 + "Mask: " + String.valueOf(layer.mask));
             return null;
         }
         try (IResource iresource = manager.getResource(new ResourceLocation(layer.name))) {
             NativeImage image = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(layer.name), manager);
-            NativeImage shading = null;
             NativeImage mask = null;
-            if (layer.shading != null) {
-                try (IResource iresources = manager.getResource(new ResourceLocation(layer.shading))) {
-                    shading = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(layer.shading), manager);
-                }
-            }
             if (layer.mask != null) {
                 try (IResource iresources = manager.getResource(new ResourceLocation(layer.mask))) {
                     mask = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(layer.mask), manager);
@@ -49,7 +45,7 @@ public class ComplexLayeredTexture extends Texture {
             }
             colorLayer(image, shading, mask, layer);
             if (layer.next != null) {
-                blendLayerKeepAlpha(image, getLayer(manager, layer.next));
+                blendLayerKeepAlpha(image, getLayer(manager, layer.next, shading));
             }
             return image;
         } catch (IOException ioexception) {
@@ -109,7 +105,13 @@ public class ComplexLayeredTexture extends Texture {
     public void loadTexture(IResourceManager manager) throws IOException {
         Iterator<Layer> iterator = this.layers.iterator();
         Layer baselayer = iterator.next();
-        NativeImage baseimage = getLayer(manager, baselayer);
+        NativeImage shading = null;
+        if (shading_name != null) {
+            try (IResource iresources = manager.getResource(new ResourceLocation(shading_name))) {
+                shading = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(shading_name), manager);
+            }
+        }
+        NativeImage baseimage = getLayer(manager, baselayer, shading);
         if (baseimage == null) {
             // getLayer() will already have logged an error
             return;
@@ -121,7 +123,7 @@ public class ComplexLayeredTexture extends Texture {
                 continue;
             }
             if (layer.name != null) {
-                NativeImage image = getLayer(manager, layer);
+                NativeImage image = getLayer(manager, layer, shading);
                 if (image != null) {
                     blendLayer(baseimage, image);
                 }
@@ -144,7 +146,6 @@ public class ComplexLayeredTexture extends Texture {
 
     public static class Layer {
         public String name;
-        public String shading;
         public String mask;
         public int alpha;
         public int red;
@@ -152,11 +153,10 @@ public class ComplexLayeredTexture extends Texture {
         public int blue;
         // Don't go overboard and chain thousands of layers together
         // They all have to fit in memory at once and are rendered
-        // recursively so therer is potential for stack overflow
+        // recursively so there is potential for stack overflow
         public Layer next;
         public Layer() {
             name = null;
-            shading = null;
             mask = null;
             alpha = 255;
             red = 255;
@@ -186,7 +186,7 @@ public class ComplexLayeredTexture extends Texture {
             float sb = NativeImage.getBlue(shading);
             float a = (float)NativeImage.getAlpha(shading) / 255.0F;
             float avg = (float)(this.red + this.green + this.blue) / 255.0F / 3.0F;
-            a *= (1.0F - 3.0f/4.0f*avg);
+            a *= (1.0F - 0.5f*avg);
             float na = 1.0F - a;
             float r = Math.min(255.0F, sr * a + cr * na);
             float g = Math.min(255.0F, sg * a + cg * na);

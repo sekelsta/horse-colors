@@ -15,6 +15,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import sekelsta.horse_colors.genetics.HorseColorCalculator;
+
 // Can't inherit from AbstractHorseRenderer because that uses HorseModel
 @OnlyIn(Dist.CLIENT)
 public class HorseGeneticRenderer extends MobRenderer<AbstractHorseEntity, HorseGeneticModel<AbstractHorseEntity>>
@@ -50,7 +52,10 @@ public class HorseGeneticRenderer extends MobRenderer<AbstractHorseEntity, Horse
             if (resourcelocation == null)
             {
                 resourcelocation = new ResourceLocation(s);
-                Minecraft.getInstance().getTextureManager().loadTexture(resourcelocation, new ComplexLayeredTexture(((IGeneticEntity)entity).getGenes().getVariantTexturePaths()));
+                Minecraft.getInstance().getTextureManager().loadTexture(
+                    resourcelocation, 
+                    new ComplexLayeredTexture(((IGeneticEntity)entity).getGenes().getVariantTexturePaths(), HorseColorCalculator.fixPath("shading"))
+                );
                 LAYERED_LOCATION_CACHE.put(s, resourcelocation);
             }
 

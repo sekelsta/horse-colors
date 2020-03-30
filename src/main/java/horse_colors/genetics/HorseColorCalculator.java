@@ -106,7 +106,6 @@ public class HorseColorCalculator
     public static Layer getRedBody(HorseGenome horse) {
         Layer layer = new Layer();
         layer.name = fixPath("base");
-        layer.shading = fixPath("shading");
         colorRedBody(horse, layer);
         return layer;
     }
@@ -142,7 +141,6 @@ public class HorseColorCalculator
             return null;
         }
         Layer layer = new Layer();
-        layer.shading = fixPath("shading");
 
         switch(horse.getMaxAllele("agouti"))
         {
@@ -169,7 +167,6 @@ public class HorseColorCalculator
             return null;
         }
         Layer layer = new Layer();
-        layer.shading = fixPath("shading");
         if (horse.hasAllele("cream", HorseAlleles.CREAM)) {
             layer.name = fixPath("manetail");
             setCreamy(layer);
@@ -200,7 +197,6 @@ public class HorseColorCalculator
         }
         Layer layer = new Layer();
         layer.name = fixPath("flaxen");
-        layer.shading = fixPath("shading");
         setFlaxen(layer);
         return layer;
     }
@@ -218,6 +214,12 @@ public class HorseColorCalculator
         return layer;
     }
 
+    public static Layer getHooves(HorseGenome horse) {
+        Layer layer = new Layer();
+        layer.name = fixPath("hooves");
+        return layer;
+    }
+
     public static void setDun(HorseGenome horse, Layer base) {
         if (base == null) {
             return;
@@ -227,7 +229,6 @@ public class HorseColorCalculator
         }
         Layer layer = new Layer();
         layer.name = base.name;
-        layer.shading = base.shading;
         layer.mask = fixPath("dun");
 
         float r = base.red / 255.0F;
@@ -252,7 +253,6 @@ public class HorseColorCalculator
         }
         Layer layer = new Layer();
         layer.name = fixPath("base");
-        layer.shading = fixPath("shading");
         if (!horse.isDoubleCream()) {
             layer.red = 0xeb;
             layer.green = 0xeb;
@@ -291,7 +291,6 @@ public class HorseColorCalculator
             layer.alpha -= (int)(0.15f * 255.0F);
         }
 
-        layer.shading = fixPath("shading");
         colorBlackBody(horse, layer);
 
         return layer;
@@ -478,7 +477,6 @@ public class HorseColorCalculator
         if (horse.isWhite())
         {
             layer.name = fixPath("base");
-            layer.shading = fixPath("shading");
             return layer;
         }
 

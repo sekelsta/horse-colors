@@ -414,6 +414,7 @@ public class HorseGenome extends Genome {
         this.textureLayers.add(HorseColorCalculator.getSooty(this));
         this.textureLayers.add(HorseColorCalculator.getGray(this));
         this.textureLayers.add(HorseColorCalculator.getNose(this));
+        this.textureLayers.add(HorseColorCalculator.getHooves(this));
 
         if (this.hasAllele("KIT", HorseAlleles.KIT_ROAN)) {
             Layer roan = new Layer();
