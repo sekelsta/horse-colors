@@ -23,6 +23,7 @@ public class HorseConfig
         public static BooleanValue enableHealthEffects;
         public static BooleanValue horseDebugInfo;
         public static DoubleValue mutationChance;
+        public static BooleanValue enableGroundTie;
 
         Common(final ForgeConfigSpec.Builder builder) {
             builder.comment("Common config settings")
@@ -40,6 +41,11 @@ public class HorseConfig
                              "White Syndrome.")
                     .translation("horse_colors.config.common.enableHealthEffects")
                     .define("enableHealthEffects", true);
+
+            enableGroundTie = builder
+                    .comment("If enabled, horses will not wander off if they are wearing a saddle.")
+                    .translation("horse_colors.config.common.enableGroundTie")
+                    .define("enableGroundTie", true);
 
             horseDebugInfo = builder
                     .comment("If enabled, debugging information will appear on the screen when the",

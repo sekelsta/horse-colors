@@ -8,6 +8,7 @@ import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.horse.*;
 import net.minecraft.entity.player.PlayerEntity;
@@ -32,6 +33,7 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
 import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.entity.ai.RandomWalkGroundTie;
 import sekelsta.horse_colors.init.ModEntities;
 import sekelsta.horse_colors.genetics.*;
 import sekelsta.horse_colors.util.Util;
@@ -51,6 +53,18 @@ public class HorseGeneticEntity extends HorseEntity implements IHorseShape, IGen
     public HorseGeneticEntity(EntityType<? extends HorseGeneticEntity> entityType, World worldIn)
     {
         super(entityType, worldIn);
+    }
+
+    @Override
+    protected void registerGoals() {
+        this.goalSelector.addGoal(1, new PanicGoal(this, 1.2D));
+        this.goalSelector.addGoal(1, new RunAroundLikeCrazyGoal(this, 1.2D));
+        this.goalSelector.addGoal(2, new BreedGoal(this, 1.0D, AbstractHorseEntity.class));
+        this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.0D));
+        this.goalSelector.addGoal(6, new RandomWalkGroundTie(this, 0.7D));
+        this.goalSelector.addGoal(7, new LookAtGoal(this, PlayerEntity.class, 6.0F));
+        this.goalSelector.addGoal(8, new LookRandomlyGoal(this));
+        this.initExtraAI();
     }
 
     public HorseGenome getGenes() {
