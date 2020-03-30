@@ -10,6 +10,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class HorseGenome extends Genome {
@@ -263,9 +264,6 @@ public class HorseGenome extends Genome {
     }
 
     public float getBaseHealth() {
-        System.out.println(HorseConfig.COMMON);
-        System.out.println(HorseConfig.COMMON.enableHealthEffects);
-        System.out.println(HorseConfig.COMMON.enableHealthEffects.get());
         if (HorseConfig.COMMON.enableHealthEffects.get()) {
             return -getGrayHealthLoss() - getSilverHealthLoss() - getDeafHealthLoss();
         }
@@ -314,190 +312,10 @@ public class HorseGenome extends Genome {
     }
 
     public void randomizeNamedGenes() {
-        ImmutableList<Float> extension = ImmutableList.of(
-            0.125f, 0.25f, 0.375f, 0.5f, // Red
-            0.625f, 0.75f, 0.875f, 1.0f  // Black
-        );
-        setNamedGene("extension", chooseRandom(extension));
-
-        ImmutableList<Float> gray = ImmutableList.of(
-            0.95f, // Non-gray
-            1.0f   // Gray
-        );
-        setNamedGene("gray", chooseRandom(gray));
-
-        ImmutableList<Float> dun = ImmutableList.of(
-            0.75f,  // Non-dun 2
-            0.875f, // Non-dun 1
-            1f,     // Dun
-            0f      // Dun unused
-        );
-        setNamedGene("dun", chooseRandom(dun));
-
-        ImmutableList<Float> agouti = ImmutableList.of(
-            0.375f,     // Black
-            0.4375f,    // Seal
-            0.5f,       // Brown - same as seal
-            0.625f,     // Bay_dark - same as bay
-            0.75f,      // Bay
-            0.875f,     // Bay_light - same as bay
-            0.9375f,    // Bay_wild
-            1.0f        // Bay_mealy - same as bay_wild
-        );
-        setNamedGene("agouti", chooseRandom(agouti));
-
-        ImmutableList<Float> silver = ImmutableList.of(
-            31.0f / 32.0f,  // Non-silver
-            1.0f            // Silver
-        );
-        setNamedGene("silver", chooseRandom(silver));
-
-        ImmutableList<Float> cream = ImmutableList.of(
-            30f / 32f,  // Non-cream
-            0f,         // Non-cream unused
-            31f / 32f,  // Pearl
-            1f          // Cream
-        );
-        setNamedGene("cream", chooseRandom(cream));
-
-        ImmutableList<Float> liver = ImmutableList.of(
-            0.25f,  // Liver
-            1f      // Non-liver
-        );
-        setNamedGene("liver", chooseRandom(liver));
-
-        ImmutableList<Float> flaxen = ImmutableList.of(
-            0.2f,   // Flaxen
-            1f      // Non-flaxen
-        );
-        setNamedGene("flaxen1", chooseRandom(flaxen));
-        setNamedGene("flaxen2", chooseRandom(flaxen));
-
-        ImmutableList<Float> dapple = ImmutableList.of(
-            0.5f,   // Non-dapple
-            1f      // Dapple
-        );
-        setNamedGene("dapple", chooseRandom(dapple));
-
-        ImmutableList<Float> sooty = ImmutableList.of(
-            0.75f,  // Non-sooty
-            1f      // Sooty
-        );
-        setNamedGene("sooty1", chooseRandom(sooty));
-        setNamedGene("sooty2", chooseRandom(sooty));
-
-        ImmutableList<Float> sooty3 = ImmutableList.of(
-            0.5f,   // Non-sooty
-            1f      // Sooty
-        );
-        setNamedGene("sooty3", chooseRandom(sooty3));
-
-        ImmutableList<Float> mealy = ImmutableList.of(
-            0.75f,  // Non-mealy
-            1f      // Mealy
-        );
-        setNamedGene("mealy1", chooseRandom(mealy));
-        setNamedGene("mealy2", chooseRandom(mealy));
-        setNamedGene("mealy3", chooseRandom(mealy));
-
-        ImmutableList<Float> white_suppression = ImmutableList.of(
-            31f / 32f,  // Non white-suppression
-            1f          // White suppression
-        );
-        setNamedGene("white_suppression", chooseRandom(white_suppression));
-
-        ImmutableList<Float> kit = ImmutableList.of(
-            0.4f,   // Wildtype
-            0.5f,   // White boost
-            0.55f,  // Markings1
-            0.6f,   // Markings2
-            0.65f,  // Markings3
-            0.7f,   // Markings4
-            0.75f,  // Markings5
-            0.82f,  // W20
-            0f,     // Rabicano / Unused
-            0.86f,  // Flashy white
-            0f,     // Unused
-            0.90f,  // Tobiano
-            0.94f,  // Sabino1
-            0.96f,  // Tobiano + W20
-            0.97f,  // Roan
-            1.0f    // Dominant white
-        );
-        setNamedGene("KIT", chooseRandom(kit));
-
-        ImmutableList<Float> frame = ImmutableList.of(
-            31f / 32f,  // Non-frame
-            1f          // Frame
-        );
-        setNamedGene("frame", chooseRandom(frame));
-
-        ImmutableList<Float> mitf = ImmutableList.of(
-            0.15f,  // SW1
-            0.18f,  // SW3
-            0.20f,  // SW5
-            1.0f    // Wildtype
-        );
-        setNamedGene("MITF", chooseRandom(mitf));
-
-        ImmutableList<Float> pax3 = ImmutableList.of(
-            0.9f,   // Wildtype
-            0.94f,  // SW2
-            0.98f,  // SW4
-            1.0f    // Unused
-        );
-        setNamedGene("PAX3", chooseRandom(pax3));
-
-        ImmutableList<Float> leopard = ImmutableList.of(
-            31f / 32f,  // Non-leopard
-            1f          // Leopard
-        );
-        setNamedGene("leopard", chooseRandom(leopard));
-
-        ImmutableList<Float> patn = ImmutableList.of(
-            15f / 16f,  // Non-PATN
-            1f          // PATN
-        );
-        setNamedGene("PATN1", chooseRandom(patn));
-        setNamedGene("PATN2", chooseRandom(patn));
-        setNamedGene("PATN3", chooseRandom(patn));
-
-        ImmutableList<Float> gray_suppression = ImmutableList.of(
-            0.975f, // Non gray-suppression
-            1f      // Gray suppression
-        );
-        setNamedGene("gray_suppression", chooseRandom(gray_suppression));
-
-        ImmutableList<Float> gray_mane = ImmutableList.of(
-            0.75f,  // Lighter
-            1f      // Darker
-        );
-        setNamedGene("gray_mane", chooseRandom(gray_mane));
-
-        ImmutableList<Float> slow_gray1 = ImmutableList.of(
-            0.875f, // Lighter
-            1f      // Darker
-        );
-        setNamedGene("slow_gray1", chooseRandom(slow_gray1));
-
-        ImmutableList<Float> slow_gray2 = ImmutableList.of(
-            0.75f,  // Lighter
-            1f      // Darker
-        );
-        setNamedGene("slow_gray2", chooseRandom(slow_gray2));
-
-        ImmutableList<Float> white_star = ImmutableList.of(
-            0.75f,  // Less white
-            1f      // More white
-        );
-        setNamedGene("white_star", chooseRandom(white_star));
-
-        ImmutableList<Float> white_legs = ImmutableList.of(
-            0.75f,  // Less white
-            1f      // More white
-        );
-        setNamedGene("white_forelegs", chooseRandom(white_legs));
-        setNamedGene("white_hindlegs", chooseRandom(white_legs));
+        HashMap<String, ImmutableList<Float>> map = HorseBreeds.DEFAULT;
+        for (String gene : genes) {
+            setNamedGene(gene, chooseRandom(map.get(gene)));
+        }
     }
 
     /* Make the horse have random genetics. */
