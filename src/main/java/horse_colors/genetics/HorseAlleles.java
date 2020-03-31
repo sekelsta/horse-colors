@@ -25,8 +25,8 @@ public class HorseAlleles
     public static final int A_BAY_DARK = 3;
     public static final int A_BAY = 4;
     public static final int A_BAY_LIGHT = 5;
-    public static final int A_BAY_WILD = 6;
-    public static final int A_BAY_MEALY = 7;
+    public static final int A_BAY_SEMIWILD = 6;
+    public static final int A_BAY_WILD = 7;
 
     // Dun (TBX3)
     public static final int NONDUN2 = 0;

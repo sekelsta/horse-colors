@@ -31,8 +31,8 @@ public class HorseBreeds {
             0.625f,     // Bay_dark - same as bay
             0.75f,      // Bay
             0.875f,     // Bay_light - same as bay
-            0.9375f,    // Bay_wild
-            1.0f        // Bay_mealy - same as bay_wild
+            0.9375f,    // Bay_semiwild
+            1.0f        // Bay_wild
         ));
         DEFAULT.put("silver", ImmutableList.of(
             31.0f / 32.0f,  // Non-silver

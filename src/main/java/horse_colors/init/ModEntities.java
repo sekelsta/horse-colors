@@ -119,7 +119,6 @@ public class ModEntities {
                 if (excludeBiomes.contains(biome)) {
                     continue;
                 }
-                System.out.println("Adding spawn " + String.valueOf(biome));
                 List<Biome.SpawnListEntry> spawns = biome.getSpawns(EntityClassification.CREATURE);
                 spawns.add(new Biome.SpawnListEntry(HORSE_GENETIC, bw.weight, HorseConfig.SPAWN.minHerdSize.get(), HorseConfig.SPAWN.maxHerdSize.get()));
             }
@@ -182,10 +181,7 @@ public class ModEntities {
                     if (entry.entityType == EntityType.HORSE) {
                         horseSpawns.add(entry);
                     }
-                }/*
-                if (!horseSpawns.isEmpty()) {
-                    System.out.println(horseSpawns);
-                }*/
+                }
                 for (Biome.SpawnListEntry horseSpawn : horseSpawns) {
                     spawns.remove(horseSpawn);
                 }
