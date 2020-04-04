@@ -34,6 +34,9 @@ public abstract class Genome {
     public abstract List<String> humanReadableNamedGenes();
     public abstract List<String> humanReadableStats();
     public abstract void setTexturePaths();
+    public abstract String genesToString();
+    public abstract void genesFromString(String s);
+    public abstract boolean isValidGeneString(String s);
 
     @OnlyIn(Dist.CLIENT)
     public String getTexture()

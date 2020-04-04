@@ -1,21 +1,28 @@
 package sekelsta.horse_colors.entity;
 
+import com.google.common.collect.ImmutableList;
+import java.util.List;
+
 import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.passive.horse.*;
 import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.passive.horse.*;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.world.World;
-
+import net.minecraft.item.BookItem;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.util.Hand;
+import net.minecraft.world.World;
 
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.ai.RandomWalkGroundTie;
+import sekelsta.horse_colors.init.ModItems;
+import sekelsta.horse_colors.item.GeneBookItem;
 import sekelsta.horse_colors.genetics.*;
 import sekelsta.horse_colors.init.ModEntities;
 import sekelsta.horse_colors.util.Util;
@@ -132,6 +139,19 @@ public class DonkeyGeneticEntity extends DonkeyEntity implements IHorseShape, IG
         this.getAttribute(JUMP_STRENGTH).setBaseValue(this.getModifiedJumpStrength());
     }
 
+    /**
+     * Called to update the entity's position/logic.
+     */
+    @Override
+    public void tick()
+    {
+        super.tick();
+        if (this.world.isRemote && this.dataManager.isDirty()) {
+            this.dataManager.setClean();
+            this.getGenes().resetTexture();
+        }
+    }
+
     public boolean fluffyTail() {
         return false;
     }
@@ -172,24 +192,29 @@ public class DonkeyGeneticEntity extends DonkeyEntity implements IHorseShape, IG
     public void setChromosome(String name, int variant)
     {
         switch(name) {
-            // Break for anything that affects color, return otherwise
             case "0":
                 this.dataManager.set(HORSE_VARIANT, variant);
-                break;
+                this.getGenes().resetTexture();
+                return;
             case "1":
                 this.dataManager.set(HORSE_VARIANT2, variant);
-                break;
+                this.getGenes().resetTexture();
+                return;
             case "2":
                 this.dataManager.set(HORSE_VARIANT3, variant);
-                break;
+                this.getGenes().resetTexture();
+                return;
             case "speed":
                 this.dataManager.set(HORSE_SPEED, variant);
+                this.useGeneticAttributes();
                 return;
             case "jump":
                 this.dataManager.set(HORSE_JUMP, variant);
+                this.useGeneticAttributes();
                 return;
             case "health":
                 this.dataManager.set(HORSE_HEALTH, variant);
+                this.useGeneticAttributes();
                 return;
             case "random":
                 this.dataManager.set(HORSE_RANDOM, variant);
@@ -199,6 +224,30 @@ public class DonkeyGeneticEntity extends DonkeyEntity implements IHorseShape, IG
                                  + name + "\n");
         }
         this.getGenes().resetTexture();
+    }
+
+    @Override
+    public boolean processInteract(PlayerEntity player, Hand hand) {
+        ItemStack itemstack = player.getHeldItem(hand);
+        if (!itemstack.isEmpty() && itemstack.getItem() instanceof BookItem 
+                && (this.isTame() || player.abilities.isCreativeMode)) {
+            ItemStack book = new ItemStack(ModItems.geneBookItem);
+            if (book.getTag() == null) {
+                book.setTag(new CompoundNBT());
+            }
+            book.getTag().putString("species", GeneBookItem.Species.DONKEY.name());
+            book.getTag().putString("genes", this.getGenes().genesToString());
+            if (!player.addItemStackToInventory(book)) {
+                this.entityDropItem(book);
+            }
+            if (!player.abilities.isCreativeMode) {
+                itemstack.shrink(1);
+            }
+            return true;
+        }
+        else {
+            return super.processInteract(player, hand);
+        }
     }
 
    /**

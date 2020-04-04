@@ -92,6 +92,8 @@ public class HorseGenome extends Genome {
         "jump"
     );
 
+    public static final ImmutableList<String> chromosomes = ImmutableList.of("0", "1", "2", "speed", "jump", "health", "random");
+
     public HorseGenome(IGeneticEntity entityIn) {
         super(entityIn);
     }
@@ -452,6 +454,30 @@ public class HorseGenome extends Genome {
         }
     }
 
+    public String genesToString() {
+        String answer = "";
+        for (String chr : chromosomes) {
+            answer += String.format("%1$08X", getChromosome(chr));
+        }
+        return answer;
+    }
+
+    public void genesFromString(String s) {
+        for (int i = 0; i < chromosomes.size(); ++i) {
+            String c = s.substring(8 * i, 8 * (i + 1));
+            entity.setChromosome(chromosomes.get(i), (int)Long.parseLong(c, 16));
+        }
+    }
+
+    public boolean isValidGeneString(String s) {
+        if (s.length() != 8 * chromosomes.size()) {
+            return false;
+        }
+        if (!s.matches("[0-9a-fA-F]*")) {
+            return false;
+        }
+        return true;
+    }
 
     public void setChildGenes(HorseGenome other, IGeneticEntity childEntity) {
 

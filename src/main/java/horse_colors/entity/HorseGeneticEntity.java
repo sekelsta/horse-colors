@@ -1,5 +1,7 @@
 package sekelsta.horse_colors.entity;
 
+import com.google.common.collect.ImmutableList;
+import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -17,6 +19,7 @@ import net.minecraft.entity.SpawnReason;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.HorseArmorItem;
+import net.minecraft.item.BookItem;
 import net.minecraft.item.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpawnEggItem;
@@ -35,6 +38,8 @@ import net.minecraft.world.World;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.ai.RandomWalkGroundTie;
 import sekelsta.horse_colors.init.ModEntities;
+import sekelsta.horse_colors.init.ModItems;
+import sekelsta.horse_colors.item.GeneBookItem;
 import sekelsta.horse_colors.genetics.*;
 import sekelsta.horse_colors.util.Util;
 
@@ -189,6 +194,12 @@ public class HorseGeneticEntity extends HorseEntity implements IHorseShape, IGen
     @Override
     public void tick()
     {
+        // This has to be done before the call to super because HorseEntity
+        // will set the datamanager to clean
+        if (this.world.isRemote && this.dataManager.isDirty()) {
+            this.dataManager.setClean();
+            this.getGenes().resetTexture();
+        }
         super.tick();
 
         // Overo lethal white syndrome
@@ -223,24 +234,29 @@ public class HorseGeneticEntity extends HorseEntity implements IHorseShape, IGen
     public void setChromosome(String name, int variant)
     {
         switch(name) {
-            // Break for anything that affects color, return otherwise
             case "0":
                 this.setHorseVariant(variant);
-                break;
+                this.getGenes().resetTexture();
+                return;
             case "1":
                 this.dataManager.set(HORSE_VARIANT2, variant);
-                break;
+                this.getGenes().resetTexture();
+                return;
             case "2":
                 this.dataManager.set(HORSE_VARIANT3, variant);
-                break;
+                this.getGenes().resetTexture();
+                return;
             case "speed":
                 this.dataManager.set(HORSE_SPEED, variant);
+                this.useGeneticAttributes();
                 return;
             case "jump":
                 this.dataManager.set(HORSE_JUMP, variant);
+                this.useGeneticAttributes();
                 return;
             case "health":
                 this.dataManager.set(HORSE_HEALTH, variant);
+                this.useGeneticAttributes();
                 return;
             case "random":
                 this.dataManager.set(HORSE_RANDOM, Integer.valueOf(variant));
@@ -249,7 +265,6 @@ public class HorseGeneticEntity extends HorseEntity implements IHorseShape, IGen
                 System.out.print("Unrecognized horse data for setting: "
                                  + name + "\n");
         }
-        this.getGenes().resetTexture();
     }
 
     public int getChromosome(String name)
@@ -275,6 +290,30 @@ public class HorseGeneticEntity extends HorseEntity implements IHorseShape, IGen
                 return 0;
         }
         
+    }
+
+    @Override
+    public boolean processInteract(PlayerEntity player, Hand hand) {
+        ItemStack itemstack = player.getHeldItem(hand);
+        if (!itemstack.isEmpty() && itemstack.getItem() instanceof BookItem 
+                && (this.isTame() || player.abilities.isCreativeMode)) {
+            ItemStack book = new ItemStack(ModItems.geneBookItem);
+            if (book.getTag() == null) {
+                book.setTag(new CompoundNBT());
+            }
+            book.getTag().putString("species", GeneBookItem.Species.HORSE.name());
+            book.getTag().putString("genes", this.getGenes().genesToString());
+            if (!player.addItemStackToInventory(book)) {
+                this.entityDropItem(book);
+            }
+            if (!player.abilities.isCreativeMode) {
+                itemstack.shrink(1);
+            }
+            return true;
+        }
+        else {
+            return super.processInteract(player, hand);
+        }
     }
 
     /**
