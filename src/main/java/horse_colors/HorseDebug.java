@@ -1,6 +1,6 @@
 package sekelsta.horse_colors;
 
-import sekelsta.horse_colors.entity.HorseGeneticEntity;
+import sekelsta.horse_colors.genetics.IGeneticEntity;
 import sekelsta.horse_colors.config.HorseConfig;
 
 import java.util.Iterator;
@@ -49,10 +49,10 @@ public class HorseDebug {
                 && mouseOver instanceof EntityRayTraceResult
                 && ((EntityRayTraceResult)mouseOver).getEntity() != null
                 //&& Minecraft.getInstance().objectMouseOver.getType == RayTraceResult.Type.ENTITY
-                && ((EntityRayTraceResult)mouseOver).getEntity() instanceof HorseGeneticEntity)
+                && ((EntityRayTraceResult)mouseOver).getEntity() instanceof IGeneticEntity)
             {
                 // If so, print information about it to the debug screen
-                HorseGeneticEntity horse = (HorseGeneticEntity)((EntityRayTraceResult)mouseOver).getEntity();
+                IGeneticEntity horse = (IGeneticEntity)((EntityRayTraceResult)mouseOver).getEntity();
                 // I thought I would need this to make everything fit on debug 
                 // mode, but it fits if I make the GUI smaller
                 // event.getRight().clear();
