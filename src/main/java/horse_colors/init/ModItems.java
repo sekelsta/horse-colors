@@ -17,7 +17,7 @@ public class ModItems {
 
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
-        geneBookItem = new GeneBookItem((new Item.Properties()).maxStackSize(1).group(CreativeTab.instance));
+        geneBookItem = new GeneBookItem((new Item.Properties()).maxStackSize(1));
         geneBookItem.setRegistryName("gene_book");
         ForgeRegistries.ITEMS.register(geneBookItem);
     }
