@@ -22,27 +22,22 @@ public class HorseColorCalculator
     }
 
     public static void setChestnut(Layer layer) {
-            layer.red = 0xa6;
-            layer.green = 0x57;
-            layer.blue = 0x2e;
+            // 5, 0.2 looks haflingerish
+            // 5, 0.1 looks medium chestnut
+            // 6, 0.1 looks liver chestnutish
+            setPheomelanin(layer, 5f, 0.1f);
     }
 
     public static void setLiverChestnut(Layer layer) {
-            layer.red = 0x76;
-            layer.green = 0x3e;
-            layer.blue = 0x1f;
+            setPheomelanin(layer, 6f, 0.08f);
     }
 
     public static void setGolden(Layer layer) {
-            layer.red = 0xdc;
-            layer.green = 0xa3;
-            layer.blue = 0x61;
+            setPheomelanin(layer, 4.2f, 0.27f);
     }
 
     public static void setCreamy(Layer layer) {
-            layer.red = 0xfd;
-            layer.green = 0xed;
-            layer.blue = 0xd2;
+            setPheomelanin(layer, 0.1f, 0.1f);
     }
 
     public static void setBlack(Layer layer) {
@@ -94,6 +89,28 @@ public class HorseColorCalculator
         layer.red = Math.max(0, Math.min(255, (int)red));
         layer.green = Math.max(0, Math.min(255, (int)green));
         layer.blue = Math.max(0, Math.min(255, (int)blue));
+    }
+
+    public static void addWhite(Layer layer, float white) {
+        layer.red = (int)(255. * white + layer.red * (1f - white));
+        layer.green = (int)(255. * white + layer.green * (1f - white));
+        layer.blue = (int)(255. * white + layer.blue * (1f - white));
+    }
+
+    public static void setPheomelanin(Layer layer, float concentration, float white) {
+        layer.red = 0xe4;
+        layer.green = 0xbf;
+        layer.blue = 0x77;
+        adjustConcentration(layer, concentration);
+        addWhite(white);
+    }
+
+    public static void setEumelanin(Layer layer, float concentration, float white) {
+        layer.red = 0xc2;
+        layer.green = 0x9b;
+        layer.blue = 0x5c;
+        adjustConcentration(layer, concentration);
+        addWhite(white);
     }
 
     public static void colorRedBody(HorseGenome horse, Layer layer) {
