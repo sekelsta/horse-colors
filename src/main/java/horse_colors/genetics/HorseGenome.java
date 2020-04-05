@@ -410,7 +410,7 @@ public class HorseGenome extends Genome {
         Layer red = HorseColorCalculator.getRedBody(this);
         Layer black = HorseColorCalculator.getBlackBody(this);
         this.textureLayers.add(red);
-        this.textureLayers.add(HorseColorCalculator.getRedManeTail(this));
+        HorseColorCalculator.addRedManeTail(this, this.textureLayers);
         this.textureLayers.add(black);
         this.textureLayers.add(HorseColorCalculator.getBlackManeTail(this));
         this.textureLayers.add(HorseColorCalculator.getSooty(this));

@@ -1,4 +1,5 @@
 package sekelsta.horse_colors.genetics;
+import java.util.List;
 import sekelsta.horse_colors.renderer.ComplexLayeredTexture.Layer;
 
 public class HorseColorCalculator
@@ -44,12 +45,6 @@ public class HorseColorCalculator
             layer.blue = 0xd2;
     }
 
-    public static void setFlaxen(Layer layer) {
-            layer.red = 0xea;
-            layer.green = 0xce;
-            layer.blue = 0xb3;
-    }
-
     public static void setBlack(Layer layer) {
             layer.red = 0x18;
             layer.green = 0x1a;
@@ -84,6 +79,21 @@ public class HorseColorCalculator
             layer.red = 0x3f;
             layer.green = 0x29;
             layer.blue = 0x1d;
+    }
+
+    public static void adjustConcentration(Layer layer, float power) {
+
+        float r = layer.red / 255.0F;
+        float g = layer.green / 255.0F;
+        float b = layer.blue / 255.0F;
+
+        float red = (float)Math.pow(r, power) * 255.0F;
+        float green = (float)Math.pow(g, power) * 255.0F;
+        float blue = (float)Math.pow(b, power) * 255.0F;
+
+        layer.red = Math.max(0, Math.min(255, (int)red));
+        layer.green = Math.max(0, Math.min(255, (int)green));
+        layer.blue = Math.max(0, Math.min(255, (int)blue));
     }
 
     public static void colorRedBody(HorseGenome horse, Layer layer) {
@@ -166,30 +176,40 @@ public class HorseColorCalculator
         return layer;
     }
 
-    public static Layer getRedManeTail(HorseGenome horse) {
+    public static void addRedManeTail(HorseGenome horse, List<Layer> layers) {
         if (!horse.isChestnut()) {
-            return null;
+            return;
         }
-        Layer layer = new Layer();
+
         if (horse.hasAllele("cream", HorseAlleles.CREAM)) {
-            layer.name = fixPath("manetail");
-            setCreamy(layer);
+            Layer palomino_mane = new Layer();
+            palomino_mane.name = fixPath("manetail");
+            setCreamy(palomino_mane);
+            layers.add(palomino_mane);
         }
-        else if (horse.isHomozygous("flaxen1", HorseAlleles.FLAXEN) 
+
+        if (!horse.isHomozygous("flaxen1", HorseAlleles.FLAXEN)
+                && !horse.isHomozygous("flaxen2", HorseAlleles.FLAXEN)) {
+            // No flaxen, nothing to do
+            return;
+        }
+
+        Layer flaxen = new Layer();
+        flaxen.name = fixPath("flaxen");
+        colorRedBody(horse, flaxen);
+        float power = 1f;
+        if (horse.isHomozygous("flaxen1", HorseAlleles.FLAXEN) 
                 && horse.isHomozygous("flaxen2", HorseAlleles.FLAXEN)) {
-            layer.name = fixPath("flaxen");
-            setFlaxen(layer);
+            power = 0.2f;
         }
-        else if (horse.isHomozygous("flaxen1", HorseAlleles.FLAXEN) 
-                || horse.isHomozygous("flaxen2", HorseAlleles.FLAXEN)) {
-            layer.name = fixPath("flaxen");
-            layer.alpha = 255 / 3;
-            setFlaxen(layer);
+        else if (horse.isHomozygous("flaxen1", HorseAlleles.FLAXEN)) {
+            power = 0.3f;
         }
-        else {
-            return null;
+        else if (horse.isHomozygous("flaxen2", HorseAlleles.FLAXEN)) {
+            power = 0.6f;
         }
-        return layer;
+        adjustConcentration(flaxen, power);
+        layers.add(flaxen);
     }
 
     public static Layer getBlackManeTail(HorseGenome horse) {
@@ -201,7 +221,7 @@ public class HorseColorCalculator
         }
         Layer layer = new Layer();
         layer.name = fixPath("flaxen");
-        setFlaxen(layer);
+        setCreamy(layer);
         return layer;
     }
 
