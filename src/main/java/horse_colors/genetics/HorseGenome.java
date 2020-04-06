@@ -359,9 +359,7 @@ public class HorseGenome extends Genome {
             return "";
         }        
         String abv = getAbv(layer.name);
-        if (layer.mask != null) {
-            abv += "-" + getAbv(layer.mask);
-        }
+        abv += "-" + layer.type.toString();
         abv += "-" + Integer.toHexString(layer.alpha);
         abv += Integer.toHexString(layer.red);
         abv += Integer.toHexString(layer.green);
@@ -369,7 +367,8 @@ public class HorseGenome extends Genome {
         if (layer.next != null) {
             abv += ".-" + getAbv(layer.next) + "-.";
         }
-        return abv;
+        // Upper case characters will cause a crash
+        return abv.toLowerCase();
     }
     public ArrayList<String> humanReadableNamedGenes() {
         ArrayList<String> list = new ArrayList<String>();
@@ -443,6 +442,11 @@ public class HorseGenome extends Genome {
         this.textureLayers[9].name = HorseColorCalculator.fixPath("legs", legs);
         this.textureLayers[11].name = HorseColorCalculator.fixPath("roan", gray_mane);
 */
+        Layer shading = new Layer();
+        shading.name = HorseColorCalculator.fixPath("shading");
+        shading.type = Layer.Type.SHADE;
+        this.textureLayers.add(shading);
+
         Layer common = new Layer();
         common.name = HorseColorCalculator.fixPath("common");
         this.textureLayers.add(common);

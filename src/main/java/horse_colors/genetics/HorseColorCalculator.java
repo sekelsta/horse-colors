@@ -102,7 +102,7 @@ public class HorseColorCalculator
         layer.green = 0xbf;
         layer.blue = 0x77;
         adjustConcentration(layer, concentration);
-        addWhite(white);
+        addWhite(layer, white);
     }
 
     public static void setEumelanin(Layer layer, float concentration, float white) {
@@ -110,7 +110,7 @@ public class HorseColorCalculator
         layer.green = 0x9b;
         layer.blue = 0x5c;
         adjustConcentration(layer, concentration);
-        addWhite(white);
+        addWhite(layer, white);
     }
 
     public static void colorRedBody(HorseGenome horse, Layer layer) {
@@ -270,7 +270,9 @@ public class HorseColorCalculator
         }
         Layer layer = new Layer();
         layer.name = base.name;
-        layer.mask = fixPath("dun");
+        layer.next = new Layer();
+        layer.next.name = fixPath("dun");
+        layer.next.type = Layer.Type.MASK;
 
         float r = base.red / 255.0F;
         float g = base.green / 255.0F;

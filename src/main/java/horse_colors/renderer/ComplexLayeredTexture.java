@@ -17,35 +17,29 @@ import org.apache.logging.log4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class ComplexLayeredTexture extends Texture {
     private static final Logger LOGGER = LogManager.getLogger();
-    public final String shading_name;
     public final List<Layer> layers;
 
-    public ComplexLayeredTexture(List<Layer> textures, String shading) {
+    public ComplexLayeredTexture(List<Layer> textures) {
         this.layers = Lists.newArrayList(textures);
         if (this.layers.isEmpty()) {
             throw new IllegalStateException("Layered texture with no layers.");
         }
-        this.shading_name = shading;
     }
 
-    public NativeImage getLayer(IResourceManager manager, Layer layer, NativeImage shading) {
+    public NativeImage getLayer(IResourceManager manager, Layer layer) {
         if (layer.name == null) {
-            LOGGER.error("Attempting to load unspecified texture (name is null)\n"
-                + "Shading: " + String.valueOf(shading_name) + "\n" 
-                + "Mask: " + String.valueOf(layer.mask));
+            LOGGER.error("Attempting to load unspecified texture (name is null)\n");
             return null;
         }
         try (IResource iresource = manager.getResource(new ResourceLocation(layer.name))) {
             NativeImage image = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(layer.name), manager);
-            NativeImage mask = null;
-            if (layer.mask != null) {
-                try (IResource iresources = manager.getResource(new ResourceLocation(layer.mask))) {
-                    mask = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(layer.mask), manager);
-                }
-            }
-            colorLayer(image, shading, mask, layer);
             if (layer.next != null) {
-                blendLayerKeepAlpha(image, getLayer(manager, layer.next, shading));
+                colorLayer(image, layer);
+                combineLayers(image, getLayer(manager, layer.next), layer.next);
+                // Avoid double multiply
+                layer.red = 0xff;
+                layer.green = 0xff;
+                layer.blue = 0xff;
             }
             return image;
         } catch (IOException ioexception) {
@@ -54,19 +48,36 @@ public class ComplexLayeredTexture extends Texture {
         return null;
     }
 
-    public void blendLayer(NativeImage base, NativeImage image) {
+    public void combineLayers(NativeImage base, NativeImage image, Layer layer) {
+        switch(layer.type) {
+            case NORMAL:
+                blendLayer(base, image, layer);
+                break;
+            case NO_ALPHA:
+                blendLayerKeepAlpha(base, image, layer);
+                break;
+            case MASK:
+                maskLayer(base, image, layer);
+                break;
+            case SHADE:
+                shadeLayer(base, image, layer);
+                break;
+        }
+    }
+
+    public void blendLayer(NativeImage base, NativeImage image, Layer layer) {
         for(int i = 0; i < image.getHeight(); ++i) {
             for(int j = 0; j < image.getWidth(); ++j) {
-                base.blendPixel(j, i, image.getPixelRGBA(j, i));
+                base.blendPixel(j, i, layer.multiply(image.getPixelRGBA(j, i)));
             }
         }
     }
 
-    public void blendLayerKeepAlpha(NativeImage base, NativeImage image) {
+    public void blendLayerKeepAlpha(NativeImage base, NativeImage image, Layer layer) {
         for(int i = 0; i < image.getHeight(); ++i) {
             for(int j = 0; j < image.getWidth(); ++j) {
                 int cb = base.getPixelRGBA(j, i);
-                int ci = image.getPixelRGBA(j, i);
+                int ci = layer.multiply(image.getPixelRGBA(j, i));
                 float a = NativeImage.getAlpha(ci) / 255.0F;
                 float r = NativeImage.getRed(ci);
                 float g = NativeImage.getGreen(ci);
@@ -83,21 +94,31 @@ public class ComplexLayeredTexture extends Texture {
         }
     }
 
-    public void colorLayer(NativeImage image, NativeImage shading, NativeImage mask, Layer layer) {
+    public void shadeLayer(NativeImage base, NativeImage image, Layer layer) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                int color = base.getPixelRGBA(j, i);
+                int shading = image.getPixelRGBA(j, i);
+                base.setPixelRGBA(j, i, layer.shade(color, shading));
+            }
+        }
+    }
+
+    public void maskLayer(NativeImage base, NativeImage image, Layer layer) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                int color = base.getPixelRGBA(j, i);
+                int maskedColor = layer.mask(color, image.getPixelRGBA(j, i));
+                base.setPixelRGBA(j, i, maskedColor);
+            }
+        }
+    }
+
+    public void colorLayer(NativeImage image, Layer layer) {
         for(int i = 0; i < image.getHeight(); ++i) {
             for(int j = 0; j < image.getWidth(); ++j) {
                 int color = image.getPixelRGBA(j, i);
-                int finalColor = color;
-                if (shading == null) {
-                    finalColor = layer.multiply(color);
-                }
-                else {
-                    finalColor = layer.shade(color, shading.getPixelRGBA(j, i));
-                }
-                if (mask != null) {
-                    finalColor = layer.mask(finalColor, mask.getPixelRGBA(j, i));
-                }
-                image.setPixelRGBA(j, i, finalColor);
+                image.setPixelRGBA(j, i, layer.multiply(color));
             }
         }
     }
@@ -105,17 +126,12 @@ public class ComplexLayeredTexture extends Texture {
     public void loadTexture(IResourceManager manager) throws IOException {
         Iterator<Layer> iterator = this.layers.iterator();
         Layer baselayer = iterator.next();
-        NativeImage shading = null;
-        if (shading_name != null) {
-            try (IResource iresources = manager.getResource(new ResourceLocation(shading_name))) {
-                shading = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(shading_name), manager);
-            }
-        }
-        NativeImage baseimage = getLayer(manager, baselayer, shading);
+        NativeImage baseimage = getLayer(manager, baselayer);
         if (baseimage == null) {
             // getLayer() will already have logged an error
             return;
         }
+        colorLayer(baseimage, baselayer);
 
         while(iterator.hasNext()) {
             Layer layer = iterator.next();
@@ -123,9 +139,9 @@ public class ComplexLayeredTexture extends Texture {
                 continue;
             }
             if (layer.name != null) {
-                NativeImage image = getLayer(manager, layer, shading);
+                NativeImage image = getLayer(manager, layer);
                 if (image != null) {
-                    blendLayer(baseimage, image);
+                    combineLayers(baseimage, image, layer);
                 }
             }
         }
@@ -146,7 +162,7 @@ public class ComplexLayeredTexture extends Texture {
 
     public static class Layer {
         public String name;
-        public String mask;
+        public Type type;
         public int alpha;
         public int red;
         public int green;
@@ -157,11 +173,18 @@ public class ComplexLayeredTexture extends Texture {
         public Layer next;
         public Layer() {
             name = null;
-            mask = null;
+            type = Type.NORMAL;
             alpha = 255;
             red = 255;
             green = 255;
             blue = 255;
+        }
+
+        public enum Type {
+            NORMAL,
+            NO_ALPHA,
+            MASK,
+            SHADE
         }
 
         public int multiply(int color) {
@@ -177,7 +200,6 @@ public class ComplexLayeredTexture extends Texture {
         }
 
         public int shade(int color, int shading) {
-            color = this.multiply(color);
             float cr = NativeImage.getRed(color);
             float cg = NativeImage.getGreen(color);
             float cb = NativeImage.getBlue(color);
@@ -185,12 +207,12 @@ public class ComplexLayeredTexture extends Texture {
             float sg = NativeImage.getGreen(shading);
             float sb = NativeImage.getBlue(shading);
             float a = (float)NativeImage.getAlpha(shading) / 255.0F;
-            float avg = (float)(this.red + this.green + this.blue) / 255.0F / 3.0F;
-            a *= (1.0F - 0.5f*avg);
+            float avg = (float)(cr + cg + cb) / 255.0F / 3.0F;
+            a *= 0.5f + 0.5f * (1f - avg) * (1f - avg);
             float na = 1.0F - a;
-            float r = Math.min(255.0F, sr * a + cr * na);
-            float g = Math.min(255.0F, sg * a + cg * na);
-            float b = Math.min(255.0F, sb * a + cb * na);
+            float r = Math.max(0, Math.min(255.0F, sr * a + cr * na));
+            float g = Math.max(0, Math.min(255.0F, sg * a + cg * na));
+            float b = Math.max(0, Math.min(255.0F, sb * a + cb * na));
             int ca = NativeImage.getAlpha(color);
             return NativeImage.getCombined(ca, (int)b, (int)g, (int)r);
         }
@@ -202,11 +224,6 @@ public class ComplexLayeredTexture extends Texture {
             int g = NativeImage.getGreen(color);
             int b = NativeImage.getBlue(color);
             return NativeImage.getCombined((int)a, b, g, r);
-        }
-
-        public int mask(int color, int shading, int mask) {
-            color = this.shade(color, shading);
-            return mask(color, mask);
         }
     }
 }
