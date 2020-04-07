@@ -3,6 +3,7 @@ package sekelsta.horse_colors.item;
 import java.util.List;
 import javax.annotation.Nullable;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -21,7 +22,11 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import sekelsta.horse_colors.client.FakeGeneticEntity;
+import sekelsta.horse_colors.client.GeneBookScreen;
 import sekelsta.horse_colors.entity.*;
+import sekelsta.horse_colors.genetics.Genome;
+import sekelsta.horse_colors.genetics.HorseGenome;
 import sekelsta.horse_colors.genetics.IGeneticEntity;
 import sekelsta.horse_colors.init.ModEntities;
 
@@ -144,11 +149,22 @@ public class GeneBookItem extends Item {
      */
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
         ItemStack itemstack = playerIn.getHeldItem(handIn);
-        /*
-        playerIn.openBook(itemstack, handIn);
-        playerIn.addStat(Stats.ITEM_USED.get(this));
-        */
-        return ActionResult.resultSuccess(itemstack);
+        if (validBookTagContents(itemstack.getTag())) {
+            if (worldIn.isRemote()) {
+                openGeneBook(itemstack.getTag());
+            }
+            return ActionResult.resultSuccess(itemstack);
+        }
+        System.out.println("Gene book has invalid NBT");
+        return ActionResult.resultFail(itemstack);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void openGeneBook(CompoundNBT nbt) {
+        Minecraft mc = Minecraft.getInstance();
+        Genome genome = new HorseGenome(new FakeGeneticEntity());
+        genome.genesFromString(nbt.getString("genes"));
+        mc.displayGuiScreen(new GeneBookScreen(genome));
     }
 
     public static enum Species {
