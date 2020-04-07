@@ -34,8 +34,17 @@ import sekelsta.horse_colors.genetics.Genome;
 
 @OnlyIn(Dist.CLIENT)
 public class GeneBookScreen extends Screen {
-    public GeneBookScreen(Genome genome) {
+    Genome genome;
+    int currPage = 0;
+
+    private ChangePageButton buttonNextPage;
+    private ChangePageButton buttonPreviousPage;
+    /** Determines if a sound is played when the page is turned */
+    private final boolean pageTurnSounds = true;
+
+    public GeneBookScreen(Genome genomeIn) {
         super(NarratorChatListener.EMPTY);
+        this.genome = genomeIn;
     }
 
 
@@ -47,48 +56,76 @@ public class GeneBookScreen extends Screen {
         this.minecraft.getTextureManager().bindTexture(ReadBookScreen.BOOK_TEXTURES);
         int i = (this.width - 192) / 2;
         int j = 2;
-        this.blit(i, 2, 0, 0, 192, 192);/*
-      if (this.bookGettingSigned) {
-         String s = this.bookTitle;
-         if (this.updateCount / 6 % 2 == 0) {
-            s = s + "" + TextFormatting.BLACK + "_";
-         } else {
-            s = s + "" + TextFormatting.GRAY + "_";
-         }
+        this.blit(i, 2, 0, 0, 192, 192);
 
-         String s1 = I18n.format("book.editTitle");
-         int k = this.getTextWidth(s1);
-         this.font.drawString(s1, (float)(i + 36 + (114 - k) / 2), 34.0F, 0);
-         int l = this.getTextWidth(s);
-         this.font.drawString(s, (float)(i + 36 + (114 - l) / 2), 50.0F, 0);
-         String s2 = I18n.format("book.byAuthor", this.editingPlayer.getName().getString());
-         int i1 = this.getTextWidth(s2);
-         this.font.drawString(TextFormatting.DARK_GRAY + s2, (float)(i + 36 + (114 - i1) / 2), 60.0F, 0);
-         String s3 = I18n.format("book.finalizeWarning");
-         this.font.drawSplitString(s3, i + 36, 82, 114, 0);
-      } else {
-         String s4 = I18n.format("book.pageIndicator", this.currPage + 1, this.getPageCount());
-         String s5 = this.getCurrPageText();
-         int j1 = this.getTextWidth(s4);
-         this.font.drawString(s4, (float)(i - j1 + 192 - 44), 18.0F, 0);
-         this.font.drawSplitString(s5, i + 36, 32, 114, 0);
-         this.highlightSelectedText(s5);
-         if (this.updateCount / 6 % 2 == 0) {
-            EditBookScreen.Point editbookscreen$point = this.func_214194_c(s5, this.selectionEnd);
-            if (this.font.getBidiFlag()) {
-               this.func_214227_a(editbookscreen$point);
-               editbookscreen$point.x = editbookscreen$point.x - 4;
-            }
 
-            this.func_214224_c(editbookscreen$point);
-            if (this.selectionEnd < s5.length()) {
-               AbstractGui.fill(editbookscreen$point.x, editbookscreen$point.y - 1, editbookscreen$point.x + 1, editbookscreen$point.y + 9, -16777216);
-            } else {
-               this.font.drawString("_", (float)editbookscreen$point.x, (float)editbookscreen$point.y, 0);
-            }
-         }
-      }*/
+        String s4 = I18n.format("book.pageIndicator", this.currPage + 1, this.getPageCount());
+        String s5 = this.getCurrPageText();
+        int j1 = this.getTextWidth(s4);
+        this.font.drawString(s4, (float)(i - j1 + 192 - 44), 18.0F, 0);
+        this.font.drawSplitString(s5, i + 36, 32, 114, 0);
 
-      super.render(p_render_1_, p_render_2_, p_render_3_);
+        super.render(p_render_1_, p_render_2_, p_render_3_);
+    }
+
+   protected void init() {
+      this.addDoneButton();
+      this.addChangePageButtons();
    }
+
+   protected void addDoneButton() {
+      this.addButton(new Button(this.width / 2 - 100, 196, 200, 20, I18n.format("gui.done"), (p_214161_1_) -> {
+         this.minecraft.displayGuiScreen((Screen)null);
+      }));
+   }
+
+   protected void addChangePageButtons() {
+      int i = (this.width - 192) / 2;
+      int j = 2;
+      this.buttonNextPage = this.addButton(new ChangePageButton(i + 116, 159, true, (p_214159_1_) -> {
+         this.nextPage();
+      }, this.pageTurnSounds));
+      this.buttonPreviousPage = this.addButton(new ChangePageButton(i + 43, 159, false, (p_214158_1_) -> {
+         this.previousPage();
+      }, this.pageTurnSounds));
+      this.updateButtons();
+   }
+
+    private int getPageCount() {
+        return 2;
+    }
+   /**
+    * Moves the display back one page
+    */
+   protected void previousPage() {
+      if (this.currPage > 0) {
+         --this.currPage;
+      }
+
+      this.updateButtons();
+   }
+
+   /**
+    * Moves the display forward one page
+    */
+   protected void nextPage() {
+      if (this.currPage < this.getPageCount() - 1) {
+         ++this.currPage;
+      }
+
+      this.updateButtons();
+   }
+
+   private void updateButtons() {
+      this.buttonNextPage.visible = this.currPage < this.getPageCount() - 1;
+      this.buttonPreviousPage.visible = this.currPage > 0;
+   }
+
+    private String getCurrPageText() {
+        return "TODO";
+    }
+
+    private int getTextWidth(String text) {
+        return this.font.getStringWidth(this.font.getBidiFlag() ? this.font.bidiReorder(text) : text);
+    }
 }
