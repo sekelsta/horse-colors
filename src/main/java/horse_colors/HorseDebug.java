@@ -1,8 +1,6 @@
 package sekelsta.horse_colors;
 
-import sekelsta.horse_colors.genetics.IGeneticEntity;
-import sekelsta.horse_colors.config.HorseConfig;
-
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import net.minecraft.client.Minecraft;
@@ -18,6 +16,10 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.EntityRayTraceResult;
 
+import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.genetics.Genome;
+import sekelsta.horse_colors.genetics.IGeneticEntity;
+
 // Class for putting horse info on the debug screen
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = "horse_colors", bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class HorseDebug {
@@ -31,6 +33,37 @@ public class HorseDebug {
         ItemStack itemStack = player.getHeldItemOffhand();
         return itemStack != null 
             && itemStack.getItem() == Items.STICK;
+    }
+
+    public static ArrayList<String> debugNamedGenes(Genome genome) {
+        ArrayList<String> list = new ArrayList<String>();
+        for (String gene : genome.listGenes()) {
+            String s = gene + ": ";
+            s += genome.getAllele(gene, 0) + ", ";
+            s += genome.getAllele(gene, 1);
+            list.add(s);
+        }
+        return list;
+    }
+
+    public static ArrayList<String> debugStatGenes(Genome genome) {
+        ArrayList<String> list = new ArrayList<String>();
+        for (String stat : genome.listStats()) {
+            String s = stat;
+            s += ": " + genome.getStat(stat);
+            s += " (";
+            int val = genome.getChromosome(stat);
+            for (int i = 16; i >0; i--) {
+                s += (val >>> (2 * i - 1)) & 1;
+                s += (val >>> (2 * i - 2)) & 1;
+                if (i > 1) {
+                    s += " ";
+                }
+            }
+            s += ")";
+            list.add(s);
+        }
+        return list;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -56,10 +89,10 @@ public class HorseDebug {
                 // I thought I would need this to make everything fit on debug 
                 // mode, but it fits if I make the GUI smaller
                 // event.getRight().clear();
-                for (String s : horse.getGenes().humanReadableStats()) {
+                for (String s : debugStatGenes(horse.getGenes())) {
                     event.getLeft().add(s);
                 }
-                for (String s : horse.getGenes().humanReadableNamedGenes()) {
+                for (String s : debugNamedGenes(horse.getGenes())) {
                     event.getRight().add(s);
                 }
             }
