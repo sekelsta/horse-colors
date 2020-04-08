@@ -370,18 +370,25 @@ public class HorseGenome extends Genome {
         // Upper case characters will cause a crash
         return abv.toLowerCase();
     }
-    public ArrayList<String> humanReadableNamedGenes() {
+    public ArrayList<String> humanReadableNamedGenes(boolean showAll) {
+        List<String> genelist = genes;
+        if (!showAll) {
+            genelist = ImmutableList.of("extension", "agouti", "dun", "gray", "cream", "silver", "KIT", "frame", "MITF");
+        }
         ArrayList<String> list = new ArrayList<String>();
-        for (String gene : genes) {
-            TranslationTextComponent translation = new TranslationTextComponent(HorseColors.MODID + ".genes.equus." + gene + ".name");
+        for (String gene : genelist) {
+            String translationLocation = HorseColors.MODID + ".genes." + gene;
+            TranslationTextComponent translation = new TranslationTextComponent(translationLocation + ".name");
             String s = translation.getFormattedText() + ": ";
-            s += getAllele(gene, 0) + ", ";
-            s += getAllele(gene, 1);
+            TranslationTextComponent allele1 = new TranslationTextComponent(translationLocation + ".allele" + getAllele(gene, 0));
+            TranslationTextComponent allele2 = new TranslationTextComponent(translationLocation + ".allele" + getAllele(gene, 1));
+            s += allele1.getFormattedText() + "/";
+            s += allele2.getFormattedText();
             list.add(s);
         }
         return list;
     }
-    public ArrayList<String> humanReadableStats() {
+    public ArrayList<String> humanReadableStats(boolean showAll) {
         ArrayList<String> list = new ArrayList<String>();
         for (String stat : stats) {
             TranslationTextComponent translation = new TranslationTextComponent(HorseColors.MODID + ".stats." + stat);

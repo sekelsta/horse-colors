@@ -34,6 +34,7 @@ import sekelsta.horse_colors.genetics.Genome;
 
 @OnlyIn(Dist.CLIENT)
 public class GeneBookScreen extends Screen {
+    private static final int linesPerPage = 15;
     Genome genome;
     int currPage = 0;
 
@@ -92,7 +93,7 @@ public class GeneBookScreen extends Screen {
    }
 
     private int getPageCount() {
-        return 2;
+        return (int)Math.ceil((float)genome.humanReadableNamedGenes(false).size() / (float)linesPerPage);
     }
    /**
     * Moves the display back one page
@@ -122,7 +123,13 @@ public class GeneBookScreen extends Screen {
    }
 
     private String getCurrPageText() {
-        return "TODO";
+        int start = currPage * linesPerPage;
+        int max = genome.humanReadableNamedGenes(false).size();
+        String s = "";
+        for (int i = start; i < start + linesPerPage && i < max; ++i) {
+            s += genome.humanReadableNamedGenes(false).get(i) + "\n";
+        }
+        return s;
     }
 
     private int getTextWidth(String text) {
