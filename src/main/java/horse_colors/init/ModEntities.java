@@ -49,22 +49,22 @@ public class ModEntities {
             HORSE_GENETIC = EntityType.Builder.create(HorseGeneticEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F).build(horseRegistryName.toString());
             HORSE_GENETIC.setRegistryName(horseRegistryName);
 
-            final ResourceLocation donkeyRegistryName = new ResourceLocation(HorseColors.MODID, "donkey_genetic");
+            final ResourceLocation donkeyRegistryName = new ResourceLocation(HorseColors.MODID, "donkey");
             DONKEY_GENETIC = EntityType.Builder.create(DonkeyGeneticEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F).build(donkeyRegistryName.toString());
             DONKEY_GENETIC.setRegistryName(donkeyRegistryName);
 
-            final ResourceLocation muleRegistryName = new ResourceLocation(HorseColors.MODID, "mule_genetic");
+            final ResourceLocation muleRegistryName = new ResourceLocation(HorseColors.MODID, "mule");
             MULE_GENETIC = EntityType.Builder.create(MuleGeneticEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F).build(muleRegistryName.toString());
             MULE_GENETIC.setRegistryName(muleRegistryName);
 
             HORSE_SPAWN_EGG = new SpawnEggItem(HORSE_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(CreativeTab.instance));
-            HORSE_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "horse_genetic_spawn_egg"));
+            HORSE_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "horse_spawn_egg"));
 
             DONKEY_SPAWN_EGG = new SpawnEggItem(DONKEY_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(CreativeTab.instance));
-            DONKEY_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "donkey_genetic_spawn_egg"));
+            DONKEY_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "donkey_spawn_egg"));
 
             MULE_SPAWN_EGG = new SpawnEggItem(MULE_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(CreativeTab.instance));
-            MULE_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "mule_genetic_spawn_egg"));
+            MULE_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "mule_spawn_egg"));
     }
 /*
    private static <T extends Entity> EntityType<T> register(String key, EntityType.Builder<T> builder) {
