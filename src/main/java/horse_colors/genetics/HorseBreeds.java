@@ -89,14 +89,14 @@ public class HorseBreeds {
             1f          // White suppression
         ));
         DEFAULT.put("KIT", ImmutableList.of(
-            0.4f,   // Wildtype
-            0.5f,   // White boost
-            0.55f,  // Markings1
-            0.6f,   // Markings2
-            0.65f,  // Markings3
-            0.7f,   // Markings4
-            0.75f,  // Markings5
-            0.82f,  // W20
+            0.6f,   // Wildtype
+            0.63f,   // White boost
+            0.66f,  // Markings1
+            0.69f,   // Markings2
+            0.72f,  // Markings3
+            0.75f,   // Markings4
+            0.77f,  // Markings5
+            0.84f,  // W20
             0f,     // Rabicano / Unused
             0.86f,  // Flashy white
             0f,     // Unused
@@ -111,15 +111,15 @@ public class HorseBreeds {
             1f          // Frame
         ));
         DEFAULT.put("MITF", ImmutableList.of(
-            0.15f,  // SW1
-            0.18f,  // SW3
-            0.20f,  // SW5
+            0.1f,  // SW1
+            0.12f,  // SW3
+            0.14f,  // SW5
             1.0f    // Wildtype
         ));
         DEFAULT.put("PAX3", ImmutableList.of(
             0.9f,   // Wildtype
-            0.94f,  // SW2
-            0.98f,  // SW4
+            0.96f,  // SW2
+            1f,  // SW4
             1.0f    // Unused
         ));
         DEFAULT.put("leopard", ImmutableList.of(
@@ -159,11 +159,11 @@ public class HorseBreeds {
             1f      // More white
         ));
         DEFAULT.put("white_forelegs", ImmutableList.of(
-            0.75f,  // Less white
+            0.8f,  // Less white
             1f      // More white
         ));
         DEFAULT.put("white_hindlegs", ImmutableList.of(
-            0.75f,  // Less white
+            0.8f,  // Less white
             1f      // More white
         ));
         DEFAULT.put("gray_melanoma", ImmutableList.of(
