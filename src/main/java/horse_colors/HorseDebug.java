@@ -19,6 +19,7 @@ import net.minecraft.util.math.EntityRayTraceResult;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.genetics.Genome;
 import sekelsta.horse_colors.genetics.IGeneticEntity;
+import sekelsta.horse_colors.renderer.ComplexLayeredTexture.Layer;
 
 // Class for putting horse info on the debug screen
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = "horse_colors", bus = Mod.EventBusSubscriber.Bus.FORGE)
@@ -91,6 +92,12 @@ public class HorseDebug {
                 // event.getRight().clear();
                 for (String s : debugStatGenes(horse.getGenes())) {
                     event.getLeft().add(s);
+                }
+                event.getLeft().add("");
+                for (Layer l : horse.getGenes().getVariantTexturePaths()) {
+                    if (l != null) {
+                        event.getLeft().add(l.toString());
+                    }
                 }
                 for (String s : debugNamedGenes(horse.getGenes())) {
                     event.getRight().add(s);
