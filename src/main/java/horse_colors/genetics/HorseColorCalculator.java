@@ -21,61 +21,6 @@ public class HorseColorCalculator
         }
     }
 
-    public static void setChestnut(Layer layer) {
-            // 5, 0.2 looks haflingerish
-            // 5, 0.1 looks medium chestnut
-            // 6, 0.1 looks liver chestnutish
-            setPheomelanin(layer, 5f, 0.1f);
-    }
-
-    public static void setLiverChestnut(Layer layer) {
-            setPheomelanin(layer, 6f, 0.08f);
-    }
-
-    public static void setGolden(Layer layer) {
-            setPheomelanin(layer, 4.2f, 0.27f);
-    }
-
-    public static void setCreamy(Layer layer) {
-            setPheomelanin(layer, 0.1f, 0.1f);
-    }
-
-    public static void setBlack(Layer layer) {
-            layer.red = 0x18;
-            layer.green = 0x1a;
-            layer.blue = 0x1c;
-    }
-
-    public static void setSmokyBlack(Layer layer) {
-            layer.red = 0x25;
-            layer.green = 0x1f;
-            layer.blue = 0x1c;
-    }
-
-    public static void setSmokyCream(Layer layer) {
-            layer.red = 0xed;
-            layer.green = 0xd3;
-            layer.blue = 0xa8;
-    }
-
-    public static void setBrownBlack(Layer layer) {
-            layer.red = 0x1d;
-            layer.green = 0x1b;
-            layer.blue = 0x1a;
-    }
-
-    public static void setChocolate(Layer layer) {
-            layer.red = 0x3f;
-            layer.green = 0x28;
-            layer.blue = 0x1d;
-    }
-
-    public static void setSmokySilver(Layer layer) {
-            layer.red = 0x3f;
-            layer.green = 0x29;
-            layer.blue = 0x1d;
-    }
-
     public static void adjustConcentration(Layer layer, float power) {
 
         float r = layer.red / 255.0F;
@@ -106,27 +51,40 @@ public class HorseColorCalculator
     }
 
     public static void setEumelanin(Layer layer, float concentration, float white) {
-        layer.red = 0xc2;
-        layer.green = 0x9b;
-        layer.blue = 0x5c;
+        layer.red = 0xc0;
+        layer.green = 0x9a;
+        layer.blue = 0x5f;
         adjustConcentration(layer, concentration);
         addWhite(layer, white);
     }
 
     public static void colorRedBody(HorseGenome horse, Layer layer) {
+        // 5, 0.2 looks haflingerish
+        // 5, 0.1 looks medium chestnut
+        // 6, 0.1 looks liver chestnutish
+        float concentration = 5f;
+        float white = 0f;
+
+        if (horse.isChestnut() 
+                && horse.isHomozygous("liver", HorseAlleles.LIVER)) {
+            concentration *= 1.2f;
+        }
+
         if (horse.isDoubleCream()) {
-            setCreamy(layer);
+            concentration *= 0.04f;
+        }
+        else if (horse.isCreamPearl()) {
+            concentration *= 0.05f;
         }
         else if (horse.hasCream()) {
-            setGolden(layer);
+            concentration *= 0.84f;
         }
-        else if (horse.isChestnut() 
-                && horse.isHomozygous("liver", HorseAlleles.LIVER)) {
-            setLiverChestnut(layer);
+        else if (horse.isPearl()) {
+            concentration *= 0.6f;
+            white += 0.15f;
         }
-        else {
-            setChestnut(layer);
-        }
+        setPheomelanin(layer, concentration, white);
+
         setDun(horse, layer);
     }
 
@@ -138,28 +96,28 @@ public class HorseColorCalculator
     }
 
     public static void colorBlackBody(HorseGenome horse, Layer layer) {
+        float concentration = 20f;
+        float white = 0f;
+        if (horse.isDoubleCream()) {
+            concentration *= 0.02f;
+        }
+        else if (horse.isCreamPearl()) {
+            concentration *= 0.025f;
+        }
+        else if (horse.hasCream()) {
+            concentration *= 0.5f;
+        }
+        else if (horse.isPearl()) {
+            concentration *= 0.2f;
+            white += 0.2f;
+        }
+
         if (horse.hasAllele("silver", HorseAlleles.SILVER)) {
-            if (horse.isDoubleCream()) {
-                setSmokyCream(layer);
-            }
-            else if (horse.hasCream()) {
-                setSmokySilver(layer);
-            }
-            else {
-                setChocolate(layer);
-            }
+            concentration *= 0.4f;
         }
-        else {
-            if (horse.isDoubleCream()) {
-                setSmokyCream(layer);
-            }
-            else if (horse.hasCream()) {
-                setSmokyBlack(layer);
-            }
-            else {
-                setBlack(layer);
-            }
-        }
+ 
+
+        setEumelanin(layer, concentration, white);
         setDun(horse, layer);
     }
 
@@ -201,7 +159,8 @@ public class HorseColorCalculator
         if (horse.hasAllele("cream", HorseAlleles.CREAM)) {
             Layer palomino_mane = new Layer();
             palomino_mane.name = fixPath("manetail");
-            setCreamy(palomino_mane);
+            colorRedBody(horse, palomino_mane);
+            adjustConcentration(palomino_mane, 0.04f);
             layers.add(palomino_mane);
         }
 
@@ -238,7 +197,7 @@ public class HorseColorCalculator
         }
         Layer layer = new Layer();
         layer.name = fixPath("flaxen");
-        setCreamy(layer);
+        setEumelanin(layer, 0.2f, 0.0f);
         return layer;
     }
 
@@ -250,7 +209,8 @@ public class HorseColorCalculator
             return null;
         }
         else {
-            setBlack(layer);
+            // Black skin
+            setEumelanin(layer, 20f, 0.1f);
         }
         return layer;
     }
@@ -258,6 +218,13 @@ public class HorseColorCalculator
     public static Layer getHooves(HorseGenome horse) {
         Layer layer = new Layer();
         layer.name = fixPath("hooves");
+        colorBlackBody(horse, layer);
+        addWhite(layer, 0.4f);
+        // Multiply by the shell color of hooves
+        layer.red = (int)((float)layer.red * 255f / 255f);
+        layer.green = (int)((float)layer.green * 229f / 255f);
+        layer.blue= (int)((float)layer.blue * 184f / 255f);
+        layer.clamp();
         return layer;
     }
 
@@ -296,7 +263,7 @@ public class HorseColorCalculator
         }
         Layer layer = new Layer();
         layer.name = fixPath("base");
-        if (!horse.isDoubleCream()) {
+        if (!horse.isDoubleCream() &&!horse.isCreamPearl()) {
             layer.red = 0xeb;
             layer.green = 0xeb;
             layer.blue = 0xeb;

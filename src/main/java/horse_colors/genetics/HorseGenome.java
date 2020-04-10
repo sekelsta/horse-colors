@@ -168,8 +168,17 @@ public class HorseGenome extends Genome {
         return this.hasAllele("cream", HorseAlleles.CREAM);
     }
 
+    public boolean isPearl() {
+        return this.isHomozygous("cream", HorseAlleles.PEARL);
+    }
+
     public boolean isDoubleCream() {
         return this.isHomozygous("cream", HorseAlleles.CREAM);
+    }
+
+    public boolean isCreamPearl() {
+        return this.hasAllele("cream", HorseAlleles.CREAM)
+            && this.hasAllele("cream", HorseAlleles.PEARL);
     }
 
     public boolean isSilver() {
@@ -343,27 +352,11 @@ public class HorseGenome extends Genome {
         entity.setChromosome("random", this.entity.getRand().nextInt());
     }
 
-    private String getAbv(String s) {
-        int i = s.lastIndexOf("/");
-        if (i > -1) {
-            s = s.substring(i + 1);
-        }
-        if (s.endsWith(".png")) {
-            s = s.substring(0, s.length() - 4);
-        }
-        return s;
-    }
-
     private String getAbv(Layer layer) {
         if (layer == null || layer.name == null) {
             return "";
         }        
-        String abv = getAbv(layer.name);
-        abv += "-" + layer.type.toString();
-        abv += "-" + Integer.toHexString(layer.alpha);
-        abv += Integer.toHexString(layer.red);
-        abv += Integer.toHexString(layer.green);
-        abv += Integer.toHexString(layer.blue) + "_";
+        String abv = layer.toString() + "_";
         if (layer.next != null) {
             abv += ".-" + getAbv(layer.next) + "-.";
         }
@@ -449,6 +442,12 @@ public class HorseGenome extends Genome {
         this.textureLayers[9].name = HorseColorCalculator.fixPath("legs", legs);
         this.textureLayers[11].name = HorseColorCalculator.fixPath("roan", gray_mane);
 */
+        Layer highlights = new Layer();
+        highlights.name = HorseColorCalculator.fixPath("base");
+        highlights.type = Layer.Type.HIGHLIGHT;
+        highlights.alpha = (int)(255f * 0.2f);
+        this.textureLayers.add(highlights);
+
         Layer shading = new Layer();
         shading.name = HorseColorCalculator.fixPath("shading");
         shading.type = Layer.Type.SHADE;
