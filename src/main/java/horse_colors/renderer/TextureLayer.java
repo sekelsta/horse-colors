@@ -27,7 +27,9 @@ public class TextureLayer {
         NO_ALPHA,
         MASK,
         SHADE,
-        HIGHLIGHT
+        HIGHLIGHT,
+        POWER,
+        ROOT
     }
 
     public int multiply(int color) {
@@ -78,6 +80,37 @@ public class TextureLayer {
         return NativeImage.getCombined(ca, (int)b, (int)g, (int)r);
     }
 
+    // For each RGB value, raise color to the 1 / exp
+    public int power(int color, int exp) {
+        float r0 = NativeImage.getRed(color) / 255f;
+        float g0 = NativeImage.getGreen(color) / 255f;
+        float b0 = NativeImage.getBlue(color) / 255f;
+        // No dividing by 0
+        float r1 = Math.max(0.002f, NativeImage.getRed(exp) / 255f);
+        float g1 = Math.max(0.002f, NativeImage.getGreen(exp) / 255f);
+        float b1 = Math.max(0.002f, NativeImage.getBlue(exp) / 255f);
+        int r = clamp((int)(255f * Math.pow(r0, 1f / r1)));
+        int g = clamp((int)(255f * Math.pow(g0, 1f / g1)));
+        int b = clamp((int)(255f * Math.pow(b0, 1f / b1)));
+        int a = NativeImage.getAlpha(color);
+        return NativeImage.getCombined(a, b, g, r);
+    }
+
+    // For each RGB value, raise color to the exp
+    public int root(int color, int exp) {
+        float r0 = NativeImage.getRed(color) / 255f;
+        float g0 = NativeImage.getGreen(color) / 255f;
+        float b0 = NativeImage.getBlue(color) / 255f;
+        float r1 = NativeImage.getRed(exp) / 255f;
+        float g1 = NativeImage.getGreen(exp) / 255f;
+        float b1 = NativeImage.getBlue(exp) / 255f;
+        int r = clamp((int)(255f * Math.pow(r0, r1)));
+        int g = clamp((int)(255f * Math.pow(g0, g1)));
+        int b = clamp((int)(255f * Math.pow(b0, b1)));
+        int a = NativeImage.getAlpha(color);
+        return NativeImage.getCombined(a, b, g, r);
+    }
+
     public int mask(int color, int mask) {
         float a = NativeImage.getAlpha(color) * NativeImage.getAlpha(mask);
         a /= 255.0F;
@@ -91,9 +124,12 @@ public class TextureLayer {
 
     // Restrict to range [0, 255]
     public void clamp() {
-        this.red = Math.max(0, Math.min(this.red, 255));
-        this.green = Math.max(0, Math.min(this.green, 255));
-        this.blue = Math.max(0, Math.min(this.blue, 255));
+        this.red = clamp(this.red);
+        this.green = clamp(this.green);
+        this.blue = clamp(this.blue);
+    }
+    private int clamp(int x) {
+        return Math.max(0, Math.min(x, 255));
     }
 
     private String getAbv(String s) {

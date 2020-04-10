@@ -65,6 +65,12 @@ public class ComplexLayeredTexture extends Texture {
             case HIGHLIGHT:
                 highlightLayer(base, image, layer);
                 break;
+            case POWER:
+                powerLayer(base, image, layer);
+                break;
+            case ROOT:
+                rootLayer(base, image, layer);
+                break;
         }
     }
 
@@ -125,6 +131,30 @@ public class ComplexLayeredTexture extends Texture {
                 int mask = image.getPixelRGBA(j, i);
                 int maskedColor = layer.mask(color, mask);
                 base.setPixelRGBA(j, i, maskedColor);
+            }
+        }
+    }
+
+    // Raise RGB values to an exponent >= 1
+    public void powerLayer(NativeImage base, NativeImage image, TextureLayer layer) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                int color = base.getPixelRGBA(j, i);
+                int exp = image.getPixelRGBA(j, i);
+                exp = layer.multiply(exp);
+                base.blendPixel(j, i, layer.power(color, exp));
+            }
+        }
+    }
+
+    // Raise RGB values to an exponent <= 1
+    public void rootLayer(NativeImage base, NativeImage image, TextureLayer layer) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                int color = base.getPixelRGBA(j, i);
+                int exp = image.getPixelRGBA(j, i);
+                exp = layer.multiply(exp);
+                base.blendPixel(j, i, layer.root(color, exp));
             }
         }
     }
