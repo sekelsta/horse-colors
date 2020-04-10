@@ -2,7 +2,7 @@ package sekelsta.horse_colors.genetics;
 
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.config.HorseConfig;
-import sekelsta.horse_colors.renderer.ComplexLayeredTexture.Layer;
+import sekelsta.horse_colors.renderer.TextureLayer;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -352,7 +352,7 @@ public class HorseGenome extends Genome {
         entity.setChromosome("random", this.entity.getRand().nextInt());
     }
 
-    private String getAbv(Layer layer) {
+    private String getAbv(TextureLayer layer) {
         if (layer == null || layer.name == null) {
             return "";
         }        
@@ -406,8 +406,8 @@ public class HorseGenome extends Genome {
     public void setTexturePaths()
     {
         this.textureLayers = new ArrayList();
-        Layer red = HorseColorCalculator.getRedBody(this);
-        Layer black = HorseColorCalculator.getBlackBody(this);
+        TextureLayer red = HorseColorCalculator.getRedBody(this);
+        TextureLayer black = HorseColorCalculator.getBlackBody(this);
         this.textureLayers.add(red);
         HorseColorCalculator.addRedManeTail(this, this.textureLayers);
         this.textureLayers.add(black);
@@ -418,7 +418,7 @@ public class HorseGenome extends Genome {
         this.textureLayers.add(HorseColorCalculator.getHooves(this));
 
         if (this.hasAllele("KIT", HorseAlleles.KIT_ROAN)) {
-            Layer roan = new Layer();
+            TextureLayer roan = new TextureLayer();
             roan.name = HorseColorCalculator.fixPath("roan/roan");
             this.textureLayers.add(roan);
         }
@@ -428,7 +428,7 @@ public class HorseGenome extends Genome {
         {
             String[] leg_markings = HorseColorCalculator.getLegMarkings(this);
             for (String marking : leg_markings) {
-                Layer layer = new Layer();
+                TextureLayer layer = new TextureLayer();
                 layer.name = marking;
                 this.textureLayers.add(layer);
             }
@@ -442,18 +442,18 @@ public class HorseGenome extends Genome {
         this.textureLayers[9].name = HorseColorCalculator.fixPath("legs", legs);
         this.textureLayers[11].name = HorseColorCalculator.fixPath("roan", gray_mane);
 */
-        Layer highlights = new Layer();
+        TextureLayer highlights = new TextureLayer();
         highlights.name = HorseColorCalculator.fixPath("base");
-        highlights.type = Layer.Type.HIGHLIGHT;
+        highlights.type = TextureLayer.Type.HIGHLIGHT;
         highlights.alpha = (int)(255f * 0.2f);
         this.textureLayers.add(highlights);
 
-        Layer shading = new Layer();
+        TextureLayer shading = new TextureLayer();
         shading.name = HorseColorCalculator.fixPath("shading");
-        shading.type = Layer.Type.SHADE;
+        shading.type = TextureLayer.Type.SHADE;
         this.textureLayers.add(shading);
 
-        Layer common = new Layer();
+        TextureLayer common = new TextureLayer();
         common.name = HorseColorCalculator.fixPath("common");
         this.textureLayers.add(common);
 

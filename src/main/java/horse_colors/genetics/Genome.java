@@ -2,7 +2,7 @@ package sekelsta.horse_colors.genetics;
 
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.renderer.ComplexLayeredTexture;
-import sekelsta.horse_colors.renderer.ComplexLayeredTexture.Layer;
+import sekelsta.horse_colors.renderer.TextureLayer;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -17,7 +17,7 @@ public abstract class Genome {
     protected IGeneticEntity entity;
 
     protected String textureCacheName;
-    protected ArrayList<Layer> textureLayers;
+    protected ArrayList<TextureLayer> textureLayers;
 
     // Make sure to use this.entity.getRand() instead for anything
     // that should be consistent across worlds with the same seed
@@ -49,7 +49,7 @@ public abstract class Genome {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public ArrayList<Layer> getVariantTexturePaths()
+    public ArrayList<TextureLayer> getVariantTexturePaths()
     {
         if (this.textureCacheName == null)
         {
