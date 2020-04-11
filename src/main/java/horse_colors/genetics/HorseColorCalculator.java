@@ -84,8 +84,6 @@ public class HorseColorCalculator
             white += 0.15f;
         }
         setPheomelanin(layer, concentration, white);
-
-        setDun(horse, layer);
     }
 
     public static TextureLayer getRedBody(HorseGenome horse) {
@@ -116,9 +114,7 @@ public class HorseColorCalculator
             concentration *= 0.4f;
         }
  
-
         setEumelanin(layer, concentration, white);
-        setDun(horse, layer);
     }
 
     public static TextureLayer getBlackBody(HorseGenome horse) {
@@ -228,33 +224,25 @@ public class HorseColorCalculator
         return layer;
     }
 
-    public static void setDun(HorseGenome horse, TextureLayer base) {
-        if (base == null) {
-            return;
-        }
+    public static void addDun(HorseGenome horse, List<TextureLayer> layers) {
         if (!horse.isDun()) {
             return;
         }
+        TextureLayer white = new TextureLayer();
+        white.name = fixPath("dun");
+        white.alpha = (int)(0.4f * 255f);
+        white.type = TextureLayer.Type.HIGHLIGHT;
+        layers.add(white);
+
         TextureLayer layer = new TextureLayer();
-        layer.name = base.name;
-        layer.next = new TextureLayer();
-        layer.next.name = fixPath("dun");
-        layer.next.type = TextureLayer.Type.MASK;
-
-        float r = base.red / 255.0F;
-        float g = base.green / 255.0F;
-        float b = base.blue / 255.0F;
-
-        float dunpower = 0.6F;
-        float white = 0.2F * (0.8F - Math.max(Math.max(r, g), b));
-        float red = (float)Math.pow(white + r * (1.0F - white), dunpower) * 255.0F;
-        float green = (float)Math.pow(white + g * (1.0F - white), dunpower) * 255.0F;
-        float blue = (float)Math.pow(white + b * (1.0F - white), dunpower) * 255.0F;
-
-        layer.red = Math.min(255, (int)red);
-        layer.green = Math.min(255, (int)green);
-        layer.blue = Math.min(255, (int)blue);
-        base.next = layer;
+        layer.name = fixPath("dun");
+        layer.type = TextureLayer.Type.ROOT;
+        float dunpower = 0.6f;
+        int val = (int)(dunpower * 255);
+        layer.red = val;
+        layer.green = val;
+        layer.blue = val;
+        layers.add(layer);
     }
 
     public static TextureLayer getGray(HorseGenome horse) {
