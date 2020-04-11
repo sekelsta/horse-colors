@@ -92,7 +92,7 @@ public class TextureLayer {
         int r = clamp((int)(255f * Math.pow(r0, 1f / r1)));
         int g = clamp((int)(255f * Math.pow(g0, 1f / g1)));
         int b = clamp((int)(255f * Math.pow(b0, 1f / b1)));
-        int a = NativeImage.getAlpha(color);
+        int a = NativeImage.getAlpha(exp);
         return NativeImage.getCombined(a, b, g, r);
     }
 
@@ -107,7 +107,7 @@ public class TextureLayer {
         int r = clamp((int)(255f * Math.pow(r0, r1)));
         int g = clamp((int)(255f * Math.pow(g0, g1)));
         int b = clamp((int)(255f * Math.pow(b0, b1)));
-        int a = NativeImage.getAlpha(color);
+        int a = NativeImage.getAlpha(exp);
         return NativeImage.getCombined(a, b, g, r);
     }
 
