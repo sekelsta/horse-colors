@@ -67,17 +67,19 @@ public class HorseColorCalculator
 
         if (horse.isChestnut() 
                 && horse.isHomozygous("liver", HorseAlleles.LIVER)) {
-            concentration *= 1.2f;
+            concentration *= 1.5f;
         }
 
         if (horse.isDoubleCream()) {
-            concentration *= 0.04f;
+            concentration *= 0.1f;
+            white += 0.4f;
         }
         else if (horse.isCreamPearl()) {
             concentration *= 0.05f;
         }
         else if (horse.hasCream()) {
-            concentration *= 0.84f;
+            concentration *= 0.7f;
+            white += 0.15f;
         }
         else if (horse.isPearl()) {
             concentration *= 0.6f;
@@ -170,17 +172,22 @@ public class HorseColorCalculator
         flaxen.name = fixPath("flaxen");
         colorRedBody(horse, flaxen);
         float power = 1f;
+        float white = 0f;
         if (horse.isHomozygous("flaxen1", HorseAlleles.FLAXEN) 
                 && horse.isHomozygous("flaxen2", HorseAlleles.FLAXEN)) {
-            power = 0.2f;
+            power = 0.4f;
+            white = 0.3f;
         }
         else if (horse.isHomozygous("flaxen1", HorseAlleles.FLAXEN)) {
-            power = 0.3f;
+            power = 0.5f;
+            white = 0.2f;
         }
         else if (horse.isHomozygous("flaxen2", HorseAlleles.FLAXEN)) {
-            power = 0.6f;
+            power = 0.7f;
+            white = 0.1f;
         }
         adjustConcentration(flaxen, power);
+        addWhite(flaxen, white);
         layers.add(flaxen);
     }
 
@@ -286,7 +293,7 @@ public class HorseColorCalculator
         }
         else if (horse.isChestnut()) {
             layer.name = fixPath("base");
-            layer.alpha -= (int)(0.15f * 255.0F);
+            layer.alpha /= 2;
         }
 
         colorBlackBody(horse, layer);
