@@ -245,9 +245,17 @@ public class HorseGenome extends Genome {
     }
 
     public float getGrayHealthLoss() {
-        int base = countAlleles("gray", HorseAlleles.GRAY);
+        // Count zygosity, mitigate from protective gene
+        // Agouti may also have an effect on prevalence/severity,
+        // but I'm not sufficiently convinced
+        float base = countAlleles("gray", HorseAlleles.GRAY);
         if (isHomozygous("gray_melanoma", 0)) {
-            base -= 1;
+            base -= 1f;
+        }
+        // Horses without melanocytes in the skin should be much
+        // less likely to get melanomas
+        if (isWhite()) {
+            base -= 1.5f;
         }
         return Math.max(0f, base);
     }
