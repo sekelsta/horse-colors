@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
 import net.minecraft.item.ItemStack;
@@ -17,6 +18,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.EntityRayTraceResult;
 
 import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.entity.HorseGeneticEntity;
 import sekelsta.horse_colors.genetics.Genome;
 import sekelsta.horse_colors.genetics.IGeneticEntity;
 import sekelsta.horse_colors.renderer.TextureLayer;
@@ -86,20 +88,25 @@ public class HorseDebug {
                 && ((EntityRayTraceResult)mouseOver).getEntity() instanceof IGeneticEntity)
             {
                 // If so, print information about it to the debug screen
-                IGeneticEntity horse = (IGeneticEntity)((EntityRayTraceResult)mouseOver).getEntity();
+                IGeneticEntity entity = (IGeneticEntity)((EntityRayTraceResult)mouseOver).getEntity();
                 // I thought I would need this to make everything fit on debug 
                 // mode, but it fits if I make the GUI smaller
                 // event.getRight().clear();
-                for (String s : debugStatGenes(horse.getGenes())) {
+                for (String s : debugStatGenes(entity.getGenes())) {
                     event.getLeft().add(s);
                 }
-                event.getLeft().add("");
-                for (TextureLayer l : horse.getGenes().getVariantTexturePaths()) {
+                if (entity instanceof AgeableEntity) {
+                    event.getLeft().add("Growing age: " + ((AgeableEntity)entity).getGrowingAge());
+                }
+                if (entity instanceof HorseGeneticEntity) {
+                    event.getLeft().add("Display age: " + ((HorseGeneticEntity)entity).getDisplayAge());
+                }
+                for (TextureLayer l : entity.getGenes().getVariantTexturePaths()) {
                     if (l != null) {
                         event.getLeft().add(l.toString());
                     }
                 }
-                for (String s : debugNamedGenes(horse.getGenes())) {
+                for (String s : debugNamedGenes(entity.getGenes())) {
                     event.getRight().add(s);
                 }
             }

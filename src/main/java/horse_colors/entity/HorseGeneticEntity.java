@@ -54,6 +54,7 @@ public class HorseGeneticEntity extends HorseEntity implements IHorseShape, IGen
     protected static final DataParameter<Integer> HORSE_JUMP = EntityDataManager.<Integer>createKey(HorseGeneticEntity.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_HEALTH = EntityDataManager.<Integer>createKey(HorseGeneticEntity.class, DataSerializers.VARINT);
     private static final DataParameter<Integer> HORSE_RANDOM = EntityDataManager.<Integer>createKey(HorseGeneticEntity.class, DataSerializers.VARINT);
+    private static final DataParameter<Integer> DISPLAY_AGE = EntityDataManager.<Integer>createKey(HorseGeneticEntity.class, DataSerializers.VARINT);
 
     public HorseGeneticEntity(EntityType<? extends HorseGeneticEntity> entityType, World worldIn)
     {
@@ -91,6 +92,7 @@ public class HorseGeneticEntity extends HorseEntity implements IHorseShape, IGen
         this.dataManager.register(HORSE_HEALTH, Integer.valueOf(0));
         this.dataManager.register(HORSE_JUMP, Integer.valueOf(0));
         this.dataManager.register(HORSE_RANDOM, Integer.valueOf(0));
+        this.dataManager.register(DISPLAY_AGE, Integer.valueOf(0));
     }
 
     /**
@@ -107,6 +109,7 @@ public class HorseGeneticEntity extends HorseEntity implements IHorseShape, IGen
         compound.putInt("JumpGenes", this.getChromosome("jump"));
         compound.putInt("HealthGenes", this.getChromosome("health"));
         compound.putInt("Random", this.getChromosome("random"));
+        compound.putInt("display_age", this.getDisplayAge());
     }
 
     public ItemStack getHorseArmor() {
@@ -132,6 +135,7 @@ public class HorseGeneticEntity extends HorseEntity implements IHorseShape, IGen
         this.setChromosome("jump", compound.getInt("JumpGenes"));
         this.setChromosome("health", compound.getInt("HealthGenes"));
         this.setChromosome("random", compound.getInt("Random"));
+        this.setDisplayAge(compound.getInt("display_age"));
 
         this.updateHorseSlots();
     }
@@ -202,6 +206,21 @@ public class HorseGeneticEntity extends HorseEntity implements IHorseShape, IGen
         }
         super.tick();
 
+        // Align age
+        if (!this.world.isRemote) {
+            // Adjust age, compensating for what AgeableEntity's tick function does
+            // Bound above so there is no wrapping
+            if (this.growingAge >= 0 && this.growingAge < 0x1000000) {
+                // Compensate for AgeableEntity's tick function decreasing it
+                this.setGrowingAge(this.growingAge + 2);
+            }
+            // Allow imprecision
+            final int c = 200;
+            if (this.growingAge / c != this.getDisplayAge() / c) {
+                this.setDisplayAge(this.growingAge);
+            }
+        }
+
         // Overo lethal white syndrome
         if ((!this.world.isRemote || true)
             && this.getGenes().isLethalWhite()
@@ -229,6 +248,14 @@ public class HorseGeneticEntity extends HorseEntity implements IHorseShape, IGen
 
     public boolean thinMane() {
         return false;
+    }
+
+    public int getDisplayAge() {
+        return this.dataManager.get(DISPLAY_AGE);
+    }
+
+    public void setDisplayAge(int age) {
+        this.dataManager.set(DISPLAY_AGE, age);
     }
 
     public void setChromosome(String name, int variant)
