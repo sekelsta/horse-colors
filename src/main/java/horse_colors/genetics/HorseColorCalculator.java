@@ -237,14 +237,13 @@ public class HorseColorCalculator
         }
         TextureLayer white = new TextureLayer();
         white.name = fixPath("dun");
-        white.alpha = (int)(0.4f * 255f);
-        white.type = TextureLayer.Type.HIGHLIGHT;
+        white.alpha = (int)(0.15f * 255f);
         layers.add(white);
 
         TextureLayer layer = new TextureLayer();
         layer.name = fixPath("dun");
         layer.type = TextureLayer.Type.ROOT;
-        float dunpower = 0.6f;
+        float dunpower = 0.55f;
         int val = (int)(dunpower * 255);
         layer.red = val;
         layer.green = val;
