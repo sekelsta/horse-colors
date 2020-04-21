@@ -65,11 +65,6 @@ public class HorseColorCalculator
         float concentration = 5f;
         float white = 0f;
 
-        if (horse.isChestnut() 
-                && horse.isHomozygous("liver", HorseAlleles.LIVER)) {
-            concentration *= 1.5f;
-        }
-
         if (horse.isDoubleCream()) {
             concentration *= 0.1f;
             white += 0.4f;
@@ -86,6 +81,18 @@ public class HorseColorCalculator
             white += 0.15f;
         }
         setPheomelanin(layer, concentration, white);
+
+        // Treat liver like it leaks some eumelanin into the coat
+        if (horse.isChestnut() 
+                && horse.isHomozygous("liver", HorseAlleles.LIVER)) {
+            TextureLayer dark = new TextureLayer();
+            setPheomelanin(dark, concentration * 5f, white);
+            float a = 0.6f;
+            layer.red = (int)(dark.red * a + layer.red * (1 - a));
+            layer.green = (int)(dark.green * a + layer.green * (1 - a));
+            layer.blue = (int)(dark.blue * a + layer.blue * (1 - a));
+            layer.clamp();
+        }
     }
 
     public static TextureLayer getRedBody(HorseGenome horse) {
@@ -238,12 +245,13 @@ public class HorseColorCalculator
         TextureLayer white = new TextureLayer();
         white.name = fixPath("dun");
         white.alpha = (int)(0.15f * 255f);
+        white.type = TextureLayer.Type.SHADE;
         layers.add(white);
 
         TextureLayer layer = new TextureLayer();
         layer.name = fixPath("dun");
         layer.type = TextureLayer.Type.ROOT;
-        float dunpower = 0.55f;
+        float dunpower = 0.6f;
         int val = (int)(dunpower * 255);
         layer.red = val;
         layer.green = val;
