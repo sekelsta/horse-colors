@@ -2,6 +2,7 @@ package sekelsta.horse_colors.genetics;
 
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.entity.HorseGeneticEntity;
 import sekelsta.horse_colors.renderer.TextureLayer;
 
 import com.google.common.collect.ImmutableList;
@@ -238,10 +239,24 @@ public class HorseGenome extends Genome {
                         - getMaxAllele("sooty3");
     }
 
-    public int getSlowGrayLevel() {
-        int base = isHomozygous("gray", HorseAlleles.GRAY)? -2 : 0;
-        return base + countAlleles("slow_gray1", 1)
-                + getAllele("slow_gray2", 1) + getMaxAllele("gray_mane");
+    // Number of years to turn fully gray
+    public int getGrayRate() {
+        // Starting age should vary from around 1 to 10 years
+        // Ending age from 2 to 20
+        int gray = countAlleles("gray", HorseAlleles.GRAY);
+        int slow = countAlleles("slow_gray1", 1)
+                + getMaxAllele("slow_gray2") + getMaxAllele("gray_mane");
+        return (3 - gray) * slow;
+    }
+
+    // Number of years for the mane and tail to turn fully gray
+    public int getGrayManeRate() {
+        // Starting age should vary from around 1 to 10 years
+        // Ending age from 2 to 20
+        int gray = countAlleles("gray", HorseAlleles.GRAY);
+        int slow = countAlleles("slow_gray1", 1)
+                + getMaxAllele("slow_gray2") + countAlleles("gray_mane", 1);
+        return (3 - gray) * slow;
     }
 
     public float getGrayHealthLoss() {
@@ -295,6 +310,15 @@ public class HorseGenome extends Genome {
     public int countW20() {
         return countAlleles("KIT", HorseAlleles.KIT_W20) 
                 + countAlleles("KIT", HorseAlleles.KIT_TOBIANO_W20);
+    }
+
+    public int getAge() {
+        if (entity instanceof HorseGeneticEntity) {
+            return ((HorseGeneticEntity)entity).getDisplayAge();
+        }
+        else {
+            return 0;
+        }
     }
 
     public int inheritStats(HorseGenome other, String chromosome) {
@@ -413,6 +437,17 @@ public class HorseGenome extends Genome {
     @OnlyIn(Dist.CLIENT)
     public void setTexturePaths()
     {
+        if (isGray()) {
+            TextureLayer test = HorseColorCalculator.getGrayMane(this);
+            if (test == null) {
+                System.out.println("getGrayMane returned null");
+            }
+            else {
+                System.out.println(test.toString());
+            }
+        }
+
+
         this.textureLayers = new ArrayList();
         TextureLayer red = HorseColorCalculator.getRedBody(this);
         TextureLayer black = HorseColorCalculator.getBlackBody(this);
@@ -423,6 +458,7 @@ public class HorseGenome extends Genome {
         this.textureLayers.add(HorseColorCalculator.getSooty(this));
         HorseColorCalculator.addDun(this, this.textureLayers);
         this.textureLayers.add(HorseColorCalculator.getGray(this));
+        this.textureLayers.add(HorseColorCalculator.getGrayMane(this));
         this.textureLayers.add(HorseColorCalculator.getNose(this));
         this.textureLayers.add(HorseColorCalculator.getHooves(this));
 
@@ -444,13 +480,7 @@ public class HorseGenome extends Genome {
         }
 
         this.textureLayers.add(HorseColorCalculator.getPinto(this));
-/*
-        String legs = HorseColorCalculator.getLegs(this);
-        String gray_mane = HorseColorCalculator.getGrayMane(this);
-      
-        this.textureLayers[9].name = HorseColorCalculator.fixPath("legs", legs);
-        this.textureLayers[11].name = HorseColorCalculator.fixPath("roan", gray_mane);
-*/
+
         TextureLayer highlights = new TextureLayer();
         highlights.name = HorseColorCalculator.fixPath("base");
         highlights.type = TextureLayer.Type.HIGHLIGHT;

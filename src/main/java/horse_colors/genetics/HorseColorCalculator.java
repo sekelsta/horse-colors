@@ -8,6 +8,8 @@ public class HorseColorCalculator
     private static final int FACE_MARKING_BITS = 2;
     private static final int LEG_MARKING_BITS = 12;
 
+    private static final int YEAR_TICKS = 24000;
+
     public static String fixPath(String inStr) {
         if (inStr == null || inStr.contains(".png")) {
             return inStr;
@@ -260,6 +262,7 @@ public class HorseColorCalculator
     }
 
     public static TextureLayer getGray(HorseGenome horse) {
+        return null;/*
         if (!horse.isGray()) {
             return null;
         }
@@ -270,7 +273,9 @@ public class HorseColorCalculator
             layer.green = 0xeb;
             layer.blue = 0xeb;
         }
-        return layer;
+        int age = horse.getAge() + YEAR_TICKS;
+        layer.alpha = Math.min(255, (int)((age + YEAR_TICKS) / (YEAR_TICKS * 7f) * 255f));
+        return layer;*/
     }
 
     public static TextureLayer getSooty(HorseGenome horse)
@@ -314,30 +319,34 @@ public class HorseColorCalculator
         return null;
     }
 
-    public static String getGrayMane(HorseGenome horse)
+    public static TextureLayer getGrayMane(HorseGenome horse)
     {
-        // Only for dappled gray horses, not non-gray (0) nor full gray (2)
-        if (horse.countAlleles("gray", HorseAlleles.GRAY) != 1)
-        {
-            return null;
-        }
-        // Doesn't affect double dilute creams
-        if (horse.isHomozygous("cream", HorseAlleles.CREAM))
+        // Only for gray horses
+        int gray = horse.countAlleles("gray", HorseAlleles.GRAY);
+        if (gray == 0)
         {
             return null;
         }
 
-        int gray = horse.getSlowGrayLevel();
-        int mane = horse.countAlleles("gray_mane", 1);
-        if (mane == 2 && gray > 1)
-        {
-            return "black_mane";
-        }
-        else if (mane == 0)
-        {
+        TextureLayer layer = new TextureLayer();
+        int age = horse.getAge() + YEAR_TICKS;
+        int rate = horse.getGrayManeRate();
+        float gray_age = (float)age / (float)(YEAR_TICKS * rate);
+
+        if (gray_age < 0.1f) {
+            // Mane and tail still dark
             return null;
         }
-        return "gray_mane";
+        if (gray_age > 1f) {
+            // Mane and tail all white
+            layer.name = fixPath("manetail");
+            return layer;
+        }
+
+        String prefix = "gray/mane";
+        int suffix = (int)(gray_age * 21 - 1);
+        layer.name = fixPath(prefix + suffix);
+        return layer;
     }
 
     public static int getFaceWhiteLevel(HorseGenome horse) {
