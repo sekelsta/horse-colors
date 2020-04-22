@@ -54,7 +54,6 @@ public class HorseArmorLayer extends LayerRenderer<AbstractHorseEntity, HorseGen
                 BlockItem blockItem = (BlockItem)armor;
                 if (blockItem.getBlock() instanceof CarpetBlock) {
                     color = ((CarpetBlock)(blockItem.getBlock())).getColor().getColorValue();
-                    System.out.println(color);
                 }
             }
             if (color != 0xffffff) {

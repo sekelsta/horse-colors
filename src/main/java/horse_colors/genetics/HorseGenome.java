@@ -437,17 +437,6 @@ public class HorseGenome extends Genome {
     @OnlyIn(Dist.CLIENT)
     public void setTexturePaths()
     {
-        if (isGray()) {
-            TextureLayer test = HorseColorCalculator.getGrayMane(this);
-            if (test == null) {
-                System.out.println("getGrayMane returned null");
-            }
-            else {
-                System.out.println(test.toString());
-            }
-        }
-
-
         this.textureLayers = new ArrayList();
         TextureLayer red = HorseColorCalculator.getRedBody(this);
         TextureLayer black = HorseColorCalculator.getBlackBody(this);
