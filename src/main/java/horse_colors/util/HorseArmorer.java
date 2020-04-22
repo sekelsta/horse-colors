@@ -1,10 +1,13 @@
 package sekelsta.horse_colors.util;
 import sekelsta.horse_colors.HorseColors;
+import sekelsta.horse_colors.genetics.HorseColorCalculator;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.item.ItemStack;
+import net.minecraft.block.CarpetBlock;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.HorseArmorItem;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -35,12 +38,20 @@ public class HorseArmorer
 
 
     @OnlyIn(Dist.CLIENT)
-    public static ResourceLocation getTexture(HorseArmorItem armor)
+    public static ResourceLocation getTexture(Item armor)
     {
-        ResourceLocation vanilla = getVanillaLocation(armor);
-        return vanilla == null? 
-            null 
-          : new ResourceLocation(HorseColors.MODID, vanilla.getPath());
+        if (armor instanceof HorseArmorItem) {
+            ResourceLocation vanilla = getVanillaLocation((HorseArmorItem)armor);
+            return vanilla == null? 
+                null 
+              : new ResourceLocation(HorseColors.MODID, vanilla.getPath());
+        }
+        if (armor instanceof BlockItem) {
+            if (((BlockItem)armor).getBlock() instanceof CarpetBlock) {
+                return new ResourceLocation(HorseColorCalculator.fixPath("armor/carpet"));
+            }
+        }
+        return null;
     }
 
 /*    @OnlyIn(Dist.CLIENT)

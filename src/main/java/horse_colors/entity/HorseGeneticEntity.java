@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
+import net.minecraft.block.CarpetBlock;
 import net.minecraft.block.SoundType;
 import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
@@ -18,8 +19,9 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.HorseArmorItem;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.BookItem;
+import net.minecraft.item.HorseArmorItem;
 import net.minecraft.item.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpawnEggItem;
@@ -413,6 +415,13 @@ public class HorseGeneticEntity extends HorseEntity implements IHorseShape, IGen
         }
 
         return abstracthorse;
+    }
+
+    @Override
+    public boolean isArmor(ItemStack stack) {
+        return stack.getItem() instanceof HorseArmorItem
+                || (stack.getItem() instanceof BlockItem
+                    && ((BlockItem)stack.getItem()).getBlock() instanceof CarpetBlock);
     }
 
 

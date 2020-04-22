@@ -5,14 +5,18 @@ import sekelsta.horse_colors.util.HorseArmorer;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.block.CarpetBlock;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.IEntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.entity.passive.horse.*;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.DyeableHorseArmorItem;
 import net.minecraft.item.HorseArmorItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
@@ -32,28 +36,40 @@ public class HorseArmorLayer extends LayerRenderer<AbstractHorseEntity, HorseGen
             return;
         }
         HorseGeneticEntity horse = (HorseGeneticEntity)entityIn;
-       ItemStack itemstack = horse.getHorseArmor();
-       if (itemstack.getItem() instanceof HorseArmorItem) {
-           HorseArmorItem horsearmoritem = (HorseArmorItem)itemstack.getItem();
-           this.getEntityModel().copyModelAttributesTo(this.horseModel);
-           this.horseModel.setLivingAnimations(horse, p_225628_5_, p_225628_6_, p_225628_7_);
-           this.horseModel.setRotationAngles(horse, p_225628_5_, p_225628_6_, p_225628_8_, p_225628_9_, p_225628_10_);
-           float f;
-           float f1;
-           float f2;
-           if (horsearmoritem instanceof DyeableHorseArmorItem) {
-               int i = ((DyeableHorseArmorItem)horsearmoritem).getColor(itemstack);
-               f = (float)(i >> 16 & 255) / 255.0F;
-               f1 = (float)(i >> 8 & 255) / 255.0F;
-               f2 = (float)(i & 255) / 255.0F;
-           } else {
-               f = 1.0F;
-               f1 = 1.0F;
-               f2 = 1.0F;
-           }
+        ItemStack itemstack = horse.getHorseArmor();
+        Item armor = itemstack.getItem();
+        ResourceLocation textureLocation = HorseArmorer.getTexture(armor);
+        if (textureLocation != null) {
+            this.getEntityModel().copyModelAttributesTo(this.horseModel);
+            this.horseModel.setLivingAnimations(horse, p_225628_5_, p_225628_6_, p_225628_7_);
+            this.horseModel.setRotationAngles(horse, p_225628_5_, p_225628_6_, p_225628_8_, p_225628_9_, p_225628_10_);
+            float r;
+            float g;
+            float b;
+            int color = 0xffffff;
+            if (armor instanceof DyeableHorseArmorItem) {
+                color = ((DyeableHorseArmorItem)armor).getColor(itemstack);
+            } 
+            else if (armor instanceof BlockItem) {
+                BlockItem blockItem = (BlockItem)armor;
+                if (blockItem.getBlock() instanceof CarpetBlock) {
+                    color = ((CarpetBlock)(blockItem.getBlock())).getColor().getColorValue();
+                    System.out.println(color);
+                }
+            }
+            if (color != 0xffffff) {
+                r = (float)(color >> 16 & 255) / 255.0F;
+                g = (float)(color >> 8 & 255) / 255.0F;
+                b = (float)(color & 255) / 255.0F;
+            }
+            else {
+               r = 1.0F;
+               g = 1.0F;
+               b = 1.0F;
+            }
 
-            IVertexBuilder ivertexbuilder = renderTypeBuffer.getBuffer(RenderType.getEntityCutoutNoCull(HorseArmorer.getTexture(horsearmoritem)));
-            this.horseModel.render(matrixStack, ivertexbuilder, p_225628_3_, OverlayTexture.NO_OVERLAY, f, f1, f2, 1.0F);
+            IVertexBuilder ivertexbuilder = renderTypeBuffer.getBuffer(RenderType.getEntityCutoutNoCull(textureLocation));
+            this.horseModel.render(matrixStack, ivertexbuilder, p_225628_3_, OverlayTexture.NO_OVERLAY, r, g, b, 1.0F);
         }
     }
 
