@@ -9,6 +9,7 @@ public class HorseColorCalculator
     private static final int LEG_MARKING_BITS = 12;
 
     private static final int YEAR_TICKS = 24000;
+    private static final int MAX_AGE = 18 * YEAR_TICKS;
 
     public static String fixPath(String inStr) {
         if (inStr == null || inStr.contains(".png")) {
@@ -213,17 +214,29 @@ public class HorseColorCalculator
         return layer;
     }
 
-    public static TextureLayer getNose(HorseGenome horse) {
-        TextureLayer layer = new TextureLayer();
-        layer.name = fixPath("nose");
+    public static void colorSkin(HorseGenome horse, TextureLayer layer) {
         if (horse.isDoubleCream()) {
-            // The base texture already comes with a pink nose
-            return null;
+            // Pink skin
+            layer.red = 0xff;
+            layer.green = 0xd6;
+            layer.blue = 0xb6;
         }
         else {
             // Black skin
             setEumelanin(layer, 20f, 0.1f);
         }
+    }
+
+    public static void colorGray(HorseGenome horse, TextureLayer layer) {
+        // Show skin very faintly through the white hairs
+        colorSkin(horse, layer);
+        addWhite(layer, 0.99f);
+    }
+
+    public static TextureLayer getNose(HorseGenome horse) {
+        TextureLayer layer = new TextureLayer();
+        layer.name = fixPath("nose");
+        colorSkin(horse, layer);
         return layer;
     }
 
@@ -259,23 +272,6 @@ public class HorseColorCalculator
         layer.green = val;
         layer.blue = val;
         layers.add(layer);
-    }
-
-    public static TextureLayer getGray(HorseGenome horse) {
-        return null;/*
-        if (!horse.isGray()) {
-            return null;
-        }
-        TextureLayer layer = new TextureLayer();
-        layer.name = fixPath("base");
-        if (!horse.isDoubleCream() &&!horse.isCreamPearl()) {
-            layer.red = 0xeb;
-            layer.green = 0xeb;
-            layer.blue = 0xeb;
-        }
-        int age = horse.getAge() + YEAR_TICKS;
-        layer.alpha = Math.min(255, (int)((age + YEAR_TICKS) / (YEAR_TICKS * 7f) * 255f));
-        return layer;*/
     }
 
     public static TextureLayer getSooty(HorseGenome horse)
@@ -319,15 +315,60 @@ public class HorseColorCalculator
         return null;
     }
 
-    public static TextureLayer getGrayMane(HorseGenome horse)
-    {
-        // Only for gray horses
-        int gray = horse.countAlleles("gray", HorseAlleles.GRAY);
-        if (gray == 0)
-        {
-            return null;
+    public static void addGray(HorseGenome horse, List<TextureLayer> layers) {
+        if (!horse.isGray()) {
+            return;
         }
 
+        int age = horse.getAge() + YEAR_TICKS;
+        age = Math.min(age, MAX_AGE);
+        int rate = horse.getGrayRate();
+        int mane_rate = horse.getGrayManeRate();
+
+        int body_stage = grayStage(age, rate, 19, 0.05f);
+        int mane_stage = grayStage(age, mane_rate, 20, 0.1f);
+
+        System.out.println("Rate: " + rate + ", age: " + age + ", stage: " + body_stage);
+
+        if (body_stage > 0) {
+            TextureLayer body = new TextureLayer();
+            if (body_stage > 19) {
+                body.name = fixPath("body");
+            }
+            else {
+                body.name = fixPath("gray/dapple" + body_stage);
+            }
+            colorGray(horse, body);
+            layers.add(body);
+        }
+
+        if (mane_stage > 0) {
+            TextureLayer mane = new TextureLayer();
+            if (mane_stage > 20) {
+                mane.name = fixPath("manetail");
+            }
+            else {
+                mane.name = fixPath("gray/mane" + mane_stage);
+            }
+            colorGray(horse, mane);
+            layers.add(mane);
+        }
+    }
+
+    // num_stages does not count the starting and ending stages
+    public static int grayStage(int age, int rate, int num_stages, float delay) {
+        float gray_age = (float)age / (float)(YEAR_TICKS * rate) - delay;
+        if (gray_age <= 0) {
+            return 0;
+        }
+        if (gray_age >= 1f) {
+            return num_stages + 1;
+        }
+        return (int)(gray_age * num_stages);
+    }
+
+    public static TextureLayer getGrayMane(HorseGenome horse)
+    {
         TextureLayer layer = new TextureLayer();
         int age = horse.getAge() + YEAR_TICKS;
         int rate = horse.getGrayManeRate();
