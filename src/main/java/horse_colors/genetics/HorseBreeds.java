@@ -39,10 +39,10 @@ public class HorseBreeds {
             1.0f            // Silver
         ));
         DEFAULT.put("cream", ImmutableList.of(
-            30f / 32f,  // Non-cream
+            61f / 64f,  // Non-cream
             0f,         // Non-cream unused
-            31f / 32f,  // Pearl
-            1f          // Cream
+            31f / 32f,  // Pearl (1/64)
+            1f          // Cream (1/32)
         ));
         DEFAULT.put("liver", ImmutableList.of(
             0.25f,  // Liver
@@ -103,7 +103,7 @@ public class HorseBreeds {
             0.90f,  // Tobiano
             0.94f,  // Sabino1
             0.96f,  // Tobiano + W20
-            0.97f,  // Roan
+            0.99f,  // Roan
             1.0f    // Dominant white
         ));
         DEFAULT.put("frame", ImmutableList.of(
