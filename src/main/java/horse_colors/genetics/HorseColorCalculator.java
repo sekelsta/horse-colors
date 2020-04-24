@@ -9,7 +9,9 @@ public class HorseColorCalculator
     private static final int LEG_MARKING_BITS = 12;
 
     private static final int YEAR_TICKS = 24000;
-    private static final int MAX_AGE = 18 * YEAR_TICKS;
+    private static final int MAX_AGE = 15 * YEAR_TICKS;
+    private static final int GRAY_BODY_STAGES = 19;
+    private static final int GRAY_MANE_STAGES = 20;
 
     public static String fixPath(String inStr) {
         if (inStr == null || inStr.contains(".png")) {
@@ -102,6 +104,7 @@ public class HorseColorCalculator
         TextureLayer layer = new TextureLayer();
         layer.name = fixPath("base");
         colorRedBody(horse, layer);
+        adjustConcentration(layer, grayConcentration(horse, horse.getGrayRate()));
         return layer;
     }
 
@@ -156,6 +159,7 @@ public class HorseColorCalculator
                 layer.name = fixPath("wild_bay");
         }
         colorBlackBody(horse, layer);
+        adjustConcentration(layer, grayConcentration(horse, horse.getGrayRate()));
         return layer;
     }
 
@@ -169,6 +173,7 @@ public class HorseColorCalculator
             palomino_mane.name = fixPath("manetail");
             colorRedBody(horse, palomino_mane);
             adjustConcentration(palomino_mane, 0.04f);
+            adjustConcentration(palomino_mane, grayConcentration(horse, horse.getGrayManeRate()));
             layers.add(palomino_mane);
         }
 
@@ -197,6 +202,7 @@ public class HorseColorCalculator
             white = 0.1f;
         }
         adjustConcentration(flaxen, power);
+        adjustConcentration(flaxen, grayConcentration(horse, horse.getGrayManeRate()));
         addWhite(flaxen, white);
         layers.add(flaxen);
     }
@@ -211,6 +217,7 @@ public class HorseColorCalculator
         TextureLayer layer = new TextureLayer();
         layer.name = fixPath("flaxen");
         setEumelanin(layer, 0.2f, 0.0f);
+        adjustConcentration(layer, grayConcentration(horse, horse.getGrayManeRate()));
         return layer;
     }
 
@@ -243,7 +250,7 @@ public class HorseColorCalculator
     public static TextureLayer getHooves(HorseGenome horse) {
         TextureLayer layer = new TextureLayer();
         layer.name = fixPath("hooves");
-        colorBlackBody(horse, layer);
+        colorSkin(horse, layer);
         addWhite(layer, 0.4f);
         // Multiply by the shell color of hooves
         layer.red = (int)((float)layer.red * 255f / 255f);
@@ -305,6 +312,7 @@ public class HorseColorCalculator
         }
 
         colorBlackBody(horse, layer);
+        adjustConcentration(layer, grayConcentration(horse, horse.getGrayRate()));
 
         return layer;
     }
@@ -319,20 +327,15 @@ public class HorseColorCalculator
         if (!horse.isGray()) {
             return;
         }
+        float rate = horse.getGrayRate();
+        float mane_rate = horse.getGrayManeRate();
 
-        int age = horse.getAge() + YEAR_TICKS;
-        age = Math.min(age, MAX_AGE);
-        int rate = horse.getGrayRate();
-        int mane_rate = horse.getGrayManeRate();
-
-        int body_stage = grayStage(age, rate, 19, 0.05f);
-        int mane_stage = grayStage(age, mane_rate, 20, 0.1f);
-
-        System.out.println("Rate: " + rate + ", age: " + age + ", stage: " + body_stage);
+        int body_stage = grayStage(horse, rate, GRAY_BODY_STAGES, 0.25f);
+        int mane_stage = grayStage(horse, mane_rate, GRAY_MANE_STAGES, 0.3f);
 
         if (body_stage > 0) {
             TextureLayer body = new TextureLayer();
-            if (body_stage > 19) {
+            if (body_stage > GRAY_BODY_STAGES) {
                 body.name = fixPath("body");
             }
             else {
@@ -344,7 +347,7 @@ public class HorseColorCalculator
 
         if (mane_stage > 0) {
             TextureLayer mane = new TextureLayer();
-            if (mane_stage > 20) {
+            if (mane_stage > GRAY_MANE_STAGES) {
                 mane.name = fixPath("manetail");
             }
             else {
@@ -356,8 +359,11 @@ public class HorseColorCalculator
     }
 
     // num_stages does not count the starting and ending stages
-    public static int grayStage(int age, int rate, int num_stages, float delay) {
-        float gray_age = (float)age / (float)(YEAR_TICKS * rate) - delay;
+    public static int grayStage(HorseGenome horse, float rate, int num_stages, float delay) {
+        int age = horse.getAge() + YEAR_TICKS;
+        age = Math.min(age, MAX_AGE);
+        float gray_age = (float)age / (float)(YEAR_TICKS * rate);
+        gray_age = (gray_age - delay) / (1f - delay);
         if (gray_age <= 0) {
             return 0;
         }
@@ -367,27 +373,10 @@ public class HorseColorCalculator
         return (int)(gray_age * num_stages);
     }
 
-    public static TextureLayer getGrayMane(HorseGenome horse)
-    {
-        TextureLayer layer = new TextureLayer();
-        int age = horse.getAge() + YEAR_TICKS;
-        int rate = horse.getGrayManeRate();
-        float gray_age = (float)age / (float)(YEAR_TICKS * rate);
-
-        if (gray_age < 0.1f) {
-            // Mane and tail still dark
-            return null;
-        }
-        if (gray_age > 1f) {
-            // Mane and tail all white
-            layer.name = fixPath("manetail");
-            return layer;
-        }
-
-        String prefix = "gray/mane";
-        int suffix = (int)(gray_age * 21 - 1);
-        layer.name = fixPath(prefix + suffix);
-        return layer;
+    public static float grayConcentration(HorseGenome horse, float rate) {
+        int stage = grayStage(horse, rate, 200, 0.15f);
+        float val = 1.1f + 5f * stage / 200f;
+        return val;
     }
 
     public static int getFaceWhiteLevel(HorseGenome horse) {

@@ -240,23 +240,26 @@ public class HorseGenome extends Genome {
     }
 
     // Number of years to turn fully gray
-    public int getGrayRate() {
-        // Starting age should vary from around 1 to 10 years
-        // Ending age from 2 to 20
+    public float getGrayRate() {
+        return 2;/*
+        // Starting age should vary from around 1 to 5 years
+        // Ending age from 3 to 20
         int gray = countAlleles("gray", HorseAlleles.GRAY);
         int slow = countAlleles("slow_gray1", 1)
                 + getMaxAllele("slow_gray2") + getMaxAllele("gray_mane");
-        return (3 - gray) * slow;
+        return (3 - gray) * slow;*/
     }
 
     // Number of years for the mane and tail to turn fully gray
-    public int getGrayManeRate() {
-        // Starting age should vary from around 1 to 10 years
-        // Ending age from 2 to 20
+    public float getGrayManeRate() {/*
         int gray = countAlleles("gray", HorseAlleles.GRAY);
-        int slow = countAlleles("slow_gray1", 1)
-                + getMaxAllele("slow_gray2") + countAlleles("gray_mane", 1);
-        return (3 - gray) * slow;
+        float mane_rate = getGrayRate();
+        if (isHomozygous("gray_mane", 1)) {
+            mane_rate += 3 - gray;
+        }
+        // Mane always seems to whiten before the body
+        return mane_rate * 17f / 19f;*/
+        return 2 * 17f / 19f;
     }
 
     public float getGrayHealthLoss() {
@@ -449,7 +452,7 @@ public class HorseGenome extends Genome {
         HorseColorCalculator.addGray(this, this.textureLayers);
         this.textureLayers.add(HorseColorCalculator.getNose(this));
         this.textureLayers.add(HorseColorCalculator.getHooves(this));
-
+/*
         if (this.hasAllele("KIT", HorseAlleles.KIT_ROAN)) {
             TextureLayer roan = new TextureLayer();
             roan.name = HorseColorCalculator.fixPath("roan/roan");
@@ -468,7 +471,7 @@ public class HorseGenome extends Genome {
         }
 
         this.textureLayers.add(HorseColorCalculator.getPinto(this));
-
+*/
         TextureLayer highlights = new TextureLayer();
         highlights.name = HorseColorCalculator.fixPath("base");
         highlights.type = TextureLayer.Type.HIGHLIGHT;
