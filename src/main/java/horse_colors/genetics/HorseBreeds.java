@@ -142,16 +142,16 @@ public class HorseBreeds {
             0.975f, // Non gray-suppression
             1f      // Gray suppression
         ));
-        DEFAULT.put("gray_mane", ImmutableList.of(
-            0.75f,  // Lighter
-            1f      // Darker
-        ));
         DEFAULT.put("slow_gray1", ImmutableList.of(
-            0.875f, // Lighter
+            0.75f,   // Lighter
             1f      // Darker
         ));
         DEFAULT.put("slow_gray2", ImmutableList.of(
-            0.75f,  // Lighter
+            0.75f,   // Lighter
+            1f      // Darker
+        ));
+        DEFAULT.put("slow_gray3", ImmutableList.of(
+            0.75f,   // Lighter
             1f      // Darker
         ));
         DEFAULT.put("white_star", ImmutableList.of(
@@ -169,6 +169,14 @@ public class HorseBreeds {
         DEFAULT.put("gray_melanoma", ImmutableList.of(
             0.5f,   // Less melanoma
             1f      // More melanoma
+        ));
+        DEFAULT.put("gray_mane1", ImmutableList.of(
+            0.5f,   // Lighter mane
+            1f      // Lighter body
+        ));
+        DEFAULT.put("gray_mane2", ImmutableList.of(
+            0.5f,   // Lighter mane
+            1f      // Lighter body
         ));
     }
 }

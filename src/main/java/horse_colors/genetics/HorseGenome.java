@@ -78,13 +78,15 @@ public class HorseGenome extends Genome {
         "PATN2", 
         "PATN3", 
         "gray_suppression",
-        "gray_mane", 
         "slow_gray1", 
-        "slow_gray2",
+        "slow_gray2", 
+        "slow_gray3",
         "white_star",
         "white_forelegs",
         "white_hindlegs",
-        "gray_melanoma"
+        "gray_melanoma",
+        "gray_mane1",
+        "gray_mane2"
     );
 
     public static final ImmutableList<String> stats = ImmutableList.of(
@@ -125,35 +127,8 @@ public class HorseGenome extends Genome {
             case "cream":
             case "dun": return 2;
 
-            case "gray":
-            case "silver":
-            case "liver":
-            case "flaxen1":
-            case "flaxen2":
-            case "dapple":
-            case "sooty1":
-            case "sooty2":
-            case "sooty3":
-            case "mealy1":
-            case "mealy2":
-            case "mealy3":
-            case "white_suppression":
-            case "frame":
-            case "leopard":
-            case "PATN1":
-            case "PATN2":
-            case "PATN3":
-            case "gray_suppression":
-            case "gray_mane":
-            case "slow_gray1":
-            case "slow_gray2":
-            case "white_star":
-            case "white_forelegs":
-            case "white_hindlegs":
-            case "gray_melanoma": return 1;
+            default: return 1;
         }
-        System.out.println("Gene size not found: " + gene);
-        return -1;
     }
 
     public boolean isChestnut()
@@ -241,25 +216,43 @@ public class HorseGenome extends Genome {
 
     // Number of years to turn fully gray
     public float getGrayRate() {
-        return 2;/*
         // Starting age should vary from around 1 to 5 years
         // Ending age from 3 to 20
         int gray = countAlleles("gray", HorseAlleles.GRAY);
-        int slow = countAlleles("slow_gray1", 1)
-                + getMaxAllele("slow_gray2") + getMaxAllele("gray_mane");
-        return (3 - gray) * slow;*/
+        float rate = 3f * (3 - gray);
+        if (this.isHomozygous("slow_gray1", 1)) {
+            rate *= 1.5f;
+        }
+        else if (this.hasAllele("slow_gray1", 1)) {
+            rate *= 1.2f;
+        }
+
+        if (this.hasAllele("slow_gray2", 1)) {
+            rate *= 1.3f;
+        }
+
+        if (this.isHomozygous("slow_gray3", 1)) {
+            rate *= 1.2f;
+        }
+
+        if (this.hasAllele("gray_mane1", 1)) {
+            rate *= 1.2f;
+        }
+        return rate;
     }
 
     // Number of years for the mane and tail to turn fully gray
-    public float getGrayManeRate() {/*
-        int gray = countAlleles("gray", HorseAlleles.GRAY);
-        float mane_rate = getGrayRate();
-        if (isHomozygous("gray_mane", 1)) {
-            mane_rate += 3 - gray;
+    public float getGrayManeRate() {
+        float rate = getGrayRate();
+        if (this.hasAllele("gray_mane1", 0)) {
+            rate *= 0.9f;
         }
-        // Mane always seems to whiten before the body
-        return mane_rate * 17f / 19f;*/
-        return 2 * 17f / 19f;
+
+        if (this.isHomozygous("gray_mane2", 0)) {
+            rate *= 0.9f;
+        }
+        // Adjust so mane grays slightly before the body finishes
+        return rate * 17f / 19f;
     }
 
     public float getGrayHealthLoss() {
@@ -452,7 +445,7 @@ public class HorseGenome extends Genome {
         HorseColorCalculator.addGray(this, this.textureLayers);
         this.textureLayers.add(HorseColorCalculator.getNose(this));
         this.textureLayers.add(HorseColorCalculator.getHooves(this));
-/*
+
         if (this.hasAllele("KIT", HorseAlleles.KIT_ROAN)) {
             TextureLayer roan = new TextureLayer();
             roan.name = HorseColorCalculator.fixPath("roan/roan");
@@ -471,7 +464,7 @@ public class HorseGenome extends Genome {
         }
 
         this.textureLayers.add(HorseColorCalculator.getPinto(this));
-*/
+
         TextureLayer highlights = new TextureLayer();
         highlights.name = HorseColorCalculator.fixPath("base");
         highlights.type = TextureLayer.Type.HIGHLIGHT;

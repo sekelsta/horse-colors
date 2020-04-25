@@ -374,8 +374,8 @@ public class HorseColorCalculator
     }
 
     public static float grayConcentration(HorseGenome horse, float rate) {
-        int stage = grayStage(horse, rate, 200, 0.15f);
-        float val = 1.1f + 5f * stage / 200f;
+        int stage = grayStage(horse, rate, 50, 0f);
+        float val = 1f + 5f * stage / 50f * stage / 50f;
         return val;
     }
 
