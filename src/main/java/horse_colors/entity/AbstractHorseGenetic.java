@@ -269,7 +269,7 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity implement
         }
 
         // Align age
-        if (!this.world.isRemote) {
+        if (!this.world.isRemote && this.getGenes().clientNeedsAge()) {
             // Adjust age, compensating for what AgeableEntity's tick function does
             // Bound above so there is no wrapping
             if (this.growingAge >= 0 && this.growingAge < 0x1000000) {
@@ -277,7 +277,7 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity implement
                 this.setGrowingAge(this.growingAge + 2);
             }
             // Allow imprecision
-            final int c = 200;
+            final int c = 400;
             if (this.growingAge / c != this.getDisplayAge() / c) {
                 this.setDisplayAge(this.growingAge);
             }

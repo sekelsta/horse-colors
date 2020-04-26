@@ -308,6 +308,12 @@ public class HorseGenome extends Genome {
                 + countAlleles("KIT", HorseAlleles.KIT_TOBIANO_W20);
     }
 
+    // Return true if the client needs to know the age to render properly,
+    // aside from just whether the animal is a child
+    public boolean clientNeedsAge() {
+        return isGray();
+    }
+
     public int getAge() {
         if (entity instanceof HorseGeneticEntity) {
             return ((HorseGeneticEntity)entity).getDisplayAge();
