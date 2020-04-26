@@ -26,6 +26,16 @@ public class HorseBreeds {
         ));
         DEFAULT.put("agouti", ImmutableList.of(
             0.375f,     // Black
+            0.5f,       // Seal
+            0.5f,       // Seal unused
+            0.5f,       // Bay unused
+            1f,         // Bay
+            0.875f,     // Bay unused
+            0.9375f,    // Bay unused
+            1.0f        // Bay unused
+        ));/*
+        DEFAULT.put("agouti", ImmutableList.of(
+            0.375f,     // Black
             0.4375f,    // Seal
             0.5f,       // Brown - same as seal
             0.625f,     // Bay_dark - same as bay
@@ -33,15 +43,15 @@ public class HorseBreeds {
             0.875f,     // Bay_light - same as bay
             0.9375f,    // Bay_semiwild
             1.0f        // Bay_wild
-        ));
+        ));*/
         DEFAULT.put("silver", ImmutableList.of(
             31.0f / 32.0f,  // Non-silver
             1.0f            // Silver
         ));
         DEFAULT.put("cream", ImmutableList.of(
-            61f / 64f,  // Non-cream
+            30f / 32f,  // Non-cream
             0f,         // Non-cream unused
-            31f / 32f,  // Pearl (1/64)
+            31f / 32f,  // Pearl (1/32)
             1f          // Cream (1/32)
         ));
         DEFAULT.put("liver", ImmutableList.of(
