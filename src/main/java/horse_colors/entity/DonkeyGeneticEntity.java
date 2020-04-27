@@ -108,7 +108,7 @@ public class DonkeyGeneticEntity extends DonkeyEntity implements IHorseShape, IG
     }
 
     private void useGeneticAttributes()
-    {
+    {/*
         if (HorseConfig.COMMON.useGeneticStats.get())
         {
             // Default horse health ranges from 15 to 30, but ours goes from
@@ -125,7 +125,7 @@ public class DonkeyGeneticEntity extends DonkeyEntity implements IHorseShape, IG
             this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(maxHealth);
             this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(movementSpeed);
             this.getAttribute(JUMP_STRENGTH).setBaseValue(jumpStrength);
-        }
+        }*/
     }
 
     @Override

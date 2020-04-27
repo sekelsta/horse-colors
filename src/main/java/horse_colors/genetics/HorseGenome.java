@@ -89,10 +89,25 @@ public class HorseGenome extends Genome {
         "gray_mane2"
     );
 
-    public static final ImmutableList<String> stats = ImmutableList.of(
+    public static final ImmutableList<String> genericChromosomes = ImmutableList.of(
         "speed",
-        "health",
-        "jump"
+        "jump",
+        "health"        
+    );
+
+    public static final ImmutableList<String> stats = ImmutableList.of(
+        "speed1",
+        "speed2",
+        "speed3",
+        "athletics1",
+        "athletics2",
+        "jump1",
+        "jump2",
+        "jump3",
+        "health1",
+        "health2",
+        "health3",
+        "stamina"
     );
 
     public static final ImmutableList<String> chromosomes = ImmutableList.of("0", "1", "2", "speed", "jump", "health", "random");
@@ -107,17 +122,35 @@ public class HorseGenome extends Genome {
     }
 
     @Override
+    public ImmutableList<String> listGenericChromosomes() {
+        return genericChromosomes;
+    }
+
+    @Override
     public ImmutableList<String> listStats() {
         return stats;
     }
 
-    /* This returns the number of bits needed to store one allele. */
+    /* For named genes, this returns the number of bits needed to store one allele. 
+    For stats, this returns the number of genes that contribute to the stat. */
     @Override
     public int getGeneSize(String gene)
     {
         switch(gene) 
         {
-            case "KIT": return 4;
+            case "KIT":
+            case "speed1":
+            case "speed2":
+            case "speed3":
+            case "athletics1":
+            case "athletics2":
+            case "jump1":
+            case "jump2":
+            case "jump3":
+            case "health1":
+            case "health2":
+            case "health3":
+            case "stamina": return 4;
 
             case "extension":
             case "agouti": return 3;
@@ -380,7 +413,7 @@ public class HorseGenome extends Genome {
             setNamedGene("KIT", 15);
         }
 
-        for (String stat : this.listStats()) {
+        for (String stat : this.listGenericChromosomes()) {
             entity.setChromosome(stat, this.entity.getRand().nextInt());
         }
         entity.setChromosome("random", this.entity.getRand().nextInt());
@@ -414,7 +447,7 @@ public class HorseGenome extends Genome {
             list.add(s);
         }
         return list;
-    }
+    }/*
     public ArrayList<String> humanReadableStats(boolean showAll) {
         ArrayList<String> list = new ArrayList<String>();
         for (String stat : stats) {
@@ -434,7 +467,7 @@ public class HorseGenome extends Genome {
             list.add(s);
         }
         return list;
-    }
+    }*/
 
     @OnlyIn(Dist.CLIENT)
     public void setTexturePaths()
@@ -537,7 +570,7 @@ public class HorseGenome extends Genome {
         i = mother | father;
         childEntity.setChromosome("2", i);
 
-        for (String stat : this.listStats()) {
+        for (String stat : this.listGenericChromosomes()) {
             int val = inheritStats(other, stat);
             childEntity.setChromosome(stat, val);
         }

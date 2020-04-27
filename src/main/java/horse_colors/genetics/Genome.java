@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 public abstract class Genome {
     public abstract List<String> listGenes();
+    public abstract List<String> listGenericChromosomes();
     public abstract List<String> listStats();
 
     protected IGeneticEntity entity;
@@ -32,7 +33,7 @@ public abstract class Genome {
     }
 
     public abstract List<String> humanReadableNamedGenes(boolean showAll);
-    public abstract List<String> humanReadableStats(boolean showAll);
+    //public abstract List<String> humanReadableStats(boolean showAll);
     public abstract void setTexturePaths();
     public abstract String genesToString();
     public abstract void genesFromString(String s);
@@ -78,10 +79,22 @@ public abstract class Genome {
         // Use unsigned right shift to avoid returning negative numbers
         return (entity.getChromosome(chr) & getGeneLoci(name)) >>> getGenePos(name);
     }
-    
-    public int getStat(String name)
+
+    // This returns the chromosome masked to contain only the relevent bits
+    public int getRawStat(String name)
     {
-        int val = entity.getChromosome(name);
+        String chr = listGenericChromosomes().get(getStatPos(name) / 32);
+        return entity.getChromosome(chr) & getStatLoci(name);
+    }
+
+    // This returns the number of '1' bits in the stat's position
+    public int getStatValue(String name)
+    {
+        int val = getRawStat(name);
+        return countBits(val);
+    }
+
+    public int countBits(int val) {
         int count = 0;
         for (int i = 0; i < 32; ++i)
         {
@@ -93,8 +106,18 @@ public abstract class Genome {
 
     public int getGenePos(String name)
     {
+        return getPos(name, listGenes());
+    }
+
+    public int getStatPos(String name)
+    {
+        return getPos(name, listStats());
+    }
+
+    private int getPos(String name, List<String> genes)
+    {
         int i = 0;
-        for (String gene : listGenes())
+        for (String gene : genes)
         {
             int next = (i + (2 * getGeneSize(gene)));
             // Special case to keep each gene completely on the same int
@@ -115,10 +138,20 @@ public abstract class Genome {
         return -1;
     }
 
-    /* This returns a bitmask which is 1 where the gene is stored and 0 everywhere else. */
     public int getGeneLoci(String gene)
     {
-        return ((1 << (2 * getGeneSize(gene))) - 1) << (getGenePos(gene) % 32);
+        return getLoci(gene, getGenePos(gene));
+    }
+
+    public int getStatLoci(String gene)
+    {
+        return getLoci(gene, getStatPos(gene));
+    }
+
+    /* This returns a bitmask which is 1 where the gene is stored and 0 everywhere else. */
+    private int getLoci(String gene, int pos)
+    {
+        return ((1 << (2 * getGeneSize(gene))) - 1) << (pos % 32);
     }
 
     public String getGeneChromosome(String gene)
@@ -174,7 +207,7 @@ public abstract class Genome {
     }
 
 
-    public void mutateStat(String name, double p) {
+    public void mutateGenericChromosome(String name, double p) {
         // xor with an int where each digit has a p / 2 chance of being 1
         // This is equivalent to picking a random replacement with p probability
         // because half the time that would pick the same value as before
@@ -187,8 +220,8 @@ public abstract class Genome {
             mutateAlleleChance(gene, 0, p);
             mutateAlleleChance(gene, 1, p);
         }
-        for (String stat : listStats()) {
-            mutateStat(stat, p);
+        for (String stat : listGenericChromosomes()) {
+            mutateGenericChromosome(stat, p);
         }
     }
 

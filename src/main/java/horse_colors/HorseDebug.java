@@ -2,6 +2,7 @@ package sekelsta.horse_colors;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.AgeableEntity;
@@ -51,9 +52,9 @@ public class HorseDebug {
 
     public static ArrayList<String> debugStatGenes(Genome genome) {
         ArrayList<String> list = new ArrayList<String>();
-        for (String stat : genome.listStats()) {
+        for (String stat : genome.listGenericChromosomes()) {
             String s = stat;
-            s += ": " + genome.getStat(stat);
+            s += ": " + genome.countBits(genome.getChromosome(stat));
             s += " (";
             int val = genome.getChromosome(stat);
             for (int i = 16; i >0; i--) {
@@ -66,7 +67,27 @@ public class HorseDebug {
             s += ")";
             list.add(s);
         }
+        // Uncomment to show substats
+        // addSubStats(genome, list);
         return list;
+    }
+
+    private void addSubStats(Genome genome, List<String> list) {
+        for (String stat : genome.listStats()) {
+            String s = stat;
+            s += ": " + genome.getStatValue(stat);
+            s += " (";
+            int val = genome.getRawStat(stat);
+            for (int i = 16; i >0; i--) {
+                s += (val >>> (2 * i - 1)) & 1;
+                s += (val >>> (2 * i - 2)) & 1;
+                if (i > 1) {
+                    s += " ";
+                }
+            }
+            s += ")";
+            list.add(s);
+        }
     }
 
     @OnlyIn(Dist.CLIENT)

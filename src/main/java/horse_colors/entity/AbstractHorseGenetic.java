@@ -226,14 +226,29 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity implement
     {
         if (HorseConfig.COMMON.useGeneticStats.get())
         {
+            HorseGenome genes = this.getGenes();
             // Default horse health ranges from 15 to 30, but ours goes from
             // 15 to 31
-            float maxHealth = 15.0F + this.getGenes().getStat("health") * 0.5F;
+            float healthStat = genes.getStatValue("health1")
+                                + genes.getStatValue("health2")
+                                + genes.getStatValue("health3")
+                                + genes.getStatValue("stamina");
+            float maxHealth = 15.0F + healthStat * 0.5F;
             maxHealth += this.getGenes().getBaseHealth();
             // Vanilla horse speed ranges from 0.1125 to 0.3375, as does ours
-            double movementSpeed = 0.1125D + this.getGenes().getStat("speed") * (0.225D / 32.0D);
+            float speedStat = genes.getStatValue("speed1")
+                                + genes.getStatValue("speed2")
+                                + genes.getStatValue("speed3")
+                                + genes.getStatValue("athletics1") / 2f
+                                + genes.getStatValue("athletics2") / 2f;
+            double movementSpeed = 0.1125D + speedStat * (0.225D / 32.0D);
             // Vanilla horse jump strength ranges from 0.4 to 1.0, as does ours
-            double jumpStrength = 0.4D + this.getGenes().getStat("jump") * (0.6D / 32.0D);
+            float jumpStat = genes.getStatValue("jump1")
+                                + genes.getStatValue("jump2")
+                                + genes.getStatValue("jump3")
+                                + genes.getStatValue("athletics1") / 2f
+                                + genes.getStatValue("athletics2") / 2f;
+            double jumpStrength = 0.4D + jumpStat * (0.6D / 32.0D);
 
             this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(maxHealth);
             this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(movementSpeed);
