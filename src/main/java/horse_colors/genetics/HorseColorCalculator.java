@@ -150,13 +150,9 @@ public class HorseColorCalculator
             case HorseAlleles.A_BAY_DARK:
             case HorseAlleles.A_BAY:
             case HorseAlleles.A_BAY_LIGHT:
-                layer.name = fixPath("bay");
-                break;
             case HorseAlleles.A_BAY_SEMIWILD:
-                layer.name = fixPath("semiwild_bay");
-                break;
             case HorseAlleles.A_BAY_WILD:
-                layer.name = fixPath("wild_bay");
+                layer.name = fixPath("bay");
         }
         colorBlackBody(horse, layer);
         adjustConcentration(layer, grayConcentration(horse, horse.getGrayRate()));
