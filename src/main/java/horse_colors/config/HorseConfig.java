@@ -158,12 +158,12 @@ public class HorseConfig
             minHerdSize = builder
                     .comment("What size groups horses will spawn in")
                     .translation("horse_colors.config.spawn.minHerdSize")
-                    .defineInRange("minHerdSize", 4, 0, Integer.MAX_VALUE);
+                    .defineInRange("minHerdSize", 2, 0, Integer.MAX_VALUE);
 
             maxHerdSize = builder
                     .comment("")
                     .translation("horse_colors.config.spawn.maxHerdSize")
-                    .defineInRange("maxHerdSize", 8, 0, Integer.MAX_VALUE);
+                    .defineInRange("maxHerdSize", 6, 0, Integer.MAX_VALUE);
 
             spawnBiomeWeights = builder
                     .comment("A list of biomes horses can spawn in, and how often they spawn there.")
