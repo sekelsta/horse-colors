@@ -24,6 +24,8 @@ public class HorseConfig
         public static BooleanValue horseDebugInfo;
         public static DoubleValue mutationChance;
         public static BooleanValue enableGroundTie;
+        public static IntValue yearLength;
+        public static DoubleValue maxAge;
 
         Common(final ForgeConfigSpec.Builder builder) {
             builder.comment("Common config settings")
@@ -64,6 +66,15 @@ public class HorseConfig
                               "least one mutation. Any higher is not recommended.",
                               "To disable mutations, set this value to 0.")
                     .defineInRange("mutationChance", 0.0005, 0.0, 1.0);
+
+            yearLength = builder
+                    .comment("How long a year lasts in ticks, for the purposes of graying.",
+                            "The default 24000 ticks is one minecraft day.")
+                    .defineInRange("yearLength", 24000, 1, Integer.MAX_VALUE / 1024);
+
+            maxAge = builder
+                    .comment("How many years a horse will age, for the purposes of graying.")
+                    .defineInRange("maxAge", 15.0, 0.0, 25.0);
 
             builder.pop();
         }

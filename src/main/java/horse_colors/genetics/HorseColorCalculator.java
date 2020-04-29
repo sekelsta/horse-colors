@@ -1,5 +1,6 @@
 package sekelsta.horse_colors.genetics;
 import java.util.List;
+import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.renderer.TextureLayer;
 
 public class HorseColorCalculator
@@ -8,8 +9,6 @@ public class HorseColorCalculator
     private static final int FACE_MARKING_BITS = 2;
     private static final int LEG_MARKING_BITS = 12;
 
-    private static final int YEAR_TICKS = 24000;
-    private static final int MAX_AGE = 15 * YEAR_TICKS;
     private static final int GRAY_BODY_STAGES = 19;
     private static final int GRAY_MANE_STAGES = 20;
 
@@ -356,7 +355,9 @@ public class HorseColorCalculator
 
     // num_stages does not count the starting and ending stages
     public static int grayStage(HorseGenome horse, float rate, int num_stages, float delay) {
-        int age = horse.getAge() + YEAR_TICKS;
+        final int YEAR_TICKS = HorseConfig.COMMON.yearLength.get();
+        final int MAX_AGE = (int)(HorseConfig.COMMON.maxAge.get() * YEAR_TICKS);
+        int age = horse.getAge() + 24000;
         age = Math.min(age, MAX_AGE);
         float gray_age = (float)age / (float)(YEAR_TICKS * rate);
         gray_age = (gray_age - delay) / (1f - delay);
