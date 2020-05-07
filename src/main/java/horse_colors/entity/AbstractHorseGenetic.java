@@ -54,8 +54,9 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity implement
     protected static final DataParameter<Integer> HORSE_SPEED = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_JUMP = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_HEALTH = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
-    private static final DataParameter<Integer> HORSE_RANDOM = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
-    private static final DataParameter<Integer> DISPLAY_AGE = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
+    protected static final DataParameter<Integer> HORSE_RANDOM = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
+    protected static final DataParameter<Integer> DISPLAY_AGE = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
+    protected int trueAge;
 
 
     public AbstractHorseGenetic(EntityType<? extends AbstractHorseGenetic> entityType, World worldIn)
@@ -111,7 +112,7 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity implement
         compound.putInt("JumpGenes", this.getChromosome("jump"));
         compound.putInt("HealthGenes", this.getChromosome("health"));
         compound.putInt("Random", this.getChromosome("random"));
-        compound.putInt("display_age", this.getDisplayAge());
+        compound.putInt("true_age", trueAge);
     }
 
     @Override
@@ -125,7 +126,7 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity implement
         this.setChromosome("jump", compound.getInt("JumpGenes"));
         this.setChromosome("health", compound.getInt("HealthGenes"));
         this.setChromosome("random", compound.getInt("Random"));
-        this.setDisplayAge(compound.getInt("display_age"));
+        this.trueAge = compound.getInt("true_age");
 
         this.updateHorseSlots();
     }
@@ -285,16 +286,17 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity implement
 
         // Align age
         if (!this.world.isRemote && this.getGenes().clientNeedsAge()) {
-            // Adjust age, compensating for what AgeableEntity's tick function does
-            // Bound above so there is no wrapping
-            if (this.growingAge >= 0 && this.growingAge < 0x1000000) {
-                // Compensate for AgeableEntity's tick function decreasing it
-                this.setGrowingAge(this.growingAge + 2);
+            // For children, align with growing age in case they have been fed
+            if (this.growingAge < 0) {
+                this.trueAge = this.growingAge;
+            }
+            else {
+                this.trueAge = Math.max(0, this.trueAge + 1);
             }
             // Allow imprecision
             final int c = 400;
-            if (this.growingAge / c != this.getDisplayAge() / c) {
-                this.setDisplayAge(this.growingAge);
+            if (this.trueAge / c != this.getDisplayAge() / c) {
+                this.setDisplayAge(this.trueAge);
             }
         }
 
