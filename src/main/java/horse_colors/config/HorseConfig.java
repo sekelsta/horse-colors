@@ -47,7 +47,7 @@ public class HorseConfig
             enableGroundTie = builder
                     .comment("If enabled, horses will not wander off if they are wearing a saddle.")
                     .translation("horse_colors.config.common.enableGroundTie")
-                    .define("enableGroundTie", true);
+                    .define("enableGroundTie", false);
 
             horseDebugInfo = builder
                     .comment("If enabled, debugging information will appear on the screen when the",
