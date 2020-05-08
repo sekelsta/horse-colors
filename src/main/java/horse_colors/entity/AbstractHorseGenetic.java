@@ -5,8 +5,7 @@ import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
-import net.minecraft.block.CarpetBlock;
-import net.minecraft.block.SoundType;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
@@ -45,7 +44,7 @@ import sekelsta.horse_colors.item.GeneBookItem;
 import sekelsta.horse_colors.genetics.*;
 import sekelsta.horse_colors.util.Util;
 
-public abstract class AbstractHorseGenetic extends AbstractHorseEntity implements IGeneticEntity {
+public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity implements IGeneticEntity {
 
     protected HorseGenome genes;
     protected static final DataParameter<Integer> HORSE_VARIANT = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
@@ -70,6 +69,15 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity implement
 
     public java.util.Random getRand() {
         return this.rand;
+    }
+
+    public abstract boolean fluffyTail();
+    public abstract boolean longEars();
+    public abstract boolean thinMane();
+    public abstract GeneBookItem.Species getSpecies();
+
+    public boolean canEquipChest() {
+        return true;
     }
 
     @Override
@@ -202,13 +210,38 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity implement
     @Override
     public boolean processInteract(PlayerEntity player, Hand hand) {
         ItemStack itemstack = player.getHeldItem(hand);
-        if (!itemstack.isEmpty() && itemstack.getItem() instanceof BookItem 
+        if (!itemstack.isEmpty() && itemstack.getItem() instanceof SpawnEggItem) {
+            return super.processInteract(player, hand);
+        }
+
+        if (!this.isChild()) {
+            if (this.isTame() && player.func_226563_dT_()) {
+                this.openGUI(player);
+                return true;
+            }
+
+            if (this.isBeingRidden()) {
+                return super.processInteract(player, hand);
+            }
+        }
+
+        if (itemstack.isEmpty()) {
+            if (this.isChild()) {
+                return super.processInteract(player, hand);
+            }
+            else {
+                this.mountTo(player);
+                return true;
+            }
+        }
+
+        if (itemstack.getItem() == Items.BOOK
                 && (this.isTame() || player.abilities.isCreativeMode)) {
             ItemStack book = new ItemStack(ModItems.geneBookItem);
             if (book.getTag() == null) {
                 book.setTag(new CompoundNBT());
             }
-            book.getTag().putString("species", GeneBookItem.Species.HORSE.name());
+            book.getTag().putString("species", this.getSpecies().name());
             book.getTag().putString("genes", this.getGenes().genesToString());
             if (!player.addItemStackToInventory(book)) {
                 this.entityDropItem(book);
@@ -218,9 +251,45 @@ public abstract class AbstractHorseGenetic extends AbstractHorseEntity implement
             }
             return true;
         }
-        else {
-            return super.processInteract(player, hand);
+
+        if (this.handleEating(player, itemstack)) {
+            if (!player.abilities.isCreativeMode) {
+                itemstack.shrink(1);
+            }
+            return true;
         }
+
+        if (itemstack.interactWithEntity(player, this, hand)) {
+            return true;
+        }
+
+        if (!this.isTame()) {
+            this.makeMad();
+            return true;
+        }
+
+        boolean flag1 = !this.isChild() && !this.isHorseSaddled() && itemstack.getItem() == Items.SADDLE;
+        if (this.isArmor(itemstack) || flag1) {
+            this.openGUI(player);
+            return true;
+        }
+
+        if (!this.hasChest() && itemstack.getItem() == Blocks.CHEST.asItem()) {
+            if (this.canEquipChest()) {
+                this.setChested(true);
+                this.playChestEquipSound();
+                this.initHorseChest();
+                if (!player.abilities.isCreativeMode) {
+                    itemstack.shrink(1);
+                }
+            }
+            else {
+                return false;
+            }
+        }
+
+        this.mountTo(player);
+        return true;
     }
 
     protected void useGeneticAttributes()

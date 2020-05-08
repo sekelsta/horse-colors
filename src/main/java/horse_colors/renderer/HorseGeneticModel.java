@@ -10,10 +10,10 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import sekelsta.horse_colors.entity.IHorseShape;
-
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
+
+import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 
 @OnlyIn(Dist.CLIENT)
 public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableModel<T>
@@ -257,8 +257,8 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
 
     @Override
     public void setRotationAngles(T entityIn, float p_225597_2_, float p_225597_3_, float p_225597_4_, float limbSwingAmount, float partialTickTime) {
-        if (entityIn instanceof IHorseShape) {
-            IHorseShape horse = (IHorseShape)entityIn;
+        if (entityIn instanceof AbstractHorseGenetic) {
+            AbstractHorseGenetic horse = (AbstractHorseGenetic)entityIn;
             this.muleLeftEar.showModel = horse.longEars();
             this.muleRightEar.showModel = horse.longEars();
             this.horseLeftEar.showModel = !horse.longEars();
@@ -521,7 +521,7 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         this.tailThin.rotateAngleX = donkeyTailRotate;
 
         // Make donkeys have a thinner mane
-        if (abstracthorse instanceof IHorseShape && ((IHorseShape)abstracthorse).thinMane()) {
+        if (abstracthorse instanceof AbstractHorseGenetic && ((AbstractHorseGenetic)abstracthorse).thinMane()) {
             this.mane.rotationPointZ = -1.0F;
         }
         else {
