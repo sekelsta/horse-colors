@@ -2,10 +2,9 @@ package sekelsta.horse_colors.renderer;
 
 import net.minecraft.entity.passive.horse.*;
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.renderer.entity.model.AgeableModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.renderer.entity.model.EntityModel;
+import net.minecraft.client.renderer.entity.model.RendererModel;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -16,51 +15,51 @@ import java.util.function.Consumer;
 import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 
 @OnlyIn(Dist.CLIENT)
-public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableModel<T>
+public class HorseGeneticModel<T extends AbstractHorseEntity> extends EntityModel<T>
 {
-    private final ModelRenderer head;
-    private final ModelRenderer horn;
-    private final ModelRenderer babyHorn;
-    private final ModelRenderer upperMouth;
-    private final ModelRenderer lowerMouth;
-    private final ModelRenderer horseLeftEar;
-    private final ModelRenderer horseRightEar;
+    private final RendererModel head;
+    private final RendererModel horn;
+    private final RendererModel babyHorn;
+    private final RendererModel upperMouth;
+    private final RendererModel lowerMouth;
+    private final RendererModel horseLeftEar;
+    private final RendererModel horseRightEar;
     /** The left ear box for the mule model. */
-    private final ModelRenderer muleLeftEar;
+    private final RendererModel muleLeftEar;
     /** The right ear box for the mule model. */
-    private final ModelRenderer muleRightEar;
-    private final ModelRenderer neck;
+    private final RendererModel muleRightEar;
+    private final RendererModel neck;
     /** The box for the horse's ropes on its face. */
-    private final ModelRenderer horseFaceRopes;
-    private final ModelRenderer mane;
-    private final ModelRenderer body;
-    private final ModelRenderer tailBase;
-    private final ModelRenderer tailMiddle;
-    private final ModelRenderer tailTip;
-    private final ModelRenderer tailThin; // For donkeys
-    private final ModelRenderer tailTuft; // For donkeys
-    private final ModelRenderer backLeftLeg;
-    private final ModelRenderer backLeftShin;
-    private final ModelRenderer backLeftHoof;
-    private final ModelRenderer backRightLeg;
-    private final ModelRenderer backRightShin;
-    private final ModelRenderer backRightHoof;
-    private final ModelRenderer frontLeftLeg;
-    private final ModelRenderer frontLeftShin;
-    private final ModelRenderer frontLeftHoof;
-    private final ModelRenderer frontRightLeg;
-    private final ModelRenderer frontRightShin;
-    private final ModelRenderer frontRightHoof;
+    private final RendererModel horseFaceRopes;
+    private final RendererModel mane;
+    private final RendererModel body;
+    private final RendererModel tailBase;
+    private final RendererModel tailMiddle;
+    private final RendererModel tailTip;
+    private final RendererModel tailThin; // For donkeys
+    private final RendererModel tailTuft; // For donkeys
+    private final RendererModel backLeftLeg;
+    private final RendererModel backLeftShin;
+    private final RendererModel backLeftHoof;
+    private final RendererModel backRightLeg;
+    private final RendererModel backRightShin;
+    private final RendererModel backRightHoof;
+    private final RendererModel frontLeftLeg;
+    private final RendererModel frontLeftShin;
+    private final RendererModel frontLeftHoof;
+    private final RendererModel frontRightLeg;
+    private final RendererModel frontRightShin;
+    private final RendererModel frontRightHoof;
     /** The left chest box on the mule model. */
-    private final ModelRenderer muleLeftChest;
+    private final RendererModel muleLeftChest;
     /** The right chest box on the mule model. */
-    private final ModelRenderer muleRightChest;
+    private final RendererModel muleRightChest;
     // The stirrups
-    private final ModelRenderer horseLeftSaddleRope;
-    private final ModelRenderer horseRightSaddleRope;
+    private final RendererModel horseLeftSaddleRope;
+    private final RendererModel horseRightSaddleRope;
 
-    private final ModelRenderer[] tackArray;
-    private final ModelRenderer[] extraTackArray;
+    private final RendererModel[] tackArray;
+    private final RendererModel[] extraTackArray;
 
 
     public HorseGeneticModel() {
@@ -69,31 +68,29 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
     // 1.14's HorseModel takes a scale factor as constructor argument
     public HorseGeneticModel(float scaleFactor)
     {
-        // Initialize AgeableModel
-        super(true, 16.2F, 1.36F, 2.7272F, 2.0F, 20.0F);
         this.textureWidth = 128;
         this.textureHeight = 128;
-        this.body = new ModelRenderer(this, 0, 34);
+        this.body = new RendererModel(this, 0, 34);
         this.body.addBox(-5.0F, -8.0F, -19.0F, 10, 10, 24, scaleFactor);
         this.body.setRotationPoint(0.0F, 11.0F, 9.0F);
-        this.tailBase = new ModelRenderer(this, 44, 0);
+        this.tailBase = new RendererModel(this, 44, 0);
         this.tailBase.addBox(-1.0F, -1.0F, 0.0F, 2, 2, 3, scaleFactor);
         this.tailBase.setRotationPoint(0.0F, -8.0F, 5.0F);
         this.tailBase.rotateAngleX = -1.134464F;
-        this.tailMiddle = new ModelRenderer(this, 38, 7);
+        this.tailMiddle = new RendererModel(this, 38, 7);
         this.tailMiddle.addBox(-1.5F, -2.0F, 3.0F, 3, 4, 7, scaleFactor);
         this.tailBase.addChild(tailMiddle);
-        this.tailTip = new ModelRenderer(this, 24, 3);
+        this.tailTip = new RendererModel(this, 24, 3);
         this.tailTip.addBox(-1.5F, -4.5F, 9.0F, 3, 4, 7, scaleFactor);
         this.tailTip.rotateAngleX = -0.2618004F;
         this.tailMiddle.addChild(tailTip);
         this.body.addChild(tailBase);
 
-        this.tailThin = new ModelRenderer(this, 37, 19);
+        this.tailThin = new RendererModel(this, 37, 19);
         this.tailThin.addBox(-1.5F, -1.0F, 1.0F, 1, 1, 8, scaleFactor);
         this.tailThin.setRotationPoint(1.0F, -8.0F, 4.0F);
         this.tailThin.rotateAngleX = -1.134464F; // This doesn't seem to matter at all
-        this.tailTuft = new ModelRenderer(this, 49, 42);
+        this.tailTuft = new RendererModel(this, 49, 42);
         this.tailTuft.addBox(-2.0F, -1.5F, 1.0F, 2, 2, 7, scaleFactor);
         this.tailTuft.setRotationPoint(0.0F, 0.0F, 8.0F);
         this.tailThin.addChild(tailTuft);
@@ -101,68 +98,68 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
 
         // When making something a child that wasn't before, subtract the
         // parent's rotationPoint
-        this.backLeftLeg = new ModelRenderer(this, 78, 29);
+        this.backLeftLeg = new RendererModel(this, 78, 29);
         this.backLeftLeg.addBox(-2.5F, -2.0F, -2.5F, 4, 9, 5, scaleFactor);
         this.backLeftLeg.setRotationPoint(4.0F, 9.0F, 11.0F);
-        this.backLeftShin = new ModelRenderer(this, 78, 43);
+        this.backLeftShin = new RendererModel(this, 78, 43);
         this.backLeftShin.addBox(-2.0F, 0.0F, -1.5F, 3, 5, 3, scaleFactor);
         this.backLeftShin.setRotationPoint(0.0F, 7.0F, 0.0F);
         this.backLeftLeg.addChild(backLeftShin);
-        this.backLeftHoof = new ModelRenderer(this, 78, 51);
+        this.backLeftHoof = new RendererModel(this, 78, 51);
         this.backLeftHoof.addBox(-2.5F, 5.1F, -2.0F, 4, 3, 4, scaleFactor);
         this.backLeftShin.addChild(this.backLeftHoof);
 
-        this.backRightLeg = new ModelRenderer(this, 96, 29);
+        this.backRightLeg = new RendererModel(this, 96, 29);
         this.backRightLeg.addBox(-1.5F, -2.0F, -2.5F, 4, 9, 5, scaleFactor);
         this.backRightLeg.setRotationPoint(-4.0F, 9.0F, 11.0F);
-        this.backRightShin = new ModelRenderer(this, 96, 43);
+        this.backRightShin = new RendererModel(this, 96, 43);
         this.backRightShin.addBox(-1.0F, 0.0F, -1.5F, 3, 5, 3, scaleFactor);
         this.backRightShin.setRotationPoint(0.0F, 7.0F, 0.0F);
         this.backRightLeg.addChild(this.backRightShin);
-        this.backRightHoof = new ModelRenderer(this, 96, 51);
+        this.backRightHoof = new RendererModel(this, 96, 51);
         this.backRightHoof.addBox(-1.5F, 5.1F, -2.0F, 4, 3, 4, scaleFactor);
         this.backRightShin.addChild(this.backRightHoof);
 
-        this.frontLeftLeg = new ModelRenderer(this, 44, 29);
+        this.frontLeftLeg = new RendererModel(this, 44, 29);
         this.frontLeftLeg.addBox(-1.9F, -1.0F, -2.1F, 3, 8, 4, scaleFactor);
         this.frontLeftLeg.setRotationPoint(4.0F, 9.0F, -8.0F);
-        this.frontLeftShin = new ModelRenderer(this, 44, 41);
+        this.frontLeftShin = new RendererModel(this, 44, 41);
         this.frontLeftShin.addBox(-1.9F, 0.0F, -1.6F, 3, 5, 3, scaleFactor);
         this.frontLeftShin.setRotationPoint(0.0F, 7.0F, 0.0F);
         this.frontLeftLeg.addChild(this.frontLeftShin);
-        this.frontLeftHoof = new ModelRenderer(this, 44, 51);
+        this.frontLeftHoof = new RendererModel(this, 44, 51);
         this.frontLeftHoof.addBox(-2.4F, 5.1F, -2.1F, 4, 3, 4, scaleFactor);
         this.frontLeftShin.addChild(this.frontLeftHoof);
 
-        this.frontRightLeg = new ModelRenderer(this, 60, 29);
+        this.frontRightLeg = new RendererModel(this, 60, 29);
         this.frontRightLeg.addBox(-1.1F, -1.0F, -2.1F, 3, 8, 4, scaleFactor);
         this.frontRightLeg.setRotationPoint(-4.0F, 9.0F, -8.0F);
-        this.frontRightShin = new ModelRenderer(this, 60, 41);
+        this.frontRightShin = new RendererModel(this, 60, 41);
         this.frontRightShin.addBox(-1.1F, 0.0F, -1.6F, 3, 5, 3, scaleFactor);
         this.frontRightShin.setRotationPoint(0.0F, 7.0F, 0.0F);
         this.frontRightLeg.addChild(this.frontRightShin);
-        this.frontRightHoof = new ModelRenderer(this, 60, 51);
+        this.frontRightHoof = new RendererModel(this, 60, 51);
         this.frontRightHoof.addBox(-1.6F, 5.1F, -2.1F, 4, 3, 4, scaleFactor);
         this.frontRightShin.addChild(this.frontRightHoof);
 
-        this.head = new ModelRenderer(this, 0, 0);
+        this.head = new RendererModel(this, 0, 0);
         this.head.addBox(-2.5F, -10.0F, -1.5F, 5, 5, 7, scaleFactor);
         this.head.setRotationPoint(0.0F, 4.0F, -10.0F);
         this.head.rotateAngleX = 0.5235988F;
-        this.upperMouth = new ModelRenderer(this, 24, 18);
+        this.upperMouth = new RendererModel(this, 24, 18);
         this.upperMouth.addBox(-2.0F, -10.0F, -7.0F, 4, 3, 6, scaleFactor);
-        this.lowerMouth = new ModelRenderer(this, 24, 27);
+        this.lowerMouth = new RendererModel(this, 24, 27);
         this.lowerMouth.addBox(-2.0F, -7.0F, -6.5F, 4, 2, 5, scaleFactor);
         this.head.addChild(this.upperMouth);
         this.head.addChild(this.lowerMouth);
-        this.horseLeftEar = new ModelRenderer(this, 0, 0);
+        this.horseLeftEar = new RendererModel(this, 0, 0);
         this.horseLeftEar.addBox(0.45F, -12.0F, 4.0F, 2, 3, 1, scaleFactor);
-        this.horseRightEar = new ModelRenderer(this, 0, 0);
+        this.horseRightEar = new RendererModel(this, 0, 0);
         this.horseRightEar.addBox(-2.45F, -12.0F, 4.0F, 2, 3, 1, scaleFactor);
-        this.muleLeftEar = new ModelRenderer(this, 0, 12);
+        this.muleLeftEar = new RendererModel(this, 0, 12);
         this.muleLeftEar.addBox(-2.0F, -16.0F, 4.0F, 2, 7, 1, scaleFactor);
         this.muleLeftEar.rotateAngleZ = 0.2617994F;
-        this.muleRightEar = new ModelRenderer(this, 0, 12);
+        this.muleRightEar = new RendererModel(this, 0, 12);
         this.muleRightEar.addBox(0.0F, -16.0F, 4.0F, 2, 7, 1, scaleFactor);
         this.muleRightEar.rotateAngleZ = -0.2617994F;
         this.head.addChild(horseLeftEar);
@@ -170,93 +167,92 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         this.head.addChild(muleLeftEar);
         this.head.addChild(muleRightEar);
 
-        this.neck = new ModelRenderer(this, 0, 12);
+        this.neck = new RendererModel(this, 0, 12);
         this.neck.addBox(-2.05F, -9.8F, -2.0F, 4, 14, 8, scaleFactor);
         this.neck.setRotationPoint(0.0F, 4.0F, -10.0F);
         this.neck.rotateAngleX = 0.5235988F;
         //this.neck.addChild(this.head);
 
 
-        this.muleLeftChest = new ModelRenderer(this, 0, 34);
+        this.muleLeftChest = new RendererModel(this, 0, 34);
         this.muleLeftChest.addBox(-3.0F, 0.0F, 0.0F, 8, 8, 3, scaleFactor);
         this.muleLeftChest.setRotationPoint(-7.5F, 3.0F, 10.0F);
         this.muleLeftChest.rotateAngleY = ((float)Math.PI / 2F);
-        this.muleRightChest = new ModelRenderer(this, 0, 47);
+        this.muleRightChest = new RendererModel(this, 0, 47);
         this.muleRightChest.addBox(-3.0F, 0.0F, 0.0F, 8, 8, 3, scaleFactor);
         this.muleRightChest.setRotationPoint(4.5F, 3.0F, 10.0F);
         this.muleRightChest.rotateAngleY = ((float)Math.PI / 2F);
-        ModelRenderer horseSaddleBottom = new ModelRenderer(this, 80, 0);
+        RendererModel horseSaddleBottom = new RendererModel(this, 80, 0);
         horseSaddleBottom.addBox(-5.0F, 0.0F, -3.0F, 10, 1, 8, scaleFactor);
         horseSaddleBottom.setRotationPoint(0.0F, -9.0F, -7.0F);
         body.addChild(horseSaddleBottom);
 
-        ModelRenderer horseSaddleFront = new ModelRenderer(this, 106, 9);
+        RendererModel horseSaddleFront = new RendererModel(this, 106, 9);
         horseSaddleFront.addBox(-1.5F, -1.0F, -3.0F, 3, 1, 2, scaleFactor);
         horseSaddleBottom.addChild(horseSaddleFront);
 
-        ModelRenderer horseSaddleBack = new ModelRenderer(this, 80, 9);
+        RendererModel horseSaddleBack = new RendererModel(this, 80, 9);
         horseSaddleBack.addBox(-4.0F, -1.0F, 3.0F, 8, 1, 2, scaleFactor);
         horseSaddleBottom.addChild(horseSaddleBack);
 
-        this.horseLeftSaddleRope = new ModelRenderer(this, 70, 0);
+        this.horseLeftSaddleRope = new RendererModel(this, 70, 0);
         this.horseLeftSaddleRope.addBox(-0.5F, 0.0F, -0.5F, 1, 6, 1, scaleFactor);
         this.horseLeftSaddleRope.setRotationPoint(5.0F, 1.0F, 0.0F);
         horseSaddleBottom.addChild(this.horseLeftSaddleRope);
 
-        ModelRenderer horseLeftSaddleMetal = new ModelRenderer(this, 74, 0);
+        RendererModel horseLeftSaddleMetal = new RendererModel(this, 74, 0);
         horseLeftSaddleMetal.addBox(-0.5F, 6.0F, -1.0F, 1, 2, 2, scaleFactor);
         horseLeftSaddleRope.addChild(horseLeftSaddleMetal);
 
-        this.horseRightSaddleRope = new ModelRenderer(this, 80, 0);
+        this.horseRightSaddleRope = new RendererModel(this, 80, 0);
         this.horseRightSaddleRope.addBox(-0.5F, 0.0F, -0.5F, 1, 6, 1, scaleFactor);
         this.horseRightSaddleRope.setRotationPoint(-5.0F, 1.0F, 0.0F);
         horseSaddleBottom.addChild(this.horseRightSaddleRope);
 
-        ModelRenderer horseRightSaddleMetal = new ModelRenderer(this, 74, 4);
+        RendererModel horseRightSaddleMetal = new RendererModel(this, 74, 4);
         horseRightSaddleMetal.addBox(-0.5F, 6.0F, -1.0F, 1, 2, 2, scaleFactor);
         horseRightSaddleRope.addChild(horseRightSaddleMetal);
 
-        ModelRenderer horseLeftFaceMetal = new ModelRenderer(this, 74, 13);
+        RendererModel horseLeftFaceMetal = new RendererModel(this, 74, 13);
         horseLeftFaceMetal.addBox(1.5F, -8.0F, -4.0F, 1, 2, 2, scaleFactor);
         this.head.addChild(horseLeftFaceMetal);
-        ModelRenderer horseRightFaceMetal = new ModelRenderer(this, 74, 13);
+        RendererModel horseRightFaceMetal = new RendererModel(this, 74, 13);
         horseRightFaceMetal.addBox(-2.5F, -8.0F, -4.0F, 1, 2, 2, scaleFactor);
         this.head.addChild(horseRightFaceMetal);
-        this.horseFaceRopes = new ModelRenderer(this, 80, 12);
+        this.horseFaceRopes = new RendererModel(this, 80, 12);
         this.horseFaceRopes.addBox(-2.5F, -10.1F, -7.0F, 5, 5, 12, 0.2F);
         this.head.addChild(horseFaceRopes);
 
-        this.tackArray = new ModelRenderer[]{horseSaddleBottom, horseSaddleFront, horseSaddleBack, horseLeftSaddleMetal, horseLeftSaddleRope, horseRightSaddleMetal, horseRightSaddleRope, horseLeftFaceMetal, horseRightFaceMetal, horseFaceRopes};
+        this.tackArray = new RendererModel[]{horseSaddleBottom, horseSaddleFront, horseSaddleBack, horseLeftSaddleMetal, horseLeftSaddleRope, horseRightSaddleMetal, horseRightSaddleRope, horseLeftFaceMetal, horseRightFaceMetal, horseFaceRopes};
 
         // Do not scale the reins, otherwise they don't display properly
         // I assume scaling doesn't work for things with 0 width./gradle
-        ModelRenderer horseLeftRein = new ModelRenderer(this, 44, 10);
+        RendererModel horseLeftRein = new RendererModel(this, 44, 10);
         horseLeftRein.addBox(2.6F, -6.0F, -6.0F, 0, 3, 16);
-        ModelRenderer horseRightRein = new ModelRenderer(this, 44, 5);
+        RendererModel horseRightRein = new RendererModel(this, 44, 5);
         horseRightRein.addBox(-2.6F, -6.0F, -6.0F, 0, 3, 16);
         this.neck.addChild(horseLeftRein);
         this.neck.addChild(horseRightRein);
         horseLeftRein.rotateAngleX = -0.5235988F;
         horseRightRein.rotateAngleX = -0.5235988F;
-        this.extraTackArray = new ModelRenderer[]{horseLeftRein, horseRightRein};
+        this.extraTackArray = new RendererModel[]{horseLeftRein, horseRightRein};
 
-        this.mane = new ModelRenderer(this, 58, 0);
+        this.mane = new RendererModel(this, 58, 0);
         this.mane.addBox(-1.0F, -11.5F, 5.0F, 2, 16, 4, scaleFactor);
         this.mane.setRotationPoint(0.0F, 0.0F, -1.0F);
         this.neck.addChild(mane);
 
         int hornLength = 7;
-        this.horn = new ModelRenderer(this, 84, 0);
+        this.horn = new RendererModel(this, 84, 0);
         this.horn.addBox(-0.5F, -10.0F - hornLength, 2.0F, 1, hornLength, 1, scaleFactor);
         this.head.addChild(horn);
         int babyHornLength = 3;
-        this.babyHorn = new ModelRenderer(this, 84, 0);
+        this.babyHorn = new RendererModel(this, 84, 0);
         this.babyHorn.addBox(-0.5F, -10.0F - babyHornLength, 2.0F, 1, babyHornLength, 1, scaleFactor);
         this.head.addChild(babyHorn);
     }
 
-    @Override
-    public void setRotationAngles(T entityIn, float p_225597_2_, float p_225597_3_, float p_225597_4_, float limbSwingAmount, float partialTickTime) {
+    public void updateBoxes(T entityIn) {
         if (entityIn instanceof AbstractHorseGenetic) {
             AbstractHorseGenetic horse = (AbstractHorseGenetic)entityIn;
             this.muleLeftEar.showModel = horse.longEars();
@@ -282,11 +278,11 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         boolean isSaddled = entityIn.isHorseSaddled();
         boolean isRidden = entityIn.isBeingRidden();
 
-        for(ModelRenderer tack_piece : this.tackArray) {
+        for(RendererModel tack_piece : this.tackArray) {
             tack_piece.showModel = isSaddled;
         }
 
-        for(ModelRenderer extra_tack : this.extraTackArray) {
+        for(RendererModel extra_tack : this.extraTackArray) {
             extra_tack.showModel = isRidden && isSaddled;
         }
 
@@ -314,71 +310,63 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         return prevRotation + partialTickTime * bodyRotation;
     }
 
-    // This function renders the list of things given
-    // I suspect this is for parts that are proportionally bigger on children
-    public Iterable<ModelRenderer> getHeadParts() {
-        // In vanilla the neck goes here
-        return ImmutableList.of();
-    }
-
-    // This function renders the list of things given
-    // I suspect this is for parts that are always the same proportions
-    protected Iterable<ModelRenderer> getBodyParts() {
-        return ImmutableList.of(this.body, this.neck, this.backLeftLeg, this.backRightLeg, this.frontLeftLeg, this.frontRightLeg, this.muleLeftChest, this.muleRightChest);
-    }
-
     // Copied and modified from the familiar horses mod as allowed by the Unlicense
     /**
      * Sets the models various rotation angles then renders the model.
      */
     @Override
-    public void render(@Nonnull MatrixStack matrixStackIn, @Nonnull IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-        Consumer<ModelRenderer> render = model -> model.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+    public void render(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
+        //Consumer<RendererModel> render = model -> model.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+        updateBoxes(entityIn);
         float f = (this.head.rotateAngleX - 0.5235988F) * 0.6031134647F;
         float f1 = 0.5F;
 
         if (this.isChild) {
 
-            matrixStackIn.push();
-            matrixStackIn.scale(f1, 0.5F + f1 * 0.5F, f1);
-            matrixStackIn.translate(0.0F, 0.95F * (1.0F - f1), 0.0F);
+            GlStateManager.pushMatrix();
+            GlStateManager.scalef(f1, 0.5F + f1 * 0.5F, f1);
+            GlStateManager.translatef(0.0F, 0.95F * (1.0F - f1), 0.0F);
         }
 
-        ImmutableList.of(this.backLeftLeg, this.backRightLeg, 
-                         this.frontLeftLeg, this.frontRightLeg).forEach(render);
+        this.backLeftLeg.render(scale);
+        this.backRightLeg.render(scale);
+        this.frontLeftLeg.render(scale);
+        this.frontRightLeg.render(scale);
 
         if (this.isChild) {
 
-            matrixStackIn.pop();
-            matrixStackIn.push();
-            matrixStackIn.scale(f1, f1, f1);
-            matrixStackIn.translate(0.0F, 1.35F * (1.0F - f1), 0.0F);
+            GlStateManager.popMatrix();
+            GlStateManager.pushMatrix();
+            GlStateManager.scalef(f1, f1, f1);
+            GlStateManager.translatef(0.0F, 1.35F * (1.0F - f1), 0.0F);
         }
 
-        ImmutableList.of(this.body, this.neck).forEach(render);
+        this.body.render(scale);
+        this.neck.render(scale);
 
         if (this.isChild) {
-            matrixStackIn.pop();
-            matrixStackIn.push();
+            GlStateManager.popMatrix();
+            GlStateManager.pushMatrix();
             float f2 = 0.5F + f1 * f1 * 0.5F;
-            matrixStackIn.scale(f2, f2, f2);
+            GlStateManager.scalef(f2, f2, f2);
             if (f <= 0.0F)
             {
-                matrixStackIn.translate(0.0F, 1.35F * (1.0F - f1), 0.0F);
+                GlStateManager.translatef(0.0F, 1.35F * (1.0F - f1), 0.0F);
             }
             else
             {
-                matrixStackIn.translate(0.0F, 0.9F * (1.0F - f1) * f + 1.35F * (1.0F - f1) * (1.0F - f), 0.15F * (1.0F - f1) * f);
+                GlStateManager.translatef(0.0F, 0.9F * (1.0F - f1) * f + 1.35F * (1.0F - f1) * (1.0F - f), 0.15F * (1.0F - f1) * f);
             }
         }
 
-        ImmutableList.of(this.head).forEach(render);
+        this.head.render(scale);
 
         if (this.isChild) {
-            matrixStackIn.pop();
+            GlStateManager.popMatrix();
         }
 
-        ImmutableList.of(this.muleLeftChest, this.muleRightChest).forEach(render);
+        this.muleLeftChest.render(scale);
+        this.muleRightChest.render(scale);
     }
 
     private void setMouthAnimations(float mouthOpenAmount) {

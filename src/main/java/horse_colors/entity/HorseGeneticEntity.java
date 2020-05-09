@@ -32,7 +32,6 @@ import net.minecraft.world.World;
 
 
 import sekelsta.horse_colors.init.ModEntities;
-import sekelsta.horse_colors.item.GeneBookItem;
 import sekelsta.horse_colors.util.Util;
 
 public class HorseGeneticEntity extends AbstractHorseGenetic
@@ -159,11 +158,6 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         return false;
     }
 
-    @Override
-    public GeneBookItem.Species getSpecies() {
-        return GeneBookItem.Species.HORSE;
-    }
-
     /**
      * Returns true if the mob is currently able to mate with the specified mob.
      */
@@ -174,8 +168,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         {
             return false;
         }
-        else if (otherAnimal instanceof DonkeyGeneticEntity 
-                || otherAnimal instanceof HorseGeneticEntity
+        else if (otherAnimal instanceof HorseGeneticEntity
                 || otherAnimal instanceof DonkeyEntity 
                 || otherAnimal instanceof HorseEntity)
         {
@@ -192,25 +185,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     {
         AbstractHorseEntity abstracthorse;
 
-        if (ageable instanceof DonkeyGeneticEntity)
-        {
-            abstracthorse = ModEntities.MULE_GENETIC.create(this.world);
-            DonkeyGeneticEntity entityHorse = (DonkeyGeneticEntity)ageable;
-            this.getGenes().setChildGenes(entityHorse.getGenes(), ((MuleGeneticEntity)abstracthorse));
-
-            int i =  this.rand.nextInt();
-            ((MuleGeneticEntity)abstracthorse).setChromosome("random", i);
-
-            // Dominant white is homozygous lethal early in pregnancy. No child
-            // is born.
-            if (((MuleGeneticEntity)abstracthorse).getGenes().isEmbryonicLethal())
-            {
-                return null;
-            }
-            this.setOffspringAttributes(ageable, abstracthorse);
-            ((MuleGeneticEntity)abstracthorse).useGeneticAttributes();
-        }
-        else if (ageable instanceof HorseGeneticEntity)
+        if (ageable instanceof HorseGeneticEntity)
         {
             abstracthorse = ModEntities.HORSE_GENETIC.create(this.world);
             HorseGeneticEntity entityHorse = (HorseGeneticEntity)ageable;

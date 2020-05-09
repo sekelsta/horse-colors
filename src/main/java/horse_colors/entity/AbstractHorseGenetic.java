@@ -39,8 +39,6 @@ import net.minecraft.world.World;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.ai.RandomWalkGroundTie;
 import sekelsta.horse_colors.init.ModEntities;
-import sekelsta.horse_colors.init.ModItems;
-import sekelsta.horse_colors.item.GeneBookItem;
 import sekelsta.horse_colors.genetics.*;
 import sekelsta.horse_colors.util.Util;
 
@@ -74,7 +72,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     public abstract boolean fluffyTail();
     public abstract boolean longEars();
     public abstract boolean thinMane();
-    public abstract GeneBookItem.Species getSpecies();
 
     public boolean canEquipChest() {
         return true;
@@ -215,7 +212,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
 
         if (!this.isChild()) {
-            if (this.isTame() && player.func_226563_dT_()) {
+            if (this.isTame() && player.isSneaking()) {
                 this.openGUI(player);
                 return true;
             }
@@ -233,23 +230,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 this.mountTo(player);
                 return true;
             }
-        }
-
-        if (itemstack.getItem() == Items.BOOK
-                && (this.isTame() || player.abilities.isCreativeMode)) {
-            ItemStack book = new ItemStack(ModItems.geneBookItem);
-            if (book.getTag() == null) {
-                book.setTag(new CompoundNBT());
-            }
-            book.getTag().putString("species", this.getSpecies().name());
-            book.getTag().putString("genes", this.getGenes().genesToString());
-            if (!player.addItemStackToInventory(book)) {
-                this.entityDropItem(book);
-            }
-            if (!player.abilities.isCreativeMode) {
-                itemstack.shrink(1);
-            }
-            return true;
         }
 
         if (this.handleEating(player, itemstack)) {

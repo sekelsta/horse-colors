@@ -3,13 +3,10 @@ package sekelsta.horse_colors.renderer;
 import sekelsta.horse_colors.entity.HorseGeneticEntity;
 import sekelsta.horse_colors.util.HorseArmorer;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.block.CarpetBlock;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.IEntityRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.passive.horse.*;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.DyeableHorseArmorItem;
@@ -19,11 +16,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
+
 
 @OnlyIn(Dist.CLIENT)
 public class HorseArmorLayer extends LayerRenderer<AbstractHorseEntity, HorseGeneticModel<AbstractHorseEntity>> {
-    private final HorseGeneticModel<AbstractHorseEntity> horseModel = new HorseGeneticModel<>(0.1F);
+    private final HorseGeneticModel<AbstractHorseEntity> horseModel = new HorseGeneticModel<>();
 
     public HorseArmorLayer(IEntityRenderer<AbstractHorseEntity, HorseGeneticModel<AbstractHorseEntity>> model) {
        super(model);
@@ -31,8 +28,8 @@ public class HorseArmorLayer extends LayerRenderer<AbstractHorseEntity, HorseGen
 
     @Override
     // Render function
-    public void render(MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int p_225628_3_, AbstractHorseEntity entityIn, float p_225628_5_, float p_225628_6_, float p_225628_7_, float p_225628_8_, float p_225628_9_, float p_225628_10_) {
-        if (!(entityIn instanceof HorseGeneticEntity)) {
+    public void render(AbstractHorseEntity entityIn, float limbSwing, float limbSwingAmount, float partialTickTime, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
+        if (!(entityIn instanceof AbstractHorseEntity)) {
             return;
         }
         HorseGeneticEntity horse = (HorseGeneticEntity)entityIn;
@@ -40,9 +37,8 @@ public class HorseArmorLayer extends LayerRenderer<AbstractHorseEntity, HorseGen
         Item armor = itemstack.getItem();
         ResourceLocation textureLocation = HorseArmorer.getTexture(armor);
         if (textureLocation != null) {
-            this.getEntityModel().copyModelAttributesTo(this.horseModel);
-            this.horseModel.setLivingAnimations(horse, p_225628_5_, p_225628_6_, p_225628_7_);
-            this.horseModel.setRotationAngles(horse, p_225628_5_, p_225628_6_, p_225628_8_, p_225628_9_, p_225628_10_);
+            this.getEntityModel().setModelAttributes(this.horseModel);
+            this.horseModel.setLivingAnimations(entityIn, limbSwing, limbSwingAmount, partialTickTime);
             float r;
             float g;
             float b;
@@ -53,7 +49,8 @@ public class HorseArmorLayer extends LayerRenderer<AbstractHorseEntity, HorseGen
             else if (armor instanceof BlockItem) {
                 BlockItem blockItem = (BlockItem)armor;
                 if (blockItem.getBlock() instanceof CarpetBlock) {
-                    color = ((CarpetBlock)(blockItem.getBlock())).getColor().getColorValue();
+                    // func_196057_c() == getSwappedColorValue()
+                    color = ((CarpetBlock)(blockItem.getBlock())).getColor().func_196057_c();
                 }
             }
             if (color != 0xffffff) {
@@ -67,8 +64,8 @@ public class HorseArmorLayer extends LayerRenderer<AbstractHorseEntity, HorseGen
                b = 1.0F;
             }
 
-            IVertexBuilder ivertexbuilder = renderTypeBuffer.getBuffer(RenderType.getEntityCutoutNoCull(textureLocation));
-            this.horseModel.render(matrixStack, ivertexbuilder, p_225628_3_, OverlayTexture.NO_OVERLAY, r, g, b, 1.0F);
+            GlStateManager.color4f(r, g, b, 1.0F);
+            this.horseModel.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
         }
     }
 

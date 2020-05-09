@@ -2,10 +2,11 @@ package sekelsta.horse_colors.renderer;
 
 import net.minecraft.client.renderer.texture.*;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
+
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import com.mojang.blaze3d.platform.TextureUtil;
 import net.minecraft.resources.IResource;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
@@ -87,18 +88,18 @@ public class ComplexLayeredTexture extends Texture {
             for(int j = 0; j < image.getWidth(); ++j) {
                 int cb = base.getPixelRGBA(j, i);
                 int ci = layer.multiply(image.getPixelRGBA(j, i));
-                float a = NativeImage.getAlpha(ci) / 255.0F;
-                float r = NativeImage.getRed(ci);
-                float g = NativeImage.getGreen(ci);
-                float b = NativeImage.getBlue(ci);
-                float br = NativeImage.getRed(cb);
-                float bg = NativeImage.getGreen(cb);
-                float bb = NativeImage.getBlue(cb);
-                int fa = NativeImage.getAlpha(cb);
+                float a = TextureLayer.getAlpha(ci) / 255.0F;
+                float r = TextureLayer.getRed(ci);
+                float g = TextureLayer.getGreen(ci);
+                float b = TextureLayer.getBlue(ci);
+                float br = TextureLayer.getRed(cb);
+                float bg = TextureLayer.getGreen(cb);
+                float bb = TextureLayer.getBlue(cb);
+                int fa = TextureLayer.getAlpha(cb);
                 int fr = (int)(r * a + br * (1.0F-a));
                 int fg = (int)(g * a + bg * (1.0F-a));
                 int fb = (int)(b * a + bb * (1.0F-a));
-                base.setPixelRGBA(j, i, NativeImage.getCombined(fa, fb, fg, fr));
+                base.setPixelRGBA(j, i, TextureLayer.getCombined(fa, fb, fg, fr));
             }
         }
     }
@@ -191,13 +192,7 @@ public class ComplexLayeredTexture extends Texture {
             }
         }
 
-        if (!RenderSystem.isOnRenderThreadOrInit()) {
-            RenderSystem.recordRenderCall(() -> {
-                this.loadImage(baseimage);
-            });
-        } else {
-            this.loadImage(baseimage);
-        }
+        this.loadImage(baseimage);
    }
 
    private void loadImage(NativeImage imageIn) {

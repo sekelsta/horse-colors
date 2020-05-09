@@ -33,93 +33,93 @@ public class TextureLayer {
     }
 
     public int multiply(int color) {
-        int a = NativeImage.getAlpha(color);
+        int a = getAlpha(color);
         a = (int)((float)a * (float)this.alpha / 255.0F);
-        int r = NativeImage.getRed(color);
+        int r = getRed(color);
         r = (int)((float)r * (float)this.red / 255.0F);
-        int g = NativeImage.getGreen(color);
+        int g = getGreen(color);
         g = (int)((float)g * (float)this.green / 255.0F);
-        int b = NativeImage.getBlue(color);
+        int b = getBlue(color);
         b = (int)((float)b * (float)this.blue / 255.0F);
-        return NativeImage.getCombined(a, b, g, r);
+        return getCombined(a, b, g, r);
     }
 
     public int shade(int color, int shading) {
-        float cr = NativeImage.getRed(color);
-        float cg = NativeImage.getGreen(color);
-        float cb = NativeImage.getBlue(color);
-        float sr = NativeImage.getRed(shading);
-        float sg = NativeImage.getGreen(shading);
-        float sb = NativeImage.getBlue(shading);
-        float a = (float)NativeImage.getAlpha(shading) / 255.0F;
+        float cr = getRed(color);
+        float cg = getGreen(color);
+        float cb = getBlue(color);
+        float sr = getRed(shading);
+        float sg = getGreen(shading);
+        float sb = getBlue(shading);
+        float a = (float)getAlpha(shading) / 255.0F;
         float avg = (float)(cr + cg + cb) / 255.0F / 3.0F;
         a *= 0.5f + 0.5f * (1f - avg) * (1f - avg);
         float na = 1.0F - a;
         float r = Math.max(0, Math.min(255.0F, sr * a + cr * na));
         float g = Math.max(0, Math.min(255.0F, sg * a + cg * na));
         float b = Math.max(0, Math.min(255.0F, sb * a + cb * na));
-        int ca = NativeImage.getAlpha(color);
-        return NativeImage.getCombined(ca, (int)b, (int)g, (int)r);
+        int ca = getAlpha(color);
+        return getCombined(ca, (int)b, (int)g, (int)r);
     }
     
     public int highlight(int color, int light) {
-        float r0 = NativeImage.getRed(color);
-        float g0 = NativeImage.getGreen(color);
-        float b0 = NativeImage.getBlue(color);
-        float r1 = NativeImage.getRed(light);
-        float g1 = NativeImage.getGreen(light);
-        float b1 = NativeImage.getBlue(light);
-        float a = (float)NativeImage.getAlpha(light) / 255.0F;
+        float r0 = getRed(color);
+        float g0 = getGreen(color);
+        float b0 = getBlue(color);
+        float r1 = getRed(light);
+        float g1 = getGreen(light);
+        float b1 = getBlue(light);
+        float a = (float)getAlpha(light) / 255.0F;
         float avg = (float)(r0 + g0 + b0) / 255.0F / 3.0F;
         a *= 0.5f + 0.5f * avg * avg;
         float na = 1.0F - a;
         float r = Math.max(0, Math.min(255.0F, r1 * a + r0 * na));
         float g = Math.max(0, Math.min(255.0F, g1 * a + g0 * na));
         float b = Math.max(0, Math.min(255.0F, b1 * a + b0 * na));
-        int ca = NativeImage.getAlpha(color);
-        return NativeImage.getCombined(ca, (int)b, (int)g, (int)r);
+        int ca = getAlpha(color);
+        return getCombined(ca, (int)b, (int)g, (int)r);
     }
 
     // For each RGB value, raise color to the 1 / exp
     public int power(int color, int exp) {
-        float r0 = NativeImage.getRed(color) / 255f;
-        float g0 = NativeImage.getGreen(color) / 255f;
-        float b0 = NativeImage.getBlue(color) / 255f;
+        float r0 = getRed(color) / 255f;
+        float g0 = getGreen(color) / 255f;
+        float b0 = getBlue(color) / 255f;
         // No dividing by 0
-        float r1 = Math.max(0.002f, NativeImage.getRed(exp) / 255f);
-        float g1 = Math.max(0.002f, NativeImage.getGreen(exp) / 255f);
-        float b1 = Math.max(0.002f, NativeImage.getBlue(exp) / 255f);
+        float r1 = Math.max(0.002f, getRed(exp) / 255f);
+        float g1 = Math.max(0.002f, getGreen(exp) / 255f);
+        float b1 = Math.max(0.002f, getBlue(exp) / 255f);
         int r = clamp((int)(255f * Math.pow(r0, 1f / r1)));
         int g = clamp((int)(255f * Math.pow(g0, 1f / g1)));
         int b = clamp((int)(255f * Math.pow(b0, 1f / b1)));
-        int a = NativeImage.getAlpha(exp);
-        return NativeImage.getCombined(a, b, g, r);
+        int a = getAlpha(exp);
+        return getCombined(a, b, g, r);
     }
 
     // For each RGB value, raise color to the exp
     public int root(int color, int exp) {
-        float r0 = NativeImage.getRed(color) / 255f;
-        float g0 = NativeImage.getGreen(color) / 255f;
-        float b0 = NativeImage.getBlue(color) / 255f;
-        float r1 = NativeImage.getRed(exp) / 255f;
-        float g1 = NativeImage.getGreen(exp) / 255f;
-        float b1 = NativeImage.getBlue(exp) / 255f;
+        float r0 = getRed(color) / 255f;
+        float g0 = getGreen(color) / 255f;
+        float b0 = getBlue(color) / 255f;
+        float r1 = getRed(exp) / 255f;
+        float g1 = getGreen(exp) / 255f;
+        float b1 = getBlue(exp) / 255f;
         int r = clamp((int)(255f * Math.pow(r0, r1)));
         int g = clamp((int)(255f * Math.pow(g0, g1)));
         int b = clamp((int)(255f * Math.pow(b0, b1)));
-        int a = NativeImage.getAlpha(exp);
-        return NativeImage.getCombined(a, b, g, r);
+        int a = getAlpha(exp);
+        return getCombined(a, b, g, r);
     }
 
     public int mask(int color, int mask) {
-        float a = NativeImage.getAlpha(color) * NativeImage.getAlpha(mask);
+        float a = getAlpha(color) * getAlpha(mask);
         a /= 255.0F;
         float weight = this.alpha / 255f;
-        a = a * weight + NativeImage.getAlpha(color) * (1 - weight);
-        int r = NativeImage.getRed(color);
-        int g = NativeImage.getGreen(color);
-        int b = NativeImage.getBlue(color);
-        return NativeImage.getCombined((int)a, b, g, r);
+        a = a * weight + getAlpha(color) * (1 - weight);
+        int r = getRed(color);
+        int g = getGreen(color);
+        int b = getBlue(color);
+        return getCombined((int)a, b, g, r);
     }
 
     // Restrict to range [0, 255]
@@ -155,4 +155,24 @@ public class TextureLayer {
         s += Integer.toHexString(this.blue);
         return s;
     }
+
+   public static int getAlpha(int col) {
+      return col >> 24 & 255;
+   }
+
+   public static int getRed(int col) {
+      return col >> 0 & 255;
+   }
+
+   public static int getGreen(int col) {
+      return col >> 8 & 255;
+   }
+
+   public static int getBlue(int col) {
+      return col >> 16 & 255;
+   }
+
+   public static int getCombined(int alpha, int blue, int green, int red) {
+      return (alpha & 255) << 24 | (blue & 255) << 16 | (green & 255) << 8 | (red & 255) << 0;
+   }
 }

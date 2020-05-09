@@ -34,11 +34,7 @@ import java.util.HashSet;
 @Mod.EventBusSubscriber(modid = HorseColors.MODID, bus = Bus.MOD)
 public class ModEntities {
     public static EntityType<HorseGeneticEntity> HORSE_GENETIC = null;
-    public static EntityType<DonkeyGeneticEntity> DONKEY_GENETIC = null;
-    public static EntityType<MuleGeneticEntity> MULE_GENETIC = null;
     public static SpawnEggItem HORSE_SPAWN_EGG = null;
-    public static SpawnEggItem DONKEY_SPAWN_EGG = null;
-    public static SpawnEggItem MULE_SPAWN_EGG = null;
 
     public static final int horseEggPrimary = 0x7F4320;
     public static final int horseEggSecondary = 0x110E0D;
@@ -49,22 +45,8 @@ public class ModEntities {
             HORSE_GENETIC = EntityType.Builder.create(HorseGeneticEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F).build(horseRegistryName.toString());
             HORSE_GENETIC.setRegistryName(horseRegistryName);
 
-            final ResourceLocation donkeyRegistryName = new ResourceLocation(HorseColors.MODID, "donkey");
-            DONKEY_GENETIC = EntityType.Builder.create(DonkeyGeneticEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F).build(donkeyRegistryName.toString());
-            DONKEY_GENETIC.setRegistryName(donkeyRegistryName);
-
-            final ResourceLocation muleRegistryName = new ResourceLocation(HorseColors.MODID, "mule");
-            MULE_GENETIC = EntityType.Builder.create(MuleGeneticEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F).build(muleRegistryName.toString());
-            MULE_GENETIC.setRegistryName(muleRegistryName);
-
             HORSE_SPAWN_EGG = new SpawnEggItem(HORSE_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(CreativeTab.instance));
             HORSE_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "horse_spawn_egg"));
-
-            DONKEY_SPAWN_EGG = new SpawnEggItem(DONKEY_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(CreativeTab.instance));
-            DONKEY_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "donkey_spawn_egg"));
-
-            MULE_SPAWN_EGG = new SpawnEggItem(MULE_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(CreativeTab.instance));
-            MULE_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "mule_spawn_egg"));
     }
 /*
    private static <T extends Entity> EntityType<T> register(String key, EntityType.Builder<T> builder) {
@@ -82,9 +64,7 @@ public class ModEntities {
         public static void registerEntities(final RegistryEvent.Register<EntityType<?>> event) {
 
             event.getRegistry().registerAll(
-                    HORSE_GENETIC,
-                    DONKEY_GENETIC,
-                    MULE_GENETIC
+                    HORSE_GENETIC
             );
         }
 
@@ -92,8 +72,6 @@ public class ModEntities {
         public static void registerSpawnEggs(RegistryEvent.Register<Item> event) {
 
             event.getRegistry().register(HORSE_SPAWN_EGG);
-            event.getRegistry().register(DONKEY_SPAWN_EGG);
-            event.getRegistry().register(MULE_SPAWN_EGG);
         }
 
     }
@@ -188,15 +166,11 @@ public class ModEntities {
         }
 
     }
-
     @OnlyIn(Dist.CLIENT)
     public static void registerRenders()
     {
-        RenderingRegistry.registerEntityRenderingHandler(HORSE_GENETIC, renderManager -> new HorseGeneticRenderer(renderManager));
-        RenderingRegistry.registerEntityRenderingHandler(DONKEY_GENETIC, renderManager -> new HorseGeneticRenderer(renderManager));
-        RenderingRegistry.registerEntityRenderingHandler(MULE_GENETIC, renderManager -> new HorseGeneticRenderer(renderManager));
+        RenderingRegistry.registerEntityRenderingHandler(HorseGeneticEntity.class, renderManager -> new HorseGeneticRenderer(renderManager));
     }
-
 
     @SubscribeEvent
     public static void onLoadComplete(net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent e) {

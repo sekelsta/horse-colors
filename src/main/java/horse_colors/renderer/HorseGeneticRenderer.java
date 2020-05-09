@@ -2,7 +2,7 @@ package sekelsta.horse_colors.renderer;
 
 import sekelsta.horse_colors.genetics.IGeneticEntity;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
@@ -24,9 +24,9 @@ public class HorseGeneticRenderer extends MobRenderer<AbstractHorseEntity, Horse
     // Stuff from AbstractHorseRenderer
    private final float scale;
 
-   protected void preRenderCallback(AbstractHorseEntity entitylivingbaseIn, MatrixStack matrixStackIn, float partialTickTime) {
-      matrixStackIn.scale(this.scale, this.scale, this.scale);
-      super.preRenderCallback(entitylivingbaseIn, matrixStackIn, partialTickTime);
+   protected void preRenderCallback(AbstractHorseEntity entitylivingbaseIn, float partialTickTime) {
+      GlStateManager.scalef(this.scale, this.scale, this.scale);
+      super.preRenderCallback(entitylivingbaseIn, partialTickTime);
    }
 
     // Stuff from HorseRenderer
@@ -34,7 +34,7 @@ public class HorseGeneticRenderer extends MobRenderer<AbstractHorseEntity, Horse
 
     public HorseGeneticRenderer(EntityRendererManager renderManager)
     {
-        super(renderManager, new HorseGeneticModel<AbstractHorseEntity>(0.0F), 0.75F);
+        super(renderManager, new HorseGeneticModel<AbstractHorseEntity>(), 0.75F);
         this.scale = 1.1F;
         this.addLayer(new HorseArmorLayer(this));
     }
