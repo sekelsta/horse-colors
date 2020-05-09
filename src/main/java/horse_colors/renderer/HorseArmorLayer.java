@@ -29,7 +29,7 @@ public class HorseArmorLayer extends LayerRenderer<AbstractHorseEntity, HorseGen
     @Override
     // Render function
     public void render(AbstractHorseEntity entityIn, float limbSwing, float limbSwingAmount, float partialTickTime, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
-        if (!(entityIn instanceof AbstractHorseEntity)) {
+        if (!(entityIn instanceof HorseGeneticEntity)) {
             return;
         }
         HorseGeneticEntity horse = (HorseGeneticEntity)entityIn;
@@ -39,29 +39,28 @@ public class HorseArmorLayer extends LayerRenderer<AbstractHorseEntity, HorseGen
         if (textureLocation != null) {
             this.getEntityModel().setModelAttributes(this.horseModel);
             this.horseModel.setLivingAnimations(entityIn, limbSwing, limbSwingAmount, partialTickTime);
-            float r;
-            float g;
-            float b;
+            this.bindTexture(textureLocation);
+            float r = 1;
+            float g = 1;
+            float b = 1;
             int color = 0xffffff;
             if (armor instanceof DyeableHorseArmorItem) {
                 color = ((DyeableHorseArmorItem)armor).getColor(itemstack);
+                r = (float)(color >> 16 & 255) / 255.0F;
+                g = (float)(color >> 8 & 255) / 255.0F;
+                b = (float)(color & 255) / 255.0F;
             } 
             else if (armor instanceof BlockItem) {
                 BlockItem blockItem = (BlockItem)armor;
                 if (blockItem.getBlock() instanceof CarpetBlock) {
                     // func_196057_c() == getSwappedColorValue()
+                    // I don't know why there's a method to get the inverted color
+                    // but not one to get the regular color
                     color = ((CarpetBlock)(blockItem.getBlock())).getColor().func_196057_c();
+                    b = (float)(color >> 16 & 255) / 255.0F;
+                    g = (float)(color >> 8 & 255) / 255.0F;
+                    r = (float)(color & 255) / 255.0F;
                 }
-            }
-            if (color != 0xffffff) {
-                r = (float)(color >> 16 & 255) / 255.0F;
-                g = (float)(color >> 8 & 255) / 255.0F;
-                b = (float)(color & 255) / 255.0F;
-            }
-            else {
-               r = 1.0F;
-               g = 1.0F;
-               b = 1.0F;
             }
 
             GlStateManager.color4f(r, g, b, 1.0F);
