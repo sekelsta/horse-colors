@@ -513,6 +513,7 @@ public class HorseGenome extends Genome {
         TextureLayer shading = new TextureLayer();
         shading.name = HorseColorCalculator.fixPath("shading");
         shading.type = TextureLayer.Type.SHADE;
+        shading.alpha = (int)(255 * 0.5);
         this.textureLayers.add(shading);
 
         TextureLayer common = new TextureLayer();
