@@ -48,7 +48,7 @@ public class HorseColorCalculator
 
     public static void setPheomelanin(TextureLayer layer, float concentration, float white) {
         layer.red = 0xe4;
-        layer.green = 0xbf;
+        layer.green = 0xc0;
         layer.blue = 0x77;
         adjustConcentration(layer, concentration);
         addWhite(layer, white);
@@ -67,7 +67,7 @@ public class HorseColorCalculator
         // 5, 0.1 looks medium chestnut
         // 6, 0.1 looks liver chestnutish
         float concentration = 5f;
-        float white = 0f;
+        float white = 0.08f;
 
         if (horse.isDoubleCream()) {
             concentration *= 0.1f;
@@ -103,7 +103,7 @@ public class HorseColorCalculator
         TextureLayer layer = new TextureLayer();
         layer.name = fixPath("base");
         colorRedBody(horse, layer);
-        adjustConcentration(layer, grayConcentration(horse, horse.getGrayRate()));
+        setGrayConcentration(horse, layer);
         return layer;
     }
 
@@ -154,7 +154,7 @@ public class HorseColorCalculator
                 layer.name = fixPath("bay");
         }
         colorBlackBody(horse, layer);
-        adjustConcentration(layer, grayConcentration(horse, horse.getGrayRate()));
+        setGrayConcentration(horse, layer);
         return layer;
     }
 
@@ -168,7 +168,7 @@ public class HorseColorCalculator
             palomino_mane.name = fixPath("manetail");
             colorRedBody(horse, palomino_mane);
             adjustConcentration(palomino_mane, 0.04f);
-            adjustConcentration(palomino_mane, grayConcentration(horse, horse.getGrayManeRate()));
+            setGrayConcentration(horse, palomino_mane);
             layers.add(palomino_mane);
         }
 
@@ -197,7 +197,7 @@ public class HorseColorCalculator
             white = 0.1f;
         }
         adjustConcentration(flaxen, power);
-        adjustConcentration(flaxen, grayConcentration(horse, horse.getGrayManeRate()));
+        setGrayConcentration(horse, flaxen);
         addWhite(flaxen, white);
         layers.add(flaxen);
     }
@@ -212,7 +212,7 @@ public class HorseColorCalculator
         TextureLayer layer = new TextureLayer();
         layer.name = fixPath("flaxen");
         setEumelanin(layer, 0.2f, 0.0f);
-        adjustConcentration(layer, grayConcentration(horse, horse.getGrayManeRate()));
+        setGrayConcentration(horse, layer);
         return layer;
     }
 
@@ -307,7 +307,7 @@ public class HorseColorCalculator
         }
 
         colorBlackBody(horse, layer);
-        adjustConcentration(layer, grayConcentration(horse, horse.getGrayRate()));
+        setGrayConcentration(horse, layer);
 
         return layer;
     }
@@ -374,6 +374,13 @@ public class HorseColorCalculator
         int stage = grayStage(horse, rate, 50, 0f);
         float val = 1f + 5f * stage / 50f * stage / 50f;
         return val;
+    }
+
+    public static void setGrayConcentration(HorseGenome horse, TextureLayer layer) {
+        if (horse.isGray()) {
+            float concentration = grayConcentration(horse, horse.getGrayRate());
+            adjustConcentration(layer, concentration);
+        }
     }
 
     public static int getFaceWhiteLevel(HorseGenome horse) {
