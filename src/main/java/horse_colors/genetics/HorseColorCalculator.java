@@ -318,7 +318,27 @@ public class HorseColorCalculator
 
     public static TextureLayer getMealy(HorseGenome horse)
     {
-        // TODO
+        // Agouti black hides mealy
+        if (horse.isHomozygous("agouti", HorseAlleles.A_BLACK)) {
+            return null;
+        }
+
+        if (horse.hasAllele("light_belly", HorseAlleles.MEALY)) {
+            TextureLayer light_belly = new TextureLayer();
+            int spread = 1;
+            int color = 0;
+            if (horse.hasAllele("mealy1", HorseAlleles.MEALY)) {
+                spread += 1;
+            }
+            if (horse.isHomozygous("mealy2", HorseAlleles.MEALY)) {
+                color += 1;
+            }
+            light_belly.name = fixPath("mealy/mealy" + spread);
+            colorRedBody(horse, light_belly);
+            adjustConcentration(light_belly, 0.08f * (2 - color));
+            return light_belly;
+        }
+
         return null;
     }
 

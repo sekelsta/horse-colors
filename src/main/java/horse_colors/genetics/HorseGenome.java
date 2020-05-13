@@ -65,9 +65,11 @@ public class HorseGenome extends Genome {
         "sooty1", 
         "sooty2", 
         "sooty3", 
+        // I'm treating this as the agouti promoter region responsible for 
+        // white bellied agouti in mice
+        "light_belly",
         "mealy1", 
         "mealy2", 
-        "mealy3", 
         "white_suppression", 
         "KIT", 
         "frame", 
@@ -137,6 +139,9 @@ public class HorseGenome extends Genome {
         // It doesn't matter if some appear twice, the last will be used
         linkages.add(new Genome.Linkage("extension", 0.015f));
         linkages.add(new Genome.Linkage("KIT"));
+
+        linkages.add(new Genome.Linkage("agouti", 0.0f));
+        linkages.add(new Genome.Linkage("light_belly"));
         return linkages;
     }
 
@@ -480,6 +485,7 @@ public class HorseGenome extends Genome {
         TextureLayer black = HorseColorCalculator.getBlackBody(this);
         this.textureLayers.add(red);
         HorseColorCalculator.addRedManeTail(this, this.textureLayers);
+        this.textureLayers.add(HorseColorCalculator.getMealy(this));
         this.textureLayers.add(black);
         this.textureLayers.add(HorseColorCalculator.getBlackManeTail(this));
         this.textureLayers.add(HorseColorCalculator.getSooty(this));
