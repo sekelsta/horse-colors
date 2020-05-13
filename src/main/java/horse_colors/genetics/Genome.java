@@ -14,6 +14,13 @@ public abstract class Genome {
     public abstract List<String> listGenes();
     public abstract List<String> listGenericChromosomes();
     public abstract List<String> listStats();
+    public List<Linkage> listLinkages() {
+        ArrayList linkages = new ArrayList<Genome.Linkage>();
+        for (String gene : listGenes()) {
+            linkages.add(new Genome.Linkage(gene));
+        }
+        return linkages;
+    }
 
     protected IGeneticEntity entity;
 
@@ -273,11 +280,19 @@ public abstract class Genome {
 
     // 
     public void inheritNamedGenes(Genome parent1, Genome parent2) {
-        for (String gene : this.listGenes()) {
-            int allele1 = parent1.getAllele(gene, this.rand.nextInt(2));
-            int allele2 = parent2.getAllele(gene, this.rand.nextInt(2));
-            this.setAllele(gene, 0, allele1);
-            this.setAllele(gene, 1, allele2);
+        int rand1 = this.rand.nextInt(2);
+        int rand2 = this.rand.nextInt(2);
+        for (Linkage link : this.listLinkages()) {
+            int allele1 = parent1.getAllele(link.gene, rand1);
+            int allele2 = parent2.getAllele(link.gene, rand2);
+            this.setAllele(link.gene, 0, allele1);
+            this.setAllele(link.gene, 1, allele2);
+            if (this.rand.nextFloat() < link.p) {
+                rand1 = 1 - rand1;
+            }
+            if (this.rand.nextFloat() < link.p) {
+                rand2 = 1 - rand2;
+            }
         }
     }
 
@@ -293,5 +308,20 @@ public abstract class Genome {
         inheritNamedGenes(parent1, parent2);
         inheritGenericGenes(parent1, parent2);
         mutate();
+    }
+
+    // Chromosomal linkage for storing in a list
+    // p is the probability there are an odd number of crossovers between this gene and the next
+    public static class Linkage {
+        public String gene;
+        public float p;
+        public Linkage(String gene, float p) {
+            this.gene = gene;
+            this.p = p;
+        }
+        public Linkage(String gene) {
+            this.gene = gene;
+            this.p = 0.5f;
+        }
     }
 }

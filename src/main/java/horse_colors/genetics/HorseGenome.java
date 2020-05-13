@@ -131,6 +131,15 @@ public class HorseGenome extends Genome {
         return stats;
     }
 
+    @Override
+    public List<Genome.Linkage> listLinkages() {
+        List<Genome.Linkage> linkages = super.listLinkages();
+        // It doesn't matter if some appear twice, the last will be used
+        linkages.add(new Genome.Linkage("extension", 0.015f));
+        linkages.add(new Genome.Linkage("KIT"));
+        return linkages;
+    }
+
     /* For named genes, this returns the number of bits needed to store one allele. 
     For stats, this returns the number of genes that contribute to the stat. */
     @Override
