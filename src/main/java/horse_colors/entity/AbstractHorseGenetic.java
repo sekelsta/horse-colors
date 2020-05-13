@@ -341,6 +341,29 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.getAttribute(JUMP_STRENGTH).setBaseValue(this.getModifiedJumpStrength());
     }
 
+    // Helper function for createChild that creates and spawns an entity of the 
+    // correct species
+    abstract AbstractHorseEntity getChild(AgeableEntity otherparent);
+
+    @Override
+    public AgeableEntity createChild(AgeableEntity ageable)
+    {
+        AbstractHorseEntity child = this.getChild(ageable);
+        if (child != null) {
+            this.setOffspringAttributes(ageable, child);
+        }
+        if (child instanceof AbstractHorseGenetic) {
+            // Dominant white is homozygous lethal early in pregnancy. No child
+            // is born.
+            if (((AbstractHorseGenetic)child).getGenes().isEmbryonicLethal())
+            {
+                return null;
+            }
+            ((AbstractHorseGenetic)child).useGeneticAttributes();
+        }
+        return child;
+    }
+
     /**
      * Called to update the entity's position/logic.
      */

@@ -356,12 +356,6 @@ public class HorseGenome extends Genome {
         }
     }
 
-    public int inheritStats(HorseGenome other, String chromosome) {
-            int mother = this.getRandomGenericGenes(1, this.getChromosome(chromosome));
-            int father = other.getRandomGenericGenes(0, other.getChromosome(chromosome));
-            return mother | father;
-    }
-
     // Distribution should be a series of floats increasing from
     // 0.0 to 1.0, where the probability of choosing allele i is
     // the chance that a random uniform number between 0 and 1
@@ -552,29 +546,9 @@ public class HorseGenome extends Genome {
         return true;
     }
 
-    public void setChildGenes(HorseGenome other, IGeneticEntity childEntity) {
-
-        int mother = this.getRandomGenes(1, 0);
-        int father = other.getRandomGenes(0, 0);
-        int i = mother | father;
-        childEntity.setChromosome("0", i);
-
-        mother = this.getRandomGenes(1, 1);
-        father = other.getRandomGenes(0, 1);
-        i = mother | father;
-        childEntity.setChromosome("1", i);
-
-
-        childEntity.setChromosome("2", rand.nextInt());
-        mother = this.getRandomGenes(1, 2);
-        father = other.getRandomGenes(0, 2);
-        i = mother | father;
-        childEntity.setChromosome("2", i);
-
-        for (String stat : this.listGenericChromosomes()) {
-            int val = inheritStats(other, stat);
-            childEntity.setChromosome(stat, val);
-        }
-        childEntity.getGenes().mutate();
+    @Override
+    public void inheritGenes(Genome parent1, Genome parent2) {
+        super.inheritGenes(parent1, parent2);
+        this.entity.setChromosome("random", this.rand.nextInt());
     }
 }

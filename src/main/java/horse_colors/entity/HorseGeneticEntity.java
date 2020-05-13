@@ -187,53 +187,32 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         }
     }
 
+    // Helper function for createChild that creates and spawns an entity of the 
+    // correct species
     @Override
-    public AgeableEntity createChild(AgeableEntity ageable)
+    public AbstractHorseEntity getChild(AgeableEntity ageable)
     {
-        AbstractHorseEntity abstracthorse;
-
-        if (ageable instanceof DonkeyGeneticEntity)
-        {
-            abstracthorse = ModEntities.MULE_GENETIC.create(this.world);
-            DonkeyGeneticEntity entityHorse = (DonkeyGeneticEntity)ageable;
-            this.getGenes().setChildGenes(entityHorse.getGenes(), ((MuleGeneticEntity)abstracthorse));
-
-            int i =  this.rand.nextInt();
-            ((MuleGeneticEntity)abstracthorse).setChromosome("random", i);
-
-            // Dominant white is homozygous lethal early in pregnancy. No child
-            // is born.
-            if (((MuleGeneticEntity)abstracthorse).getGenes().isEmbryonicLethal())
-            {
-                return null;
+        if (ageable instanceof AbstractHorseGenetic) {
+            AbstractHorseGenetic child = null;
+            AbstractHorseGenetic other = (AbstractHorseGenetic)ageable;
+            if (ageable instanceof HorseGeneticEntity) {
+                child = ModEntities.HORSE_GENETIC.create(this.world);
             }
-            this.setOffspringAttributes(ageable, abstracthorse);
-            ((MuleGeneticEntity)abstracthorse).useGeneticAttributes();
-        }
-        else if (ageable instanceof HorseGeneticEntity)
-        {
-            abstracthorse = ModEntities.HORSE_GENETIC.create(this.world);
-            HorseGeneticEntity entityHorse = (HorseGeneticEntity)ageable;
-            this.getGenes().setChildGenes(entityHorse.getGenes(), ((HorseGeneticEntity)abstracthorse));
-
-            int i =  this.rand.nextInt();
-            ((HorseGeneticEntity)abstracthorse).setChromosome("random", i);
-
-            // Dominant white is homozygous lethal early in pregnancy. No child
-            // is born.
-            if (((HorseGeneticEntity)abstracthorse).getGenes().isEmbryonicLethal())
-            {
-                return null;
+            else if (ageable instanceof DonkeyGeneticEntity) {
+                child = ModEntities.MULE_GENETIC.create(this.world);
             }
-            this.setOffspringAttributes(ageable, abstracthorse);
-            ((HorseGeneticEntity)abstracthorse).useGeneticAttributes();
+            child.getGenes().inheritGenes(this.getGenes(), other.getGenes());   
+            return child;
         }
-        else
-        {
-            return super.createChild(ageable);
+        else if (ageable instanceof HorseEntity) {
+            HorseEntity child = EntityType.HORSE.create(this.world);
+            ((HorseEntity)child).setHorseVariant(((HorseEntity)ageable).getHorseVariant());
+            return child;
         }
-
-        return abstracthorse;
+        else if (ageable instanceof DonkeyEntity) {
+            return EntityType.MULE.create(this.world);
+        }
+        return null;
     }
 
     public boolean wearsArmor() {

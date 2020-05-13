@@ -251,40 +251,6 @@ public abstract class Genome {
         }
         return count;
     }
-    /* Argument is the number of genewidths to the left each gene should be
-    shifted. */
-    public int getRandomGenes(int n, int type)
-    {
-        int result = 0;
-        int random = 0;
-        for (String gene : listGenes())
-        {
-            if (getGenePos(gene) / 32 != type)
-            {
-                continue;
-            }
-
-            random = this.rand.nextInt();
-            int next = getNamedGene(gene);
-            // Randomly take the low bits or the high bits
-            if (random % 2 == 0)
-            {
-                // Keep high bits, put them in low bit position
-                next >>= getGeneSize(gene);
-            }
-            else
-            {
-                // Keep low bits
-                next &= (1 << getGeneSize(gene)) - 1;
-            }
-            random >>= 1;
-
-            // Add the allele we've selected to the final result
-            result |= next << (getGenePos(gene) % 32) << (n * getGeneSize(gene));
-        }
-
-        return result;
-    }
 
     public int getRandomGenericGenes(int n, int data)
     {
@@ -305,4 +271,27 @@ public abstract class Genome {
         return answer;
     }
 
+    // 
+    public void inheritNamedGenes(Genome parent1, Genome parent2) {
+        for (String gene : this.listGenes()) {
+            int allele1 = parent1.getAllele(gene, this.rand.nextInt(2));
+            int allele2 = parent2.getAllele(gene, this.rand.nextInt(2));
+            this.setAllele(gene, 0, allele1);
+            this.setAllele(gene, 1, allele2);
+        }
+    }
+
+    public void inheritGenericGenes(Genome parent1, Genome parent2) {
+        for (String chr : this.listGenericChromosomes()) {
+            int mother = parent1.getRandomGenericGenes(1, parent1.getChromosome(chr));
+            int father = parent2.getRandomGenericGenes(0, parent2.getChromosome(chr));
+            this.entity.setChromosome(chr, mother | father);
+        }
+    }
+
+    public void inheritGenes(Genome parent1, Genome parent2) {
+        inheritNamedGenes(parent1, parent2);
+        inheritGenericGenes(parent1, parent2);
+        mutate();
+    }
 }

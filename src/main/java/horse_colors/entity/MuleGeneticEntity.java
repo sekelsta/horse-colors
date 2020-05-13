@@ -35,21 +35,10 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
     }
 
     @Override
-    public AgeableEntity createChild(AgeableEntity ageable) {
+    // Helper function for createChild that creates and spawns an entity of the 
+    // correct species
+    public AbstractHorseEntity getChild(AgeableEntity ageable) {
         MuleGeneticEntity child = ModEntities.MULE_GENETIC.create(this.world);
-        MuleGeneticEntity entity = (MuleGeneticEntity)ageable;
-        this.getGenes().setChildGenes(entity.getGenes(), child);
-        int i =  this.rand.nextInt();
-        child.setChromosome("random", i);
-        // Dominant white is homozygous lethal early in pregnancy. No child
-        // is born.
-        if (child.getGenes().isEmbryonicLethal())
-        {
-            return null;
-        }
-        this.setOffspringAttributes(ageable, child);
-        child.useGeneticAttributes();
-
         return child;
     }
 
