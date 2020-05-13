@@ -159,6 +159,7 @@ public class HorseColorCalculator
     }
 
     public static void addRedManeTail(HorseGenome horse, List<TextureLayer> layers) {
+        final float PALOMINO_POWER = 0.4f;
         if (!horse.isChestnut()) {
             return;
         }
@@ -167,7 +168,7 @@ public class HorseColorCalculator
             TextureLayer palomino_mane = new TextureLayer();
             palomino_mane.name = fixPath("manetail");
             colorRedBody(horse, palomino_mane);
-            adjustConcentration(palomino_mane, 0.04f);
+            adjustConcentration(palomino_mane, PALOMINO_POWER);
             setGrayConcentration(horse, palomino_mane);
             layers.add(palomino_mane);
         }
@@ -182,18 +183,21 @@ public class HorseColorCalculator
         flaxen.name = fixPath("flaxen");
         colorRedBody(horse, flaxen);
         float power = 1f;
+        if (horse.hasAllele("cream", HorseAlleles.CREAM)) {
+            power *= PALOMINO_POWER;
+        }
         float white = 0f;
         if (horse.isHomozygous("flaxen1", HorseAlleles.FLAXEN) 
                 && horse.isHomozygous("flaxen2", HorseAlleles.FLAXEN)) {
-            power = 0.4f;
+            power *= 0.4f;
             white = 0.3f;
         }
         else if (horse.isHomozygous("flaxen1", HorseAlleles.FLAXEN)) {
-            power = 0.5f;
+            power *= 0.5f;
             white = 0.2f;
         }
         else if (horse.isHomozygous("flaxen2", HorseAlleles.FLAXEN)) {
-            power = 0.7f;
+            power *= 0.7f;
             white = 0.1f;
         }
         adjustConcentration(flaxen, power);
