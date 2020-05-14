@@ -558,7 +558,7 @@ public class HorseColorCalculator
         TextureLayer layer = new TextureLayer();
         if (horse.isWhite())
         {
-            layer.name = fixPath("base");
+            layer.name = fixPath("pinto/white");
             return layer;
         }
 
