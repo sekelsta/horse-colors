@@ -338,7 +338,7 @@ public class HorseColorCalculator
             }
             light_belly.name = fixPath("mealy/mealy" + spread);
             colorRedBody(horse, light_belly);
-            adjustConcentration(light_belly, 0.08f * (2 - color));
+            adjustConcentration(light_belly, 0.04f * (2 - color));
             return light_belly;
         }
 
