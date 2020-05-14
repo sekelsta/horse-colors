@@ -5,7 +5,7 @@ import sekelsta.horse_colors.renderer.TextureLayer;
 
 public class HorseColorCalculator
 {
-    private static final int GRAY_LEG_BITS = 2;
+    private static final int UNUSED_BITS = 2;
     private static final int FACE_MARKING_BITS = 2;
     private static final int LEG_MARKING_BITS = 12;
 
@@ -328,10 +328,13 @@ public class HorseColorCalculator
             int spread = 1;
             int color = 0;
             if (horse.hasAllele("mealy1", HorseAlleles.MEALY)) {
-                spread += 1;
+                spread += 2;
             }
-            if (horse.isHomozygous("mealy2", HorseAlleles.MEALY)) {
+            if (horse.hasAllele("mealy2", HorseAlleles.MEALY)) {
                 color += 1;
+            }
+            if (horse.isHomozygous("flaxen2", 0)) {
+                spread += 1;
             }
             light_belly.name = fixPath("mealy/mealy" + spread);
             colorRedBody(horse, light_belly);
@@ -446,7 +449,7 @@ public class HorseColorCalculator
         // Turn a signed integer into unsigned, also drop a few bits 
         // used elsewhere
         int random = (horse.getChromosome("random") << 1) 
-                        >>> (1 + GRAY_LEG_BITS);
+                        >>> (1 + UNUSED_BITS);
 
         white += random & 3;
 
@@ -523,7 +526,7 @@ public class HorseColorCalculator
         // Turn a signed integer into unsigned, also drop a few bits 
         // used elsewhere
         int random = (horse.getChromosome("random") << 1) 
-                        >>> (1 + GRAY_LEG_BITS + FACE_MARKING_BITS);
+                        >>> (1 + UNUSED_BITS + FACE_MARKING_BITS);
 
         for (int i = 0; i < 4; ++i) {
             int r = random & 7;

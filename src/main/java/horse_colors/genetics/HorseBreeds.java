@@ -82,15 +82,15 @@ public class HorseBreeds {
             0.5f,   // Non-sooty
             1f      // Sooty
         ));
+        DEFAULT.put("light_belly", ImmutableList.of(
+            0.75f,  // Non-mealy
+            1f      // Mealy
+        ));
         DEFAULT.put("mealy1", ImmutableList.of(
             0.75f,  // Non-mealy
             1f      // Mealy
         ));
         DEFAULT.put("mealy2", ImmutableList.of(
-            0.75f,  // Non-mealy
-            1f      // Mealy
-        ));
-        DEFAULT.put("mealy3", ImmutableList.of(
             0.75f,  // Non-mealy
             1f      // Mealy
         ));
