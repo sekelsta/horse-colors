@@ -215,7 +215,7 @@ public class HorseColorCalculator
         }
         TextureLayer layer = new TextureLayer();
         layer.name = fixPath("flaxen");
-        setEumelanin(layer, 0.2f, 0.0f);
+        setEumelanin(layer, 0.3f, 0.0f);
         setGrayConcentration(horse, layer);
         return layer;
     }
