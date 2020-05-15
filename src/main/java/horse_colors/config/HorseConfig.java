@@ -179,8 +179,8 @@ public class HorseConfig
             spawnBiomeWeights = builder
                     .comment("A list of biomes horses can spawn in, and how often they spawn there.")
                     .<String>defineList("spawnBiomeWeights", 
-                                Arrays.asList((new BiomeWeight(BiomeDictionary.Type.PLAINS.toString(), 10)).toString(), 
-                                              (new BiomeWeight(BiomeDictionary.Type.SAVANNA.toString(), 10)).toString()), 
+                                Arrays.asList((new BiomeWeight(BiomeDictionary.Type.PLAINS.toString(), 5)).toString(), 
+                                              (new BiomeWeight(BiomeDictionary.Type.SAVANNA.toString(), 1)).toString()), 
                                 BiomeWeight::isValid);
 
             excludeBiomes = builder
