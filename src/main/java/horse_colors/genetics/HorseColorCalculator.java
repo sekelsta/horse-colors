@@ -399,8 +399,8 @@ public class HorseColorCalculator
 
     public static float grayConcentration(HorseGenome horse, float rate) {
         int stage = grayStage(horse, rate, 50, 0f);
-        float val = 1f + 5f * stage / 50f * stage / 50f;
-        return val;
+        double val = 1.1 + Math.pow(1.06, stage) * stage / 50. * stage / 50.;
+        return (float)val;
     }
 
     public static void setGrayConcentration(HorseGenome horse, TextureLayer layer) {
