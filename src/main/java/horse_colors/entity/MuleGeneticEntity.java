@@ -1,14 +1,23 @@
 package sekelsta.horse_colors.entity;
 import net.minecraft.entity.passive.horse.*;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.ILivingEntityData;
+import net.minecraft.entity.SpawnReason;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
+import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
-//import sekelsta.horse_colors.genetics.*;
+import sekelsta.horse_colors.genetics.DonkeyBreeds;
+import sekelsta.horse_colors.genetics.HorseBreeds;
+import sekelsta.horse_colors.genetics.HorseGenome;
 import sekelsta.horse_colors.item.GeneBookItem;
 import sekelsta.horse_colors.init.ModEntities;
 
@@ -59,5 +68,22 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
 
     protected void playChestEquipSound() {
         this.playSound(SoundEvents.ENTITY_MULE_CHEST, 1.0F, (this.rand.nextFloat() - this.rand.nextFloat()) * 0.2F + 1.0F);
+    }
+    /**
+     * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
+     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
+     */
+    @Nullable
+    @Override
+    public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag)
+    {
+        spawnDataIn = super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
+        HorseGenome horse = new HorseGenome();
+        horse.randomize(HorseBreeds.DEFAULT);
+        HorseGenome donkey = new HorseGenome();
+        donkey.randomize(DonkeyBreeds.DEFAULT);
+        this.genes.inheritGenes(horse, donkey);
+        this.useGeneticAttributes();
+        return spawnDataIn;
     }
 }

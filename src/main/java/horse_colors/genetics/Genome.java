@@ -31,6 +31,10 @@ public abstract class Genome {
     // that should be consistent across worlds with the same seed
     public static java.util.Random rand = new java.util.Random();
 
+    public Genome() {
+        this.entity = new FakeGeneticEntity();
+    }
+
     public Genome(IGeneticEntity entityIn) {
         this.entity = entityIn;
     }

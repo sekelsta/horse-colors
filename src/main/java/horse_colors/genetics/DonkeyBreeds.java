@@ -5,51 +5,51 @@ import com.google.common.collect.ImmutableList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HorseBreeds {
+public class DonkeyBreeds {
     public static HashMap<String, ImmutableList<Float>> DEFAULT;
 
     static {
         DEFAULT = new HashMap<String, ImmutableList<Float>>();
         DEFAULT.put("extension", ImmutableList.of(
-            0.5f, 0.25f, 0.375f, 0.5f, // Red
-            1.0f, 0.75f, 0.875f, 1.0f  // Black
+            0.2f, 0.2f, 0.2f, 0.2f, // Red
+            1.0f, 1.0f, 1.0f, 1.0f  // Black
         ));
         DEFAULT.put("gray", ImmutableList.of(
-            0.95f, // Non-gray
+            1.0f, // Non-gray
             1.0f   // Gray
         ));
         DEFAULT.put("dun", ImmutableList.of(
-            0.75f,  // Non-dun 2
-            0.875f, // Non-dun 1
+            0.0f,   // Non-dun 2
+            0.5f, // Non-dun 1
             1f,     // Dun
             0f      // Dun unused
         ));
         DEFAULT.put("agouti", ImmutableList.of(
-            0.375f,     // Black
-            0.5f,       // Seal
-            0.5f,       // Seal unused
-            0.5f,       // Bay unused
-            1f,         // Bay
-            0.875f,     // Bay unused
-            0.9375f,    // Bay unused
-            1.0f        // Bay unused
+            0.1f,   // Black
+            0.1f,   // Seal
+            0.1f,   // Seal unused
+            0.1f,   // Bay unused
+            1f,     // Bay
+            1f,     // Bay unused
+            1f,     // Bay unused
+            1f      // Bay unused
         ));
         DEFAULT.put("silver", ImmutableList.of(
-            31.0f / 32.0f,  // Non-silver
-            1.0f            // Silver
+            1.0f,  // Non-silver
+            1.0f   // Silver
         ));
         DEFAULT.put("cream", ImmutableList.of(
-            30f / 32f,  // Non-cream
-            0f,         // Non-cream unused
-            31f / 32f,  // Pearl (1/32)
-            1f          // Cream (1/32)
+            1f,     // Non-cream
+            0f,     // Non-cream unused
+            0f,     // Pearl (1/32)
+            0f      // Cream (1/32)
         ));
         DEFAULT.put("liver", ImmutableList.of(
             0.25f,  // Liver
             1f      // Non-liver
         ));
         DEFAULT.put("flaxen1", ImmutableList.of(
-            0.2f,   // Flaxen
+            0.0f,   // Flaxen
             1f      // Non-flaxen
         ));
         DEFAULT.put("flaxen2", ImmutableList.of(
@@ -57,15 +57,15 @@ public class HorseBreeds {
             1f      // Non-flaxen
         ));
         DEFAULT.put("dapple", ImmutableList.of(
-            0.5f,   // Non-dapple
+            1.0f,   // Non-dapple
             1f      // Dapple
         ));
         DEFAULT.put("sooty1", ImmutableList.of(
-            0.75f,  // Non-sooty
+            0.5f,   // Non-sooty
             1f      // Sooty
         ));
         DEFAULT.put("sooty2", ImmutableList.of(
-            0.75f,  // Non-sooty
+            0.5f,   // Non-sooty
             1f      // Sooty
         ));
         DEFAULT.put("sooty3", ImmutableList.of(
@@ -73,23 +73,23 @@ public class HorseBreeds {
             1f      // Sooty
         ));
         DEFAULT.put("light_belly", ImmutableList.of(
-            0.75f,  // Non-mealy
+            0f,     // Non-mealy
             1f      // Mealy
         ));
         DEFAULT.put("mealy1", ImmutableList.of(
-            0.75f,  // Non-mealy
+            0.0f,   // Non-mealy
             1f      // Mealy
         ));
         DEFAULT.put("mealy2", ImmutableList.of(
-            0.75f,  // Non-mealy
+            0.0f,   // Non-mealy
             1f      // Mealy
         ));
         DEFAULT.put("white_suppression", ImmutableList.of(
-            31f / 32f,  // Non white-suppression
-            1f          // White suppression
+            1f,     // Non white-suppression
+            1f      // White suppression
         ));
         DEFAULT.put("KIT", ImmutableList.of(
-            0.6f,   // Wildtype
+            1f,     // Wildtype
             0.63f,   // White boost
             0.66f,  // Markings1
             0.69f,   // Markings2
@@ -107,39 +107,39 @@ public class HorseBreeds {
             1.0f    // Dominant white
         ));
         DEFAULT.put("frame", ImmutableList.of(
-            31f / 32f,  // Non-frame
-            1f          // Frame
+            1f,     // Non-frame
+            1f      // Frame
         ));
         DEFAULT.put("MITF", ImmutableList.of(
-            0.1f,  // SW1
-            0.12f,  // SW3
-            0.14f,  // SW5
+            0f,     // SW1
+            0f,     // SW3
+            0f,     // SW5
             1.0f    // Wildtype
         ));
         DEFAULT.put("PAX3", ImmutableList.of(
-            0.9f,   // Wildtype
-            0.96f,  // SW2
-            1f,  // SW4
+            1f,     // Wildtype
+            0f,     // SW2
+            1f,     // SW4
             1.0f    // Unused
         ));
         DEFAULT.put("leopard", ImmutableList.of(
-            31f / 32f,  // Non-leopard
-            1f          // Leopard
+            1f,     // Non-leopard
+            1f      // Leopard
         ));
         DEFAULT.put("PATN1", ImmutableList.of(
-            15f / 16f,  // Non-PATN
-            1f          // PATN
+            1f,     // Non-PATN
+            1f      // PATN
         ));
         DEFAULT.put("PATN2", ImmutableList.of(
-            15f / 16f,  // Non-PATN
-            1f          // PATN
+            1f,     // Non-PATN
+            1f      // PATN
         ));
         DEFAULT.put("PATN3", ImmutableList.of(
-            15f / 16f,  // Non-PATN
-            1f          // PATN
+            1f,     // Non-PATN
+            1f      // PATN
         ));
         DEFAULT.put("gray_suppression", ImmutableList.of(
-            0.975f, // Non gray-suppression
+            1f,     // Non gray-suppression
             1f      // Gray suppression
         ));
         DEFAULT.put("slow_gray1", ImmutableList.of(
@@ -159,11 +159,11 @@ public class HorseBreeds {
             1f      // More white
         ));
         DEFAULT.put("white_forelegs", ImmutableList.of(
-            0.8f,  // Less white
+            1f,     // Less white
             1f      // More white
         ));
         DEFAULT.put("white_hindlegs", ImmutableList.of(
-            0.8f,  // Less white
+            1f,     // Less white
             1f      // More white
         ));
         DEFAULT.put("gray_melanoma", ImmutableList.of(

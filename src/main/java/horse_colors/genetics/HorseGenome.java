@@ -118,6 +118,10 @@ public class HorseGenome extends Genome {
         super(entityIn);
     }
 
+    public HorseGenome() {
+        super();
+    }
+
     @Override
     public ImmutableList<String> listGenes() {
         return genes;
@@ -397,17 +401,16 @@ public class HorseGenome extends Genome {
         return (left << size) | right;
     }
 
-    public void randomizeNamedGenes() {
-        HashMap<String, ImmutableList<Float>> map = HorseBreeds.DEFAULT;
+    public void randomizeNamedGenes(HashMap<String, ImmutableList<Float>> map) {
         for (String gene : genes) {
             setNamedGene(gene, chooseRandom(map.get(gene)));
         }
     }
 
     /* Make the horse have random genetics. */
-    public void randomize()
+    public void randomize(HashMap<String, ImmutableList<Float>> map)
     {
-        randomizeNamedGenes();
+        randomizeNamedGenes(map);
 
         // Replace lethal white overos with heterozygotes
         if (isHomozygous("frame", HorseAlleles.FRAME))

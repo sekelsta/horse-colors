@@ -22,7 +22,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import sekelsta.horse_colors.client.FakeGeneticEntity;
 import sekelsta.horse_colors.client.GeneBookScreen;
 import sekelsta.horse_colors.entity.*;
 import sekelsta.horse_colors.genetics.Genome;
@@ -162,7 +161,7 @@ public class GeneBookItem extends Item {
     @OnlyIn(Dist.CLIENT)
     public void openGeneBook(CompoundNBT nbt) {
         Minecraft mc = Minecraft.getInstance();
-        Genome genome = new HorseGenome(new FakeGeneticEntity());
+        Genome genome = new HorseGenome();
         genome.genesFromString(nbt.getString("genes"));
         mc.displayGuiScreen(new GeneBookScreen(genome));
     }

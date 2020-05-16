@@ -60,10 +60,10 @@ public class ModEntities {
             HORSE_SPAWN_EGG = new SpawnEggItem(HORSE_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(CreativeTab.instance));
             HORSE_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "horse_spawn_egg"));
 
-            DONKEY_SPAWN_EGG = new SpawnEggItem(DONKEY_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(CreativeTab.instance));
+            DONKEY_SPAWN_EGG = new SpawnEggItem(DONKEY_GENETIC, 0x726457, 0xcdc0b5, (new Item.Properties()).group(CreativeTab.instance));
             DONKEY_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "donkey_spawn_egg"));
 
-            MULE_SPAWN_EGG = new SpawnEggItem(MULE_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(CreativeTab.instance));
+            MULE_SPAWN_EGG = new SpawnEggItem(MULE_GENETIC, 0x4b3a30, 0xcdb9a8, (new Item.Properties()).group(CreativeTab.instance));
             MULE_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "mule_spawn_egg"));
     }
 /*

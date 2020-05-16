@@ -353,13 +353,18 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             this.setOffspringAttributes(ageable, child);
         }
         if (child instanceof AbstractHorseGenetic) {
+            AbstractHorseGenetic foal = (AbstractHorseGenetic)child;
+            if (ageable instanceof AbstractHorseGenetic) {
+                AbstractHorseGenetic other = (AbstractHorseGenetic)ageable;
+                foal.getGenes().inheritGenes(this.getGenes(), other.getGenes());
+            }
             // Dominant white is homozygous lethal early in pregnancy. No child
             // is born.
-            if (((AbstractHorseGenetic)child).getGenes().isEmbryonicLethal())
+            if (foal.getGenes().isEmbryonicLethal())
             {
                 return null;
             }
-            ((AbstractHorseGenetic)child).useGeneticAttributes();
+            foal.useGeneticAttributes();
         }
         return child;
     }

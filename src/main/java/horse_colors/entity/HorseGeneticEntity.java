@@ -30,7 +30,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
-
+import sekelsta.horse_colors.genetics.HorseBreeds;
 import sekelsta.horse_colors.init.ModEntities;
 import sekelsta.horse_colors.item.GeneBookItem;
 import sekelsta.horse_colors.util.Util;
@@ -200,8 +200,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
             }
             else if (ageable instanceof DonkeyGeneticEntity) {
                 child = ModEntities.MULE_GENETIC.create(this.world);
-            }
-            child.getGenes().inheritGenes(this.getGenes(), other.getGenes());   
+            }  
             return child;
         }
         else if (ageable instanceof HorseEntity) {
@@ -236,7 +235,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag)
     {
         spawnDataIn = super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
-        this.getGenes().randomize();
+        this.getGenes().randomize(HorseBreeds.DEFAULT);
         this.useGeneticAttributes();
         return spawnDataIn;
     }
