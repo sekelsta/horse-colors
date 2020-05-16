@@ -89,13 +89,13 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         this.tailMiddle.addChild(tailTip);
         this.body.addChild(tailBase);
 
-        this.tailThin = new ModelRenderer(this, 37, 19);
-        this.tailThin.addBox(-1.5F, -1.0F, 1.0F, 1, 1, 8, scaleFactor);
-        this.tailThin.setRotationPoint(1.0F, -8.0F, 4.0F);
+        this.tailThin = new ModelRenderer(this, 116, 0);
+        this.tailThin.addBox(-0.5F, 0.0F, 0.5F, 1, 5, 1, scaleFactor);
+        this.tailThin.setRotationPoint(0.0F, -6F, 4.0F);
         this.tailThin.rotateAngleX = -1.134464F; // This doesn't seem to matter at all
-        this.tailTuft = new ModelRenderer(this, 49, 42);
-        this.tailTuft.addBox(-2.0F, -1.5F, 1.0F, 2, 2, 7, scaleFactor);
-        this.tailTuft.setRotationPoint(0.0F, 0.0F, 8.0F);
+        this.tailTuft = new ModelRenderer(this, 120, 0);
+        this.tailTuft.addBox(-1.0F, 0F, 0.25F, 2, 6, 2, scaleFactor);
+        this.tailTuft.setRotationPoint(0.0F, 5.0F, 0.0F);
         this.tailThin.addChild(tailTuft);
         this.body.addChild(tailThin);
 
@@ -472,8 +472,6 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         this.muleRightChest.rotationPointZ = rearingAmount * 15.0F + notRearingAmount * this.muleRightChest.rotationPointZ;
         this.muleLeftChest.rotateAngleX = legRotation1 / 5.0F;
         this.muleRightChest.rotateAngleX = -legRotation1 / 5.0F;
-        //this.extraTackArray[0].rotateAngleX = f4 - this.neck.rotateAngleX;
-        //this.extraTackArray[1].rotateAngleX = f4;
 
         if (isSaddled)
         {
@@ -497,7 +495,7 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         }
 
         float tailRotation = -1.3089969F + limbSwingAmount * 1.5F;
-        float donkeyTailRotate = -1.4F + limbSwingAmount;
+        float donkeyTailRotate = 0.17F + limbSwingAmount;
 
         if (tailRotation > 0.0F)
         {
@@ -509,7 +507,7 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
             this.tailBase.rotateAngleY = MathHelper.cos(ticks * 0.7F);
             this.tailThin.rotateAngleY = MathHelper.cos(ticks * 0.7F);
             tailRotation = 0.0F;
-            donkeyTailRotate = 0.0F;
+            donkeyTailRotate = (float)Math.PI / 2f;
         }
         else
         {
