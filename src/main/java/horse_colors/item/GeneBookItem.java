@@ -95,53 +95,6 @@ public class GeneBookItem extends Item {
         }
     }
 
-
-    /**
-     * Returns true if the item can be used on the given entity, e.g. shears on sheep.
-     */
-    @SuppressWarnings("deprecation")
-    @Override
-    public boolean itemInteractionForEntity(ItemStack stack, net.minecraft.entity.player.PlayerEntity playerIn, LivingEntity entity, net .minecraft.util.Hand hand) {
-        if (entity.world.isRemote) return false;
-        if (!playerIn.abilities.isCreativeMode) {
-            return false;
-        }
-        if (entity instanceof IGeneticEntity) {
-            IGeneticEntity gentity = (IGeneticEntity)entity;
-            switch (Species.valueOf(stack.getTag().getString("species"))) {
-                case HORSE:
-                    if (gentity instanceof HorseGeneticEntity) {
-                        break;
-                    }
-                    else {
-                        return false;
-                    }
-                case DONKEY:
-                    if (gentity instanceof DonkeyGeneticEntity) {
-                        break;
-                    }
-                    else {
-                        return false;
-                    }
-                case MULE:
-                    if (gentity instanceof MuleGeneticEntity) {
-                        break;
-                    }
-                    else {
-                        return false;
-                    }
-            }
-            String geneString = stack.getTag().getString("genes");
-            if (!gentity.getGenes().isValidGeneString(geneString)) {
-                System.out.println("This gene book is invalid.");
-                return false;
-            }
-            gentity.getGenes().genesFromString(geneString);
-            return true;
-        }
-        return false;
-    }
-
     /**
      * Called to trigger the item's "innate" right click behavior. To handle when this item is used on a Block, see
      * {@link #onItemUse}.
