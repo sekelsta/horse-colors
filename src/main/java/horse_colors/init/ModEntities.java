@@ -101,7 +101,9 @@ public class ModEntities {
     // Also after the config is parsed
     public static void addSpawns()
     {
-        assert(HORSE_GENETIC != null);
+        if (HORSE_GENETIC == null) {
+            HorseColors.logger.error("Attempting to add horse spawns with a null horse.");
+        }
 
         List<? extends String> excludeList = HorseConfig.Spawn.excludeBiomes.get();
         HashSet<Biome> excludeBiomes = new HashSet();
@@ -117,8 +119,10 @@ public class ModEntities {
             BiomeDictionary.Type type = HorseConfig.Spawn.BiomeWeight.getType(bw.biome);
             for (Biome biome : getBiomes(type)) {
                 if (excludeBiomes.contains(biome)) {
+                    HorseColors.logger.debug("Skipping horse spawn for " + biome);
                     continue;
                 }
+                HorseColors.logger.debug("Adding horse spawn to " + biome);
                 List<Biome.SpawnListEntry> spawns = biome.getSpawns(EntityClassification.CREATURE);
                 spawns.add(new Biome.SpawnListEntry(HORSE_GENETIC, bw.weight, HorseConfig.SPAWN.minHerdSize.get(), HorseConfig.SPAWN.maxHerdSize.get()));
             }
@@ -168,6 +172,7 @@ public class ModEntities {
     //Removes initial vanilla horse spawns
     public static void editSpawnTable() {
         if (!HorseConfig.SPAWN.blockVanillaHorseSpawns.get()) {
+            HorseColors.logger.debug("Allowing vanilla horse spaawns.");
             return;
         }
         Set<Biome> allBiomes = Biome.BIOMES;
@@ -179,6 +184,7 @@ public class ModEntities {
                 ArrayList<Biome.SpawnListEntry> horseSpawns = new ArrayList<Biome.SpawnListEntry>();
                 for (Biome.SpawnListEntry entry : spawns) {
                     if (entry.entityType == EntityType.HORSE) {
+                        HorseColors.logger.debug("Removing vanilla horse spawn: " + entry + " from biome " + biome);
                         horseSpawns.add(entry);
                     }
                 }
