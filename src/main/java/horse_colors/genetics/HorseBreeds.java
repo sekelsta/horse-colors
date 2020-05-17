@@ -119,12 +119,12 @@ public class HorseBreeds {
         DEFAULT.put("PAX3", ImmutableList.of(
             0.9f,   // Wildtype
             0.96f,  // SW2
-            1f,  // SW4
+            1f,     // SW4
             1.0f    // Unused
         ));
         DEFAULT.put("leopard", ImmutableList.of(
-            31f / 32f,  // Non-leopard
-            1f          // Leopard
+            1f,     // Non-leopard
+            1f      // Leopard
         ));
         DEFAULT.put("PATN1", ImmutableList.of(
             15f / 16f,  // Non-PATN
