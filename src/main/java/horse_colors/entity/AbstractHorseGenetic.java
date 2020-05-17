@@ -38,6 +38,7 @@ import net.minecraft.world.World;
 
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.ai.RandomWalkGroundTie;
+import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.init.ModEntities;
 import sekelsta.horse_colors.init.ModItems;
 import sekelsta.horse_colors.item.GeneBookItem;
@@ -208,7 +209,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 this.dataManager.set(HORSE_RANDOM, Integer.valueOf(variant));
                 break;
             default:
-                System.out.print("Unrecognized horse data for setting: "
+                HorseColors.logger.error("Unrecognized horse data for setting: "
                                  + name + "\n");
         }
     }
@@ -237,7 +238,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             case "random":
                 return ((Integer)this.dataManager.get(HORSE_RANDOM)).intValue();
             default:
-                System.out.print("Unrecognized horse data for getting: " 
+                HorseColors.logger.error("Unrecognized horse data for getting: " 
                                 + name + "\n");
                 return 0;
         }
