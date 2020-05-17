@@ -94,7 +94,9 @@ public class HorseGenome extends Genome {
     public static final ImmutableList<String> genericChromosomes = ImmutableList.of(
         "speed",
         "jump",
-        "health"        
+        "health",   
+        "mhc1", 
+        "mhc2"      
     );
 
     public static final ImmutableList<String> stats = ImmutableList.of(
@@ -112,7 +114,7 @@ public class HorseGenome extends Genome {
         "stamina"
     );
 
-    public static final ImmutableList<String> chromosomes = ImmutableList.of("0", "1", "2", "speed", "jump", "health", "random");
+    public static final ImmutableList<String> chromosomes = ImmutableList.of("0", "1", "2", "3", "speed", "jump", "health", "mhc1", "mhc2", "random");
 
     public HorseGenome(IGeneticEntity entityIn) {
         super(entityIn);

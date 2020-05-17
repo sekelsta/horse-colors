@@ -50,9 +50,12 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     protected static final DataParameter<Integer> HORSE_VARIANT = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_VARIANT2 = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_VARIANT3 = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
+    protected static final DataParameter<Integer> HORSE_VARIANT4 = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_SPEED = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_JUMP = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_HEALTH = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
+    protected static final DataParameter<Integer> HORSE_MHC1 = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
+    protected static final DataParameter<Integer> HORSE_MHC2 = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_RANDOM = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> DISPLAY_AGE = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected int trueAge;
@@ -99,8 +102,11 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.dataManager.register(HORSE_VARIANT, Integer.valueOf(0));
         this.dataManager.register(HORSE_VARIANT2, Integer.valueOf(0));
         this.dataManager.register(HORSE_VARIANT3, Integer.valueOf(0));
+        this.dataManager.register(HORSE_VARIANT4, Integer.valueOf(0));
         this.dataManager.register(HORSE_SPEED, Integer.valueOf(0));
         this.dataManager.register(HORSE_HEALTH, Integer.valueOf(0));
+        this.dataManager.register(HORSE_MHC1, Integer.valueOf(0));
+        this.dataManager.register(HORSE_MHC2, Integer.valueOf(0));
         this.dataManager.register(HORSE_JUMP, Integer.valueOf(0));
         this.dataManager.register(HORSE_RANDOM, Integer.valueOf(0));
         this.dataManager.register(DISPLAY_AGE, Integer.valueOf(0));
@@ -116,9 +122,12 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         compound.putInt("Variant", this.getChromosome("0"));
         compound.putInt("Variant2", this.getChromosome("1"));
         compound.putInt("Variant3", this.getChromosome("2"));
+        compound.putInt("Variant4", this.getChromosome("3"));
         compound.putInt("SpeedGenes", this.getChromosome("speed"));
         compound.putInt("JumpGenes", this.getChromosome("jump"));
         compound.putInt("HealthGenes", this.getChromosome("health"));
+        compound.putInt("MHC1", this.getChromosome("mhc1"));
+        compound.putInt("MHC2", this.getChromosome("mhc2"));
         compound.putInt("Random", this.getChromosome("random"));
         compound.putInt("true_age", trueAge);
     }
@@ -130,9 +139,19 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.setChromosome("0", compound.getInt("Variant"));
         this.setChromosome("1", compound.getInt("Variant2"));
         this.setChromosome("2", compound.getInt("Variant3"));
+        this.setChromosome("3", compound.getInt("Variant4"));
         this.setChromosome("speed", compound.getInt("SpeedGenes"));
         this.setChromosome("jump", compound.getInt("JumpGenes"));
         this.setChromosome("health", compound.getInt("HealthGenes"));
+        if (compound.contains("MHC1")) {
+            this.setChromosome("mhc1", compound.getInt("MHC1"));
+            this.setChromosome("mhc2", compound.getInt("MHC2"));
+        }
+        else {
+            this.getGenes().setNamedGene("leopard", 0);
+            this.setChromosome("mhc1", this.rand.nextInt());
+            this.setChromosome("mhc2", this.rand.nextInt());
+        }
         this.setChromosome("random", compound.getInt("Random"));
         this.trueAge = compound.getInt("true_age");
 
@@ -161,6 +180,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 this.dataManager.set(HORSE_VARIANT3, variant);
                 this.getGenes().resetTexture();
                 return;
+            case "3":
+                this.dataManager.set(HORSE_VARIANT4, variant);
+                this.getGenes().resetTexture();
+                return;
             case "speed":
                 this.dataManager.set(HORSE_SPEED, variant);
                 this.useGeneticAttributes();
@@ -171,6 +194,14 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 return;
             case "health":
                 this.dataManager.set(HORSE_HEALTH, variant);
+                this.useGeneticAttributes();
+                return;
+            case "mhc1":
+                this.dataManager.set(HORSE_MHC1, variant);
+                this.useGeneticAttributes();
+                return;
+            case "mhc2":
+                this.dataManager.set(HORSE_MHC2, variant);
                 this.useGeneticAttributes();
                 return;
             case "random":
@@ -191,12 +222,18 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 return ((Integer)this.dataManager.get(HORSE_VARIANT2)).intValue();
             case "2":
                 return ((Integer)this.dataManager.get(HORSE_VARIANT3)).intValue();
+            case "3":
+                return ((Integer)this.dataManager.get(HORSE_VARIANT4)).intValue();
             case "speed":
                 return ((Integer)this.dataManager.get(HORSE_SPEED)).intValue();
             case "jump":
                 return ((Integer)this.dataManager.get(HORSE_JUMP)).intValue();
             case "health":
                 return ((Integer)this.dataManager.get(HORSE_HEALTH)).intValue();
+            case "mhc1":
+                return ((Integer)this.dataManager.get(HORSE_MHC1)).intValue();
+            case "mhc2":
+                return ((Integer)this.dataManager.get(HORSE_MHC2)).intValue();
             case "random":
                 return ((Integer)this.dataManager.get(HORSE_RANDOM)).intValue();
             default:
