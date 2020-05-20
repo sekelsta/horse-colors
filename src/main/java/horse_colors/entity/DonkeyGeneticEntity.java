@@ -18,7 +18,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
-import sekelsta.horse_colors.genetics.DonkeyBreeds;
+import sekelsta.horse_colors.genetics.HorseBreeds;
 import sekelsta.horse_colors.init.ModEntities;
 import sekelsta.horse_colors.item.GeneBookItem;
 import sekelsta.horse_colors.util.Util;
@@ -109,6 +109,6 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
 
     @Override
     public Map<String, List<Float>> getSpawnFrequencies() {
-        return DonkeyBreeds.DEFAULT;
+        return HorseBreeds.DONKEY;
     }
 }

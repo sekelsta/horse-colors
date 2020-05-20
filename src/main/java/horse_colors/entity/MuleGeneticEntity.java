@@ -15,7 +15,6 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
-import sekelsta.horse_colors.genetics.DonkeyBreeds;
 import sekelsta.horse_colors.genetics.HorseBreeds;
 import sekelsta.horse_colors.genetics.HorseGenome;
 import sekelsta.horse_colors.item.GeneBookItem;
@@ -79,9 +78,9 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
     {
         spawnDataIn = super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
         HorseGenome horse = new HorseGenome();
-        horse.randomize(HorseBreeds.DEFAULT);
+        horse.randomize(HorseBreeds.HORSE);
         HorseGenome donkey = new HorseGenome();
-        donkey.randomize(DonkeyBreeds.DEFAULT);
+        donkey.randomize(HorseBreeds.DONKEY);
         this.genes.inheritGenes(horse, donkey);
         this.useGeneticAttributes();
         return spawnDataIn;

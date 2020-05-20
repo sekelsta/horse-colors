@@ -229,6 +229,6 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
 
     @Override
     public Map<String, List<Float>> getSpawnFrequencies() {
-        return HorseBreeds.DEFAULT;
+        return HorseBreeds.HORSE;
     }
 }

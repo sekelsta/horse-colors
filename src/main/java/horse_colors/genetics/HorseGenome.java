@@ -415,7 +415,7 @@ public class HorseGenome extends Genome {
                 setNamedGene(gene, chooseRandom(map.get(gene)));
             }
             else {
-                HorseColors.logger.debug(gene + "is not in the given map");
+                HorseColors.logger.debug(gene + " is not in the given map");
                 setNamedGene(gene, 0);
             }
         }
