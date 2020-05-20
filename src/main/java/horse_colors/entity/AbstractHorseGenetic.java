@@ -470,6 +470,14 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     {
         spawnDataIn = super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
         this.getGenes().randomize(getSpawnFrequencies());
+        // Choose a random age between 0 and 5 years old.
+        // This preserves the ratio of child/adult
+        this.trueAge = this.rand.nextInt(5 * 24000) - 24000;
+        // Really this should just be cosmetic so let's also preserve the age of children
+        if (this.trueAge < 0) {
+            this.trueAge = -24000;
+        }
+        this.setGrowingAge(Math.min(0, this.trueAge));
         this.useGeneticAttributes();
         return spawnDataIn;
     }
