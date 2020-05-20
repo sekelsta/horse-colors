@@ -240,7 +240,7 @@ public class HorseBreeds {
         ));
         HORSE.put("cream", ImmutableList.of(
             30f / 32f,      // Non-cream
-            30.2f/32f,      // Sunshine
+            30.2f/32f,      // Snowdrop
             31f / 32f,      // Pearl (1/32)
             1f              // Cream (1/32)
         ));

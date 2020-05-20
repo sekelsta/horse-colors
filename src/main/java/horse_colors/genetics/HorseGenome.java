@@ -215,14 +215,14 @@ public class HorseGenome extends Genome {
 
     public boolean isDoubleCream() {
         return this.isHomozygous("cream", HorseAlleles.CREAM) 
-            || this.isHomozygous("cream", HorseAlleles.SUNSHINE)
+            || this.isHomozygous("cream", HorseAlleles.SNOWDROP)
             || (this.hasAllele("cream", HorseAlleles.CREAM)
-                && this.hasAllele("cream", HorseAlleles.SUNSHINE));
+                && this.hasAllele("cream", HorseAlleles.SNOWDROP));
     }
 
     public boolean isCreamPearl() {
         return (this.hasAllele("cream", HorseAlleles.CREAM)
-                || this.hasAllele("cream", HorseAlleles.SUNSHINE))
+                || this.hasAllele("cream", HorseAlleles.SNOWDROP))
             && this.hasAllele("cream", HorseAlleles.PEARL);
     }
 
