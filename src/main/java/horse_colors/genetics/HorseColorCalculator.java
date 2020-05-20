@@ -69,7 +69,7 @@ public class HorseColorCalculator
         float concentration = 5f;
         float white = 0.08f;
 
-        if (horse.isDoubleCream()) {
+        if (horse.isDoubleCream() || horse.isHomozygous("ivory", HorseAlleles.IVORY)) {
             concentration *= 0.1f;
             white += 0.4f;
         }
@@ -110,7 +110,7 @@ public class HorseColorCalculator
     public static void colorBlackBody(HorseGenome horse, TextureLayer layer) {
         float concentration = 20f;
         float white = 0f;
-        if (horse.isDoubleCream()) {
+        if (horse.isDoubleCream() || horse.isHomozygous("ivory", HorseAlleles.IVORY)) {
             concentration *= 0.02f;
         }
         else if (horse.isCreamPearl()) {
@@ -221,7 +221,7 @@ public class HorseColorCalculator
     }
 
     public static void colorSkin(HorseGenome horse, TextureLayer layer) {
-        if (horse.isDoubleCream()) {
+        if (horse.isDoubleCream() || horse.isHomozygous("ivory", HorseAlleles.IVORY)) {
             // Pink skin
             layer.red = 0xff;
             layer.green = 0xd6;

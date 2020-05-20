@@ -106,11 +106,16 @@ public class HorseAlleles
     public static final int PAX3_SW2 = 1;
     public static final int PAX3_SW4 = 2;
     public static final int PAX3_UNUSED = 3;
-  /*  TODO
-        "dapple",  
-        "white_suppression", 
-        "gray_suppression",
-        "gray_mane", 
-        "slow_gray1", 
-        "slow_gray2"*/
+
+    // Champagne
+    public static final int NONCHAMPAGNE = 0;
+    public static final int CHAMPAGNE = 1;
+
+    // Cameo (donkey)
+    public static final int NONCAMEO = 0;
+    public static final int CAMEO = 1;
+
+    // Ivory (donkey)
+    public static final int NONIVORY = 0;
+    public static final int IVORY = 1;
 };

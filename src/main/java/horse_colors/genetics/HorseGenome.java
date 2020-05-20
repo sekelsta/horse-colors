@@ -11,8 +11,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class HorseGenome extends Genome {
 
@@ -88,7 +88,13 @@ public class HorseGenome extends Genome {
         "white_hindlegs",
         "gray_melanoma",
         "gray_mane1",
-        "gray_mane2"
+        "gray_mane2",
+        "rufous",
+        "dense",
+        "champagne",
+        "cameo",
+        "ivory",
+        "donkey_dark"
     );
 
     public static final ImmutableList<String> genericChromosomes = ImmutableList.of(
@@ -403,14 +409,20 @@ public class HorseGenome extends Genome {
         return (left << size) | right;
     }
 
-    public void randomizeNamedGenes(HashMap<String, ImmutableList<Float>> map) {
+    public void randomizeNamedGenes(Map<String, List<Float>> map) {
         for (String gene : genes) {
-            setNamedGene(gene, chooseRandom(map.get(gene)));
+            if (map.containsKey(gene)) {
+                setNamedGene(gene, chooseRandom(map.get(gene)));
+            }
+            else {
+                HorseColors.logger.debug(gene + "is not in the given map");
+                setNamedGene(gene, 0);
+            }
         }
     }
 
     /* Make the horse have random genetics. */
-    public void randomize(HashMap<String, ImmutableList<Float>> map)
+    public void randomize(Map<String, List<Float>> map)
     {
         randomizeNamedGenes(map);
 

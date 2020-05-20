@@ -3,13 +3,14 @@ package sekelsta.horse_colors.genetics;
 
 import com.google.common.collect.ImmutableList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DonkeyBreeds {
-    public static HashMap<String, ImmutableList<Float>> DEFAULT;
+    public static HashMap<String, List<Float>> DEFAULT;
 
     static {
-        DEFAULT = new HashMap<String, ImmutableList<Float>>();
+        DEFAULT = new HashMap<String, List<Float>>();
         DEFAULT.put("extension", ImmutableList.of(
             0.2f, 0.2f, 0.2f, 0.2f, // Red
             1.0f, 1.0f, 1.0f, 1.0f  // Black
@@ -143,15 +144,15 @@ public class DonkeyBreeds {
             1f      // Gray suppression
         ));
         DEFAULT.put("slow_gray1", ImmutableList.of(
-            0.75f,   // Lighter
+            0.75f,  // Lighter
             1f      // Darker
         ));
         DEFAULT.put("slow_gray2", ImmutableList.of(
-            0.75f,   // Lighter
+            0.75f,  // Lighter
             1f      // Darker
         ));
         DEFAULT.put("slow_gray3", ImmutableList.of(
-            0.75f,   // Lighter
+            0.75f,  // Lighter
             1f      // Darker
         ));
         DEFAULT.put("white_star", ImmutableList.of(
@@ -177,6 +178,10 @@ public class DonkeyBreeds {
         DEFAULT.put("gray_mane2", ImmutableList.of(
             0.5f,   // Lighter mane
             1f      // Lighter body
+        ));
+        DEFAULT.put("ivory", ImmutableList.of(
+            0f,     // Non ivory
+            1f      // Ivory
         ));
     }
 }

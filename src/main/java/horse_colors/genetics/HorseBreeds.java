@@ -3,13 +3,14 @@ package sekelsta.horse_colors.genetics;
 
 import com.google.common.collect.ImmutableList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class HorseBreeds {
-    public static HashMap<String, ImmutableList<Float>> DEFAULT;
+    public static HashMap<String, List<Float>> DEFAULT;
 
     static {
-        DEFAULT = new HashMap<String, ImmutableList<Float>>();
+        DEFAULT = new HashMap<String, List<Float>>();
         DEFAULT.put("extension", ImmutableList.of(
             0.5f, 0.25f, 0.375f, 0.5f, // Red
             1.0f, 0.75f, 0.875f, 1.0f  // Black

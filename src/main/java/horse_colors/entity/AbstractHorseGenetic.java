@@ -1,7 +1,9 @@
 package sekelsta.horse_colors.entity;
 
 import com.google.common.collect.ImmutableList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -452,5 +454,23 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 this.addPotionEffect(new EffectInstance(Effects.INSTANT_DAMAGE, 1, 3));
             }
         }
+    }
+
+    public Map<String, List<Float>> getSpawnFrequencies() {
+        return new HashMap<String, List<Float>>();
+    }
+
+    /**
+     * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
+     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
+     */
+    @Nullable
+    @Override
+    public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag)
+    {
+        spawnDataIn = super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
+        this.getGenes().randomize(getSpawnFrequencies());
+        this.useGeneticAttributes();
+        return spawnDataIn;
     }
 }

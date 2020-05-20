@@ -1,6 +1,8 @@
 package sekelsta.horse_colors.entity;
 import net.minecraft.entity.passive.horse.*;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -225,18 +227,8 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
                     && ((BlockItem)stack.getItem()).getBlock() instanceof CarpetBlock);
     }
 
-
-    /**
-     * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
-     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
-     */
-    @Nullable
     @Override
-    public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag)
-    {
-        spawnDataIn = super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
-        this.getGenes().randomize(HorseBreeds.DEFAULT);
-        this.useGeneticAttributes();
-        return spawnDataIn;
+    public Map<String, List<Float>> getSpawnFrequencies() {
+        return HorseBreeds.DEFAULT;
     }
 }

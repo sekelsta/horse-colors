@@ -184,7 +184,7 @@ public class ModEntities {
                 ArrayList<Biome.SpawnListEntry> horseSpawns = new ArrayList<Biome.SpawnListEntry>();
                 for (Biome.SpawnListEntry entry : spawns) {
                     if (entry.entityType == EntityType.HORSE) {
-                        HorseColors.logger.debug("Removing vanilla horse spawn: " + entry + " from biome " + biome);
+                        HorseColors.logger.info("Removing vanilla horse spawn: " + entry + " from biome " + biome);
                         horseSpawns.add(entry);
                     }
                 }
