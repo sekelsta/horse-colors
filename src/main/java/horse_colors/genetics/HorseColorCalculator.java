@@ -260,12 +260,15 @@ public class HorseColorCalculator
     }
 
     public static void addDun(HorseGenome horse, List<TextureLayer> layers) {
-        if (!horse.isDun()) {
+        if (horse.isHomozygous("dun", HorseAlleles.NONDUN2)) {
             return;
         }
         TextureLayer white = new TextureLayer();
         white.name = fixPath("dun");
-        white.alpha = (int)(0.15f * 255f);
+        white.alpha = (int)(0.12f * 255f);
+        if (!horse.isDun()) {
+            white.alpha = (int)(white.alpha * 0.1);
+        }
         white.type = TextureLayer.Type.SHADE;
         layers.add(white);
 
@@ -273,6 +276,9 @@ public class HorseColorCalculator
         layer.name = fixPath("dun");
         layer.type = TextureLayer.Type.ROOT;
         float dunpower = 0.6f;
+        if (!horse.isDun()) {
+            dunpower = 0.9f;
+        }
         int val = (int)(dunpower * 255);
         layer.red = val;
         layer.green = val;
