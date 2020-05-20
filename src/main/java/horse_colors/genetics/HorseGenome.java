@@ -190,6 +190,12 @@ public class HorseGenome extends Genome {
         }
     }
 
+    public void printGeneLocations() {
+        for (String gene : genes) {
+            System.out.println(gene + ": size=" + getGeneSize(gene) + ", pos=" + getGenePos(gene) + ", chr=" + getGeneChromosome(gene));
+        }
+    }
+
     public boolean isChestnut()
     {
         int e = getMaxAllele("extension");

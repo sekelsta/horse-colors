@@ -84,6 +84,16 @@ public class HorseColorCalculator
             concentration *= 0.6f;
             white += 0.15f;
         }
+
+        if (horse.isHomozygous("rufous", 0)) {
+            concentration *= 0.9f;
+            white += 0.04f;
+        }
+
+        if (horse.isHomozygous("dense", 1)) {
+            concentration *= 1.1f;
+            white -= 0.04f;
+        }
         setPheomelanin(layer, concentration, white);
 
         // Treat liver like it leaks some eumelanin into the coat
@@ -109,7 +119,7 @@ public class HorseColorCalculator
 
     public static void colorBlackBody(HorseGenome horse, TextureLayer layer) {
         float concentration = 20f;
-        float white = 0f;
+        float white = 0.02f;
         if (horse.isDoubleCream() || horse.isHomozygous("ivory", HorseAlleles.IVORY)) {
             concentration *= 0.02f;
         }
@@ -126,6 +136,11 @@ public class HorseColorCalculator
 
         if (horse.hasAllele("silver", HorseAlleles.SILVER)) {
             concentration *= 0.4f;
+        }
+
+        if (horse.isHomozygous("dense", 1)) {
+            concentration *= 1.1f;
+            white -= 0.01f;
         }
  
         setEumelanin(layer, concentration, white);
