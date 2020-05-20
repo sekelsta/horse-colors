@@ -40,7 +40,7 @@ public class HorseAlleles
 
     // Cream/pearl (MATP)
     public static final int NONCREAM = 0;
-    public static final int NONCREAM2 = 1;
+    public static final int SUNSHINE = 1;
     public static final int PEARL = 2;
     public static final int CREAM = 3;
 

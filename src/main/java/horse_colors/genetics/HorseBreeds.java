@@ -239,10 +239,10 @@ public class HorseBreeds {
             1.0f            // Silver
         ));
         HORSE.put("cream", ImmutableList.of(
-            30f / 32f,  // Non-cream
-            0f,         // Non-cream unused
-            31f / 32f,  // Pearl (1/32)
-            1f          // Cream (1/32)
+            0f,//30f / 32f,      // Non-cream
+            30.2f/32f,      // Sunshine
+            31f / 32f,      // Pearl (1/32)
+            1f              // Cream (1/32)
         ));
         HORSE.put("liver", ImmutableList.of(
             0.25f,  // Liver
