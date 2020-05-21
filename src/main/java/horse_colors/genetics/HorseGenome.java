@@ -239,6 +239,13 @@ public class HorseGenome extends Genome {
             || this.hasAllele("dun", HorseAlleles.DUN_UNUSED);
     }
 
+    public boolean isMealy() {
+        return (this.getAllele("light_belly", 0) == HorseAlleles.MEALY 
+                    && this.getAllele("agouti", 0) != HorseAlleles.A_BLACK)
+                || (this.getAllele("light_belly", 1) == HorseAlleles.MEALY 
+                    && this.getAllele("agouti", 1) != HorseAlleles.A_BLACK);
+    }
+
     // The MC1R ("extension") gene seems to be associated with white
     // patterning. For now I assume this is caused by MC1R itself,
     // but if it turns out to be a different gene that's just very
