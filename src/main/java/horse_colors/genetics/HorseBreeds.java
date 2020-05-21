@@ -219,8 +219,8 @@ public class HorseBreeds {
             1.0f   // Gray
         ));
         HORSE.put("dun", ImmutableList.of(
-            0.75f,  // Non-dun 2
-            0.875f, // Non-dun 1
+            0.9f,   // Non-dun 2
+            0.92f,  // Non-dun 1
             1f,     // Dun
             0f      // Dun unused
         ));
@@ -257,19 +257,11 @@ public class HorseBreeds {
             1f      // Non-flaxen
         ));
         HORSE.put("dapple", ImmutableList.of(
-            0.5f,   // Non-dapple
+            0.75f,  // Non-dapple
             1f      // Dapple
-        ));
-        HORSE.put("sooty1", ImmutableList.of(
-            0.75f,  // Non-sooty
-            1f      // Sooty
         ));
         HORSE.put("sooty2", ImmutableList.of(
             0.75f,  // Non-sooty
-            1f      // Sooty
-        ));
-        HORSE.put("sooty3", ImmutableList.of(
-            0.5f,   // Non-sooty
             1f      // Sooty
         ));
         HORSE.put("light_belly", ImmutableList.of(
@@ -289,18 +281,18 @@ public class HorseBreeds {
             1f          // White suppression
         ));
         HORSE.put("KIT", ImmutableList.of(
-            0.6f,   // Wildtype
-            0.63f,   // White boost
-            0.66f,  // Markings1
-            0.69f,   // Markings2
-            0.72f,  // Markings3
-            0.75f,   // Markings4
-            0.77f,  // Markings5
-            0.84f,  // W20
+            0.65f,  // Wildtype
+            0.66f,  // White boost
+            0.67f,  // Markings1
+            0.68f,  // Markings2
+            0.69f,  // Markings3
+            0.70f,  // Markings4
+            0.71f,  // Markings5
+            0.86f,  // W20
             0f,     // Rabicano / Unused
-            0.86f,  // Flashy white
+            0.88f,  // Flashy white
             0f,     // Unused
-            0.90f,  // Tobiano
+            0.92f,  // Tobiano
             0.94f,  // Sabino1
             0.96f,  // Tobiano + W20
             0.99f,  // Roan
@@ -312,12 +304,12 @@ public class HorseBreeds {
         ));
         HORSE.put("MITF", ImmutableList.of(
             0.1f,  // SW1
-            0.12f,  // SW3
-            0.14f,  // SW5
+            0.1f,  // SW3
+            0.1f,  // SW5
             1.0f    // Wildtype
         ));
         HORSE.put("PAX3", ImmutableList.of(
-            0.9f,   // Wildtype
+            1f,   // Wildtype
             0.96f,  // SW2
             1f,     // SW4
             1.0f    // Unused
@@ -343,15 +335,15 @@ public class HorseBreeds {
             1f      // Gray suppression
         ));
         HORSE.put("white_star", ImmutableList.of(
-            0.75f,  // Less white
+            0.85f,  // Less white
             1f      // More white
         ));
         HORSE.put("white_forelegs", ImmutableList.of(
-            0.8f,   // Less white
+            0.9f,   // Less white
             1f      // More white
         ));
         HORSE.put("white_hindlegs", ImmutableList.of(
-            0.8f,   // Less white
+            0.9f,   // Less white
             1f      // More white
         ));
         HORSE.put("champagne", ImmutableList.of(
