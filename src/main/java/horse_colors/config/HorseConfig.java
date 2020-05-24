@@ -33,9 +33,9 @@ public class HorseConfig
 
             useGeneticStats = builder
                     .comment("If enabled, horses' speed, jump, and health will be determined",
-            "through genetics instead of the default Minecraft way")
+            "through genetics instead of the vanilla Minecraft way")
                     .translation("horse_colors.config.common.useGeneticStats")
-                    .define("useGeneticStats", false);
+                    .define("useGeneticStats", true);
 
             enableHealthEffects = builder
                     .comment("If enabled, certain genes will have a small impact on health,",
