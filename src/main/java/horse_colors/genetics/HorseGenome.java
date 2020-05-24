@@ -506,8 +506,8 @@ public class HorseGenome extends Genome {
         }
     }
 
-    public String judgeStat(int val) {
-        return Util.translate("stats." + judgeStatRaw(val));
+    public String judgeStat(int val, String loc) {
+        return Util.translate(loc + judgeStatRaw(val));
     }
 
     public String judgeStat(String stat) {
@@ -518,22 +518,26 @@ public class HorseGenome extends Genome {
         List<List<String>> contents = new ArrayList<List<String>>();
         List<String> physical = new ArrayList<String>();
         physical.add(Util.translate("book.physical"));
-        physical.add(Util.translate("stats.health"));
-        physical.add("  " + Util.translate("stats.health1") + ": " + judgeStat("health1"));
-        physical.add("  " + Util.translate("stats.health2") + ": " + judgeStat("health2"));
-        physical.add("  " + Util.translate("stats.health3") + ": " + judgeStat("health3"));
-        physical.add("  " + Util.translate("stats.immune") + ": " + judgeStat((int)getImmuneHealth()));
-        physical.add(Util.translate("stats.athletics"));
-        physical.add("  " + Util.translate("stats.athletics1") + ": " + judgeStat("athletics1"));
-        physical.add("  " + Util.translate("stats.athletics2") + ": " + judgeStat("athletics2"));
-        physical.add(Util.translate("stats.speed"));
-        physical.add("  " + Util.translate("stats.speed1") + ": " + judgeStat("speed1"));
-        physical.add("  " + Util.translate("stats.speed2") + ": " + judgeStat("speed2"));
-        physical.add("  " + Util.translate("stats.speed3") + ": " + judgeStat("speed3"));
-        physical.add(Util.translate("stats.jump"));
-        physical.add("  " + Util.translate("stats.jump1") + ": " + judgeStat("jump1"));
-        physical.add("  " + Util.translate("stats.jump2") + ": " + judgeStat("jump2"));
-        physical.add("  " + Util.translate("stats.jump3") + ": " + judgeStat("jump3"));
+        String health = Util.translate("stats.health") + "\n";
+        health += "  " + Util.translate("stats.health1") + ": " + judgeStat("health1") + "\n";
+        health += "  " + Util.translate("stats.health2") + ": " + judgeStat("health2") + "\n";
+        health += "  " + Util.translate("stats.health3") + ": " + judgeStat("health3") + "\n";
+        health += "  " + Util.translate("stats.immune") + ": " + judgeStat((int)getImmuneHealth(), "stats.immune.");
+        physical.add(health);
+        String athletics = Util.translate("stats.athletics") + "\n";
+        athletics += "  " + Util.translate("stats.athletics1") + ": " + judgeStat("athletics1") + "\n";
+        athletics += "  " + Util.translate("stats.athletics2") + ": " + judgeStat("athletics2");
+        physical.add(athletics);
+        String speed = Util.translate("stats.speed") + "\n";
+        speed += "  " + Util.translate("stats.speed1") + ": " + judgeStat("speed1") + "\n";
+        speed += "  " + Util.translate("stats.speed2") + ": " + judgeStat("speed2") + "\n";
+        speed += "  " + Util.translate("stats.speed3") + ": " + judgeStat("speed3");
+        physical.add(speed);
+        String jump = Util.translate("stats.jump") + "\n";
+        jump += "  " + Util.translate("stats.jump1") + ": " + judgeStat("jump1") + "\n";
+        jump += "  " + Util.translate("stats.jump2") + ": " + judgeStat("jump2") + "\n";
+        jump += "  " + Util.translate("stats.jump3") + ": " + judgeStat("jump3");
+        physical.add(jump);
         contents.add(physical);
 
         List<String> genelist = ImmutableList.of("extension", "agouti", "dun", "gray", "cream", "silver", "KIT", "frame", "MITF");

@@ -33,7 +33,7 @@ import sekelsta.horse_colors.genetics.Genome;
 
 @OnlyIn(Dist.CLIENT)
 public class GeneBookScreen extends Screen {
-    private static final int linesPerPage = 15;
+    private static final int linesPerPage = 14;
     private static final int lineWrapWidth = 114;
     int currPage = 0;
     private Genome genome;

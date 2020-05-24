@@ -102,5 +102,10 @@
     "horse_colors.stats.bad" : "Poor",
     "horse_colors.stats.avg" : "Average",
     "horse_colors.stats.good" : "Good",
-    "horse_colors.stats.best" : "Excellent"    
+    "horse_colors.stats.best" : "Excellent" ,
+    "horse_colors.stats.immune.worst" : "Extremely inbred",
+    "horse_colors.stats.immune.bad" : "Inbred",
+    "horse_colors.stats.immune.avg" : "Mediocre",
+    "horse_colors.stats.immune.good" : "Diverse",
+    "horse_colors.stats.immune.best" : "Outbred"    
 }
