@@ -538,7 +538,9 @@ public class HorseGenome extends Genome {
         jump += "  " + Util.translate("stats.jump2") + ": " + judgeStat("jump2") + "\n";
         jump += "  " + Util.translate("stats.jump3") + ": " + judgeStat("jump3");
         physical.add(jump);
-        contents.add(physical);
+        if (HorseConfig.COMMON.useGeneticStats.get()) {
+            contents.add(physical);
+        }
 
         List<String> genelist = ImmutableList.of("extension", "agouti", "dun", "gray", "cream", "silver", "KIT", "frame", "MITF");
         List<String> genetic = new ArrayList<String>();
