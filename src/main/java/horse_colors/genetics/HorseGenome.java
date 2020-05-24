@@ -581,8 +581,14 @@ public class HorseGenome extends Genome {
 
     public void genesFromString(String s) {
         for (int i = 0; i < chromosomes.size(); ++i) {
-            String c = s.substring(8 * i, 8 * (i + 1));
-            entity.setChromosome(chromosomes.get(i), (int)Long.parseLong(c, 16));
+            int val = 0;
+            try {
+                String c = s.substring(8 * i, 8 * (i + 1));
+                val = (int)Long.parseLong(c, 16);
+            }
+            catch (IndexOutOfBoundsException e) {}
+            catch (NumberFormatException e) {}
+            entity.setChromosome(chromosomes.get(i), val);
         }
     }
 
