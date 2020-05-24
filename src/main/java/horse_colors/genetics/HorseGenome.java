@@ -332,6 +332,20 @@ public class HorseGenome extends Genome {
         return rate * 17f / 19f;
     }
 
+    public float getImmuneHealth() {
+        float scale = 8f;
+        int diffs = this.countDiffs(this.getChromosome("mhc1"));
+        diffs += this.countDiffs(this.getChromosome("mhc2"));
+        diffs += this.countDiffs(this.getChromosome("immune"));
+        // 3 ints, 16 genes each, half homozygous, makes total expected heterozygosity 24
+        float heterozygosity = diffs / 24f;
+        // Adjust so super outbreeding gives 1.25 advantage, not double advantage
+        if (heterozygosity > 1f) {
+            heterozygosity = 0.25f * (heterozygosity - 1) + 1;
+        }
+        return scale * heterozygosity;
+    }
+
     public float getGrayHealthLoss() {
         // Count zygosity, mitigate from protective gene
         // Agouti may also have an effect on prevalence/severity,

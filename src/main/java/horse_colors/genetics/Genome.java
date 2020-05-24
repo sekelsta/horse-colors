@@ -114,6 +114,19 @@ public abstract class Genome {
         return count;
     }
 
+    public int countDiffs(int val) {
+        int count = 0;
+        for (int i = 0; i < 16; ++i)
+        {
+            int one = ((val % 2) + 2) % 2;
+            val >>= 1;
+            int two = ((val % 2) + 2) % 2;
+            val >>= 1;
+            count += one ^ two;
+        }
+        return count;
+    }
+
     public int getGenePos(String name)
     {
         return getPos(name, listGenes());

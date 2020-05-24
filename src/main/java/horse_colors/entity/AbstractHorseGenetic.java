@@ -369,7 +369,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             float healthStat = genes.getStatValue("health1")
                                 + genes.getStatValue("health2")
                                 + genes.getStatValue("health3")
-                                + genes.getStatValue("stamina");
+                                + genes.getImmuneHealth();
             float maxHealth = 15.0F + healthStat * 0.5F;
             maxHealth += this.getGenes().getBaseHealth();
             // Vanilla horse speed ranges from 0.1125 to 0.3375, as does ours
