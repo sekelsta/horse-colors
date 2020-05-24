@@ -3,8 +3,7 @@ package sekelsta.horse_colors.client;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.chat.NarratorChatListener;
@@ -35,8 +34,11 @@ import sekelsta.horse_colors.genetics.Genome;
 @OnlyIn(Dist.CLIENT)
 public class GeneBookScreen extends Screen {
     private static final int linesPerPage = 15;
-    Genome genome;
+    private static final int lineWrapWidth = 114;
     int currPage = 0;
+    private Genome genome;
+    private List<List<String>> contents;
+    private List<String> pages;
 
     private ChangePageButton buttonNextPage;
     private ChangePageButton buttonPreviousPage;
@@ -60,19 +62,38 @@ public class GeneBookScreen extends Screen {
         this.blit(i, 2, 0, 0, 192, 192);
 
 
-        String s4 = I18n.format("book.pageIndicator", this.currPage + 1, this.getPageCount());
-        String s5 = this.getCurrPageText();
-        int j1 = this.getTextWidth(s4);
-        this.font.drawString(s4, (float)(i - j1 + 192 - 44), 18.0F, 0);
-        this.font.drawSplitString(s5, i + 36, 32, 114, 0);
+        String pageindicator = I18n.format("book.pageIndicator", this.currPage + 1, this.getPageCount());
+        String pagetext = this.getPageText(currPage);
+        int j1 = this.getTextWidth(pageindicator);
+        this.font.drawString(pageindicator, (float)(i - j1 + 192 - 44), 18.0F, 0);
+        // String, x, y, wrapwidth, textcolor
+        this.font.drawSplitString(pagetext, i + 36, 32, lineWrapWidth, 0);
 
         super.render(p_render_1_, p_render_2_, p_render_3_);
     }
 
-   protected void init() {
-      this.addDoneButton();
-      this.addChangePageButtons();
-   }
+    protected void init() {
+        this.contents = genome.getBookContents();
+        this.pages = new ArrayList<String>();
+        for (int ch = 0; ch < contents.size(); ++ch) {
+            String s = "";
+            int lines = 0;
+            for (int ln = 0; ln < contents.get(ch).size(); ++ln) {
+                String text = contents.get(ch).get(ln);
+                int wrapped = font.listFormattedStringToWidth(text, lineWrapWidth).size();
+                if (lines + wrapped > linesPerPage && lines > 0) {
+                    pages.add(s);
+                    s = "";
+                    lines = 0;
+                }
+                lines += wrapped;
+                s += text + "\n";
+            }
+            pages.add(s);
+        }
+        this.addDoneButton();
+        this.addChangePageButtons();
+    }
 
    protected void addDoneButton() {
       this.addButton(new Button(this.width / 2 - 100, 196, 200, 20, I18n.format("gui.done"), (p_214161_1_) -> {
@@ -93,7 +114,7 @@ public class GeneBookScreen extends Screen {
    }
 
     private int getPageCount() {
-        return (int)Math.ceil((float)genome.humanReadableNamedGenes(false).size() / (float)linesPerPage);
+        return pages.size();
     }
    /**
     * Moves the display back one page
@@ -122,14 +143,8 @@ public class GeneBookScreen extends Screen {
       this.buttonPreviousPage.visible = this.currPage > 0;
    }
 
-    private String getCurrPageText() {
-        int start = currPage * linesPerPage;
-        int max = genome.humanReadableNamedGenes(false).size();
-        String s = "";
-        for (int i = start; i < start + linesPerPage && i < max; ++i) {
-            s += genome.humanReadableNamedGenes(false).get(i) + "\n";
-        }
-        return s;
+    private String getPageText(int pagenum) {
+        return pages.get(pagenum);
     }
 
     private int getTextWidth(String text) {

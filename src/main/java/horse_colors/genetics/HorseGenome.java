@@ -473,12 +473,19 @@ public class HorseGenome extends Genome {
         // Upper case characters will cause a crash
         return abv.toLowerCase();
     }
-    public ArrayList<String> humanReadableNamedGenes(boolean showAll) {
-        List<String> genelist = genes;
-        if (!showAll) {
-            genelist = ImmutableList.of("extension", "agouti", "dun", "gray", "cream", "silver", "KIT", "frame", "MITF");
-        }
-        ArrayList<String> list = new ArrayList<String>();
+
+    public List<List<String>> getBookContents() {
+        List<List<String>> contents = new ArrayList<List<String>>();
+        List<String> physical = new ArrayList<String>();
+        physical.add(new TranslationTextComponent(HorseColors.MODID + ".book.physical").getFormattedText());
+        physical.add(new TranslationTextComponent(HorseColors.MODID + ".stats.health").getFormattedText());
+        physical.add(new TranslationTextComponent(HorseColors.MODID + ".stats.speed").getFormattedText());
+        physical.add(new TranslationTextComponent(HorseColors.MODID + ".stats.jump").getFormattedText());
+        contents.add(physical);
+
+        List<String> genelist = ImmutableList.of("extension", "agouti", "dun", "gray", "cream", "silver", "KIT", "frame", "MITF");
+        List<String> genetic = new ArrayList<String>();
+        genetic.add(new TranslationTextComponent(HorseColors.MODID + ".book.genetic").getFormattedText());
         for (String gene : genelist) {
             String translationLocation = HorseColors.MODID + ".genes." + gene;
             TranslationTextComponent translation = new TranslationTextComponent(translationLocation + ".name");
@@ -487,30 +494,11 @@ public class HorseGenome extends Genome {
             TranslationTextComponent allele2 = new TranslationTextComponent(translationLocation + ".allele" + getAllele(gene, 1));
             s += allele1.getFormattedText() + "/";
             s += allele2.getFormattedText();
-            list.add(s);
+            genetic.add(s);
         }
-        return list;
-    }/*
-    public ArrayList<String> humanReadableStats(boolean showAll) {
-        ArrayList<String> list = new ArrayList<String>();
-        for (String stat : stats) {
-            TranslationTextComponent translation = new TranslationTextComponent(HorseColors.MODID + ".stats." + stat);
-            String s = translation.getFormattedText();
-            s += ": " + this.getStat(stat);
-            s += " (";
-            int val = this.getChromosome(stat);
-            for (int i = 16; i >0; i--) {
-                s += (val >>> (2 * i - 1)) & 1;
-                s += (val >>> (2 * i - 2)) & 1;
-                if (i > 1) {
-                    s += " ";
-                }
-            }
-            s += ")";
-            list.add(s);
-        }
-        return list;
-    }*/
+        contents.add(genetic);
+        return contents;
+    }
 
     @OnlyIn(Dist.CLIENT)
     public void setTexturePaths()

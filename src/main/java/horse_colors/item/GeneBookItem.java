@@ -54,19 +54,6 @@ public class GeneBookItem extends Item {
         return true;
     }
 
-    @Override
-    public ITextComponent getDisplayName(ItemStack stack) {
-        if (stack.hasTag()) {
-            CompoundNBT compoundnbt = stack.getTag();
-            String s = compoundnbt.getString("title");
-            if (!StringUtils.isNullOrEmpty(s)) {
-                return new StringTextComponent(s);
-            }
-        }
-
-        return super.getDisplayName(stack);
-    }
-
     /**
      * allows items to add custom lines of information to the mouseover description
      */

@@ -43,8 +43,7 @@ public abstract class Genome {
         this.textureCacheName = null;
     }
 
-    public abstract List<String> humanReadableNamedGenes(boolean showAll);
-    //public abstract List<String> humanReadableStats(boolean showAll);
+    public abstract List<List<String>> getBookContents();
     public abstract void setTexturePaths();
     public abstract String genesToString();
     public abstract void genesFromString(String s);
