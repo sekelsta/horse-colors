@@ -102,7 +102,8 @@ public class HorseGenome extends Genome {
         "jump",
         "health",   
         "mhc1", 
-        "mhc2"      
+        "mhc2",
+        "immune" 
     );
 
     public static final ImmutableList<String> stats = ImmutableList.of(

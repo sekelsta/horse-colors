@@ -263,21 +263,17 @@ public abstract class Genome {
         return count;
     }
 
-    public int getRandomGenericGenes(int n, int data)
+    public int getRandomGenericGenes(int n, int data, float linkage)
     {
-        int rand = this.rand.nextInt();
+        int rand = this.rand.nextInt(2);
         int answer = 0;
         for (int i = 0; i < 16; i++)
         {
-            if (rand % 2 == 0)
+            if (this.rand.nextFloat() < linkage)
             {
-                answer += (data & (1 << (2 * i))) << n;
+                rand = 1 - rand;
             }
-            else 
-            {
-                answer += (data & (1 << (2 * i + 1))) >> 1 - n;
-            }
-            rand >>= 1;
+            answer += ((data & (1 << (2 * i + rand))) >> rand) << n;
         }
         return answer;
     }
@@ -300,10 +296,36 @@ public abstract class Genome {
         }
     }
 
+    // Convert chromosome from int to pretty print string
+    public static String chrToStr(int chr) {
+        String s = "";
+        for (int i = 16; i >0; i--) {
+            s += (chr >>> (2 * i - 1)) & 1;
+            s += (chr >>> (2 * i - 2)) & 1;
+            if (i > 1) {
+                s += " ";
+            }
+        }
+        return s;
+    }
+
     public void inheritGenericGenes(Genome parent1, Genome parent2) {
+        float linkage = 0.5f;
         for (String chr : this.listGenericChromosomes()) {
-            int mother = parent1.getRandomGenericGenes(1, parent1.getChromosome(chr));
-            int father = parent2.getRandomGenericGenes(0, parent2.getChromosome(chr));
+            if (chr.startsWith("mhc")) {
+                linkage = 0.05f;
+            }
+            else {
+                linkage = 0.5f;
+            }
+            int mother = parent1.getRandomGenericGenes(1, parent1.getChromosome(chr), linkage);
+            int father = parent2.getRandomGenericGenes(0, parent2.getChromosome(chr), linkage);
+            System.out.println(chr);
+            System.out.println("p1: " + chrToStr(parent1.getChromosome(chr)));
+            System.out.println("n1: " + chrToStr(mother));
+            System.out.println("p2: " + chrToStr(parent2.getChromosome(chr)));
+            System.out.println("n2: " + chrToStr(father));
+            System.out.println("ch: " + chrToStr(mother | father));
             this.entity.setChromosome(chr, mother | father);
         }
     }
