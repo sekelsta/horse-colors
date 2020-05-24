@@ -69,8 +69,8 @@ public class HorseConfig
 
             yearLength = builder
                     .comment("How long a year lasts in ticks, for the purposes of graying.",
-                            "The default 24000 ticks is one minecraft day.")
-                    .defineInRange("yearLength", 24000, 1, Integer.MAX_VALUE / 1024);
+                            "The default 48000 ticks is two minecraft days.")
+                    .defineInRange("yearLength", 48000, 1, Integer.MAX_VALUE / 1024);
 
             maxAge = builder
                     .comment("How many years a horse will age, for the purposes of graying.")
