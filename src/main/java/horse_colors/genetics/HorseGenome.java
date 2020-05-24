@@ -1,18 +1,18 @@
 package sekelsta.horse_colors.genetics;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import com.google.common.collect.ImmutableList;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.HorseGeneticEntity;
 import sekelsta.horse_colors.renderer.TextureLayer;
-
-import com.google.common.collect.ImmutableList;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import sekelsta.horse_colors.util.Util;
 
 public class HorseGenome extends Genome {
 
@@ -488,26 +488,62 @@ public class HorseGenome extends Genome {
         return abv.toLowerCase();
     }
 
+    public String judgeStatRaw(int val) {
+        if (val < 1) {
+            return "worst";
+        }
+        else if (val < 3) {
+            return "bad";
+        }
+        else if (val < 5) {
+            return "avg";
+        }
+        else if (val < 7) {
+            return "good";
+        }
+        else {
+            return "best";
+        }
+    }
+
+    public String judgeStat(int val) {
+        return Util.translate("stats." + judgeStatRaw(val));
+    }
+
+    public String judgeStat(String stat) {
+        return Util.translate("stats." + judgeStatRaw(getStatValue(stat)));
+    }
+
     public List<List<String>> getBookContents() {
         List<List<String>> contents = new ArrayList<List<String>>();
         List<String> physical = new ArrayList<String>();
-        physical.add(new TranslationTextComponent(HorseColors.MODID + ".book.physical").getFormattedText());
-        physical.add(new TranslationTextComponent(HorseColors.MODID + ".stats.health").getFormattedText());
-        physical.add(new TranslationTextComponent(HorseColors.MODID + ".stats.speed").getFormattedText());
-        physical.add(new TranslationTextComponent(HorseColors.MODID + ".stats.jump").getFormattedText());
+        physical.add(Util.translate("book.physical"));
+        physical.add(Util.translate("stats.health"));
+        physical.add("  " + Util.translate("stats.health1") + ": " + judgeStat("health1"));
+        physical.add("  " + Util.translate("stats.health2") + ": " + judgeStat("health2"));
+        physical.add("  " + Util.translate("stats.health3") + ": " + judgeStat("health3"));
+        physical.add("  " + Util.translate("stats.immune") + ": " + judgeStat((int)getImmuneHealth()));
+        physical.add(Util.translate("stats.athletics"));
+        physical.add("  " + Util.translate("stats.athletics1") + ": " + judgeStat("athletics1"));
+        physical.add("  " + Util.translate("stats.athletics2") + ": " + judgeStat("athletics2"));
+        physical.add(Util.translate("stats.speed"));
+        physical.add("  " + Util.translate("stats.speed1") + ": " + judgeStat("speed1"));
+        physical.add("  " + Util.translate("stats.speed2") + ": " + judgeStat("speed2"));
+        physical.add("  " + Util.translate("stats.speed3") + ": " + judgeStat("speed3"));
+        physical.add(Util.translate("stats.jump"));
+        physical.add("  " + Util.translate("stats.jump1") + ": " + judgeStat("jump1"));
+        physical.add("  " + Util.translate("stats.jump2") + ": " + judgeStat("jump2"));
+        physical.add("  " + Util.translate("stats.jump3") + ": " + judgeStat("jump3"));
         contents.add(physical);
 
         List<String> genelist = ImmutableList.of("extension", "agouti", "dun", "gray", "cream", "silver", "KIT", "frame", "MITF");
         List<String> genetic = new ArrayList<String>();
-        genetic.add(new TranslationTextComponent(HorseColors.MODID + ".book.genetic").getFormattedText());
+        genetic.add(Util.translate("book.genetic"));
         for (String gene : genelist) {
-            String translationLocation = HorseColors.MODID + ".genes." + gene;
-            TranslationTextComponent translation = new TranslationTextComponent(translationLocation + ".name");
-            String s = translation.getFormattedText() + ": ";
-            TranslationTextComponent allele1 = new TranslationTextComponent(translationLocation + ".allele" + getAllele(gene, 0));
-            TranslationTextComponent allele2 = new TranslationTextComponent(translationLocation + ".allele" + getAllele(gene, 1));
-            s += allele1.getFormattedText() + "/";
-            s += allele2.getFormattedText();
+            String translationLocation = "genes." + gene;
+            String s = Util.translate(translationLocation + ".name") + ": ";
+            s += Util.translate(translationLocation + ".allele" + getAllele(gene, 0)) + "/";
+            s += Util.translate(translationLocation + ".allele" + getAllele(gene, 1));
             genetic.add(s);
         }
         contents.add(genetic);
