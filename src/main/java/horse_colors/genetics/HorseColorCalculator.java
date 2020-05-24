@@ -70,11 +70,11 @@ public class HorseColorCalculator
         float white = 0.08f;
 
         if (horse.isDoubleCream() || horse.isHomozygous("ivory", HorseAlleles.IVORY)) {
-            concentration *= 0.1f;
+            concentration *= 0.05f;
             white += 0.4f;
         }
         else if (horse.isCreamPearl()) {
-            concentration *= 0.05f;
+            concentration *= 0.1f;
         }
         else if (horse.hasCream()) {
             concentration *= 0.7f;
@@ -151,6 +151,7 @@ public class HorseColorCalculator
             return null;
         }
         TextureLayer layer = new TextureLayer();
+        layer.description = "black body";
 
         switch(horse.getMaxAllele("agouti"))
         {
@@ -174,13 +175,14 @@ public class HorseColorCalculator
     }
 
     public static void addRedManeTail(HorseGenome horse, List<TextureLayer> layers) {
-        final float PALOMINO_POWER = 0.4f;
+        final float PALOMINO_POWER = 0.2f;
         if (!horse.isChestnut()) {
             return;
         }
 
         if (horse.hasAllele("cream", HorseAlleles.CREAM)) {
             TextureLayer palomino_mane = new TextureLayer();
+            palomino_mane.description = "palomino mane";
             palomino_mane.name = fixPath("manetail");
             colorRedBody(horse, palomino_mane);
             adjustConcentration(palomino_mane, PALOMINO_POWER);
@@ -196,6 +198,7 @@ public class HorseColorCalculator
 
         TextureLayer flaxen = new TextureLayer();
         flaxen.name = fixPath("flaxen");
+        flaxen.description = "flaxen";
         colorRedBody(horse, flaxen);
         float power = 1f;
         if (horse.hasAllele("cream", HorseAlleles.CREAM)) {
@@ -230,6 +233,7 @@ public class HorseColorCalculator
         }
         TextureLayer layer = new TextureLayer();
         layer.name = fixPath("flaxen");
+        layer.description = "silver dapple mane";
         setEumelanin(layer, 0.3f, 0.0f);
         setGrayConcentration(horse, layer);
         return layer;
