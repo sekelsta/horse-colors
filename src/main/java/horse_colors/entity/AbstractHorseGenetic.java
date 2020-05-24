@@ -163,6 +163,15 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             this.setChromosome("immune", compound.getInt("Immune"));
         }
         else {
+            for (int i = 0; i < 2; ++i) {
+                if (this.getGenes().getAllele("dun", i) == HorseAlleles.DUN_UNUSED) {
+                    this.getGenes().setAllele("dun", i, HorseAlleles.DUN);
+                }
+                if (this.getGenes().getAllele("dun", i) == HorseAlleles.NONDUN1) {
+                    this.getGenes().setAllele("dun", i, HorseAlleles.NONDUN2);
+                }
+            }
+            this.getGenes().setNamedGene("gray_suppression", 0);
             this.setChromosome("immune", this.rand.nextInt());
         }
         this.setChromosome("random", compound.getInt("Random"));

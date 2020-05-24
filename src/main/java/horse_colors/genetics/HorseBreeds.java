@@ -90,7 +90,7 @@ public class HorseBreeds {
             1f      // Mealy
         ));
         EQUINE.put("white_suppression", ImmutableList.of(
-            1f,     // Non white-suppression
+            0f,     // Non white-suppression
             1f      // White suppression
         ));
         EQUINE.put("KIT", ImmutableList.of(
@@ -331,7 +331,7 @@ public class HorseBreeds {
             1f          // PATN
         ));
         HORSE.put("gray_suppression", ImmutableList.of(
-            0.975f, // Non gray-suppression
+            1f,     // Non gray-suppression
             1f      // Gray suppression
         ));
         HORSE.put("white_star", ImmutableList.of(
