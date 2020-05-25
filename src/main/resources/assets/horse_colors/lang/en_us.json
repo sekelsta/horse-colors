@@ -107,5 +107,8 @@
     "horse_colors.stats.immune.bad" : "Inbred",
     "horse_colors.stats.immune.avg" : "Mediocre",
     "horse_colors.stats.immune.good" : "Diverse",
-    "horse_colors.stats.immune.best" : "Outbred"    
+    "horse_colors.stats.immune.best" : "Outbred"   ,
+    "horse_colors.stats.health.deaf" : "This horse is deaf.",
+    "horse_colors.stats.health.MCOA" : "This horse has multiple congenital ocular abnormalities.",
+    "horse_colors.stats.health.melanoma" : "This horse has an increased risk of melanoma."
 }

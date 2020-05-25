@@ -121,7 +121,7 @@ public class HorseGenome extends Genome {
         "stamina"
     );
 
-    public static final ImmutableList<String> chromosomes = ImmutableList.of("0", "1", "2", "3", "speed", "jump", "health", "mhc1", "mhc2", "random");
+    public static final ImmutableList<String> chromosomes = ImmutableList.of("0", "1", "2", "3", "speed", "jump", "health", "mhc1", "mhc2", "immune", "random");
 
     public HorseGenome(IGeneticEntity entityIn) {
         super(entityIn);
@@ -393,6 +393,18 @@ public class HorseGenome extends Genome {
         }
     }
 
+    public float getHealth() {
+        // Default horse health ranges from 15 to 30, but ours goes from
+        // 15 to 31
+        float healthStat = this.getStatValue("health1")
+                            + this.getStatValue("health2")
+                            + this.getStatValue("health3")
+                            + this.getImmuneHealth();
+        float maxHealth = 15.0F + healthStat * 0.5F;
+        maxHealth += this.getBaseHealth();
+        return maxHealth;
+    }
+
     // A special case because it has two different alleles
     public int countW20() {
         return countAlleles("KIT", HorseAlleles.KIT_W20) 
@@ -523,6 +535,18 @@ public class HorseGenome extends Genome {
         health += "  " + Util.translate("stats.health2") + ": " + judgeStat("health2") + "\n";
         health += "  " + Util.translate("stats.health3") + ": " + judgeStat("health3") + "\n";
         health += "  " + Util.translate("stats.immune") + ": " + judgeStat((int)getImmuneHealth(), "stats.immune.");
+        if (HorseConfig.COMMON.enableHealthEffects.get()) {
+            if (getDeafHealthLoss() > 0.5f) {
+                health += "\n  " + Util.translate("stats.health.deaf");
+            }
+            float h = getHealth() + getSilverHealthLoss();
+            if ((int)getHealth() != (int)h) {
+                health += "\n  " + Util.translate("stats.health.MCOA");
+            }
+            if ((int)h != (int)(h + getGrayHealthLoss())) {
+                health += "\n  " + Util.translate("stats.health.melanoma");
+            }
+        }
         physical.add(health);
         String athletics = Util.translate("stats.athletics") + "\n";
         athletics += "  " + Util.translate("stats.athletics1") + ": " + judgeStat("athletics1") + "\n";

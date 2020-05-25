@@ -364,14 +364,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         if (HorseConfig.COMMON.useGeneticStats.get())
         {
             HorseGenome genes = this.getGenes();
-            // Default horse health ranges from 15 to 30, but ours goes from
-            // 15 to 31
-            float healthStat = genes.getStatValue("health1")
-                                + genes.getStatValue("health2")
-                                + genes.getStatValue("health3")
-                                + genes.getImmuneHealth();
-            float maxHealth = 15.0F + healthStat * 0.5F;
-            maxHealth += this.getGenes().getBaseHealth();
+            float maxHealth = this.getGenes().getHealth();
             // Vanilla horse speed ranges from 0.1125 to 0.3375, as does ours
             float speedStat = genes.getStatValue("speed1")
                                 + genes.getStatValue("speed2")
