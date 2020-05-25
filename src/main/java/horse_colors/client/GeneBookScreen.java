@@ -22,6 +22,7 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.StringNBT;
 import net.minecraft.network.play.client.CEditBookPacket;
 import net.minecraft.util.Hand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SharedConstants;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
@@ -29,12 +30,17 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.genetics.Genome;
 
 @OnlyIn(Dist.CLIENT)
 public class GeneBookScreen extends Screen {
     private static final int linesPerPage = 14;
-    private static final int lineWrapWidth = 114;
+    private static final int lineWrapWidth = 124;
+    private static final int bookWidth = 360;
+    private static final int bookHeight = 192;
+    private static final int pageWidth = 130;
+    private static final int pageCrease = 10;
     int currPage = 0;
     private Genome genome;
     private List<List<String>> contents;
@@ -51,25 +57,32 @@ public class GeneBookScreen extends Screen {
     }
 
 
-    public void render(int p_render_1_, int p_render_2_, float p_render_3_) {
+    public void render(int mouseX, int mouseY, float partialTicks) {
         // Render the book picture in the back
         this.renderBackground();
         this.setFocused((IGuiEventListener)null);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bindTexture(ReadBookScreen.BOOK_TEXTURES);
-        int i = (this.width - 192) / 2;
-        int j = 2;
-        this.blit(i, 2, 0, 0, 192, 192);
+        this.minecraft.getTextureManager().bindTexture(new ResourceLocation(HorseColors.MODID + ":textures/gui/book.png"));
+        int x = (this.width - bookWidth) / 2;
+        int y = 2;
+        //x = 0;
+        this.blit(x, y, 0, 0, bookWidth, bookHeight, 512, 256);
 
+        renderPage(currPage, this.width / 2 - pageWidth - pageCrease);
+        if (this.getPageCount() > currPage + 1) {
+            renderPage(currPage + 1, this.width / 2 + pageCrease);
+        }
 
-        String pageindicator = I18n.format("book.pageIndicator", this.currPage + 1, this.getPageCount());
-        String pagetext = this.getPageText(currPage);
+        super.render(mouseX, mouseY, partialTicks);
+    }
+
+    private void renderPage(int pagenum, int x) {
+        String pageindicator = I18n.format("book.pageIndicator", pagenum + 1, this.getPageCount());
+        String pagetext = this.getPageText(pagenum);
         int j1 = this.getTextWidth(pageindicator);
-        this.font.drawString(pageindicator, (float)(i - j1 + 192 - 44), 18.0F, 0);
+        this.font.drawString(pageindicator, (float)(x - j1 + pageWidth), 18.0F, 0);
         // String, x, y, wrapwidth, textcolor
-        this.font.drawSplitString(pagetext, i + 36, 32, lineWrapWidth, 0);
-
-        super.render(p_render_1_, p_render_2_, p_render_3_);
+        this.font.drawSplitString(pagetext, x, 32, lineWrapWidth, 0);
     }
 
     protected void init() {
@@ -101,17 +114,19 @@ public class GeneBookScreen extends Screen {
       }));
    }
 
-   protected void addChangePageButtons() {
-      int i = (this.width - 192) / 2;
-      int j = 2;
-      this.buttonNextPage = this.addButton(new ChangePageButton(i + 116, 159, true, (p_214159_1_) -> {
-         this.nextPage();
-      }, this.pageTurnSounds));
-      this.buttonPreviousPage = this.addButton(new ChangePageButton(i + 43, 159, false, (p_214158_1_) -> {
-         this.previousPage();
-      }, this.pageTurnSounds));
-      this.updateButtons();
-   }
+    protected void addChangePageButtons() {
+        int x1 = (this.width - bookWidth) / 2;
+        int x2 = (this.width + bookWidth) / 2;
+        int j = 2;
+        int y = 159;
+        this.buttonNextPage = this.addButton(new ChangePageButton(x2 - 43 - 24, y, true, (p_214159_1_) -> {
+            this.nextPage();
+        }, this.pageTurnSounds));
+        this.buttonPreviousPage = this.addButton(new ChangePageButton(x1 + 43, y, false, (p_214158_1_) -> {
+            this.previousPage();
+        }, this.pageTurnSounds));
+        this.updateButtons();
+    }
 
     private int getPageCount() {
         return pages.size();
@@ -119,27 +134,24 @@ public class GeneBookScreen extends Screen {
    /**
     * Moves the display back one page
     */
-   protected void previousPage() {
-      if (this.currPage > 0) {
-         --this.currPage;
-      }
-
-      this.updateButtons();
-   }
+    protected void previousPage() {
+        this.currPage = Math.max(this.currPage - 2, 0);
+        this.updateButtons();
+    }
 
    /**
     * Moves the display forward one page
     */
    protected void nextPage() {
-      if (this.currPage < this.getPageCount() - 1) {
-         ++this.currPage;
+      if (this.currPage < this.getPageCount() - 2) {
+         this.currPage += 2;
       }
 
       this.updateButtons();
    }
 
    private void updateButtons() {
-      this.buttonNextPage.visible = this.currPage < this.getPageCount() - 1;
+      this.buttonNextPage.visible = this.currPage < this.getPageCount() - 2;
       this.buttonPreviousPage.visible = this.currPage > 0;
    }
 

@@ -537,14 +537,14 @@ public class HorseGenome extends Genome {
         health += "  " + Util.translate("stats.immune") + ": " + judgeStat((int)getImmuneHealth(), "stats.immune.");
         if (HorseConfig.COMMON.enableHealthEffects.get()) {
             if (getDeafHealthLoss() > 0.5f) {
-                health += "\n  " + Util.translate("stats.health.deaf");
+                health += "\n" + Util.translate("stats.health.deaf");
             }
             float h = getHealth() + getSilverHealthLoss();
             if ((int)getHealth() != (int)h) {
-                health += "\n  " + Util.translate("stats.health.MCOA");
+                health += "\n" + Util.translate("stats.health.MCOA");
             }
             if ((int)h != (int)(h + getGrayHealthLoss())) {
-                health += "\n  " + Util.translate("stats.health.melanoma");
+                health += "\n" + Util.translate("stats.health.melanoma");
             }
         }
         physical.add(health);
