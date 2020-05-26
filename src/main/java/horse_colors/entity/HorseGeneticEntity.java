@@ -77,6 +77,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
    /**
     * Updates the items in the saddle and armor slots of the horse's inventory.
     */
+    @Override
     protected void updateHorseSlots() {
         super.updateHorseSlots();
         this.setHorseArmorStack(this.horseChest.getStackInSlot(1));

@@ -335,9 +335,33 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             return true;
         }
 
-        boolean flag1 = !this.isChild() && !this.isHorseSaddled() && itemstack.getItem() == Items.SADDLE;
-        if (this.isArmor(itemstack) || flag1) {
-            this.openGUI(player);
+        if (this.isChild()) {
+            return false;
+        }
+
+        if (!this.isHorseSaddled() && itemstack.getItem() == Items.SADDLE) {
+             if (HorseConfig.COMMON.autoEquipSaddle.get()) {
+                if (!this.world.isRemote) {
+                    ItemStack saddle = itemstack.split(1);
+                    this.horseChest.setInventorySlotContents(0, saddle);
+                }
+            }
+            else {
+                this.openGUI(player);
+            }
+            return true;
+        }
+
+        if (this.isArmor(itemstack) && this.wearsArmor()) {
+             if (HorseConfig.COMMON.autoEquipSaddle.get() && this.horseChest.getStackInSlot(1).isEmpty()) {
+                if (!this.world.isRemote) {
+                    ItemStack armor = itemstack.split(1);
+                    this.horseChest.setInventorySlotContents(1, armor);
+                }
+            }
+            else {
+                this.openGUI(player);
+            }
             return true;
         }
 
@@ -349,9 +373,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 if (!player.abilities.isCreativeMode) {
                     itemstack.shrink(1);
                 }
-            }
-            else {
-                return false;
             }
         }
 

@@ -26,6 +26,7 @@ public class HorseConfig
         public static BooleanValue enableGroundTie;
         public static IntValue yearLength;
         public static DoubleValue maxAge;
+        public static BooleanValue autoEquipSaddle;
 
         Common(final ForgeConfigSpec.Builder builder) {
             builder.comment("Common config settings")
@@ -75,6 +76,12 @@ public class HorseConfig
             maxAge = builder
                     .comment("How many years a horse will age, for the purposes of graying.")
                     .defineInRange("maxAge", 15.0, 0.0, 25.0);
+
+            autoEquipSaddle = builder
+                    .comment("If enabled, right clicking a horse while holding a saddle or horse armor", 
+                             "will equip it (as long as the horse isn't already wearing something in that slot)",
+                             "instead of opening the inventory.")
+                    .define("autoEquipSaddle", true);
 
             builder.pop();
         }
