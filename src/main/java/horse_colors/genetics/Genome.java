@@ -25,7 +25,7 @@ public abstract class Genome {
     protected IGeneticEntity entity;
 
     protected String textureCacheName;
-    protected ArrayList<TextureLayer> textureLayers;
+    protected List<TextureLayer> textureLayers;
 
     // Make sure to use this.entity.getRand() instead for anything
     // that should be consistent across worlds with the same seed
@@ -60,7 +60,7 @@ public abstract class Genome {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public ArrayList<TextureLayer> getVariantTexturePaths()
+    public List<TextureLayer> getVariantTexturePaths()
     {
         if (this.textureCacheName == null)
         {

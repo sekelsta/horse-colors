@@ -1,5 +1,9 @@
 package sekelsta.horse_colors.genetics;
-import java.util.List;
+import java.util.*;
+
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.renderer.TextureLayer;
 
@@ -153,21 +157,15 @@ public class HorseColorCalculator
         TextureLayer layer = new TextureLayer();
         layer.description = "black body";
 
-        switch(horse.getMaxAllele("agouti"))
-        {
-            case HorseAlleles.A_BLACK:
-                layer.name = fixPath("base");
-                break;
-            case HorseAlleles.A_SEAL:
-            case HorseAlleles.A_BROWN:
-                layer.name = fixPath("brown");
-                break;
-            case HorseAlleles.A_BAY_DARK:
-            case HorseAlleles.A_BAY:
-            case HorseAlleles.A_BAY_LIGHT:
-            case HorseAlleles.A_BAY_SEMIWILD:
-            case HorseAlleles.A_BAY_WILD:
-                layer.name = fixPath("bay");
+        if (horse.getMaxAllele("agouti") == HorseAlleles.A_BLACK) {
+            layer.name = fixPath("base");
+        }
+        else if (horse.getMaxAllele("agouti") == HorseAlleles.A_SEAL
+                || horse.getMaxAllele("agouti") == HorseAlleles.A_BROWN) {
+            layer.name = fixPath("brown");
+        }
+        else {
+            return getSooty(horse);
         }
         colorBlackBody(horse, layer);
         setGrayConcentration(horse, layer);
@@ -364,6 +362,27 @@ public class HorseColorCalculator
         colorRedBody(horse, light_belly);
         adjustConcentration(light_belly, 0.04f * (2 - color));
         return light_belly;
+    }
+
+    public static void addPoints(HorseGenome horse, List<TextureLayer> layers) {
+        if (horse.hasStripe()) {
+            TextureLayer stripe = new TextureLayer();
+            stripe.name = fixPath("marks/dorsal");
+            if (horse.isChestnut()) {
+                colorRedBody(horse, stripe);
+            }
+            else {
+                colorBlackBody(horse, stripe);
+            }
+            adjustConcentration(stripe, 1.2f);
+            layers.add(stripe);
+        }
+        else if (!horse.isChestnut()) {
+            TextureLayer points = new TextureLayer();
+            points.name = fixPath("bay");
+            colorBlackBody(horse, points);
+            layers.add(points);
+        }
     }
 
     public static void addGray(HorseGenome horse, List<TextureLayer> layers) {
@@ -639,5 +658,58 @@ public class HorseColorCalculator
             // TODO: different coverage based on the value of patn
             return "fewspot";
         }*/return null;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static List<TextureLayer> getTexturePaths(HorseGenome horse) {
+        List<TextureLayer> textureLayers = new ArrayList<TextureLayer>();
+        TextureLayer red = HorseColorCalculator.getRedBody(horse);
+        textureLayers.add(red);
+        textureLayers.add(HorseColorCalculator.getMealy(horse));
+        TextureLayer black = HorseColorCalculator.getBlackBody(horse);
+        textureLayers.add(black);
+        HorseColorCalculator.addDun(horse, textureLayers);
+        addPoints(horse, textureLayers);
+        HorseColorCalculator.addRedManeTail(horse, textureLayers);
+        textureLayers.add(HorseColorCalculator.getBlackManeTail(horse));
+        HorseColorCalculator.addGray(horse, textureLayers);
+        textureLayers.add(HorseColorCalculator.getNose(horse));
+        textureLayers.add(HorseColorCalculator.getHooves(horse));
+
+        if (horse.hasAllele("KIT", HorseAlleles.KIT_ROAN)) {
+            TextureLayer roan = new TextureLayer();
+            roan.name = HorseColorCalculator.fixPath("roan/roan");
+            textureLayers.add(roan);
+        }
+
+        textureLayers.add(HorseColorCalculator.getFaceMarking(horse));
+        if (horse.showsLegMarkings())
+        {
+            String[] leg_markings = HorseColorCalculator.getLegMarkings(horse);
+            for (String marking : leg_markings) {
+                TextureLayer layer = new TextureLayer();
+                layer.name = marking;
+                textureLayers.add(layer);
+            }
+        }
+
+        textureLayers.add(HorseColorCalculator.getPinto(horse));
+
+        TextureLayer highlights = new TextureLayer();
+        highlights.name = HorseColorCalculator.fixPath("base");
+        highlights.type = TextureLayer.Type.HIGHLIGHT;
+        highlights.alpha = (int)(255f * 0.2f);
+        textureLayers.add(highlights);
+
+        TextureLayer shading = new TextureLayer();
+        shading.name = HorseColorCalculator.fixPath("shading");
+        shading.type = TextureLayer.Type.SHADE;
+        shading.alpha = (int)(255 * 0.5);
+        textureLayers.add(shading);
+
+        TextureLayer common = new TextureLayer();
+        common.name = HorseColorCalculator.fixPath("common");
+        textureLayers.add(common);
+        return textureLayers;
     }
 }

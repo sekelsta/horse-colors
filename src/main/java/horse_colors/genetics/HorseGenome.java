@@ -240,6 +240,11 @@ public class HorseGenome extends Genome {
             || this.hasAllele("dun", HorseAlleles.DUN_UNUSED);
     }
 
+    // Whether the horse shows primitive markings such as the dorsal stripe.
+    public boolean hasStripe() {
+        return this.isDun() || this.hasAllele("dun", HorseAlleles.NONDUN1);
+    }
+
     public boolean isMealy() {
         return (this.getAllele("light_belly", 0) == HorseAlleles.MEALY 
                     && this.getAllele("agouti", 0) != HorseAlleles.A_BLACK)
@@ -501,16 +506,16 @@ public class HorseGenome extends Genome {
     }
 
     public String judgeStatRaw(int val) {
-        if (val < 1) {
+        if (val <= 0) {
             return "worst";
         }
-        else if (val < 3) {
+        else if (val <= 2) {
             return "bad";
         }
-        else if (val < 5) {
+        else if (val <= 5) {
             return "avg";
         }
-        else if (val < 7) {
+        else if (val <= 7) {
             return "good";
         }
         else {
@@ -583,55 +588,7 @@ public class HorseGenome extends Genome {
     @OnlyIn(Dist.CLIENT)
     public void setTexturePaths()
     {
-        this.textureLayers = new ArrayList();
-        TextureLayer red = HorseColorCalculator.getRedBody(this);
-        TextureLayer black = HorseColorCalculator.getBlackBody(this);
-        this.textureLayers.add(red);
-        HorseColorCalculator.addRedManeTail(this, this.textureLayers);
-        this.textureLayers.add(HorseColorCalculator.getMealy(this));
-        this.textureLayers.add(black);
-        this.textureLayers.add(HorseColorCalculator.getBlackManeTail(this));
-        this.textureLayers.add(HorseColorCalculator.getSooty(this));
-        HorseColorCalculator.addDun(this, this.textureLayers);
-        HorseColorCalculator.addGray(this, this.textureLayers);
-        this.textureLayers.add(HorseColorCalculator.getNose(this));
-        this.textureLayers.add(HorseColorCalculator.getHooves(this));
-
-        if (this.hasAllele("KIT", HorseAlleles.KIT_ROAN)) {
-            TextureLayer roan = new TextureLayer();
-            roan.name = HorseColorCalculator.fixPath("roan/roan");
-            this.textureLayers.add(roan);
-        }
-
-        this.textureLayers.add(HorseColorCalculator.getFaceMarking(this));
-        if (showsLegMarkings())
-        {
-            String[] leg_markings = HorseColorCalculator.getLegMarkings(this);
-            for (String marking : leg_markings) {
-                TextureLayer layer = new TextureLayer();
-                layer.name = marking;
-                this.textureLayers.add(layer);
-            }
-        }
-
-        this.textureLayers.add(HorseColorCalculator.getPinto(this));
-
-        TextureLayer highlights = new TextureLayer();
-        highlights.name = HorseColorCalculator.fixPath("base");
-        highlights.type = TextureLayer.Type.HIGHLIGHT;
-        highlights.alpha = (int)(255f * 0.2f);
-        this.textureLayers.add(highlights);
-
-        TextureLayer shading = new TextureLayer();
-        shading.name = HorseColorCalculator.fixPath("shading");
-        shading.type = TextureLayer.Type.SHADE;
-        shading.alpha = (int)(255 * 0.5);
-        this.textureLayers.add(shading);
-
-        TextureLayer common = new TextureLayer();
-        common.name = HorseColorCalculator.fixPath("common");
-        this.textureLayers.add(common);
-
+        this.textureLayers = HorseColorCalculator.getTexturePaths(this);
         this.textureCacheName = "horse/cache_";
 
         for (int i = 0; i < textureLayers.size(); ++i) {
