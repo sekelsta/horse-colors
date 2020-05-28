@@ -156,7 +156,12 @@ public class GeneBookScreen extends Screen {
    }
 
     private String getPageText(int pagenum) {
-        return pages.get(pagenum);
+        if (pages.size() > 0) {
+            return pages.get(pagenum);
+        }
+        else {
+            return "";
+        }
     }
 
     private int getTextWidth(String text) {

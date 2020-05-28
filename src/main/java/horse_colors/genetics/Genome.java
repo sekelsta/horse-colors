@@ -238,7 +238,7 @@ public abstract class Genome {
     }
 
     public void mutate() {
-        double p = HorseConfig.Common.mutationChance.get();
+        double p = HorseConfig.GENETICS.mutationChance.get();
         for (String gene : listGenes()) {
             mutateAlleleChance(gene, 0, p);
             mutateAlleleChance(gene, 1, p);

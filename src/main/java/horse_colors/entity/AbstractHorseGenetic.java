@@ -300,6 +300,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
 
         if (itemstack.getItem() == Items.BOOK
+                && (HorseConfig.GENETICS.bookShowsGenes.get()
+                    || HorseConfig.GENETICS.bookShowsTraits.get())
                 && (this.isTame() || player.abilities.isCreativeMode)) {
             ItemStack book = new ItemStack(ModItems.geneBookItem);
             if (book.getTag() == null) {
@@ -382,7 +384,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
 
     protected void useGeneticAttributes()
     {
-        if (HorseConfig.COMMON.useGeneticStats.get())
+        if (HorseConfig.GENETICS.useGeneticStats.get())
         {
             HorseGenome genes = this.getGenes();
             float maxHealth = this.getGenes().getHealth();

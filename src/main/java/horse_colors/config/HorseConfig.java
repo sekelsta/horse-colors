@@ -17,12 +17,10 @@ public class HorseConfig
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     public static final Common COMMON = new Common(BUILDER);
     public static final Spawn SPAWN = new Spawn(BUILDER);
+    public static final Genetics GENETICS = new Genetics(BUILDER);
 
     public static class Common {
-        public static BooleanValue useGeneticStats;
-        public static BooleanValue enableHealthEffects;
         public static BooleanValue horseDebugInfo;
-        public static DoubleValue mutationChance;
         public static BooleanValue enableGroundTie;
         public static IntValue yearLength;
         public static DoubleValue maxAge;
@@ -31,19 +29,6 @@ public class HorseConfig
         Common(final ForgeConfigSpec.Builder builder) {
             builder.comment("Common config settings")
                     .push("common");
-
-            useGeneticStats = builder
-                    .comment("If enabled, horses' speed, jump, and health will be determined",
-            "through genetics instead of the vanilla Minecraft way")
-                    .translation("horse_colors.config.common.useGeneticStats")
-                    .define("useGeneticStats", true);
-
-            enableHealthEffects = builder
-                    .comment("If enabled, certain genes will have a small impact on health,",
-                             "as they do in real life. This does not prevent Overo Lethal",
-                             "White Syndrome.")
-                    .translation("horse_colors.config.common.enableHealthEffects")
-                    .define("enableHealthEffects", true);
 
             enableGroundTie = builder
                     .comment("If enabled, horses will not wander off if they are wearing a saddle.")
@@ -56,17 +41,6 @@ public class HorseConfig
             "For most users, it is probably better to leave this as false.")
                     .translation("horse_colors.config.common.horseDebugInfo")
                     .define("horseDebugInfo", false);
-
-            mutationChance = builder
-                    .comment("The chance for each allele to mutate.",
-                             "There are at least 80 genes, each with 2 alleles, and each mutation",
-                             "has about half a chance of having no effect, so with the default",
-                             "value of 0.0005, each foal has a 5% chance of having at least",
-                             "one mutation. For mutationChance = 0.001, that chance becomes about 7%,", 
-                              "and for mutationChance = 0.01 a foal has about a 45% chance of having at", 
-                              "least one mutation. Any higher is not recommended.",
-                              "To disable mutations, set this value to 0.")
-                    .defineInRange("mutationChance", 0.0005, 0.0, 1.0);
 
             yearLength = builder
                     .comment("How long a year lasts in ticks, for the purposes of graying.",
@@ -82,6 +56,49 @@ public class HorseConfig
                              "will equip it (as long as the horse isn't already wearing something in that slot)",
                              "instead of opening the inventory.")
                     .define("autoEquipSaddle", true);
+
+            builder.pop();
+        }
+    }
+
+    public static class Genetics {
+        public static BooleanValue useGeneticStats;
+        public static BooleanValue enableHealthEffects;
+        public static DoubleValue mutationChance;
+        public static BooleanValue bookShowsGenes;
+        public static BooleanValue bookShowsTraits;
+
+        Genetics(final ForgeConfigSpec.Builder builder) {
+            builder.comment("Config settings for genetics")
+                    .push("genetics");
+
+            useGeneticStats = builder
+                    .comment("If enabled, horses' speed, jump, and health will be determined",
+            "through genetics instead of the vanilla Minecraft way")
+                    .translation("horse_colors.config.common.useGeneticStats")
+                    .define("useGeneticStats", true);
+
+            enableHealthEffects = builder
+                    .comment("If enabled, certain genes will have a small impact on health,",
+                             "as they do in real life. This config option does not affect Overo",
+                             "Lethal White Syndrome.")
+                    .translation("horse_colors.config.common.enableHealthEffects")
+                    .define("enableHealthEffects", true);
+
+            mutationChance = builder
+                    .comment("The chance for each allele to mutate. The recommended range",
+                             "is between 0.0001 and 0.01.",
+                              "To disable mutations, set this value to 0.")
+                    .defineInRange("mutationChance", 0.0005, 0.0, 1.0);
+
+            bookShowsGenes = builder
+                    .comment("Enable or disable genetic testing.")
+                    .define("bookShowsGenes", true);
+
+            bookShowsTraits = builder
+                    .comment("Enable or disable physical inspection (rough information about health, ",
+                            "speed, and jump).")
+                    .define("bookShowsTraits", true);
 
             builder.pop();
         }

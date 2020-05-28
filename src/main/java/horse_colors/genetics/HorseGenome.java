@@ -390,7 +390,7 @@ public class HorseGenome extends Genome {
     }
 
     public float getBaseHealth() {
-        if (HorseConfig.COMMON.enableHealthEffects.get()) {
+        if (HorseConfig.GENETICS.enableHealthEffects.get()) {
             return -getGrayHealthLoss() - getSilverHealthLoss() - getDeafHealthLoss();
         }
         else {
@@ -540,7 +540,7 @@ public class HorseGenome extends Genome {
         health += "  " + Util.translate("stats.health2") + ": " + judgeStat("health2") + "\n";
         health += "  " + Util.translate("stats.health3") + ": " + judgeStat("health3") + "\n";
         health += "  " + Util.translate("stats.immune") + ": " + judgeStat((int)getImmuneHealth(), "stats.immune.");
-        if (HorseConfig.COMMON.enableHealthEffects.get()) {
+        if (HorseConfig.GENETICS.enableHealthEffects.get()) {
             if (getDeafHealthLoss() > 0.5f) {
                 health += "\n" + Util.translate("stats.health.deaf");
             }
@@ -567,7 +567,8 @@ public class HorseGenome extends Genome {
         jump += "  " + Util.translate("stats.jump2") + ": " + judgeStat("jump2") + "\n";
         jump += "  " + Util.translate("stats.jump3") + ": " + judgeStat("jump3");
         physical.add(jump);
-        if (HorseConfig.COMMON.useGeneticStats.get()) {
+        if (HorseConfig.GENETICS.useGeneticStats.get() 
+            && HorseConfig.GENETICS.bookShowsTraits.get()) {
             contents.add(physical);
         }
 
@@ -581,7 +582,9 @@ public class HorseGenome extends Genome {
             s += Util.translate(translationLocation + ".allele" + getAllele(gene, 1));
             genetic.add(s);
         }
-        contents.add(genetic);
+        if (HorseConfig.GENETICS.bookShowsGenes.get()) {
+            contents.add(genetic);
+        }
         return contents;
     }
 
