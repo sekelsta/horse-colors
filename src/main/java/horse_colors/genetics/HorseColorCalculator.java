@@ -105,7 +105,7 @@ public class HorseColorCalculator
                 && horse.isHomozygous("liver", HorseAlleles.LIVER)) {
             TextureLayer dark = new TextureLayer();
             setPheomelanin(dark, concentration * 5f, white);
-            float a = 0.6f;
+            float a = 0.4f;
             layer.red = (int)(dark.red * a + layer.red * (1 - a));
             layer.green = (int)(dark.green * a + layer.green * (1 - a));
             layer.blue = (int)(dark.blue * a + layer.blue * (1 - a));
@@ -282,7 +282,7 @@ public class HorseColorCalculator
         }
         TextureLayer white = new TextureLayer();
         white.name = fixPath("dun");
-        white.alpha = (int)(0.12f * 255f);
+        white.alpha = (int)(0.1f * 255f);
         if (!horse.isDun()) {
             white.alpha = (int)(white.alpha * 0.1);
         }
