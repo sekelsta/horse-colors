@@ -240,6 +240,8 @@ public abstract class Genome {
     public void mutate() {
         double p = HorseConfig.GENETICS.mutationChance.get();
         for (String gene : listGenes()) {
+            int a = getAllele(gene, 0);
+            int b = getAllele(gene, 1);
             mutateAlleleChance(gene, 0, p);
             mutateAlleleChance(gene, 1, p);
         }
@@ -332,12 +334,6 @@ public abstract class Genome {
             }
             int mother = parent1.getRandomGenericGenes(1, parent1.getChromosome(chr), linkage);
             int father = parent2.getRandomGenericGenes(0, parent2.getChromosome(chr), linkage);
-            System.out.println(chr);
-            System.out.println("p1: " + chrToStr(parent1.getChromosome(chr)));
-            System.out.println("n1: " + chrToStr(mother));
-            System.out.println("p2: " + chrToStr(parent2.getChromosome(chr)));
-            System.out.println("n2: " + chrToStr(father));
-            System.out.println("ch: " + chrToStr(mother | father));
             this.entity.setChromosome(chr, mother | father);
         }
     }

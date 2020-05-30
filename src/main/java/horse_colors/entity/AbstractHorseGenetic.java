@@ -225,13 +225,14 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             case "mhc2":
                 this.dataManager.set(HORSE_MHC2, variant);
                 this.useGeneticAttributes();
+                return;
             case "immune":
                 this.dataManager.set(HORSE_IMMUNE, variant);
                 this.useGeneticAttributes();
                 return;
             case "random":
                 this.dataManager.set(HORSE_RANDOM, Integer.valueOf(variant));
-                break;
+                return;
             default:
                 HorseColors.logger.error("Unrecognized horse data for setting: "
                                  + name + "\n");
