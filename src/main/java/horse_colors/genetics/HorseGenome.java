@@ -94,7 +94,10 @@ public class HorseGenome extends Genome {
         "champagne",
         "cameo",
         "ivory",
-        "donkey_dark"
+        "donkey_dark",
+        "cross",
+        "reduced_points",
+        "stripes"
     );
 
     public static final ImmutableList<String> genericChromosomes = ImmutableList.of(

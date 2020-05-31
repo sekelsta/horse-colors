@@ -207,6 +207,10 @@ public class HorseBreeds {
             0f,     // Lighter
             1f      // Darker
         ));
+        EQUINE.put("reduced_points", ImmutableList.of(
+            0f,     // Higher leg black
+            1f      // Lower leg black
+        ));
 
         HORSE = new HashMap<String, List<Float>>(EQUINE);
 
@@ -354,6 +358,10 @@ public class HorseBreeds {
             1f,     // Lighter
             1f      // Darker
         ));
+        HORSE.put("reduced_points", ImmutableList.of(
+            0.95f,  // Higher leg black
+            1f     // Lower leg black
+        ));
 
 
         DONKEY = new HashMap<String, List<Float>>(EQUINE);
@@ -364,6 +372,10 @@ public class HorseBreeds {
         DONKEY.put("ivory", ImmutableList.of(
             0.9f,   // Non ivory
             1f      // Ivory
+        ));
+        DONKEY.put("cross", ImmutableList.of(
+            0f,     // No shoulder stripe
+            1f      // Shoulder stripe
         ));
     }
 }

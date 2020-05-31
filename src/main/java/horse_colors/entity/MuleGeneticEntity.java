@@ -25,14 +25,17 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
         super(p_i50239_1_, p_i50239_2_);
     }
 
+    @Override
     public boolean fluffyTail() {
         return true;
     }
 
+    @Override
     public boolean longEars() {
         return true;
     }
 
+    @Override
     public boolean thinMane() {
         return false;
     }

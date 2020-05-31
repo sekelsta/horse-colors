@@ -146,7 +146,6 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     public boolean fluffyTail() {
         return true;
     }
-
     @Override
     public boolean longEars() {
         return false;

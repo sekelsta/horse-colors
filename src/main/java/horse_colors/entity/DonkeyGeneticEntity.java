@@ -24,8 +24,8 @@ import sekelsta.horse_colors.item.GeneBookItem;
 import sekelsta.horse_colors.util.Util;
 
 public class DonkeyGeneticEntity extends AbstractHorseGenetic {
-    public DonkeyGeneticEntity(EntityType<? extends DonkeyGeneticEntity> p_i50239_1_, World p_i50239_2_) {
-        super(p_i50239_1_, p_i50239_2_);
+    public DonkeyGeneticEntity(EntityType<? extends DonkeyGeneticEntity> entityType, World world) {
+        super(entityType, world);
     }
 
     protected SoundEvent getAmbientSound() {
@@ -43,14 +43,17 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
         return SoundEvents.ENTITY_DONKEY_HURT;
     }
 
+    @Override
     public boolean fluffyTail() {
         return false;
     }
 
+    @Override
     public boolean longEars() {
         return true;
     }
 
+    @Override
     public boolean thinMane() {
         return true;
     }

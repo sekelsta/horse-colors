@@ -324,6 +324,10 @@ public class HorseColorCalculator
                 layer.alpha = 255;
         }
 
+        if (horse.hasAllele("donkey_dark", 1) && !horse.isChestnut()) {
+            layer.alpha = 255;
+        }
+
         layer.name = fixPath("sooty_countershade");
         if (horse.isDappleInclined()) {
             layer.name = fixPath("sooty_dapple");
@@ -365,9 +369,18 @@ public class HorseColorCalculator
     }
 
     public static void addPoints(HorseGenome horse, List<TextureLayer> layers) {
+        String prefix = "";
+        if (horse.hasAllele("reduced_points", 1)) {
+            prefix = "wild_";
+        }
         if (horse.hasStripe()) {
             TextureLayer stripe = new TextureLayer();
-            stripe.name = fixPath("marks/dorsal");
+            if (horse.hasAllele("cross", 1)) {
+                stripe.name = fixPath("marks/" + prefix + "cross");
+            }
+            else {
+                stripe.name = fixPath("marks/" + prefix + "dorsal");
+            }
             if (horse.isChestnut()) {
                 colorRedBody(horse, stripe);
             }
@@ -379,7 +392,7 @@ public class HorseColorCalculator
         }
         else if (!horse.isChestnut()) {
             TextureLayer points = new TextureLayer();
-            points.name = fixPath("bay");
+            points.name = fixPath(prefix + "bay");
             colorBlackBody(horse, points);
             layers.add(points);
         }
