@@ -16,7 +16,12 @@ public class HorseConfig
 {
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     public static final Common COMMON = new Common(BUILDER);
-    public static final Spawn SPAWN = new Spawn(BUILDER);
+    public static final Spawn HORSE_SPAWN = new Spawn(BUILDER, "horses", 2, 6, 
+                                            Arrays.asList((new Spawn.BiomeWeight(BiomeDictionary.Type.PLAINS.toString(), 5)).toString(), 
+                                              (new Spawn.BiomeWeight(BiomeDictionary.Type.SAVANNA.toString(), 1)).toString()));
+    public static final Spawn DONKEY_SPAWN = new Spawn(BUILDER, "donkeys", 1, 3, 
+                                            Arrays.asList((new Spawn.BiomeWeight(BiomeDictionary.Type.PLAINS.toString(), 1)).toString(), 
+                                              (new Spawn.BiomeWeight(BiomeDictionary.Type.SAVANNA.toString(), 1)).toString()));
     public static final Genetics GENETICS = new Genetics(BUILDER);
 
     public static class Common {
@@ -105,7 +110,7 @@ public class HorseConfig
     }
 
     public static class Spawn {
-        public static BooleanValue blockVanillaHorseSpawns;
+        public static BooleanValue blockVanillaSpawns;
         public static IntValue minHerdSize;
         public static IntValue maxHerdSize;
         public static ForgeConfigSpec.ConfigValue<List<? extends String>> spawnBiomeWeights;
@@ -180,31 +185,27 @@ public class HorseConfig
             }
         }
 
-        Spawn(final ForgeConfigSpec.Builder builder) {
-            builder.comment("Horse spawning settings")
-                    .push("spawn");
+        Spawn(final ForgeConfigSpec.Builder builder, String name, int minHerd, int maxHerd, List<String> spawnWeights) {
+            builder.comment("Spawning settings for " + name)
+                    .push("spawn " + name);
 
-            blockVanillaHorseSpawns = builder
-                    .comment("If set to true, only horses created by this mod will spawn.",
+            blockVanillaSpawns = builder
+                    .comment("If set to true, only " + name + " created by this mod will spawn.",
             "This mainly affects newly generated areas.")
-                    .translation("horse_colors.config.spawn.blockVanillaHorseSpawns")
-                    .define("blockVanillaHorseSpawns", true);
+                    .define("blockVanillaSpawns", true);
 
             minHerdSize = builder
-                    .comment("What size groups horses will spawn in")
-                    .translation("horse_colors.config.spawn.minHerdSize")
-                    .defineInRange("minHerdSize", 2, 0, Integer.MAX_VALUE);
+                    .comment("What size groups " + name + " will spawn in")
+                    .defineInRange("minHerdSize", minHerd, 0, Integer.MAX_VALUE);
 
             maxHerdSize = builder
                     .comment("")
-                    .translation("horse_colors.config.spawn.maxHerdSize")
-                    .defineInRange("maxHerdSize", 6, 0, Integer.MAX_VALUE);
+                    .defineInRange("maxHerdSize", maxHerd, 0, Integer.MAX_VALUE);
 
             spawnBiomeWeights = builder
-                    .comment("A list of biomes horses can spawn in, and how often they spawn there.")
+                    .comment("A list of biome types " + name + " can spawn in, and how often they spawn there.")
                     .<String>defineList("spawnBiomeWeights", 
-                                Arrays.asList((new BiomeWeight(BiomeDictionary.Type.PLAINS.toString(), 5)).toString(), 
-                                              (new BiomeWeight(BiomeDictionary.Type.SAVANNA.toString(), 1)).toString()), 
+                                spawnWeights, 
                                 BiomeWeight::isValid);
 
             excludeBiomes = builder

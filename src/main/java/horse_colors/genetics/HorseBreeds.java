@@ -360,7 +360,7 @@ public class HorseBreeds {
         ));
         HORSE.put("reduced_points", ImmutableList.of(
             0.95f,  // Higher leg black
-            1f     // Lower leg black
+            1f      // Lower leg black
         ));
 
 
