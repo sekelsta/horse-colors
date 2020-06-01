@@ -1,7 +1,7 @@
 {
     "entity.horse_colors.horse_felinoid": "Horse",
-    "entity.horse_colors.donkey_genetic": "Donkey",
-    "entity.horse_colors.mule_genetic": "Mule",
+    "entity.horse_colors.donkey": "Donkey",
+    "entity.horse_colors.mule": "Mule",
     "item.horse_colors.horse_spawn_egg": "Horse Spawn Egg",
     "item.horse_colors.donkey_spawn_egg": "Donkey Spawn Egg",
     "item.horse_colors.mule_spawn_egg": "Mule Spawn Egg",
