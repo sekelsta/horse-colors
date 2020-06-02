@@ -46,6 +46,7 @@ public class ModEntities {
     {
             // Default tracker is fine, or could use .tracker(64, 2, false)
             final ResourceLocation horseRegistryName = new ResourceLocation(HorseColors.MODID, "horse_felinoid");
+            // Vanilla size in 1.12 was 1.3964844F, 1.6F
             HORSE_GENETIC = EntityType.Builder.create(HorseGeneticEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F).build(horseRegistryName.toString());
             HORSE_GENETIC.setRegistryName(horseRegistryName);
 

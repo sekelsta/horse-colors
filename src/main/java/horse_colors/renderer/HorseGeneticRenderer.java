@@ -35,7 +35,6 @@ public class HorseGeneticRenderer extends MobRenderer<AbstractHorseEntity, Horse
     public HorseGeneticRenderer(EntityRendererManager renderManager)
     {
         super(renderManager, new HorseGeneticModel<AbstractHorseEntity>(0.0F), 0.75F);
-        this.scale = 1.1F;
         this.addLayer(new HorseArmorLayer(this));
     }
 
