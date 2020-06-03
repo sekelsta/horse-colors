@@ -243,14 +243,10 @@ public class HorseBreeds {
             1.0f            // Silver
         ));
         HORSE.put("cream", ImmutableList.of(
-            0.5f,
-            0.6f,
-            0.8f,
-            1f/*
             30f / 32f,      // Non-cream
             30.2f/32f,      // Snowdrop
             31f / 32f,      // Pearl (1/32)
-            1f */             // Cream (1/32)
+            1f             // Cream (1/32)
         ));
         HORSE.put("liver", ImmutableList.of(
             0.25f,  // Liver
@@ -370,7 +366,7 @@ public class HorseBreeds {
 
         DONKEY = new HashMap<String, List<Float>>(EQUINE);
         DONKEY.put("cameo", ImmutableList.of(
-            0.95f,   // Non cameo
+            0.99f,  // Non cameo
             1f      // Cameo
         ));
         DONKEY.put("ivory", ImmutableList.of(
