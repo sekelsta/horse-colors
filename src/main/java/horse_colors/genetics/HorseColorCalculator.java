@@ -89,6 +89,11 @@ public class HorseColorCalculator
             white += 0.15f;
         }
 
+        if (horse.hasAllele("cameo", HorseAlleles.CAMEO)) {
+            concentration *= 0.3f;
+            white += 0.25f;
+        }
+
         if (horse.isHomozygous("rufous", 0)) {
             concentration *= 0.9f;
             white += 0.04f;
@@ -134,6 +139,11 @@ public class HorseColorCalculator
             concentration *= 0.5f;
         }
         else if (horse.isPearl()) {
+            concentration *= 0.2f;
+            white += 0.2f;
+        }
+
+        if (horse.hasAllele("cameo", HorseAlleles.CAMEO)) {
             concentration *= 0.2f;
             white += 0.2f;
         }
@@ -238,16 +248,19 @@ public class HorseColorCalculator
     }
 
     public static void colorSkin(HorseGenome horse, TextureLayer layer) {
-        if (horse.isDoubleCream() || horse.isHomozygous("ivory", HorseAlleles.IVORY)) {
-            // Pink skin
-            layer.red = 0xff;
-            layer.green = 0xd6;
-            layer.blue = 0xb6;
+        if (horse.isCreamPearl() || horse.hasAllele("cameo", HorseAlleles.CAMEO)) {
+            // Light skin
+            setEumelanin(layer, 5f, 0.2f);
         }
-        else {
+        else if (!(horse.isDoubleCream() || horse.isHomozygous("ivory", HorseAlleles.IVORY))) {
             // Black skin
-            setEumelanin(layer, 20f, 0.1f);
+            setEumelanin(layer, 18f, 0.1f);
         }
+        // White to pink (red is unchanged)
+        int old = layer.green;
+        layer.green = (int)(layer.green * 0xd6 / 255f);
+        old = layer.blue;
+        layer.blue = (int)(layer.blue * 0xb6 / 255f);
     }
 
     public static void colorGray(HorseGenome horse, TextureLayer layer) {

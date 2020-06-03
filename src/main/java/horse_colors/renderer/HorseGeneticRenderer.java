@@ -22,7 +22,7 @@ import sekelsta.horse_colors.genetics.HorseColorCalculator;
 public class HorseGeneticRenderer extends MobRenderer<AbstractHorseEntity, HorseGeneticModel<AbstractHorseEntity>>
 {
     // Stuff from AbstractHorseRenderer
-   private final float scale;
+   private final float scale = 1.0f;
 
    protected void preRenderCallback(AbstractHorseEntity entitylivingbaseIn, MatrixStack matrixStackIn, float partialTickTime) {
       matrixStackIn.scale(this.scale, this.scale, this.scale);
