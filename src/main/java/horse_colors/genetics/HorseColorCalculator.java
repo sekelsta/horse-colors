@@ -375,9 +375,31 @@ public class HorseColorCalculator
         if (horse.isHomozygous("flaxen2", 0)) {
             spread += 1;
         }
-        light_belly.name = fixPath("mealy/mealy" + spread);
+        
+        String prefix = "";
+        if (horse.isHomozygous("light_legs", 1)) {
+            // Use version with darker legs
+            prefix = "l";
+        }
+        else if (horse.hasAllele("less_light_legs", 0)) {
+            // Set light_belly texture to leave the legs dark and be one 
+            // shade darker as a whole, and add a thin layer with light legs
+            prefix = "l";
+            if (spread > 1) {
+                spread -= 1;
+                light_belly.next = new TextureLayer();
+                light_belly.next.name = fixPath("mealy/mealy1");
+                colorRedBody(horse, light_belly.next);
+                adjustConcentration(light_belly.next, 0.04f * (2 - color));
+            }
+        }
+
+        light_belly.name = fixPath("mealy/" + prefix + "mealy" + spread);
         colorRedBody(horse, light_belly);
         adjustConcentration(light_belly, 0.04f * (2 - color));
+
+
+
         return light_belly;
     }
 

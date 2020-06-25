@@ -208,8 +208,16 @@ public class HorseBreeds {
             1f      // Darker
         ));
         EQUINE.put("reduced_points", ImmutableList.of(
-            0f,     // Higher leg black
+            1f,     // Higher leg black
             1f      // Lower leg black
+        ));
+        EQUINE.put("light_legs", ImmutableList.of(
+            1f,     // Mealy lightens the legs
+            1f      // Mealy does not lighten the legs
+        ));
+        EQUINE.put("less_light_legs", ImmutableList.of(
+            1f,     // Mealy does not lighten the legs so much
+            1f      // Mealy lightens the legs all the way
         ));
 
         HORSE = new HashMap<String, List<Float>>(EQUINE);
@@ -373,9 +381,18 @@ public class HorseBreeds {
             0.9f,   // Non ivory
             1f      // Ivory
         ));
+        // TODO: Somali wild asses don't have the shoulder cross
         DONKEY.put("cross", ImmutableList.of(
             0f,     // No shoulder stripe
             1f      // Shoulder stripe
+        ));
+        DONKEY.put("light_legs", ImmutableList.of(
+            0.5f,   // Mealy lightens the legs
+            1f      // Mealy does not lighten the legs
+        ));
+        DONKEY.put("less_light_legs", ImmutableList.of(
+            0.5f,   // Mealy does not lighten the legs so much
+            1f      // Mealy lightens the legs all the way
         ));
     }
 }
