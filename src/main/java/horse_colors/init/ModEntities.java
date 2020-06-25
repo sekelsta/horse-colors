@@ -5,6 +5,9 @@ import sekelsta.horse_colors.config.HorseConfig;
 
 import sekelsta.horse_colors.entity.*;
 import sekelsta.horse_colors.renderer.HorseGeneticRenderer;
+
+import com.google.common.collect.ImmutableList;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -15,14 +18,18 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.SpawnEggItem;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.gen.feature.jigsaw.*;
+import net.minecraft.world.gen.feature.structure.PlainsVillagePools;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.BiomeDictionary;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ObjectHolder;
 
@@ -213,8 +220,56 @@ public class ModEntities {
 
     @SubscribeEvent
     public static void onLoadComplete(net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent e) {
+        // This needs to happen after the config is read
+        changeVillageAnimals();
         // These need to happen after the config file is read and vanilla horse spawns are added
         editSpawnTable();
         addSpawns();
     }
+
+    private static boolean isVanillaVillageHorsePiece(SingleJigsawPiece piece) {
+        return piece.toString().contains("minecraft:village/common/animals/horses");
+    }
+
+    private static boolean keepJigsawPair(Pair<JigsawPiece, Integer> pair) {
+        if (!HorseConfig.HORSE_SPAWN.blockVanillaSpawns.get()) {
+            return true;
+        }
+        JigsawPiece piece = pair.getFirst();
+        if (piece instanceof SingleJigsawPiece) {
+            return !isVanillaVillageHorsePiece((SingleJigsawPiece)piece);
+        }
+        // This code normally won't be reached
+        return true;
+    }
+
+    public static void changeVillageAnimals() {
+        // Force the static block to run
+        PlainsVillagePools.init();
+        ResourceLocation animalsLoc = new ResourceLocation("village/common/animals");
+        JigsawPattern animals = JigsawManager.REGISTRY.get(animalsLoc);
+        if (animals == JigsawPattern.INVALID) {
+            System.err.println("Trying to overwrite village spawns too soon");
+            return;
+        }
+        ImmutableList<Pair<JigsawPiece, Integer>> vanillaList =  ObfuscationReflectionHelper.getPrivateValue(JigsawPattern.class, animals, "field_214952_d");
+        List<Pair<JigsawPiece, Integer>> keeperList = new ArrayList<>();
+        for (Pair<JigsawPiece, Integer> p : vanillaList) {
+            if (keepJigsawPair(p)) {
+                keeperList.add(p);
+            }
+        }
+        // Add my own pieces
+        String modloc = HorseColors.MODID + ":";
+        keeperList.add(new Pair<>(new SingleJigsawPiece(modloc + "village/common/animals/horses_1"), 1));
+        keeperList.add(new Pair<>(new SingleJigsawPiece(modloc + "village/common/animals/horses_2"), 1));
+        keeperList.add(new Pair<>(new SingleJigsawPiece(modloc + "village/common/animals/horses_3"), 1));
+        keeperList.add(new Pair<>(new SingleJigsawPiece(modloc + "village/common/animals/horses_4"), 1));
+        keeperList.add(new Pair<>(new SingleJigsawPiece(modloc + "village/common/animals/horses_5"), 1));
+        JigsawManager.REGISTRY.register(new JigsawPattern(animalsLoc, new ResourceLocation("empty"), keeperList, JigsawPattern.PlacementBehaviour.RIGID));
+        // I don't touch sheep so I can leave "village/common/sheep" alone
+        // Likewise for "village/common/cats"
+        // Also ignore the cows, pigs, and sheep in "village/common/butcher_animals"
+    }
+
 }

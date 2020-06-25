@@ -178,6 +178,17 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.trueAge = compound.getInt("true_age");
 
         this.updateHorseSlots();
+
+        if (this instanceof HorseGeneticEntity) {
+            int spawndata = compound.getInt("VillageSpawn");
+            if (spawndata != 0) {
+                System.out.println("Village horse read from NBT");
+                this.initFromVillageSpawn();
+            }
+            else {
+                System.out.println("Non-village horse read from NBT");
+            }
+        }
     }
     public int getDisplayAge() {
         return this.dataManager.get(DISPLAY_AGE);
@@ -510,6 +521,11 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag)
     {
         spawnDataIn = super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
+        this.randomize();
+        return spawnDataIn;
+    }
+
+    private void randomize() {
         this.getGenes().randomize(getSpawnFrequencies());
         // Choose a random age between 0 and 5 years old.
         // This preserves the ratio of child/adult
@@ -520,6 +536,17 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
         this.setGrowingAge(Math.min(0, this.trueAge));
         this.useGeneticAttributes();
-        return spawnDataIn;
+    }
+
+    public void initFromVillageSpawn() {
+        this.randomize();
+        // All village horses are easier to tame
+        this.increaseTemper(this.getMaxTemper() / 2);
+        if (!this.isChild() && rand.nextInt(16) == 0) {
+            // Tame and saddle
+            this.setHorseTamed(true);
+            ItemStack saddle = new ItemStack(Items.SADDLE);
+            this.horseChest.setInventorySlotContents(0, saddle);
+        }
     }
 }
