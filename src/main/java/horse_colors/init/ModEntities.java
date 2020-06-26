@@ -32,9 +32,11 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ObjectHolder;
+import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -105,6 +107,7 @@ public class ModEntities {
         }
 
     }
+
     // This needs to be called AFTER registerEntities()
     // Also after the config is parsed
     public static void addSpawns()
@@ -137,37 +140,10 @@ public class ModEntities {
                     HorseColors.logger.debug("Skipping horse spawn for " + biome);
                     continue;
                 }
-                HorseColors.logger.debug("Adding horse spawn to " + biome);
+                HorseColors.logger.debug("Adding horse (or donkey) spawn to " + biome);
                 List<Biome.SpawnListEntry> spawns = biome.getSpawns(EntityClassification.CREATURE);
                 spawns.add(new Biome.SpawnListEntry(entity, bw.weight, spawn.minHerdSize.get(), spawn.maxHerdSize.get()));
             }
-        }
-    }
-
-    /**
-     * Add a spawn entry for the supplied entity in the supplied {@link Biome} list.
-     * <p>
-     * Adapted from Forge's {@code EntityRegistry.addSpawn} method in 1.12.2.
-     *
-     * @param entityType     The entity type
-     * @param itemWeight     The weight of the spawn list entry (higher weights have a higher chance to be chosen)
-     * @param minGroupCount  Min spawn count
-     * @param maxGroupCount  Max spawn count
-     * @param classification The entity classification
-     * @param biomes         The biomes to add the spawn to
-     */
-    private static void addSpawn(final EntityType<? extends LivingEntity> entityType, final int itemWeight, final int minGroupCount, final int maxGroupCount, final EntityClassification classification, final Biome... biomes) {
-        for (final Biome biome : biomes) {
-            final List<Biome.SpawnListEntry> spawns = biome.getSpawns(classification);
-/*
-            // Try to find an existing entry for the entity type
-            spawns.stream()
-                    .filter(entry -> entry.entityType == entityType)
-                    .findFirst()
-                    .ifPresent(spawns::remove); // If there is one, remove it*/
-
-            // Add a new one
-            spawns.add(new Biome.SpawnListEntry(entityType, itemWeight, minGroupCount, maxGroupCount));
         }
     }
 
@@ -185,7 +161,8 @@ public class ModEntities {
 
     //Removes initial vanilla horse spawns
     public static void editSpawnTable() {
-        Set<Biome> allBiomes = Biome.BIOMES;
+        //Set<Biome> allBiomes = Biome.BIOMES;
+        Collection<Biome> allBiomes = ForgeRegistries.BIOMES.getValues();
         for (Biome biome : allBiomes) {
                 List<Biome.SpawnListEntry> spawns = biome.getSpawns(EntityClassification.CREATURE);
                 if (spawns.isEmpty()) {
@@ -194,11 +171,11 @@ public class ModEntities {
                 ArrayList<Biome.SpawnListEntry> horseSpawns = new ArrayList<Biome.SpawnListEntry>();
                 for (Biome.SpawnListEntry entry : spawns) {
                     if (entry.entityType == EntityType.HORSE && HorseConfig.HORSE_SPAWN.blockVanillaSpawns.get()) {
-                        HorseColors.logger.info("Removing vanilla horse spawn: " + entry + " from biome " + biome);
+                        HorseColors.logger.debug("Removing vanilla horse spawn: " + entry + " from biome " + biome);
                         horseSpawns.add(entry);
                     }
                     else if (entry.entityType == EntityType.DONKEY && HorseConfig.DONKEY_SPAWN.blockVanillaSpawns.get()) {
-                        HorseColors.logger.info("Removing vanilla donkey spawn: " + entry + " from biome " + biome);
+                        HorseColors.logger.debug("Removing vanilla donkey spawn: " + entry + " from biome " + biome);
                         horseSpawns.add(entry);
                     }
                 }
@@ -220,6 +197,7 @@ public class ModEntities {
 
     @SubscribeEvent
     public static void onLoadComplete(net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent e) {
+        System.out.println(HorseConfig.COMMON.horseDebugInfo.get());
         // This needs to happen after the config is read
         changeVillageAnimals();
         // These need to happen after the config file is read and vanilla horse spawns are added
