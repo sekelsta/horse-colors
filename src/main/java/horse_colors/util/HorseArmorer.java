@@ -12,39 +12,24 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class HorseArmorer
-{/*
-    private ResourceLocation getVanillaLocation(ItemStack armorStack)
-    {
-        if (armorStack == ItemStack.EMPTY)
-        {
-            return null;
-        }
-        Item item = armorStack.getItem();
-        if (!(item instanceof HorseArmorItem))
-        {
-            return null;
-        }
-        HorseArmorItem armor = (HorseArmorItem)item;
-        // func_219976_d = public ResourceLocation getTexture()
-        return armor.func_219976_d();
-    }*/
-
+{
     private static ResourceLocation getVanillaLocation(HorseArmorItem armor)
     {
         // func_219976_d = public ResourceLocation getTexture()
         return armor.func_219976_d();
     }
 
-
-
     @OnlyIn(Dist.CLIENT)
     public static ResourceLocation getTexture(Item armor)
     {
         if (armor instanceof HorseArmorItem) {
             ResourceLocation vanilla = getVanillaLocation((HorseArmorItem)armor);
-            return vanilla == null? 
-                null 
-              : new ResourceLocation(HorseColors.MODID, vanilla.getPath());
+            // Only use my own version of textures in the minecraft namespace
+            if (vanilla != null && vanilla.getNamespace().equals("minecraft")) {
+                return new ResourceLocation(HorseColors.MODID, vanilla.getPath());
+            }
+
+            return vanilla;
         }
         if (armor instanceof BlockItem) {
             if (((BlockItem)armor).getBlock() instanceof CarpetBlock) {
@@ -53,41 +38,4 @@ public class HorseArmorer
         }
         return null;
     }
-
-/*    @OnlyIn(Dist.CLIENT)
-    public static String getTextureName(ItemStack armorStack)
-    {
-        return getTexture(armorStack).toString();
-    }*/
-
-/*    @OnlyIn(Dist.CLIENT)
-    public static String getHash(ItemStack armorStack)
-    {
-        String texture = getTextureName(armorStack);
-        if (texture == null)
-        {
-            return "";
-        }
-        else if (texture.contains("iron"))
-        {
-            return "iron";
-        }
-        else if (texture.contains("diamond"))
-        {
-            return "diamond";
-        }
-        else if (texture.contains("gold"))
-        {
-            return "gold";
-        }
-        else if (texture.contains("leather"))
-        {
-            return "leather";
-        }
-        else
-        {
-            System.out.println("Unknown horse armor type: " + texture);
-        }
-        return null;
-    }*/
 }

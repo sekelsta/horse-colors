@@ -96,7 +96,7 @@ public class HorseGenome extends Genome {
         "ivory",
         "donkey_dark",
         "cross",
-        "reduced_points"
+        "reduced_points",
         "light_legs",
         "less_light_legs",
         "leg_stripes",   // TODO
