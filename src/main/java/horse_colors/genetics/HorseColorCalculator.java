@@ -141,8 +141,8 @@ public class HorseColorCalculator
             concentration *= 0.5f;
         }
         else if (horse.isPearl()) {
-            concentration *= 0.2f;
-            white += 0.2f;
+            concentration *= 0.25f;
+            white += 0.18f;
         }
 
         if (horse.hasAllele("cameo", HorseAlleles.CAMEO)) {
