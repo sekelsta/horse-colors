@@ -1,7 +1,7 @@
 package sekelsta.horse_colors.genetics;
 
 import sekelsta.horse_colors.config.HorseConfig;
-import sekelsta.horse_colors.renderer.ComplexLayeredTexture;
+import sekelsta.horse_colors.renderer.CustomLayeredTexture;
 import sekelsta.horse_colors.renderer.TextureLayer;
 
 import net.minecraftforge.api.distmarker.Dist;

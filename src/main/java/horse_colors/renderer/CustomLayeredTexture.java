@@ -15,11 +15,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
-public class ComplexLayeredTexture extends Texture {
+public class CustomLayeredTexture extends Texture {
     private static final Logger LOGGER = LogManager.getLogger();
     public final List<TextureLayer> layers;
 
-    public ComplexLayeredTexture(List<TextureLayer> textures) {
+    public CustomLayeredTexture(List<TextureLayer> textures) {
         this.layers = Lists.newArrayList(textures);
         if (this.layers.isEmpty()) {
             throw new IllegalStateException("Layered texture with no layers.");
