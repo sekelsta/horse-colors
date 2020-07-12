@@ -24,10 +24,10 @@ public class HorseBreeds {
             1.0f   // Gray
         ));
         EQUINE.put("dun", ImmutableList.of(
-            0.0f,   // Non-dun 2
-            0.5f, // Non-dun 1
-            1f,     // Dun
-            0f      // Dun unused
+            0f,     // Non-dun 2
+            0f,     // Non-dun 1
+            0f,     // Dun
+            1f      // Dun for donkeys
         ));
         EQUINE.put("agouti", ImmutableList.of(
             0.1f,   // Black
@@ -219,6 +219,20 @@ public class HorseBreeds {
             1f,     // Mealy does not lighten the legs so much
             1f      // Mealy lightens the legs all the way
         ));
+        EQUINE.put("donkey_dun", ImmutableList.of(
+            1f,     // Dun
+            0f, 
+            0f,
+            0f
+        ));
+        EQUINE.put("flaxen_boost", ImmutableList.of(
+            0.95f,  // Flaxen manes are darker
+            1f      // Flaxen manes are lighter
+        ));
+        EQUINE.put("light_dun", ImmutableList.of(
+            0f,     // Darker dun
+            1f      // Lighter dun
+        ));
 
         HORSE = new HashMap<String, List<Float>>(EQUINE);
 
@@ -370,6 +384,14 @@ public class HorseBreeds {
             0.95f,  // Higher leg black
             1f      // Lower leg black
         ));
+        HORSE.put("flaxen_boost", ImmutableList.of(
+            0.5f,   // Flaxen manes are darker
+            1f      // Flaxen manes are lighter
+        ));
+        HORSE.put("light_dun", ImmutableList.of(
+            1f,     // Darker dun
+            0f      // Lighter dun
+        ));
 
 
         DONKEY = new HashMap<String, List<Float>>(EQUINE);
@@ -393,6 +415,12 @@ public class HorseBreeds {
         DONKEY.put("less_light_legs", ImmutableList.of(
             0.5f,   // Mealy does not lighten the legs so much
             1f      // Mealy lightens the legs all the way
+        ));
+        DONKEY.put("donkey_dun", ImmutableList.of(
+            0.5f,   // Dun
+            0.95f,  // Non-dun with cross
+            1f,     // Non-dun, no cross
+            0f      // Unused
         ));
     }
 }

@@ -161,7 +161,6 @@ public class ModEntities {
 
     //Removes initial vanilla horse spawns
     public static void editSpawnTable() {
-        //Set<Biome> allBiomes = Biome.BIOMES;
         Collection<Biome> allBiomes = ForgeRegistries.BIOMES.getValues();
         for (Biome biome : allBiomes) {
                 List<Biome.SpawnListEntry> spawns = biome.getSpawns(EntityClassification.CREATURE);
@@ -197,7 +196,6 @@ public class ModEntities {
 
     @SubscribeEvent
     public static void onLoadComplete(net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent e) {
-        System.out.println(HorseConfig.COMMON.horseDebugInfo.get());
         // This needs to happen after the config is read
         changeVillageAnimals();
         // These need to happen after the config file is read and vanilla horse spawns are added

@@ -32,7 +32,7 @@ public class HorseAlleles
     public static final int NONDUN2 = 0;
     public static final int NONDUN1 = 1;
     public static final int DUN = 2;
-    public static final int DUN_UNUSED = 3;
+    public static final int DUN_OTHER = 3;
 
     // Gray (STX17)
     public static final int NONGRAY = 0;
@@ -118,4 +118,9 @@ public class HorseAlleles
     // Ivory (donkey)
     public static final int NONIVORY = 0;
     public static final int IVORY = 1;
+
+    // Donkey dun
+    public static final int DONKEY_DUN = 0;
+    public static final int DONKEY_NONDUN_CROSS = 1;
+    public static final int DONKEY_NONDUN = 2;
 };

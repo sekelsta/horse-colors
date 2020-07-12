@@ -101,8 +101,10 @@ public class HorseColorCalculator
 
         if (horse.isHomozygous("dense", 1)) {
             concentration *= 1.1f;
-            white -= 0.04f;
+            white -= 0.03f;
         }
+
+        white = Math.max(white, 0);
         setPheomelanin(layer, concentration, white);
 
         // Treat liver like it leaks some eumelanin into the coat
@@ -157,6 +159,7 @@ public class HorseColorCalculator
             white -= 0.01f;
         }
  
+        white = Math.max(white, 0);
         setEumelanin(layer, concentration, white);
     }
 
@@ -213,18 +216,17 @@ public class HorseColorCalculator
             power *= PALOMINO_POWER;
         }
         float white = 0f;
-        if (horse.isHomozygous("flaxen1", HorseAlleles.FLAXEN) 
-                && horse.isHomozygous("flaxen2", HorseAlleles.FLAXEN)) {
-            power *= 0.4f;
-            white = 0.3f;
-        }
-        else if (horse.isHomozygous("flaxen1", HorseAlleles.FLAXEN)) {
+        if (horse.isHomozygous("flaxen1", HorseAlleles.FLAXEN)) {
             power *= 0.5f;
-            white = 0.2f;
+            white += 0.2f;
         }
-        else if (horse.isHomozygous("flaxen2", HorseAlleles.FLAXEN)) {
-            power *= 0.7f;
-            white = 0.1f;
+        if (horse.isHomozygous("flaxen2", HorseAlleles.FLAXEN)) {
+            power *= 0.8f;
+            white += 0.1f;
+        }
+        if (horse.hasAllele("flaxen_boost", 1)) {
+            Math.pow(power, 1.5);
+            white *= 1.5;
         }
         adjustConcentration(flaxen, power);
         setGrayConcentration(horse, flaxen);
@@ -290,7 +292,7 @@ public class HorseColorCalculator
     }
 
     public static void addDun(HorseGenome horse, List<TextureLayer> layers) {
-        if (horse.isHomozygous("dun", HorseAlleles.NONDUN2)) {
+        if (!horse.hasStripe()) {
             return;
         }
         TextureLayer white = new TextureLayer();
@@ -298,6 +300,9 @@ public class HorseColorCalculator
         white.alpha = (int)(0.1f * 255f);
         if (!horse.isDun()) {
             white.alpha = (int)(white.alpha * 0.1);
+        }
+        if (horse.isHomozygous("light_dun", 1)) {
+            white.alpha *= 2;
         }
         white.type = TextureLayer.Type.SHADE;
         layers.add(white);
@@ -337,6 +342,7 @@ public class HorseColorCalculator
                 layer.alpha = 255;
         }
 
+        // TODO: replace this with something that actually looks good
         if (horse.hasAllele("donkey_dark", 1) && !horse.isChestnut()) {
             layer.alpha = 255;
         }
@@ -758,6 +764,7 @@ public class HorseColorCalculator
         TextureLayer common = new TextureLayer();
         common.name = HorseColorCalculator.fixPath("common");
         textureLayers.add(common);
+        System.out.println(textureLayers.size());
         return textureLayers;
     }
 }

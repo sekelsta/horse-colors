@@ -99,6 +99,9 @@ public class HorseGenome extends Genome {
         "reduced_points",
         "light_legs",
         "less_light_legs",
+        "donkey_dun",
+        "flaxen_boost",
+        "light_dun",
         "leg_stripes",   // TODO
         "stripe_spacing" // TODO
     );
@@ -241,14 +244,34 @@ public class HorseGenome extends Genome {
         return this.hasAllele("gray", HorseAlleles.GRAY);
     }
 
+    // Arbitrarily decide homozygous donkey nondun breaks horse dun.
+    // Obviously there's no way to check this in real life except by
+    // theorizing once we know more about donkey dun.
     public boolean isDun() {
-        return this.hasAllele("dun", HorseAlleles.DUN)
-            || this.hasAllele("dun", HorseAlleles.DUN_UNUSED);
+        return this.hasAllele("donkey_dun", HorseAlleles.DONKEY_DUN)
+            && (this.hasAllele("dun", HorseAlleles.DUN)
+                || this.isHomozygous("dun", HorseAlleles.DUN_OTHER));
     }
 
     // Whether the horse shows primitive markings such as the dorsal stripe.
     public boolean hasStripe() {
-        return this.isDun() || this.hasAllele("dun", HorseAlleles.NONDUN1);
+        // Some confusion here to account for "donkey dun" mules
+        if (isHomozygous("dun", HorseAlleles.NONDUN2)) {
+            return false;
+        }
+        if (isHomozygous("donkey_dun", HorseAlleles.DONKEY_NONDUN)) {
+            return false;
+        }
+        if (hasAllele("dun", HorseAlleles.DUN)) {
+            return true;
+        }
+        if (hasAllele("donkey_dun", HorseAlleles.DONKEY_DUN)) {
+            return true;
+        }
+        if (hasAllele("dun", HorseAlleles.NONDUN2)) {
+            return false;
+        }
+        return hasAllele("dun", HorseAlleles.DUN_OTHER);
     }
 
     public boolean isMealy() {

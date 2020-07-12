@@ -152,7 +152,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         if (compound.contains("MHC1")) {
             this.setChromosome("mhc1", compound.getInt("MHC1"));
             this.setChromosome("mhc2", compound.getInt("MHC2"));
-            this.setChromosome("immune", compound.getInt("Immune"));
         }
         else {
             this.getGenes().setNamedGene("leopard", 0);
@@ -164,7 +163,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
         else {
             for (int i = 0; i < 2; ++i) {
-                if (this.getGenes().getAllele("dun", i) == HorseAlleles.DUN_UNUSED) {
+                if (this.getGenes().getAllele("dun", i) == HorseAlleles.DUN_OTHER) {
                     this.getGenes().setAllele("dun", i, HorseAlleles.DUN);
                 }
                 if (this.getGenes().getAllele("dun", i) == HorseAlleles.NONDUN1) {
