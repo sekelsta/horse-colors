@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.AgeableEntity;
+import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -16,6 +17,7 @@ import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.horse.*;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.Pose;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -459,8 +461,21 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 return null;
             }
             foal.useGeneticAttributes();
+            foal.setGrowingAge(HorseConfig.GROWTH.getMinAge());
+            foal.setDisplayAge(foal.getGrowingAge());
+            foal.recalculateSize();
         }
         return child;
+    }
+
+    // So that I don't have to override all of Minecraft's code that sets the age
+    // to the minimum.
+    @Override
+    public void setGrowingAge(int age) {
+        if (age == -24000) {
+            age = HorseConfig.GROWTH.getMinAge();
+        }
+        super.setGrowingAge(age);
     }
 
     /**
@@ -473,6 +488,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         if (this.world.isRemote && this.dataManager.isDirty()) {
             this.dataManager.setClean();
             this.getGenes().resetTexture();
+            this.recalculateSize();
         }
 
         // Align age
@@ -486,8 +502,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             }
             // Allow imprecision
             final int c = 400;
-            if (this.trueAge / c != this.getDisplayAge() / c) {
+            if (this.trueAge / c != this.getDisplayAge() / c
+                    || (this.trueAge < 0 != this.getDisplayAge() < 0)) {
                 this.setDisplayAge(this.trueAge);
+                this.recalculateSize();
             }
         }
 
@@ -535,6 +553,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
         this.setGrowingAge(Math.min(0, this.trueAge));
         this.useGeneticAttributes();
+        this.recalculateSize();
     }
 
     public void initFromVillageSpawn() {
@@ -547,5 +566,41 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             ItemStack saddle = new ItemStack(Items.SADDLE);
             this.horseChest.setInventorySlotContents(0, saddle);
         }
+    }
+
+    // The scale the horse will have when it is an adult
+    public float getAdultScale() {
+        // TODO: use size genes once they exist and once I've found how to make
+        // players sit at the right height for different sizes
+        return 1.0f;
+    }
+
+    // The scale the horse has for foal growth
+    public float getAgeScale() {
+        if (HorseConfig.GROWTH.growGradually.get() && this.isChild()) {
+            int minAge = HorseConfig.GROWTH.getMinAge();
+            int age = Math.min(0, this.getDisplayAge());
+            // 0 can't be accurate so assume it hasn't been set yet
+            if (this.getDisplayAge() == 0) {
+                age = minAge;
+            }
+            float partGrown = (minAge - age) / (float)minAge;
+            double maxChildScale = HorseConfig.GROWTH.maxChildScale.get();
+            float scale = 0.5f + ((float)maxChildScale - 0.5f) * partGrown;
+            return scale;
+        }
+        else {
+            // super.getRenderScale will return 0.5 for children and 1 for adults
+            return super.getRenderScale();
+        }
+    }
+
+    @Override
+    public float getRenderScale() {
+            if (this.getDisplayAge() < 0 || getAgeScale() < 1) {
+                System.out.println("Age: " + this.getDisplayAge()
+                                + ", scale: " + this.getAgeScale() * this.getAdultScale());
+            }
+        return this.getAgeScale() * this.getAdultScale();
     }
 }

@@ -10,7 +10,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.config.HorseConfig;
-import sekelsta.horse_colors.entity.HorseGeneticEntity;
+import sekelsta.horse_colors.entity.*;
 import sekelsta.horse_colors.renderer.TextureLayer;
 import sekelsta.horse_colors.util.Util;
 
@@ -448,12 +448,15 @@ public class HorseGenome extends Genome {
     // Return true if the client needs to know the age to render properly,
     // aside from just whether the animal is a child
     public boolean clientNeedsAge() {
-        return isGray();
+        return isGray() 
+            || (HorseConfig.GROWTH.growGradually.get() 
+                && entity instanceof AbstractHorseGenetic 
+                && ((AbstractHorseGenetic)entity).isChild());
     }
 
     public int getAge() {
-        if (entity instanceof HorseGeneticEntity) {
-            return ((HorseGeneticEntity)entity).getDisplayAge();
+        if (entity instanceof AbstractHorseGenetic) {
+            return ((AbstractHorseGenetic)entity).getDisplayAge();
         }
         else {
             return 0;

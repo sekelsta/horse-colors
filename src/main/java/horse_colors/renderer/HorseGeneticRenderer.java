@@ -1,5 +1,6 @@
 package sekelsta.horse_colors.renderer;
 
+import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 import sekelsta.horse_colors.genetics.IGeneticEntity;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -19,22 +20,19 @@ import sekelsta.horse_colors.genetics.HorseColorCalculator;
 
 // Can't inherit from AbstractHorseRenderer because that uses HorseModel
 @OnlyIn(Dist.CLIENT)
-public class HorseGeneticRenderer extends MobRenderer<AbstractHorseEntity, HorseGeneticModel<AbstractHorseEntity>>
+public class HorseGeneticRenderer extends MobRenderer<AbstractHorseGenetic, HorseGeneticModel<AbstractHorseGenetic>>
 {
-    // Stuff from AbstractHorseRenderer
-   private final float scale = 1.0f;
+    protected void preRenderCallback(AbstractHorseGenetic horse, MatrixStack matrixStackIn, float partialTickTime) {
+        float scale = horse.getAdultScale();
+        matrixStackIn.scale(scale, scale, scale);
+        super.preRenderCallback(horse, matrixStackIn, partialTickTime);
+    }
 
-   protected void preRenderCallback(AbstractHorseEntity entitylivingbaseIn, MatrixStack matrixStackIn, float partialTickTime) {
-      matrixStackIn.scale(this.scale, this.scale, this.scale);
-      super.preRenderCallback(entitylivingbaseIn, matrixStackIn, partialTickTime);
-   }
-
-    // Stuff from HorseRenderer
     private static final Map<String, ResourceLocation> LAYERED_LOCATION_CACHE = Maps.newHashMap();
 
     public HorseGeneticRenderer(EntityRendererManager renderManager)
     {
-        super(renderManager, new HorseGeneticModel<AbstractHorseEntity>(0.0F), 0.75F);
+        super(renderManager, new HorseGeneticModel<AbstractHorseGenetic>(0.0F), 0.75F);
         this.addLayer(new HorseArmorLayer(this));
     }
 
@@ -42,7 +40,7 @@ public class HorseGeneticRenderer extends MobRenderer<AbstractHorseEntity, Horse
      * Returns the location of an entity's texture. Doesn't seem to be called unless you call EntityRenderer.bindEntityTexture.
      */
     @Override
-    public ResourceLocation getEntityTexture(AbstractHorseEntity entity)
+    public ResourceLocation getEntityTexture(AbstractHorseGenetic entity)
     {
         if (entity instanceof IGeneticEntity) {
             String s = ((IGeneticEntity)entity).getGenes().getTexture();

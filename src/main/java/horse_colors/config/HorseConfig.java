@@ -16,6 +16,7 @@ public class HorseConfig
 {
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     public static final Common COMMON = new Common(BUILDER);
+    public static final Growth GROWTH = new Growth(BUILDER);
     public static final Spawn HORSE_SPAWN = new Spawn(BUILDER, "horses", 2, 6, 
                                             Arrays.asList((new Spawn.BiomeWeight(BiomeDictionary.Type.PLAINS.toString(), 5)).toString(), 
                                               (new Spawn.BiomeWeight(BiomeDictionary.Type.SAVANNA.toString(), 1)).toString()));
@@ -27,8 +28,6 @@ public class HorseConfig
     public static class Common {
         public static BooleanValue horseDebugInfo;
         public static BooleanValue enableGroundTie;
-        public static IntValue yearLength;
-        public static DoubleValue maxAge;
         public static BooleanValue autoEquipSaddle;
 
         Common(final ForgeConfigSpec.Builder builder) {
@@ -47,15 +46,6 @@ public class HorseConfig
                     .translation("horse_colors.config.common.horseDebugInfo")
                     .define("horseDebugInfo", false);
 
-            yearLength = builder
-                    .comment("How long a year lasts in ticks, for the purposes of graying.",
-                            "The default 48000 ticks is two minecraft days.")
-                    .defineInRange("yearLength", 48000, 1, Integer.MAX_VALUE / 1024);
-
-            maxAge = builder
-                    .comment("How many years a horse will age, for the purposes of graying.")
-                    .defineInRange("maxAge", 15.0, 0.0, 25.0);
-
             autoEquipSaddle = builder
                     .comment("If enabled, right clicking a horse while holding a saddle or horse armor", 
                              "will equip it (as long as the horse isn't already wearing something in that slot)",
@@ -63,6 +53,45 @@ public class HorseConfig
                     .define("autoEquipSaddle", true);
 
             builder.pop();
+        }
+    }
+
+    public static class Growth {
+        public static DoubleValue yearLength;
+        public static DoubleValue maxAge;
+        public static BooleanValue growGradually;
+        public static DoubleValue growTime;
+        public static DoubleValue maxChildScale;
+
+        Growth(final ForgeConfigSpec.Builder builder) {
+            builder.comment("Config settings related to growth and aging")
+                    .push("growth");
+
+            yearLength = builder
+                    .comment("How long a year lasts in twenty minute Minecraft days, for the purposes of graying.", "Internally this number will be converted to ticks before it is used.")
+                    .defineInRange("yearLength", 2.0, 2/24000., 10000);
+
+            maxAge = builder
+                    .comment("How many years a horse will age, for the purposes of graying.")
+                    .defineInRange("maxAge", 15.0, 0.0, 25.0);
+
+            growGradually = builder
+                    .comment("If enabled, foals will slowly get bigger as they grow into adults.")
+                    .define("growGradually", false);
+
+            growTime = builder
+                    .comment("The number of twenty minute Minecraft days that it takes for a foal to become an adult.")
+                    .defineInRange("growTime", 1.0, 2/24000., 10000);
+
+            maxChildScale = builder
+                    .comment("Limit how big foals can get to make it easier to see when they become adults. This will only have an effect if growGradually is enabled. Set to 1.0 to make young ones transition smoothly into adults.")
+                    .defineInRange("maxChildScale", 0.75, 0.5, 1.0);
+
+            builder.pop();
+        }
+
+        public int getMinAge() {
+            return (int)(growTime.get() * -24000);
         }
     }
 

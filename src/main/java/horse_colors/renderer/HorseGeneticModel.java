@@ -62,6 +62,7 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
     private final ModelRenderer[] tackArray;
     private final ModelRenderer[] extraTackArray;
 
+    private float ageScale = 0.5f;
 
     public HorseGeneticModel() {
         this(0.0F);
@@ -265,6 +266,7 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
             this.horseRightEar.showModel = !horse.longEars();
             this.tailBase.showModel = horse.fluffyTail();
             this.tailThin.showModel = !horse.fluffyTail();
+            this.ageScale = horse.getAgeScale();
         }
         else {
             System.out.println("Attempting to use HorseGeneticModel on an unsupported entity type");
@@ -335,13 +337,12 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
     public void render(@Nonnull MatrixStack matrixStackIn, @Nonnull IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
         Consumer<ModelRenderer> render = model -> model.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
         float f = (this.head.rotateAngleX - 0.5235988F) * 0.6031134647F;
-        float f1 = 0.5F;
 
+        // ageScale is 0.5f for the smallest foals
         if (this.isChild) {
-
             matrixStackIn.push();
-            matrixStackIn.scale(f1, 0.5F + f1 * 0.5F, f1);
-            matrixStackIn.translate(0.0F, 0.95F * (1.0F - f1), 0.0F);
+            matrixStackIn.scale(ageScale, 0.5F + ageScale * 0.5F, ageScale);
+            matrixStackIn.translate(0.0F, 0.95F * (1.0F - ageScale), 0.0F);
         }
 
         ImmutableList.of(this.backLeftLeg, this.backRightLeg, 
@@ -351,8 +352,8 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
 
             matrixStackIn.pop();
             matrixStackIn.push();
-            matrixStackIn.scale(f1, f1, f1);
-            matrixStackIn.translate(0.0F, 1.35F * (1.0F - f1), 0.0F);
+            matrixStackIn.scale(ageScale, ageScale, ageScale);
+            matrixStackIn.translate(0.0F, 1.35F * (1.0F - ageScale), 0.0F);
         }
 
         ImmutableList.of(this.body, this.neck).forEach(render);
@@ -360,15 +361,15 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         if (this.isChild) {
             matrixStackIn.pop();
             matrixStackIn.push();
-            float f2 = 0.5F + f1 * f1 * 0.5F;
+            float f2 = 0.5F + ageScale * ageScale * 0.5F;
             matrixStackIn.scale(f2, f2, f2);
             if (f <= 0.0F)
             {
-                matrixStackIn.translate(0.0F, 1.35F * (1.0F - f1), 0.0F);
+                matrixStackIn.translate(0.0F, 1.35F * (1.0F - ageScale), 0.0F);
             }
             else
             {
-                matrixStackIn.translate(0.0F, 0.9F * (1.0F - f1) * f + 1.35F * (1.0F - f1) * (1.0F - f), 0.15F * (1.0F - f1) * f);
+                matrixStackIn.translate(0.0F, 0.9F * (1.0F - ageScale) * f + 1.35F * (1.0F - ageScale) * (1.0F - f), 0.15F * (1.0F - ageScale) * f);
             }
         }
 
