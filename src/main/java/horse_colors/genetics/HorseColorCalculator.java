@@ -691,27 +691,41 @@ public class HorseColorCalculator
         return layer;
     }
 
-    public static TextureLayer getLeopard(HorseGenome horse)
-    {/*
-        if (horse.getPhenotype("leopard") == 0)
-        {
-            return null;
+    public static void addLeopard(HorseGenome horse, List<TextureLayer> textureLayers)
+    {
+        if (!horse.hasAllele("leopard", HorseAlleles.LEOPARD)) {
+            return;
         }
-        int patn = horse.getPhenotype("PATN");
+        TextureLayer hooves = new TextureLayer();
+        hooves.name = fixPath("leopard/striped_hooves");
+        textureLayers.add(hooves);
+        TextureLayer layer = new TextureLayer();
+        int patn = horse.countAlleles("PATN1", HorseAlleles.PATN);
         if (patn == 0)
         {
-            return "varnish_roan";
+            layer.name = fixPath("leopard/varnish_roan");
+            textureLayers.add(layer);
+            return;
         }
-        if (horse.getPhenotype("leopard") == 1)
+        if (horse.isHomozygous("leopard", HorseAlleles.LEOPARD))
         {
             // TODO: different coverage based on the value of patn
-            return "leopard";
+            layer.name = fixPath("leopard/fewspot");
         }
         else
         {
             // TODO: different coverage based on the value of patn
-            return "fewspot";
-        }*/return null;
+            layer.name = fixPath("leopard/leopard");
+        }
+        if (patn == 2) {
+            textureLayers.add(layer);
+            return;
+        }
+        TextureLayer spread = new TextureLayer();
+        spread.name = fixPath("leopard/blanket");
+        layer.type = TextureLayer.Type.MASK;
+        spread.next = layer;
+        textureLayers.add(spread);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -748,6 +762,7 @@ public class HorseColorCalculator
         }
 
         textureLayers.add(HorseColorCalculator.getPinto(horse));
+        //HorseColorCalculator.addLeopard(horse, textureLayers);
 
         TextureLayer highlights = new TextureLayer();
         highlights.name = HorseColorCalculator.fixPath("base");

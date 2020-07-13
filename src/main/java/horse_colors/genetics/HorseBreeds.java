@@ -9,6 +9,7 @@ import java.util.Map;
 public class HorseBreeds {
     public static HashMap<String, List<Float>> EQUINE;
     public static HashMap<String, List<Float>> HORSE;
+    public static HashMap<String, List<Float>> APPALOOSA;
     public static HashMap<String, List<Float>> DONKEY;
 
     static {
@@ -391,6 +392,24 @@ public class HorseBreeds {
         HORSE.put("light_dun", ImmutableList.of(
             1f,     // Darker dun
             0f      // Lighter dun
+        ));
+
+        APPALOOSA = new HashMap<String, List<Float>>(HORSE);
+        APPALOOSA.put("leopard", ImmutableList.of(
+            0.5f,     // Non-leopard
+            1f        // Leopard
+        ));
+        APPALOOSA.put("PATN1", ImmutableList.of(
+            0.5f,  // Non-PATN
+            1f          // PATN
+        ));
+        APPALOOSA.put("PATN2", ImmutableList.of(
+            15f / 16f,  // Non-PATN
+            1f          // PATN
+        ));
+        APPALOOSA.put("PATN3", ImmutableList.of(
+            15f / 16f,  // Non-PATN
+            1f          // PATN
         ));
 
 
