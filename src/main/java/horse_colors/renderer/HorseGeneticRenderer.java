@@ -23,7 +23,7 @@ import sekelsta.horse_colors.genetics.HorseColorCalculator;
 public class HorseGeneticRenderer extends MobRenderer<AbstractHorseGenetic, HorseGeneticModel<AbstractHorseGenetic>>
 {
     protected void preRenderCallback(AbstractHorseGenetic horse, MatrixStack matrixStackIn, float partialTickTime) {
-        float scale = horse.getAdultScale();
+        float scale = horse.getProportionalScale();
         matrixStackIn.scale(scale, scale, scale);
         super.preRenderCallback(horse, matrixStackIn, partialTickTime);
     }

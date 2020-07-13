@@ -266,7 +266,7 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
             this.horseRightEar.showModel = !horse.longEars();
             this.tailBase.showModel = horse.fluffyTail();
             this.tailThin.showModel = !horse.fluffyTail();
-            this.ageScale = horse.getAgeScale();
+            this.ageScale = horse.getGangliness();
         }
         else {
             System.out.println("Attempting to use HorseGeneticModel on an unsupported entity type");

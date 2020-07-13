@@ -568,39 +568,40 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
     }
 
-    // The scale the horse will have when it is an adult
-    public float getAdultScale() {
-        // TODO: use size genes once they exist and once I've found how to make
-        // players sit at the right height for different sizes
-        return 1.0f;
+    public float fractionGrown() {
+        if (this.isChild()) {
+            if (HorseConfig.GROWTH.growGradually.get()) {
+                int minAge = HorseConfig.GROWTH.getMinAge();
+                int age = Math.min(0, this.getDisplayAge());
+                // 0 can't be accurate so assume it hasn't been set yet
+                if (this.getDisplayAge() == 0) {
+                    age = minAge;
+                }
+                double maxFraction = HorseConfig.GROWTH.maxChildGrowth.get();
+                float fractionGrown = (minAge - age) / (float)minAge;
+                return fractionGrown * (float)maxFraction;
+            }
+            return 0;
+        }
+        return 1;
     }
 
-    // The scale the horse has for foal growth
-    public float getAgeScale() {
-        if (HorseConfig.GROWTH.growGradually.get() && this.isChild()) {
-            int minAge = HorseConfig.GROWTH.getMinAge();
-            int age = Math.min(0, this.getDisplayAge());
-            // 0 can't be accurate so assume it hasn't been set yet
-            if (this.getDisplayAge() == 0) {
-                age = minAge;
-            }
-            float partGrown = (minAge - age) / (float)minAge;
-            double maxChildScale = HorseConfig.GROWTH.maxChildScale.get();
-            float scale = 0.5f + ((float)maxChildScale - 0.5f) * partGrown;
-            return scale;
-        }
-        else {
-            // super.getRenderScale will return 0.5 for children and 1 for adults
-            return super.getRenderScale();
-        }
+    // Total size change that does not change proportions
+    public float getProportionalScale() {
+        // TODO: use size genes once they exist and once I've found how to make
+        // players sit at the right height for different sizes
+        float ageScale = 0.5f + 0.5f * fractionGrown();
+        return ageScale / getGangliness();
+    }
+
+    // The horse model uses this number to decide how foal-shaped to make the
+    // horse. 0.5 is the most foal-shaped and 1 is the most adult-shaped.
+    public float getGangliness() {
+        return 0.5f + 0.5f * fractionGrown() * fractionGrown();
     }
 
     @Override
     public float getRenderScale() {
-            if (this.getDisplayAge() < 0 || getAgeScale() < 1) {
-                System.out.println("Age: " + this.getDisplayAge()
-                                + ", scale: " + this.getAgeScale() * this.getAdultScale());
-            }
-        return this.getAgeScale() * this.getAdultScale();
+        return this.getGangliness() * this.getProportionalScale();
     }
 }
