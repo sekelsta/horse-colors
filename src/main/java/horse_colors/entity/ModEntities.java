@@ -1,9 +1,8 @@
-package sekelsta.horse_colors.init;
+package sekelsta.horse_colors.entity;
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.CreativeTab;
 import sekelsta.horse_colors.config.HorseConfig;
 
-import sekelsta.horse_colors.entity.*;
 import sekelsta.horse_colors.renderer.HorseGeneticRenderer;
 
 import com.google.common.collect.ImmutableList;

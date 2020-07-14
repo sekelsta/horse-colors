@@ -27,7 +27,6 @@ import sekelsta.horse_colors.entity.*;
 import sekelsta.horse_colors.genetics.Genome;
 import sekelsta.horse_colors.genetics.HorseGenome;
 import sekelsta.horse_colors.genetics.IGeneticEntity;
-import sekelsta.horse_colors.init.ModEntities;
 
 public class GeneBookItem extends Item {
     public GeneBookItem(Item.Properties properties) {

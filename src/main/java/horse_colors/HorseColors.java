@@ -1,7 +1,8 @@
 package sekelsta.horse_colors;
 
 import sekelsta.horse_colors.config.HorseConfig;
-import sekelsta.horse_colors.init.*;
+import sekelsta.horse_colors.entity.ModEntities;
+import sekelsta.horse_colors.item.ModItems;
 
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;

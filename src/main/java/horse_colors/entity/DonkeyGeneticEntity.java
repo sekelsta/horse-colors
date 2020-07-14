@@ -19,7 +19,6 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
 import sekelsta.horse_colors.genetics.HorseBreeds;
-import sekelsta.horse_colors.init.ModEntities;
 import sekelsta.horse_colors.item.GeneBookItem;
 import sekelsta.horse_colors.util.Util;
 

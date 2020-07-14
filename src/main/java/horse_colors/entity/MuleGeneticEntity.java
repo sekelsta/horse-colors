@@ -18,7 +18,6 @@ import net.minecraft.world.World;
 import sekelsta.horse_colors.genetics.HorseBreeds;
 import sekelsta.horse_colors.genetics.HorseGenome;
 import sekelsta.horse_colors.item.GeneBookItem;
-import sekelsta.horse_colors.init.ModEntities;
 
 public class MuleGeneticEntity extends AbstractHorseGenetic {
     public MuleGeneticEntity(EntityType<? extends MuleGeneticEntity> p_i50239_1_, World p_i50239_2_) {

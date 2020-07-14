@@ -1,4 +1,4 @@
-package sekelsta.horse_colors.init;
+package sekelsta.horse_colors.item;
 
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
