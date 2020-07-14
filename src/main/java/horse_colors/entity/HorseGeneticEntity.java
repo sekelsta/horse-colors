@@ -1,6 +1,8 @@
 package sekelsta.horse_colors.entity;
 import net.minecraft.entity.passive.horse.*;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -30,8 +32,8 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
-
-import sekelsta.horse_colors.init.ModEntities;
+import sekelsta.horse_colors.genetics.HorseBreeds;
+import sekelsta.horse_colors.item.GeneBookItem;
 import sekelsta.horse_colors.util.Util;
 
 public class HorseGeneticEntity extends AbstractHorseGenetic
@@ -74,6 +76,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
    /**
     * Updates the items in the saddle and armor slots of the horse's inventory.
     */
+    @Override
     protected void updateHorseSlots() {
         super.updateHorseSlots();
         this.setHorseArmorStack(this.horseChest.getStackInSlot(1));
@@ -142,7 +145,6 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     public boolean fluffyTail() {
         return true;
     }
-
     @Override
     public boolean longEars() {
         return false;
@@ -156,6 +158,11 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     @Override
     public boolean canEquipChest() {
         return false;
+    }
+
+    @Override
+    public GeneBookItem.Species getSpecies() {
+        return GeneBookItem.Species.HORSE;
     }
 
     /**
@@ -180,35 +187,31 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         }
     }
 
+    // Helper function for createChild that creates and spawns an entity of the 
+    // correct species
     @Override
-    public AgeableEntity createChild(AgeableEntity ageable)
+    public AbstractHorseEntity getChild(AgeableEntity ageable)
     {
-        AbstractHorseEntity abstracthorse;
-
-        if (ageable instanceof HorseGeneticEntity)
-        {
-            abstracthorse = ModEntities.HORSE_GENETIC.create(this.world);
-            HorseGeneticEntity entityHorse = (HorseGeneticEntity)ageable;
-            this.getGenes().setChildGenes(entityHorse.getGenes(), ((HorseGeneticEntity)abstracthorse));
-
-            int i =  this.rand.nextInt();
-            ((HorseGeneticEntity)abstracthorse).setChromosome("random", i);
-
-            // Dominant white is homozygous lethal early in pregnancy. No child
-            // is born.
-            if (((HorseGeneticEntity)abstracthorse).getGenes().isEmbryonicLethal())
-            {
-                return null;
+        if (ageable instanceof AbstractHorseGenetic) {
+            AbstractHorseGenetic child = null;
+            AbstractHorseGenetic other = (AbstractHorseGenetic)ageable;
+            if (ageable instanceof HorseGeneticEntity) {
+                child = ModEntities.HORSE_GENETIC.create(this.world);
             }
-            this.setOffspringAttributes(ageable, abstracthorse);
-            ((HorseGeneticEntity)abstracthorse).useGeneticAttributes();
+            else if (ageable instanceof DonkeyGeneticEntity) {
+                child = ModEntities.MULE_GENETIC.create(this.world);
+            }  
+            return child;
         }
-        else
-        {
-            return super.createChild(ageable);
+        else if (ageable instanceof HorseEntity) {
+            HorseEntity child = EntityType.HORSE.create(this.world);
+            ((HorseEntity)child).setHorseVariant(((HorseEntity)ageable).getHorseVariant());
+            return child;
         }
-
-        return abstracthorse;
+        else if (ageable instanceof DonkeyEntity) {
+            return EntityType.MULE.create(this.world);
+        }
+        return null;
     }
 
     public boolean wearsArmor() {
@@ -222,18 +225,8 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
                     && ((BlockItem)stack.getItem()).getBlock() instanceof CarpetBlock);
     }
 
-
-    /**
-     * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
-     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
-     */
-    @Nullable
     @Override
-    public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag)
-    {
-        spawnDataIn = super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
-        this.getGenes().randomize();
-        this.useGeneticAttributes();
-        return spawnDataIn;
+    public Map<String, List<Float>> getSpawnFrequencies() {
+        return HorseBreeds.HORSE;
     }
 }

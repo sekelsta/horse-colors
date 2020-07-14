@@ -1,18 +1,18 @@
 package sekelsta.horse_colors.genetics;
 
-import sekelsta.horse_colors.HorseColors;
-import sekelsta.horse_colors.config.HorseConfig;
-import sekelsta.horse_colors.entity.HorseGeneticEntity;
-import sekelsta.horse_colors.renderer.TextureLayer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import sekelsta.horse_colors.HorseColors;
+import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.entity.*;
+import sekelsta.horse_colors.renderer.TextureLayer;
+import sekelsta.horse_colors.util.Util;
 
 public class HorseGenome extends Genome {
 
@@ -65,9 +65,11 @@ public class HorseGenome extends Genome {
         "sooty1", 
         "sooty2", 
         "sooty3", 
+        // I'm treating this as the agouti promoter region responsible for 
+        // white bellied agouti in mice
+        "light_belly",
         "mealy1", 
         "mealy2", 
-        "mealy3", 
         "white_suppression", 
         "KIT", 
         "frame", 
@@ -86,13 +88,31 @@ public class HorseGenome extends Genome {
         "white_hindlegs",
         "gray_melanoma",
         "gray_mane1",
-        "gray_mane2"
+        "gray_mane2",
+        "rufous",
+        "dense",
+        "champagne", // TODO
+        "cameo",
+        "ivory",
+        "donkey_dark",
+        "cross",
+        "reduced_points",
+        "light_legs",
+        "less_light_legs",
+        "donkey_dun",
+        "flaxen_boost",
+        "light_dun",
+        "leg_stripes",   // TODO
+        "stripe_spacing" // TODO
     );
 
     public static final ImmutableList<String> genericChromosomes = ImmutableList.of(
         "speed",
         "jump",
-        "health"        
+        "health",   
+        "mhc1", 
+        "mhc2",
+        "immune" 
     );
 
     public static final ImmutableList<String> stats = ImmutableList.of(
@@ -110,10 +130,14 @@ public class HorseGenome extends Genome {
         "stamina"
     );
 
-    public static final ImmutableList<String> chromosomes = ImmutableList.of("0", "1", "2", "speed", "jump", "health", "random");
+    public static final ImmutableList<String> chromosomes = ImmutableList.of("0", "1", "2", "3", "speed", "jump", "health", "mhc1", "mhc2", "immune", "random");
 
     public HorseGenome(IGeneticEntity entityIn) {
         super(entityIn);
+    }
+
+    public HorseGenome() {
+        super();
     }
 
     @Override
@@ -129,6 +153,18 @@ public class HorseGenome extends Genome {
     @Override
     public ImmutableList<String> listStats() {
         return stats;
+    }
+
+    @Override
+    public List<Genome.Linkage> listLinkages() {
+        List<Genome.Linkage> linkages = super.listLinkages();
+        // It doesn't matter if some appear twice, the last will be used
+        linkages.add(new Genome.Linkage("extension", 0.015f));
+        linkages.add(new Genome.Linkage("KIT"));
+
+        linkages.add(new Genome.Linkage("agouti", 0.0f));
+        linkages.add(new Genome.Linkage("light_belly"));
+        return linkages;
     }
 
     /* For named genes, this returns the number of bits needed to store one allele. 
@@ -164,6 +200,12 @@ public class HorseGenome extends Genome {
         }
     }
 
+    public void printGeneLocations() {
+        for (String gene : genes) {
+            System.out.println(gene + ": size=" + getGeneSize(gene) + ", pos=" + getGenePos(gene) + ", chr=" + getGeneChromosome(gene));
+        }
+    }
+
     public boolean isChestnut()
     {
         int e = getMaxAllele("extension");
@@ -182,11 +224,15 @@ public class HorseGenome extends Genome {
     }
 
     public boolean isDoubleCream() {
-        return this.isHomozygous("cream", HorseAlleles.CREAM);
+        return this.isHomozygous("cream", HorseAlleles.CREAM) 
+            || this.isHomozygous("cream", HorseAlleles.SNOWDROP)
+            || (this.hasAllele("cream", HorseAlleles.CREAM)
+                && this.hasAllele("cream", HorseAlleles.SNOWDROP));
     }
 
     public boolean isCreamPearl() {
-        return this.hasAllele("cream", HorseAlleles.CREAM)
+        return (this.hasAllele("cream", HorseAlleles.CREAM)
+                || this.hasAllele("cream", HorseAlleles.SNOWDROP))
             && this.hasAllele("cream", HorseAlleles.PEARL);
     }
 
@@ -198,9 +244,41 @@ public class HorseGenome extends Genome {
         return this.hasAllele("gray", HorseAlleles.GRAY);
     }
 
+    // Arbitrarily decide homozygous donkey nondun breaks horse dun.
+    // Obviously there's no way to check this in real life except by
+    // theorizing once we know more about donkey dun.
     public boolean isDun() {
-        return this.hasAllele("dun", HorseAlleles.DUN)
-            || this.hasAllele("dun", HorseAlleles.DUN_UNUSED);
+        return this.hasAllele("donkey_dun", HorseAlleles.DONKEY_DUN)
+            && (this.hasAllele("dun", HorseAlleles.DUN)
+                || this.isHomozygous("dun", HorseAlleles.DUN_OTHER));
+    }
+
+    // Whether the horse shows primitive markings such as the dorsal stripe.
+    public boolean hasStripe() {
+        // Some confusion here to account for "donkey dun" mules
+        if (isHomozygous("dun", HorseAlleles.NONDUN2)) {
+            return false;
+        }
+        if (isHomozygous("donkey_dun", HorseAlleles.DONKEY_NONDUN)) {
+            return false;
+        }
+        if (hasAllele("dun", HorseAlleles.DUN)) {
+            return true;
+        }
+        if (hasAllele("donkey_dun", HorseAlleles.DONKEY_DUN)) {
+            return true;
+        }
+        if (hasAllele("dun", HorseAlleles.NONDUN2)) {
+            return false;
+        }
+        return hasAllele("dun", HorseAlleles.DUN_OTHER);
+    }
+
+    public boolean isMealy() {
+        return (this.getAllele("light_belly", 0) == HorseAlleles.MEALY 
+                    && this.getAllele("agouti", 0) != HorseAlleles.A_BLACK)
+                || (this.getAllele("light_belly", 1) == HorseAlleles.MEALY 
+                    && this.getAllele("agouti", 1) != HorseAlleles.A_BLACK);
     }
 
     // The MC1R ("extension") gene seems to be associated with white
@@ -288,6 +366,20 @@ public class HorseGenome extends Genome {
         return rate * 17f / 19f;
     }
 
+    public float getImmuneHealth() {
+        float scale = 8f;
+        int diffs = this.countDiffs(this.getChromosome("mhc1"));
+        diffs += this.countDiffs(this.getChromosome("mhc2"));
+        diffs += this.countDiffs(this.getChromosome("immune"));
+        // 3 ints, 16 genes each, half homozygous, makes total expected heterozygosity 24
+        float heterozygosity = diffs / 24f;
+        // Adjust so super outbreeding gives 1.25 advantage, not double advantage
+        if (heterozygosity > 1f) {
+            heterozygosity = 0.25f * (heterozygosity - 1) + 1;
+        }
+        return scale * heterozygosity;
+    }
+
     public float getGrayHealthLoss() {
         // Count zygosity, mitigate from protective gene
         // Agouti may also have an effect on prevalence/severity,
@@ -327,12 +419,24 @@ public class HorseGenome extends Genome {
     }
 
     public float getBaseHealth() {
-        if (HorseConfig.COMMON.enableHealthEffects.get()) {
+        if (HorseConfig.GENETICS.enableHealthEffects.get()) {
             return -getGrayHealthLoss() - getSilverHealthLoss() - getDeafHealthLoss();
         }
         else {
             return 0;
         }
+    }
+
+    public float getHealth() {
+        // Default horse health ranges from 15 to 30, but ours goes from
+        // 15 to 31
+        float healthStat = this.getStatValue("health1")
+                            + this.getStatValue("health2")
+                            + this.getStatValue("health3")
+                            + this.getImmuneHealth();
+        float maxHealth = 15.0F + healthStat * 0.5F;
+        maxHealth += this.getBaseHealth();
+        return maxHealth;
     }
 
     // A special case because it has two different alleles
@@ -344,22 +448,19 @@ public class HorseGenome extends Genome {
     // Return true if the client needs to know the age to render properly,
     // aside from just whether the animal is a child
     public boolean clientNeedsAge() {
-        return isGray();
+        return isGray() 
+            || (HorseConfig.GROWTH.growGradually.get() 
+                && entity instanceof AbstractHorseGenetic 
+                && ((AbstractHorseGenetic)entity).isChild());
     }
 
     public int getAge() {
-        if (entity instanceof HorseGeneticEntity) {
-            return ((HorseGeneticEntity)entity).getDisplayAge();
+        if (entity instanceof AbstractHorseGenetic) {
+            return ((AbstractHorseGenetic)entity).getDisplayAge();
         }
         else {
             return 0;
         }
-    }
-
-    public int inheritStats(HorseGenome other, String chromosome) {
-            int mother = this.getRandomGenericGenes(1, this.getChromosome(chromosome));
-            int father = other.getRandomGenericGenes(0, other.getChromosome(chromosome));
-            return mother | father;
     }
 
     // Distribution should be a series of floats increasing from
@@ -389,17 +490,22 @@ public class HorseGenome extends Genome {
         return (left << size) | right;
     }
 
-    public void randomizeNamedGenes() {
-        HashMap<String, ImmutableList<Float>> map = HorseBreeds.DEFAULT;
+    public void randomizeNamedGenes(Map<String, List<Float>> map) {
         for (String gene : genes) {
-            setNamedGene(gene, chooseRandom(map.get(gene)));
+            if (map.containsKey(gene)) {
+                setNamedGene(gene, chooseRandom(map.get(gene)));
+            }
+            else {
+                HorseColors.logger.debug(gene + " is not in the given map");
+                setNamedGene(gene, 0);
+            }
         }
     }
 
     /* Make the horse have random genetics. */
-    public void randomize()
+    public void randomize(Map<String, List<Float>> map)
     {
-        randomizeNamedGenes();
+        randomizeNamedGenes(map);
 
         // Replace lethal white overos with heterozygotes
         if (isHomozygous("frame", HorseAlleles.FRAME))
@@ -430,96 +536,94 @@ public class HorseGenome extends Genome {
         // Upper case characters will cause a crash
         return abv.toLowerCase();
     }
-    public ArrayList<String> humanReadableNamedGenes(boolean showAll) {
-        List<String> genelist = genes;
-        if (!showAll) {
-            genelist = ImmutableList.of("extension", "agouti", "dun", "gray", "cream", "silver", "KIT", "frame", "MITF");
+
+    public String judgeStatRaw(int val) {
+        if (val <= 0) {
+            return "worst";
         }
-        ArrayList<String> list = new ArrayList<String>();
-        for (String gene : genelist) {
-            String translationLocation = HorseColors.MODID + ".genes." + gene;
-            TranslationTextComponent translation = new TranslationTextComponent(translationLocation + ".name");
-            String s = translation.getFormattedText() + ": ";
-            TranslationTextComponent allele1 = new TranslationTextComponent(translationLocation + ".allele" + getAllele(gene, 0));
-            TranslationTextComponent allele2 = new TranslationTextComponent(translationLocation + ".allele" + getAllele(gene, 1));
-            s += allele1.getFormattedText() + "/";
-            s += allele2.getFormattedText();
-            list.add(s);
+        else if (val <= 2) {
+            return "bad";
         }
-        return list;
-    }/*
-    public ArrayList<String> humanReadableStats(boolean showAll) {
-        ArrayList<String> list = new ArrayList<String>();
-        for (String stat : stats) {
-            TranslationTextComponent translation = new TranslationTextComponent(HorseColors.MODID + ".stats." + stat);
-            String s = translation.getFormattedText();
-            s += ": " + this.getStat(stat);
-            s += " (";
-            int val = this.getChromosome(stat);
-            for (int i = 16; i >0; i--) {
-                s += (val >>> (2 * i - 1)) & 1;
-                s += (val >>> (2 * i - 2)) & 1;
-                if (i > 1) {
-                    s += " ";
-                }
+        else if (val <= 5) {
+            return "avg";
+        }
+        else if (val <= 7) {
+            return "good";
+        }
+        else {
+            return "best";
+        }
+    }
+
+    public String judgeStat(int val, String loc) {
+        return Util.translate(loc + judgeStatRaw(val));
+    }
+
+    public String judgeStat(String stat) {
+        return Util.translate("stats." + judgeStatRaw(getStatValue(stat)));
+    }
+
+    public List<List<String>> getBookContents() {
+        List<List<String>> contents = new ArrayList<List<String>>();
+        List<String> physical = new ArrayList<String>();
+        physical.add(Util.translate("book.physical"));
+        String health = Util.translate("stats.health") + "\n";
+        health += "  " + Util.translate("stats.health1") + ": " + judgeStat("health1") + "\n";
+        health += "  " + Util.translate("stats.health2") + ": " + judgeStat("health2") + "\n";
+        health += "  " + Util.translate("stats.health3") + ": " + judgeStat("health3") + "\n";
+        health += "  " + Util.translate("stats.immune") + ": " + judgeStat((int)getImmuneHealth(), "stats.immune.");
+        if (HorseConfig.GENETICS.enableHealthEffects.get()) {
+            if (getDeafHealthLoss() > 0.5f) {
+                health += "\n" + Util.translate("stats.health.deaf");
             }
-            s += ")";
-            list.add(s);
+            float h = getHealth() + getSilverHealthLoss();
+            if ((int)getHealth() != (int)h) {
+                health += "\n" + Util.translate("stats.health.MCOA");
+            }
+            if ((int)h != (int)(h + getGrayHealthLoss())) {
+                health += "\n" + Util.translate("stats.health.melanoma");
+            }
         }
-        return list;
-    }*/
+        physical.add(health);
+        String athletics = Util.translate("stats.athletics") + "\n";
+        athletics += "  " + Util.translate("stats.athletics1") + ": " + judgeStat("athletics1") + "\n";
+        athletics += "  " + Util.translate("stats.athletics2") + ": " + judgeStat("athletics2");
+        physical.add(athletics);
+        String speed = Util.translate("stats.speed") + "\n";
+        speed += "  " + Util.translate("stats.speed1") + ": " + judgeStat("speed1") + "\n";
+        speed += "  " + Util.translate("stats.speed2") + ": " + judgeStat("speed2") + "\n";
+        speed += "  " + Util.translate("stats.speed3") + ": " + judgeStat("speed3");
+        physical.add(speed);
+        String jump = Util.translate("stats.jump") + "\n";
+        jump += "  " + Util.translate("stats.jump1") + ": " + judgeStat("jump1") + "\n";
+        jump += "  " + Util.translate("stats.jump2") + ": " + judgeStat("jump2") + "\n";
+        jump += "  " + Util.translate("stats.jump3") + ": " + judgeStat("jump3");
+        physical.add(jump);
+        if (HorseConfig.GENETICS.useGeneticStats.get() 
+            && HorseConfig.GENETICS.bookShowsTraits.get()) {
+            contents.add(physical);
+        }
+
+        List<String> genelist = ImmutableList.of("extension", "agouti", "dun", "gray", "cream", "silver", "KIT", "frame", "MITF");
+        List<String> genetic = new ArrayList<String>();
+        genetic.add(Util.translate("book.genetic"));
+        for (String gene : genelist) {
+            String translationLocation = "genes." + gene;
+            String s = Util.translate(translationLocation + ".name") + ": ";
+            s += Util.translate(translationLocation + ".allele" + getAllele(gene, 0)) + "/";
+            s += Util.translate(translationLocation + ".allele" + getAllele(gene, 1));
+            genetic.add(s);
+        }
+        if (HorseConfig.GENETICS.bookShowsGenes.get()) {
+            contents.add(genetic);
+        }
+        return contents;
+    }
 
     @OnlyIn(Dist.CLIENT)
     public void setTexturePaths()
     {
-        this.textureLayers = new ArrayList();
-        TextureLayer red = HorseColorCalculator.getRedBody(this);
-        TextureLayer black = HorseColorCalculator.getBlackBody(this);
-        this.textureLayers.add(red);
-        HorseColorCalculator.addRedManeTail(this, this.textureLayers);
-        this.textureLayers.add(black);
-        this.textureLayers.add(HorseColorCalculator.getBlackManeTail(this));
-        this.textureLayers.add(HorseColorCalculator.getSooty(this));
-        HorseColorCalculator.addDun(this, this.textureLayers);
-        HorseColorCalculator.addGray(this, this.textureLayers);
-        this.textureLayers.add(HorseColorCalculator.getNose(this));
-        this.textureLayers.add(HorseColorCalculator.getHooves(this));
-
-        if (this.hasAllele("KIT", HorseAlleles.KIT_ROAN)) {
-            TextureLayer roan = new TextureLayer();
-            roan.name = HorseColorCalculator.fixPath("roan/roan");
-            this.textureLayers.add(roan);
-        }
-
-        this.textureLayers.add(HorseColorCalculator.getFaceMarking(this));
-        if (showsLegMarkings())
-        {
-            String[] leg_markings = HorseColorCalculator.getLegMarkings(this);
-            for (String marking : leg_markings) {
-                TextureLayer layer = new TextureLayer();
-                layer.name = marking;
-                this.textureLayers.add(layer);
-            }
-        }
-
-        this.textureLayers.add(HorseColorCalculator.getPinto(this));
-
-        TextureLayer highlights = new TextureLayer();
-        highlights.name = HorseColorCalculator.fixPath("base");
-        highlights.type = TextureLayer.Type.HIGHLIGHT;
-        highlights.alpha = (int)(255f * 0.2f);
-        this.textureLayers.add(highlights);
-
-        TextureLayer shading = new TextureLayer();
-        shading.name = HorseColorCalculator.fixPath("shading");
-        shading.type = TextureLayer.Type.SHADE;
-        shading.alpha = (int)(255 * 0.5);
-        this.textureLayers.add(shading);
-
-        TextureLayer common = new TextureLayer();
-        common.name = HorseColorCalculator.fixPath("common");
-        this.textureLayers.add(common);
-
+        this.textureLayers = HorseColorCalculator.getTexturePaths(this);
         this.textureCacheName = "horse/cache_";
 
         for (int i = 0; i < textureLayers.size(); ++i) {
@@ -537,8 +641,14 @@ public class HorseGenome extends Genome {
 
     public void genesFromString(String s) {
         for (int i = 0; i < chromosomes.size(); ++i) {
-            String c = s.substring(8 * i, 8 * (i + 1));
-            entity.setChromosome(chromosomes.get(i), (int)Long.parseLong(c, 16));
+            int val = 0;
+            try {
+                String c = s.substring(8 * i, 8 * (i + 1));
+                val = (int)Long.parseLong(c, 16);
+            }
+            catch (IndexOutOfBoundsException e) {}
+            catch (NumberFormatException e) {}
+            entity.setChromosome(chromosomes.get(i), val);
         }
     }
 
@@ -552,29 +662,9 @@ public class HorseGenome extends Genome {
         return true;
     }
 
-    public void setChildGenes(HorseGenome other, IGeneticEntity childEntity) {
-
-        int mother = this.getRandomGenes(1, 0);
-        int father = other.getRandomGenes(0, 0);
-        int i = mother | father;
-        childEntity.setChromosome("0", i);
-
-        mother = this.getRandomGenes(1, 1);
-        father = other.getRandomGenes(0, 1);
-        i = mother | father;
-        childEntity.setChromosome("1", i);
-
-
-        childEntity.setChromosome("2", rand.nextInt());
-        mother = this.getRandomGenes(1, 2);
-        father = other.getRandomGenes(0, 2);
-        i = mother | father;
-        childEntity.setChromosome("2", i);
-
-        for (String stat : this.listGenericChromosomes()) {
-            int val = inheritStats(other, stat);
-            childEntity.setChromosome(stat, val);
-        }
-        childEntity.getGenes().mutate();
+    @Override
+    public void inheritGenes(Genome parent1, Genome parent2) {
+        super.inheritGenes(parent1, parent2);
+        this.entity.setChromosome("random", this.rand.nextInt());
     }
 }

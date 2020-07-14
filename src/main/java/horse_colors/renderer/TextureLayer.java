@@ -4,6 +4,7 @@ import net.minecraft.client.renderer.texture.*;
 
 public class TextureLayer {
     public String name;
+    public String description;
     public Type type;
     public int alpha;
     public int red;
@@ -15,6 +16,7 @@ public class TextureLayer {
     public TextureLayer next;
     public TextureLayer() {
         name = null;
+        description = null;
         type = Type.NORMAL;
         alpha = 255;
         red = 255;

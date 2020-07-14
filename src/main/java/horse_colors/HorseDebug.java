@@ -78,13 +78,7 @@ public class HorseDebug {
             s += ": " + genome.getStatValue(stat);
             s += " (";
             int val = genome.getRawStat(stat);
-            for (int i = 16; i >0; i--) {
-                s += (val >>> (2 * i - 1)) & 1;
-                s += (val >>> (2 * i - 2)) & 1;
-                if (i > 1) {
-                    s += " ";
-                }
-            }
+            s += Genome.chrToStr(val);
             s += ")";
             list.add(s);
         }

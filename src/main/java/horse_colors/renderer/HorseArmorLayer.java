@@ -1,5 +1,6 @@
 package sekelsta.horse_colors.renderer;
 
+import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 import sekelsta.horse_colors.entity.HorseGeneticEntity;
 import sekelsta.horse_colors.util.HorseArmorer;
 
@@ -19,16 +20,16 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 
 @OnlyIn(Dist.CLIENT)
-public class HorseArmorLayer extends LayerRenderer<AbstractHorseEntity, HorseGeneticModel<AbstractHorseEntity>> {
-    private final HorseGeneticModel<AbstractHorseEntity> horseModel = new HorseGeneticModel<>();
+public class HorseArmorLayer extends LayerRenderer<AbstractHorseGenetic, HorseGeneticModel<AbstractHorseGenetic>> {
+    private final HorseGeneticModel<AbstractHorseGenetic> horseModel = new HorseGeneticModel<>();
 
-    public HorseArmorLayer(IEntityRenderer<AbstractHorseEntity, HorseGeneticModel<AbstractHorseEntity>> model) {
+    public HorseArmorLayer(IEntityRenderer<AbstractHorseGenetic, HorseGeneticModel<AbstractHorseGenetic>> model) {
        super(model);
     }
 
     @Override
     // Render function
-    public void render(AbstractHorseEntity entityIn, float limbSwing, float limbSwingAmount, float partialTickTime, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
+    public void render(AbstractHorseGenetic entityIn, float limbSwing, float limbSwingAmount, float partialTickTime, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
         if (!(entityIn instanceof HorseGeneticEntity)) {
             return;
         }

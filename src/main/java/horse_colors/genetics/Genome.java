@@ -1,7 +1,7 @@
 package sekelsta.horse_colors.genetics;
 
 import sekelsta.horse_colors.config.HorseConfig;
-import sekelsta.horse_colors.renderer.ComplexLayeredTexture;
+import sekelsta.horse_colors.renderer.CustomLayeredTexture;
 import sekelsta.horse_colors.renderer.TextureLayer;
 
 import net.minecraftforge.api.distmarker.Dist;
@@ -14,15 +14,26 @@ public abstract class Genome {
     public abstract List<String> listGenes();
     public abstract List<String> listGenericChromosomes();
     public abstract List<String> listStats();
+    public List<Linkage> listLinkages() {
+        ArrayList linkages = new ArrayList<Genome.Linkage>();
+        for (String gene : listGenes()) {
+            linkages.add(new Genome.Linkage(gene));
+        }
+        return linkages;
+    }
 
     protected IGeneticEntity entity;
 
     protected String textureCacheName;
-    protected ArrayList<TextureLayer> textureLayers;
+    protected List<TextureLayer> textureLayers;
 
     // Make sure to use this.entity.getRand() instead for anything
     // that should be consistent across worlds with the same seed
     public static java.util.Random rand = new java.util.Random();
+
+    public Genome() {
+        this.entity = new FakeGeneticEntity();
+    }
 
     public Genome(IGeneticEntity entityIn) {
         this.entity = entityIn;
@@ -32,8 +43,7 @@ public abstract class Genome {
         this.textureCacheName = null;
     }
 
-    public abstract List<String> humanReadableNamedGenes(boolean showAll);
-    //public abstract List<String> humanReadableStats(boolean showAll);
+    public abstract List<List<String>> getBookContents();
     public abstract void setTexturePaths();
     public abstract String genesToString();
     public abstract void genesFromString(String s);
@@ -50,7 +60,7 @@ public abstract class Genome {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public ArrayList<TextureLayer> getVariantTexturePaths()
+    public List<TextureLayer> getVariantTexturePaths()
     {
         if (this.textureCacheName == null)
         {
@@ -100,6 +110,19 @@ public abstract class Genome {
         {
             count += ((val % 2) + 2) % 2;
             val >>= 1;
+        }
+        return count;
+    }
+
+    public int countDiffs(int val) {
+        int count = 0;
+        for (int i = 0; i < 16; ++i)
+        {
+            int one = ((val % 2) + 2) % 2;
+            val >>= 1;
+            int two = ((val % 2) + 2) % 2;
+            val >>= 1;
+            count += one ^ two;
         }
         return count;
     }
@@ -215,8 +238,10 @@ public abstract class Genome {
     }
 
     public void mutate() {
-        double p = HorseConfig.Common.mutationChance.get();
+        double p = HorseConfig.GENETICS.mutationChance.get();
         for (String gene : listGenes()) {
+            int a = getAllele(gene, 0);
+            int b = getAllele(gene, 1);
             mutateAlleleChance(gene, 0, p);
             mutateAlleleChance(gene, 1, p);
         }
@@ -251,58 +276,86 @@ public abstract class Genome {
         }
         return count;
     }
-    /* Argument is the number of genewidths to the left each gene should be
-    shifted. */
-    public int getRandomGenes(int n, int type)
+
+    public int getRandomGenericGenes(int n, int data, float linkage)
     {
-        int result = 0;
-        int random = 0;
-        for (String gene : listGenes())
-        {
-            if (getGenePos(gene) / 32 != type)
-            {
-                continue;
-            }
-
-            random = this.rand.nextInt();
-            int next = getNamedGene(gene);
-            // Randomly take the low bits or the high bits
-            if (random % 2 == 0)
-            {
-                // Keep high bits, put them in low bit position
-                next >>= getGeneSize(gene);
-            }
-            else
-            {
-                // Keep low bits
-                next &= (1 << getGeneSize(gene)) - 1;
-            }
-            random >>= 1;
-
-            // Add the allele we've selected to the final result
-            result |= next << (getGenePos(gene) % 32) << (n * getGeneSize(gene));
-        }
-
-        return result;
-    }
-
-    public int getRandomGenericGenes(int n, int data)
-    {
-        int rand = this.rand.nextInt();
+        int rand = this.rand.nextInt(2);
         int answer = 0;
         for (int i = 0; i < 16; i++)
         {
-            if (rand % 2 == 0)
+            if (this.rand.nextFloat() < linkage)
             {
-                answer += (data & (1 << (2 * i))) << n;
+                rand = 1 - rand;
             }
-            else 
-            {
-                answer += (data & (1 << (2 * i + 1))) >> 1 - n;
-            }
-            rand >>= 1;
+            answer += ((data & (1 << (2 * i + rand))) >> rand) << n;
         }
         return answer;
     }
 
+    // 
+    public void inheritNamedGenes(Genome parent1, Genome parent2) {
+        int rand1 = this.rand.nextInt(2);
+        int rand2 = this.rand.nextInt(2);
+        for (Linkage link : this.listLinkages()) {
+            int allele1 = parent1.getAllele(link.gene, rand1);
+            int allele2 = parent2.getAllele(link.gene, rand2);
+            this.setAllele(link.gene, 0, allele1);
+            this.setAllele(link.gene, 1, allele2);
+            if (this.rand.nextFloat() < link.p) {
+                rand1 = 1 - rand1;
+            }
+            if (this.rand.nextFloat() < link.p) {
+                rand2 = 1 - rand2;
+            }
+        }
+    }
+
+    // Convert chromosome from int to pretty print string
+    public static String chrToStr(int chr) {
+        String s = "";
+        for (int i = 16; i >0; i--) {
+            s += (chr >>> (2 * i - 1)) & 1;
+            s += (chr >>> (2 * i - 2)) & 1;
+            if (i > 1) {
+                s += " ";
+            }
+        }
+        return s;
+    }
+
+    public void inheritGenericGenes(Genome parent1, Genome parent2) {
+        float linkage = 0.5f;
+        for (String chr : this.listGenericChromosomes()) {
+            if (chr.startsWith("mhc")) {
+                linkage = 0.05f;
+            }
+            else {
+                linkage = 0.5f;
+            }
+            int mother = parent1.getRandomGenericGenes(1, parent1.getChromosome(chr), linkage);
+            int father = parent2.getRandomGenericGenes(0, parent2.getChromosome(chr), linkage);
+            this.entity.setChromosome(chr, mother | father);
+        }
+    }
+
+    public void inheritGenes(Genome parent1, Genome parent2) {
+        inheritNamedGenes(parent1, parent2);
+        inheritGenericGenes(parent1, parent2);
+        mutate();
+    }
+
+    // Chromosomal linkage for storing in a list
+    // p is the probability there are an odd number of crossovers between this gene and the next
+    public static class Linkage {
+        public String gene;
+        public float p;
+        public Linkage(String gene, float p) {
+            this.gene = gene;
+            this.p = p;
+        }
+        public Linkage(String gene) {
+            this.gene = gene;
+            this.p = 0.5f;
+        }
+    }
 }

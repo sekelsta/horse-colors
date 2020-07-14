@@ -16,33 +16,23 @@ public class HorseConfig
 {
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     public static final Common COMMON = new Common(BUILDER);
-    public static final Spawn SPAWN = new Spawn(BUILDER);
+    public static final Growth GROWTH = new Growth(BUILDER);
+    public static final Spawn HORSE_SPAWN = new Spawn(BUILDER, "horses", 2, 6, 
+                                            Arrays.asList((new Spawn.BiomeWeight(BiomeDictionary.Type.PLAINS.toString(), 5)).toString(), 
+                                              (new Spawn.BiomeWeight(BiomeDictionary.Type.SAVANNA.toString(), 1)).toString()));
+    public static final Spawn DONKEY_SPAWN = new Spawn(BUILDER, "donkeys", 1, 3, 
+                                            Arrays.asList((new Spawn.BiomeWeight(BiomeDictionary.Type.PLAINS.toString(), 1)).toString(), 
+                                              (new Spawn.BiomeWeight(BiomeDictionary.Type.SAVANNA.toString(), 1)).toString()));
+    public static final Genetics GENETICS = new Genetics(BUILDER);
 
     public static class Common {
-        public static BooleanValue useGeneticStats;
-        public static BooleanValue enableHealthEffects;
         public static BooleanValue horseDebugInfo;
-        public static DoubleValue mutationChance;
         public static BooleanValue enableGroundTie;
-        public static IntValue yearLength;
-        public static DoubleValue maxAge;
+        public static BooleanValue autoEquipSaddle;
 
         Common(final ForgeConfigSpec.Builder builder) {
             builder.comment("Common config settings")
                     .push("common");
-
-            useGeneticStats = builder
-                    .comment("If enabled, horses' speed, jump, and health will be determined",
-            "through genetics instead of the default Minecraft way")
-                    .translation("horse_colors.config.common.useGeneticStats")
-                    .define("useGeneticStats", false);
-
-            enableHealthEffects = builder
-                    .comment("If enabled, certain genes will have a small impact on health,",
-                             "as they do in real life. This does not prevent Overo Lethal",
-                             "White Syndrome.")
-                    .translation("horse_colors.config.common.enableHealthEffects")
-                    .define("enableHealthEffects", true);
 
             enableGroundTie = builder
                     .comment("If enabled, horses will not wander off if they are wearing a saddle.")
@@ -56,32 +46,100 @@ public class HorseConfig
                     .translation("horse_colors.config.common.horseDebugInfo")
                     .define("horseDebugInfo", false);
 
-            mutationChance = builder
-                    .comment("The chance for each allele to mutate.",
-                             "There are at least 80 genes, each with 2 alleles, and each mutation",
-                             "has about half a chance of having no effect, so with the default",
-                             "value of 0.0005, each foal has a 5% chance of having at least",
-                             "one mutation. For mutationChance = 0.001, that chance becomes about 7%,", 
-                              "and for mutationChance = 0.01 a foal has about a 45% chance of having at", 
-                              "least one mutation. Any higher is not recommended.",
-                              "To disable mutations, set this value to 0.")
-                    .defineInRange("mutationChance", 0.0005, 0.0, 1.0);
+            autoEquipSaddle = builder
+                    .comment("If enabled, right clicking a horse while holding a saddle or horse armor", 
+                             "will equip it (as long as the horse isn't already wearing something in that slot)",
+                             "instead of opening the inventory.")
+                    .define("autoEquipSaddle", true);
+
+            builder.pop();
+        }
+    }
+
+    public static class Growth {
+        public static DoubleValue yearLength;
+        public static DoubleValue maxAge;
+        public static BooleanValue growGradually;
+        public static DoubleValue growTime;
+        public static DoubleValue maxChildGrowth;
+
+        Growth(final ForgeConfigSpec.Builder builder) {
+            builder.comment("Config settings related to growth and aging")
+                    .push("growth");
 
             yearLength = builder
-                    .comment("How long a year lasts in ticks, for the purposes of graying.",
-                            "The default 24000 ticks is one minecraft day.")
-                    .defineInRange("yearLength", 24000, 1, Integer.MAX_VALUE / 1024);
+                    .comment("How long a year lasts in twenty minute Minecraft days, for the purposes of graying.", "Internally this number will be converted to ticks before it is used.")
+                    .defineInRange("yearLength", 2.0, 2/24000., 10000);
 
             maxAge = builder
                     .comment("How many years a horse will age, for the purposes of graying.")
                     .defineInRange("maxAge", 15.0, 0.0, 25.0);
+
+            growGradually = builder
+                    .comment("If enabled, foals will slowly get bigger as they grow into adults.")
+                    .define("growGradually", true);
+
+            growTime = builder
+                    .comment("The number of twenty minute Minecraft days that it takes for a foal to become an adult.")
+                    .defineInRange("growTime", 1.0, 2/24000., 10000);
+
+            maxChildGrowth = builder
+                    .comment("Limit how big foals can get to make it easier to see when they become adults. This will only have an effect if growGradually is enabled. Set to 1.0 to make young ones transition smoothly into adults.")
+                    .defineInRange("maxChildGrowth", 0.2, 0.0, 1.0);
+
+            builder.pop();
+        }
+
+        public int getMinAge() {
+            return (int)(growTime.get() * -24000);
+        }
+    }
+
+    public static class Genetics {
+        public static BooleanValue useGeneticStats;
+        public static BooleanValue enableHealthEffects;
+        public static DoubleValue mutationChance;
+        public static BooleanValue bookShowsGenes;
+        public static BooleanValue bookShowsTraits;
+
+        Genetics(final ForgeConfigSpec.Builder builder) {
+            builder.comment("Config settings for genetics")
+                    .push("genetics");
+
+            useGeneticStats = builder
+                    .comment("If enabled, horses' speed, jump, and health will be determined",
+            "through genetics instead of the vanilla Minecraft way")
+                    .translation("horse_colors.config.common.useGeneticStats")
+                    .define("useGeneticStats", true);
+
+            enableHealthEffects = builder
+                    .comment("If enabled, certain genes will have a small impact on health,",
+                             "as they do in real life. This config option does not affect Overo",
+                             "Lethal White Syndrome.")
+                    .translation("horse_colors.config.common.enableHealthEffects")
+                    .define("enableHealthEffects", true);
+
+            mutationChance = builder
+                    .comment("The chance for each allele to mutate. The recommended range",
+                             "is between 0.0001 and 0.01.",
+                              "To disable mutations, set this value to 0.")
+                    .defineInRange("mutationChance", 0.0005, 0.0, 1.0);
+
+            bookShowsGenes = builder
+                    .comment("Enable or disable genetic testing.")
+                    .define("bookShowsGenes", true);
+
+            bookShowsTraits = builder
+                    .comment("Enable or disable physical inspection (rough information about health, ",
+                            "speed, and jump).")
+                    .define("bookShowsTraits", true);
 
             builder.pop();
         }
     }
 
     public static class Spawn {
-        public static BooleanValue blockVanillaHorseSpawns;
+        public static BooleanValue blockVanillaSpawns;
         public static IntValue minHerdSize;
         public static IntValue maxHerdSize;
         public static ForgeConfigSpec.ConfigValue<List<? extends String>> spawnBiomeWeights;
@@ -156,31 +214,27 @@ public class HorseConfig
             }
         }
 
-        Spawn(final ForgeConfigSpec.Builder builder) {
-            builder.comment("Horse spawning settings")
-                    .push("spawn");
+        Spawn(final ForgeConfigSpec.Builder builder, String name, int minHerd, int maxHerd, List<String> spawnWeights) {
+            builder.comment("Spawning settings for " + name)
+                    .push("spawn " + name);
 
-            blockVanillaHorseSpawns = builder
-                    .comment("If set to true, only horses created by this mod will spawn.",
+            blockVanillaSpawns = builder
+                    .comment("If set to true, only " + name + " created by this mod will spawn.",
             "This mainly affects newly generated areas.")
-                    .translation("horse_colors.config.spawn.blockVanillaHorseSpawns")
-                    .define("blockVanillaHorseSpawns", true);
+                    .define("blockVanillaSpawns", true);
 
             minHerdSize = builder
-                    .comment("What size groups horses will spawn in")
-                    .translation("horse_colors.config.spawn.minHerdSize")
-                    .defineInRange("minHerdSize", 2, 0, Integer.MAX_VALUE);
+                    .comment("What size groups " + name + " will spawn in")
+                    .defineInRange("minHerdSize", minHerd, 0, Integer.MAX_VALUE);
 
             maxHerdSize = builder
                     .comment("")
-                    .translation("horse_colors.config.spawn.maxHerdSize")
-                    .defineInRange("maxHerdSize", 6, 0, Integer.MAX_VALUE);
+                    .defineInRange("maxHerdSize", maxHerd, 0, Integer.MAX_VALUE);
 
             spawnBiomeWeights = builder
-                    .comment("A list of biomes horses can spawn in, and how often they spawn there.")
+                    .comment("A list of biome types " + name + " can spawn in, and how often they spawn there.")
                     .<String>defineList("spawnBiomeWeights", 
-                                Arrays.asList((new BiomeWeight(BiomeDictionary.Type.PLAINS.toString(), 10)).toString(), 
-                                              (new BiomeWeight(BiomeDictionary.Type.SAVANNA.toString(), 10)).toString()), 
+                                spawnWeights, 
                                 BiomeWeight::isValid);
 
             excludeBiomes = builder

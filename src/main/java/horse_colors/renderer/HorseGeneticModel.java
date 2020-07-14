@@ -61,6 +61,7 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends EntityMode
     private final RendererModel[] tackArray;
     private final RendererModel[] extraTackArray;
 
+    private float ageScale = 0.5f;
 
     public HorseGeneticModel() {
         this(0.0F);
@@ -86,13 +87,13 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends EntityMode
         this.tailMiddle.addChild(tailTip);
         this.body.addChild(tailBase);
 
-        this.tailThin = new RendererModel(this, 37, 19);
-        this.tailThin.addBox(-1.5F, -1.0F, 1.0F, 1, 1, 8, scaleFactor);
-        this.tailThin.setRotationPoint(1.0F, -8.0F, 4.0F);
+        this.tailThin = new RendererModel(this, 116, 0);
+        this.tailThin.addBox(-0.5F, 0.0F, 0.5F, 1, 5, 1, scaleFactor);
+        this.tailThin.setRotationPoint(0.0F, -6F, 4.0F);
         this.tailThin.rotateAngleX = -1.134464F; // This doesn't seem to matter at all
-        this.tailTuft = new RendererModel(this, 49, 42);
-        this.tailTuft.addBox(-2.0F, -1.5F, 1.0F, 2, 2, 7, scaleFactor);
-        this.tailTuft.setRotationPoint(0.0F, 0.0F, 8.0F);
+        this.tailTuft = new RendererModel(this, 120, 0);
+        this.tailTuft.addBox(-1.0F, 0F, 0.25F, 2, 6, 2, scaleFactor);
+        this.tailTuft.setRotationPoint(0.0F, 5.0F, 0.0F);
         this.tailThin.addChild(tailTuft);
         this.body.addChild(tailThin);
 
@@ -261,6 +262,7 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends EntityMode
             this.horseRightEar.showModel = !horse.longEars();
             this.tailBase.showModel = horse.fluffyTail();
             this.tailThin.showModel = !horse.fluffyTail();
+            this.ageScale = horse.getGangliness();
         }
         else {
             System.out.println("Attempting to use HorseGeneticModel on an unsupported entity type");
@@ -319,13 +321,12 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends EntityMode
         //Consumer<RendererModel> render = model -> model.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
         updateBoxes(entityIn);
         float f = (this.head.rotateAngleX - 0.5235988F) * 0.6031134647F;
-        float f1 = 0.5F;
 
+        // ageScale is 0.5f for the smallest foals
         if (this.isChild) {
-
             GlStateManager.pushMatrix();
-            GlStateManager.scalef(f1, 0.5F + f1 * 0.5F, f1);
-            GlStateManager.translatef(0.0F, 0.95F * (1.0F - f1), 0.0F);
+            GlStateManager.scalef(ageScale, 0.5F + ageScale * 0.5F, ageScale);
+            GlStateManager.translatef(0.0F, 0.95F * (1.0F - ageScale), 0.0F);
         }
 
         this.backLeftLeg.render(scale);
@@ -334,11 +335,10 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends EntityMode
         this.frontRightLeg.render(scale);
 
         if (this.isChild) {
-
             GlStateManager.popMatrix();
             GlStateManager.pushMatrix();
-            GlStateManager.scalef(f1, f1, f1);
-            GlStateManager.translatef(0.0F, 1.35F * (1.0F - f1), 0.0F);
+            GlStateManager.scalef(ageScale, ageScale, ageScale);
+            GlStateManager.translatef(0.0F, 1.35F * (1.0F - ageScale), 0.0F);
         }
 
         this.body.render(scale);
@@ -347,15 +347,15 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends EntityMode
         if (this.isChild) {
             GlStateManager.popMatrix();
             GlStateManager.pushMatrix();
-            float f2 = 0.5F + f1 * f1 * 0.5F;
+            float f2 = 0.5F + ageScale * ageScale * 0.5F;
             GlStateManager.scalef(f2, f2, f2);
             if (f <= 0.0F)
             {
-                GlStateManager.translatef(0.0F, 1.35F * (1.0F - f1), 0.0F);
+                GlStateManager.translatef(0.0F, 1.35F * (1.0F - ageScale), 0.0F);
             }
             else
             {
-                GlStateManager.translatef(0.0F, 0.9F * (1.0F - f1) * f + 1.35F * (1.0F - f1) * (1.0F - f), 0.15F * (1.0F - f1) * f);
+                GlStateManager.translatef(0.0F, 0.9F * (1.0F - ageScale) * f + 1.35F * (1.0F - ageScale) * (1.0F - f), 0.15F * (1.0F - ageScale) * f);
             }
         }
 
@@ -460,8 +460,6 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends EntityMode
         this.muleRightChest.rotationPointZ = rearingAmount * 15.0F + notRearingAmount * this.muleRightChest.rotationPointZ;
         this.muleLeftChest.rotateAngleX = legRotation1 / 5.0F;
         this.muleRightChest.rotateAngleX = -legRotation1 / 5.0F;
-        //this.extraTackArray[0].rotateAngleX = f4 - this.neck.rotateAngleX;
-        //this.extraTackArray[1].rotateAngleX = f4;
 
         if (isSaddled)
         {
@@ -485,7 +483,7 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends EntityMode
         }
 
         float tailRotation = -1.3089969F + limbSwingAmount * 1.5F;
-        float donkeyTailRotate = -1.4F + limbSwingAmount;
+        float donkeyTailRotate = 0.17F + limbSwingAmount;
 
         if (tailRotation > 0.0F)
         {
@@ -497,7 +495,7 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends EntityMode
             this.tailBase.rotateAngleY = MathHelper.cos(ticks * 0.7F);
             this.tailThin.rotateAngleY = MathHelper.cos(ticks * 0.7F);
             tailRotation = 0.0F;
-            donkeyTailRotate = 0.0F;
+            donkeyTailRotate = (float)Math.PI / 2f;
         }
         else
         {

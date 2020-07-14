@@ -32,7 +32,7 @@ public class HorseAlleles
     public static final int NONDUN2 = 0;
     public static final int NONDUN1 = 1;
     public static final int DUN = 2;
-    public static final int DUN_UNUSED = 3;
+    public static final int DUN_OTHER = 3;
 
     // Gray (STX17)
     public static final int NONGRAY = 0;
@@ -40,7 +40,7 @@ public class HorseAlleles
 
     // Cream/pearl (MATP)
     public static final int NONCREAM = 0;
-    public static final int NONCREAM2 = 1;
+    public static final int SNOWDROP = 1;
     public static final int PEARL = 2;
     public static final int CREAM = 3;
 
@@ -106,11 +106,21 @@ public class HorseAlleles
     public static final int PAX3_SW2 = 1;
     public static final int PAX3_SW4 = 2;
     public static final int PAX3_UNUSED = 3;
-  /*  TODO
-        "dapple",  
-        "white_suppression", 
-        "gray_suppression",
-        "gray_mane", 
-        "slow_gray1", 
-        "slow_gray2"*/
+
+    // Champagne
+    public static final int NONCHAMPAGNE = 0;
+    public static final int CHAMPAGNE = 1;
+
+    // Cameo (donkey)
+    public static final int NONCAMEO = 0;
+    public static final int CAMEO = 1;
+
+    // Ivory (donkey)
+    public static final int NONIVORY = 0;
+    public static final int IVORY = 1;
+
+    // Donkey dun
+    public static final int DONKEY_DUN = 0;
+    public static final int DONKEY_NONDUN_CROSS = 1;
+    public static final int DONKEY_NONDUN = 2;
 };
