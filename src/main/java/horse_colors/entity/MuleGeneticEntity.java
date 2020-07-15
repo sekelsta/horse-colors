@@ -17,7 +17,7 @@ import net.minecraft.world.World;
 
 import sekelsta.horse_colors.genetics.HorseBreeds;
 import sekelsta.horse_colors.genetics.HorseGenome;
-import sekelsta.horse_colors.item.GeneBookItem;
+import sekelsta.horse_colors.genetics.Species;
 
 public class MuleGeneticEntity extends AbstractHorseGenetic {
     public MuleGeneticEntity(EntityType<? extends MuleGeneticEntity> p_i50239_1_, World p_i50239_2_) {
@@ -40,8 +40,8 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
     }
 
     @Override
-    public GeneBookItem.Species getSpecies() {
-        return GeneBookItem.Species.MULE;
+    public Species getSpecies() {
+        return Species.MULE;
     }
 
     @Override

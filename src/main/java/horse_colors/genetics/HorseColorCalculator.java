@@ -773,7 +773,7 @@ public class HorseColorCalculator
         }
 
         textureLayers.add(HorseColorCalculator.getPinto(horse));
-        //HorseColorCalculator.addLeopard(horse, textureLayers);
+        HorseColorCalculator.addLeopard(horse, textureLayers);
 
         TextureLayer highlights = new TextureLayer();
         highlights.name = HorseColorCalculator.fixPath("base");

@@ -342,7 +342,7 @@ public class HorseBreeds {
             1.0f    // Unused
         ));
         HORSE.put("leopard", ImmutableList.of(
-            1f,     // Non-leopard
+            15f/16f,     // Non-leopard
             1f      // Leopard
         ));
         HORSE.put("PATN1", ImmutableList.of(

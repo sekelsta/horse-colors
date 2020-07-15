@@ -523,6 +523,7 @@ public class HorseGenome extends Genome {
             entity.setChromosome(stat, this.entity.getRand().nextInt());
         }
         entity.setChromosome("random", this.entity.getRand().nextInt());
+        this.entity.setMale(this.rand.nextBoolean());
     }
 
     private String getAbv(TextureLayer layer) {
@@ -632,7 +633,7 @@ public class HorseGenome extends Genome {
     }
 
     public String genesToString() {
-        String answer = "";
+        String answer = entity.isMale()? "M" : "F";
         for (String chr : chromosomes) {
             answer += String.format("%1$08X", getChromosome(chr));
         }
@@ -640,7 +641,11 @@ public class HorseGenome extends Genome {
     }
 
     public void genesFromString(String s) {
+        String g = s.substring(0, 1);
+        entity.setMale(g.equals("M"));
+        s = s.substring(1);
         for (int i = 0; i < chromosomes.size(); ++i) {
+            // This will be the default value if there are parsing errors
             int val = 0;
             try {
                 String c = s.substring(8 * i, 8 * (i + 1));
@@ -653,18 +658,19 @@ public class HorseGenome extends Genome {
     }
 
     public boolean isValidGeneString(String s) {
-        if (s.length() != 8 * chromosomes.size()) {
+        if (s.length() < 2) {
+            return false;
+        }
+        String g = s.substring(0, 1);
+        if (!g.equals("M") && !g.equals("F")) {
+            return false;
+        }
+        if ((s.length() - 1) % 8 != 0) {
             return false;
         }
         if (!s.matches("[0-9a-fA-F]*")) {
             return false;
         }
         return true;
-    }
-
-    @Override
-    public void inheritGenes(Genome parent1, Genome parent2) {
-        super.inheritGenes(parent1, parent2);
-        this.entity.setChromosome("random", this.rand.nextInt());
     }
 }

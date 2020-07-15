@@ -71,6 +71,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     public AbstractHorseGenetic(EntityType<? extends AbstractHorseGenetic> entityType, World worldIn)
     {
         super(entityType, worldIn);
+        this.setChromosome("random", this.rand.nextInt());
+        this.setMale(this.rand.nextBoolean());
     }
 
     public HorseGenome getGenes() {
@@ -84,7 +86,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     public abstract boolean fluffyTail();
     public abstract boolean longEars();
     public abstract boolean thinMane();
-    public abstract GeneBookItem.Species getSpecies();
+    public abstract Species getSpecies();
 
     public boolean canEquipChest() {
         return true;
@@ -291,16 +293,18 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         
     }
 
+    @Override
     public boolean isMale() {
         return ((Boolean)this.dataManager.get(GENDER)).booleanValue();
     }
 
-    public boolean isCastrated() {
-        return ((Boolean)this.dataManager.get(IS_CASTRATED)).booleanValue();
-    }
-
+    @Override
     public void setMale(boolean gender) {
         this.dataManager.set(GENDER, gender);
+    }
+
+    public boolean isCastrated() {
+        return ((Boolean)this.dataManager.get(IS_CASTRATED)).booleanValue();
     }
 
     public void setCastrated(boolean isCastrated) {
@@ -465,7 +469,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     abstract AbstractHorseEntity getChild(AgeableEntity otherparent);
 
     public boolean isOppositeGender(AbstractHorseGenetic other) {
-        if (!HorseConfig.COMMON.enableGenders.get()) {
+        if (!HorseConfig.isGenderEnabled()) {
             return true;
         }
         if (this.isCastrated() || other.isCastrated()) {
