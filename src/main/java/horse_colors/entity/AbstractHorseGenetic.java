@@ -63,6 +63,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     protected static final DataParameter<Integer> HORSE_IMMUNE = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_RANDOM = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> DISPLAY_AGE = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
+    protected static final DataParameter<Boolean> GENDER = EntityDataManager.<Boolean>createKey(AbstractHorseGenetic.class, DataSerializers.BOOLEAN);
+    protected static final DataParameter<Boolean> IS_CASTRATED = EntityDataManager.<Boolean>createKey(AbstractHorseGenetic.class, DataSerializers.BOOLEAN);
     protected int trueAge;
 
 
@@ -116,6 +118,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.dataManager.register(HORSE_JUMP, Integer.valueOf(0));
         this.dataManager.register(HORSE_RANDOM, Integer.valueOf(0));
         this.dataManager.register(DISPLAY_AGE, Integer.valueOf(0));
+        this.dataManager.register(GENDER, false);
+        this.dataManager.register(IS_CASTRATED, false);
     }
 
     /**
@@ -137,6 +141,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         compound.putInt("Immune", this.getChromosome("immune"));
         compound.putInt("Random", this.getChromosome("random"));
         compound.putInt("true_age", trueAge);
+        compound.putBoolean("gender", this.isMale());
+        compound.putBoolean("is_castrated", this.isCastrated());
     }
 
     @Override
@@ -176,6 +182,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
         this.setChromosome("random", compound.getInt("Random"));
         this.trueAge = compound.getInt("true_age");
+        this.setMale(compound.getBoolean("gender"));
+        this.setCastrated(compound.getBoolean("is_castrated"));
 
         this.updateHorseSlots();
 
@@ -281,6 +289,22 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 return 0;
         }
         
+    }
+
+    public boolean isMale() {
+        return ((Boolean)this.dataManager.get(GENDER)).booleanValue();
+    }
+
+    public boolean isCastrated() {
+        return ((Boolean)this.dataManager.get(IS_CASTRATED)).booleanValue();
+    }
+
+    public void setMale(boolean gender) {
+        this.dataManager.set(GENDER, gender);
+    }
+
+    public void setCastrated(boolean isCastrated) {
+        this.dataManager.set(IS_CASTRATED, isCastrated);
     }
 
     @Override
@@ -439,6 +463,16 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     // Helper function for createChild that creates and spawns an entity of the 
     // correct species
     abstract AbstractHorseEntity getChild(AgeableEntity otherparent);
+
+    public boolean isOppositeGender(AbstractHorseGenetic other) {
+        if (!HorseConfig.COMMON.enableGenders.get()) {
+            return true;
+        }
+        if (this.isCastrated() || other.isCastrated()) {
+            return false;
+        }
+        return this.isMale() != other.isMale();
+    }
 
     @Override
     public AgeableEntity createChild(AgeableEntity ageable)

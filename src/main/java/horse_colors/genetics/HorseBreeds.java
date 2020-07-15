@@ -393,6 +393,10 @@ public class HorseBreeds {
             1f,     // Darker dun
             0f      // Lighter dun
         ));
+        HORSE.put("marble", ImmutableList.of(
+            0.75f,  // Round leopard spots
+            1f       // Stretched leopard spots
+        ));
 
         APPALOOSA = new HashMap<String, List<Float>>(HORSE);
         APPALOOSA.put("leopard", ImmutableList.of(
@@ -404,11 +408,11 @@ public class HorseBreeds {
             1f          // PATN
         ));
         APPALOOSA.put("PATN2", ImmutableList.of(
-            15f / 16f,  // Non-PATN
+            0.5f,  // Non-PATN
             1f          // PATN
         ));
         APPALOOSA.put("PATN3", ImmutableList.of(
-            15f / 16f,  // Non-PATN
+            0.5f,  // Non-PATN
             1f          // PATN
         ));
 

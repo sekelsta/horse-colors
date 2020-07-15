@@ -697,34 +697,45 @@ public class HorseColorCalculator
             return;
         }
         TextureLayer hooves = new TextureLayer();
-        hooves.name = fixPath("leopard/striped_hooves");
-        textureLayers.add(hooves);
-        TextureLayer layer = new TextureLayer();
-        int patn = horse.countAlleles("PATN1", HorseAlleles.PATN);
-        if (patn == 0)
-        {
-            layer.name = fixPath("leopard/varnish_roan");
-            textureLayers.add(layer);
-            return;
+        if (horse.isHomozygous("leopard", HorseAlleles.LEOPARD)) {
+            hooves.name = fixPath("leopard/lplp_features");
         }
+        else {
+            hooves.name = fixPath("leopard/lp_features");
+        }
+        textureLayers.add(hooves);
+        TextureLayer spots = new TextureLayer();
+        int patn = 4 * horse.countAlleles("PATN1", HorseAlleles.PATN);
+        patn += 2 * horse.countAlleles("PATN2", HorseAlleles.PATN);
+        patn += horse.countAlleles("PATN3", HorseAlleles.PATN);
         if (horse.isHomozygous("leopard", HorseAlleles.LEOPARD))
         {
-            // TODO: different coverage based on the value of patn
-            layer.name = fixPath("leopard/fewspot");
+            spots.name = fixPath("leopard/fewspot");
+        }
+        else if (horse.hasAllele("white_suppression", 1)) {
+            spots.name = fixPath("leopard/leopard_large");
+        }
+        else if (horse.isHomozygous("marble", 1)) {
+            spots.name = fixPath("leopard/marble");
         }
         else
         {
-            // TODO: different coverage based on the value of patn
-            layer.name = fixPath("leopard/leopard");
+            spots.name = fixPath("leopard/leopard");
         }
-        if (patn == 2) {
-            textureLayers.add(layer);
+        if (patn >= 8) {
+            textureLayers.add(spots);
             return;
         }
         TextureLayer spread = new TextureLayer();
-        spread.name = fixPath("leopard/blanket");
-        layer.type = TextureLayer.Type.MASK;
-        spread.next = layer;
+        if (patn == 0)
+        {
+            spread.name = fixPath("leopard/varnish_roan");
+        }
+        else {
+            spread.name = fixPath("leopard/blanket" + patn);
+        }
+        spots.type = TextureLayer.Type.MASK;
+        spread.next = spots;
         textureLayers.add(spread);
     }
 

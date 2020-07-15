@@ -29,6 +29,7 @@ public class HorseConfig
         public static BooleanValue horseDebugInfo;
         public static BooleanValue enableGroundTie;
         public static BooleanValue autoEquipSaddle;
+        public static BooleanValue enableGenders;
 
         Common(final ForgeConfigSpec.Builder builder) {
             builder.comment("Common config settings")
@@ -51,6 +52,10 @@ public class HorseConfig
                              "will equip it (as long as the horse isn't already wearing something in that slot)",
                              "instead of opening the inventory.")
                     .define("autoEquipSaddle", true);
+
+            enableGenders = builder
+                    .comment("If enabled, horses can only breed with another of opposite gender.")
+                    .define("enableGenders", false);
 
             builder.pop();
         }

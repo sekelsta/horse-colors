@@ -175,7 +175,12 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         {
             return false;
         }
-        else if (otherAnimal instanceof DonkeyGeneticEntity 
+        if (otherAnimal instanceof AbstractHorseGenetic) {
+            if (!this.isOppositeGender((AbstractHorseGenetic)otherAnimal)) {
+                return false;
+            }
+        }
+        if (otherAnimal instanceof DonkeyGeneticEntity 
                 || otherAnimal instanceof HorseGeneticEntity
                 || otherAnimal instanceof DonkeyEntity 
                 || otherAnimal instanceof HorseEntity)
