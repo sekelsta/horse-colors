@@ -605,7 +605,7 @@ public class HorseGenome extends Genome {
             contents.add(physical);
         }
 
-        List<String> genelist = ImmutableList.of("extension", "agouti", "dun", "gray", "cream", "silver", "KIT", "frame", "MITF");
+        List<String> genelist = ImmutableList.of("extension", "agouti", "dun", "gray", "cream", "silver", "KIT", "frame", "MITF", "leopard", "PATN1");
         List<String> genetic = new ArrayList<String>();
         genetic.add(Util.translate("book.genetic"));
         for (String gene : genelist) {
