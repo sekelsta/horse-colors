@@ -1,5 +1,4 @@
 package sekelsta.horse_colors.entity;
-import net.minecraft.entity.passive.horse.*;
 
 import java.util.List;
 import java.util.Map;
@@ -10,9 +9,9 @@ import net.minecraft.block.CarpetBlock;
 import net.minecraft.block.SoundType;
 import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraft.entity.passive.horse.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.SpawnReason;
@@ -25,7 +24,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpawnEggItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.world.DifficultyInstance;
@@ -115,6 +113,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         }
     }
 
+    @Override
     public void tick() {
         super.tick();
         ItemStack stack = this.horseChest.getStackInSlot(1);

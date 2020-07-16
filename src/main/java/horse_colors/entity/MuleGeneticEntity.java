@@ -20,8 +20,8 @@ import sekelsta.horse_colors.genetics.HorseGenome;
 import sekelsta.horse_colors.genetics.Species;
 
 public class MuleGeneticEntity extends AbstractHorseGenetic {
-    public MuleGeneticEntity(EntityType<? extends MuleGeneticEntity> p_i50239_1_, World p_i50239_2_) {
-        super(p_i50239_1_, p_i50239_2_);
+    public MuleGeneticEntity(EntityType<? extends MuleGeneticEntity> entity, World world) {
+        super(entity, world);
     }
 
     @Override

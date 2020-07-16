@@ -9,7 +9,6 @@ import javax.annotation.Nullable;
 
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.AgeableEntity;
-import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -17,11 +16,8 @@ import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.horse.*;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.Pose;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.SpawnReason;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BookItem;
 import net.minecraft.item.HorseArmorItem;
@@ -192,11 +188,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         if (this instanceof HorseGeneticEntity) {
             int spawndata = compound.getInt("VillageSpawn");
             if (spawndata != 0) {
-                System.out.println("Village horse read from NBT");
                 this.initFromVillageSpawn();
-            }
-            else {
-                System.out.println("Non-village horse read from NBT");
             }
         }
     }
