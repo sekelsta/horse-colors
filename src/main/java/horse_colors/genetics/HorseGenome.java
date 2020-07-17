@@ -321,6 +321,10 @@ public class HorseGenome extends Genome {
         return this.isHomozygous("KIT", HorseAlleles.KIT_DOMINANT_WHITE);
     }
 
+    public boolean hasERURiskFactor() {
+        return (this.getChromosome("mhc1") >>> 8) % 4 == 3;
+    }
+
     public int getSootyLevel() {
         // sooty1 and 2 dominant, 3 recessive
         return 1 + getMaxAllele("sooty1") + getMaxAllele("sooty2") 
@@ -420,9 +424,16 @@ public class HorseGenome extends Genome {
         }
     }
 
+    public float getERUHealthLoss() {
+        if (hasERURiskFactor()) {
+            return 0.5f * countAlleles("leopard", HorseAlleles.LEOPARD);
+        }
+        return 0;
+    }
+
     public float getBaseHealth() {
         if (HorseConfig.GENETICS.enableHealthEffects.get()) {
-            return -getGrayHealthLoss() - getSilverHealthLoss() - getDeafHealthLoss();
+            return -getGrayHealthLoss() - getSilverHealthLoss() - getDeafHealthLoss() - getERUHealthLoss();
         }
         else {
             return 0;
@@ -575,19 +586,28 @@ public class HorseGenome extends Genome {
         health += "  " + Util.translate("stats.health2") + ": " + judgeStat("health2") + "\n";
         health += "  " + Util.translate("stats.health3") + ": " + judgeStat("health3") + "\n";
         health += "  " + Util.translate("stats.immune") + ": " + judgeStat((int)getImmuneHealth(), "stats.immune.");
+        String healthEffects = "";
         if (HorseConfig.GENETICS.enableHealthEffects.get()) {
             if (getDeafHealthLoss() > 0.5f) {
-                health += "\n" + Util.translate("stats.health.deaf");
+                healthEffects += "\n" + Util.translate("stats.health.deaf");
             }
             float h = getHealth() + getSilverHealthLoss();
             if ((int)getHealth() != (int)h) {
-                health += "\n" + Util.translate("stats.health.MCOA");
+                healthEffects += "\n" + Util.translate("stats.health.MCOA");
             }
-            if ((int)h != (int)(h + getGrayHealthLoss())) {
-                health += "\n" + Util.translate("stats.health.melanoma");
+            float h2 = h + getGrayHealthLoss();
+            if ((int)h != (int)h2) {
+                healthEffects += "\n" + Util.translate("stats.health.melanoma");
+            }
+            if ((int)h2 != (int)(h2 + getERUHealthLoss())) {
+                healthEffects += "\n" + Util.translate("stats.health.ERU");
+            }
+            if (isHomozygous("leopard", HorseAlleles.LEOPARD)) {
+                healthEffects += "\n" + Util.translate("stats.health.CSNB");
             }
         }
         physical.add(health);
+        physical.add(healthEffects);
         String athletics = Util.translate("stats.athletics") + "\n";
         athletics += "  " + Util.translate("stats.athletics1") + ": " + judgeStat("athletics1") + "\n";
         athletics += "  " + Util.translate("stats.athletics2") + ": " + judgeStat("athletics2");
