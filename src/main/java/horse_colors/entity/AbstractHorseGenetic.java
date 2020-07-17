@@ -139,7 +139,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         compound.putInt("Immune", this.getChromosome("immune"));
         compound.putInt("Random", this.getChromosome("random"));
         compound.putInt("true_age", trueAge);
-        compound.putBoolean("gender", this.isMale());
+        // TODO: uncomment when genders are done
+        //compound.putBoolean("gender", this.isMale());
         compound.putBoolean("is_castrated", this.isCastrated());
     }
 
@@ -180,7 +181,12 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
         this.setChromosome("random", compound.getInt("Random"));
         this.trueAge = compound.getInt("true_age");
-        this.setMale(compound.getBoolean("gender"));
+        if (compound.contains("gender")) {
+            this.setMale(compound.getBoolean("gender"));
+        }
+        else {
+            this.setMale(rand.nextBoolean());
+        }
         this.setCastrated(compound.getBoolean("is_castrated"));
 
         this.updateHorseSlots();
@@ -489,6 +495,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             {
                 return null;
             }
+            foal.setMale(rand.nextBoolean());
             foal.useGeneticAttributes();
             foal.setGrowingAge(HorseConfig.GROWTH.getMinAge());
             foal.setDisplayAge(foal.getGrowingAge());
@@ -580,6 +587,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         if (this.trueAge < 0) {
             this.trueAge = -24000;
         }
+        this.setMale(rand.nextBoolean());
         this.setGrowingAge(Math.min(0, this.trueAge));
         this.useGeneticAttributes();
         this.recalculateSize();

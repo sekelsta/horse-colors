@@ -102,6 +102,8 @@ public class HorseGenome extends Genome {
         "donkey_dun",
         "flaxen_boost",
         "light_dun",
+        "marble",
+        "leopard_suppression",
         "leg_stripes",   // TODO
         "stripe_spacing" // TODO
     );

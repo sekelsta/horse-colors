@@ -234,6 +234,14 @@ public class HorseBreeds {
             0f,     // Darker dun
             1f      // Lighter dun
         ));
+        EQUINE.put("marble", ImmutableList.of(
+            1f,     // Round leopard spots
+            1f      // Stretched leopard spots
+        ));
+        EQUINE.put("leopard_suppression", ImmutableList.of(
+            1f,     // Full leopard
+            1f      // Semileopard
+        ));
 
         HORSE = new HashMap<String, List<Float>>(EQUINE);
 
@@ -304,7 +312,7 @@ public class HorseBreeds {
             1f      // Mealy
         ));
         HORSE.put("white_suppression", ImmutableList.of(
-            31f / 32f,  // Non white-suppression
+            15f / 16f,  // Non white-suppression
             1f          // White suppression
         ));
         HORSE.put("KIT", ImmutableList.of(
@@ -394,8 +402,12 @@ public class HorseBreeds {
             0f      // Lighter dun
         ));
         HORSE.put("marble", ImmutableList.of(
-            0.75f,  // Round leopard spots
-            1f       // Stretched leopard spots
+            0.9f,   // Round leopard spots
+            1f      // Stretched leopard spots
+        ));
+        HORSE.put("leopard_suppression", ImmutableList.of(
+            0.88f,  // Full leopard
+            1f      // Semileopard
         ));
 
         APPALOOSA = new HashMap<String, List<Float>>(HORSE);
