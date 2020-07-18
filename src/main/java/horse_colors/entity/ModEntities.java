@@ -188,6 +188,8 @@ public class ModEntities {
     public static void registerRenders()
     {
         RenderingRegistry.registerEntityRenderingHandler(HorseGeneticEntity.class, renderManager -> new HorseGeneticRenderer(renderManager));
+        RenderingRegistry.registerEntityRenderingHandler(MuleGeneticEntity.class, renderManager -> new HorseGeneticRenderer(renderManager));
+        RenderingRegistry.registerEntityRenderingHandler(DonkeyGeneticEntity.class, renderManager -> new HorseGeneticRenderer(renderManager));
     }
 
     @SubscribeEvent
