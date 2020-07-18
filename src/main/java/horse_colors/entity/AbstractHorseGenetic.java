@@ -12,6 +12,7 @@ import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.horse.*;
@@ -63,6 +64,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     protected static final DataParameter<Boolean> IS_CASTRATED = EntityDataManager.<Boolean>createKey(AbstractHorseGenetic.class, DataSerializers.BOOLEAN);
     protected int trueAge;
 
+    protected static final UUID CSNB_SPEED_UUID = UUID.fromString("84ca527a-5c70-4336-a737-ae3f6d40ef45");
+    protected static final UUID CSNB_JUMP_UUID = UUID.fromString("72323326-888b-4e46-bf52-f669600642f7");
+    protected static final AttributeModifier CSNB_SPEED_MODIFIER = (new AttributeModifier(CSNB_SPEED_UUID, "CSNB speed penalty", -0.6, AttributeModifier.Operation.MULTIPLY_TOTAL)).setSaved(false);
+    protected static final AttributeModifier CSNB_JUMP_MODIFIER = (new AttributeModifier(CSNB_JUMP_UUID, "CSNB jump penalty", -0.6, AttributeModifier.Operation.MULTIPLY_TOTAL)).setSaved(false);
 
     public AbstractHorseGenetic(EntityType<? extends AbstractHorseGenetic> entityType, World worldIn)
     {
@@ -560,6 +565,34 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             }
         }
     }
+
+   public void livingTick() {
+      if (this.getGenes().isHomozygous("leopard", HorseAlleles.LEOPARD) && !this.world.isRemote()) {
+        IAttributeInstance speedAttribute = this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
+        IAttributeInstance jumpAttribute = this.getAttribute(JUMP_STRENGTH);
+        float brightness = this.getBrightness();
+        if (brightness > 0.5f) {
+            //setSprinting(true);
+            if (speedAttribute.getModifier(CSNB_SPEED_UUID) != null) {
+                speedAttribute.removeModifier(CSNB_SPEED_MODIFIER);
+            }
+            if (jumpAttribute.getModifier(CSNB_JUMP_UUID) != null) {
+                jumpAttribute.removeModifier(CSNB_JUMP_MODIFIER);
+            }
+        }
+        else {
+            //setSprinting(false);
+            if (speedAttribute.getModifier(CSNB_SPEED_UUID) == null) {
+                speedAttribute.applyModifier(CSNB_SPEED_MODIFIER);
+            }
+            if (jumpAttribute.getModifier(CSNB_JUMP_UUID) == null) {
+                jumpAttribute.applyModifier(CSNB_JUMP_MODIFIER);
+            }
+        }
+      }
+
+      super.livingTick();
+   }
 
     public Map<String, List<Float>> getSpawnFrequencies() {
         return new HashMap<String, List<Float>>();

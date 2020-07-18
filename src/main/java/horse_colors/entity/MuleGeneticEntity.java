@@ -45,6 +45,11 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
     }
 
     @Override
+    protected boolean canMate() {
+        return false;
+    }
+
+    @Override
     // Helper function for createChild that creates and spawns an entity of the 
     // correct species
     public AbstractHorseEntity getChild(AgeableEntity ageable) {
