@@ -1,6 +1,7 @@
 package sekelsta.horse_colors.renderer;
 
 import net.minecraft.client.renderer.texture.*;
+import net.minecraft.resources.IResourceManager;
 
 public class TextureLayer {
     public String name;
@@ -33,6 +34,149 @@ public class TextureLayer {
         POWER,
         ROOT
     }
+
+    public NativeImage getLayer(IResourceManager manager) {
+        if (this.name == null) {
+            LOGGER.error("Attempting to load unspecified texture (name is null)\n");
+            return null;
+        }
+        try (IResource iresource = manager.getResource(new ResourceLocation(this.name))) {
+            NativeImage image = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(this.name), manager);
+            if (this.next != null) {
+                colorLayer(image);
+                combineLayers(image, getLayer(manager, this.next), this.next);
+                // Avoid double multiply
+                this.red = 0xff;
+                this.green = 0xff;
+                this.blue = 0xff;
+            }
+            return image;
+        } catch (IOException ioexception) {
+            LOGGER.error("Couldn't load layered image", (Throwable)ioexception);
+        }
+        return null;
+    }
+
+    public void combineLayers(NativeImage base, NativeImage image) {
+        switch(this.type) {
+            case NORMAL:
+                blendLayer(base, image);
+                break;
+            case NO_ALPHA:
+                blendLayerKeepAlpha(base, image);
+                break;
+            case MASK:
+                maskLayer(base, image);
+                break;
+            case SHADE:
+                shadeLayer(base, image);
+                break;
+            case HIGHLIGHT:
+                highlightLayer(base, image);
+                break;
+            case POWER:
+                powerLayer(base, image);
+                break;
+            case ROOT:
+                rootLayer(base, image);
+                break;
+        }
+    }
+
+    public void blendLayer(NativeImage base, NativeImage image) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                base.blendPixel(j, i, this.multiply(image.getPixelRGBA(j, i)));
+            }
+        }
+    }
+
+    public void blendLayerKeepAlpha(NativeImage base, NativeImage image) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                int cb = base.getPixelRGBA(j, i);
+                int ci = this.multiply(image.getPixelRGBA(j, i));
+                float a = NativeImage.getAlpha(ci) / 255.0F;
+                float r = NativeImage.getRed(ci);
+                float g = NativeImage.getGreen(ci);
+                float b = NativeImage.getBlue(ci);
+                float br = NativeImage.getRed(cb);
+                float bg = NativeImage.getGreen(cb);
+                float bb = NativeImage.getBlue(cb);
+                int fa = NativeImage.getAlpha(cb);
+                int fr = (int)(r * a + br * (1.0F-a));
+                int fg = (int)(g * a + bg * (1.0F-a));
+                int fb = (int)(b * a + bb * (1.0F-a));
+                base.setPixelRGBA(j, i, NativeImage.getCombined(fa, fb, fg, fr));
+            }
+        }
+    }
+
+    public void shadeLayer(NativeImage base, NativeImage image) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                int color = base.getPixelRGBA(j, i);
+                int shading = this.multiply(image.getPixelRGBA(j, i));
+                base.setPixelRGBA(j, i, this.shade(color, shading));
+            }
+        }
+    }
+
+    public void highlightLayer(NativeImage base, NativeImage image) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                int color = base.getPixelRGBA(j, i);
+                int highlight = this.multiply(image.getPixelRGBA(j, i));
+                base.setPixelRGBA(j, i, this.highlight(color, highlight));
+            }
+        }
+    }
+
+    public void maskLayer(NativeImage base, NativeImage image) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                int color = base.getPixelRGBA(j, i);
+                // Don't multiply here because that would do the wrong thing
+                int mask = image.getPixelRGBA(j, i);
+                int maskedColor = this.mask(color, mask);
+                base.setPixelRGBA(j, i, maskedColor);
+            }
+        }
+    }
+
+    // Raise RGB values to an exponent >= 1
+    public void powerLayer(NativeImage base, NativeImage image) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                int color = base.getPixelRGBA(j, i);
+                int exp = image.getPixelRGBA(j, i);
+                exp = this.multiply(exp);
+                base.blendPixel(j, i, this.power(color, exp));
+            }
+        }
+    }
+
+    // Raise RGB values to an exponent <= 1
+    public void rootLayer(NativeImage base, NativeImage image) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                int color = base.getPixelRGBA(j, i);
+                int exp = image.getPixelRGBA(j, i);
+                exp = this.multiply(exp);
+                base.blendPixel(j, i, this.root(color, exp));
+            }
+        }
+    }
+
+    public void colorLayer(NativeImage image) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                int color = image.getPixelRGBA(j, i);
+                image.setPixelRGBA(j, i, this.multiply(color));
+            }
+        }
+    }
+
 
     public int multiply(int color) {
         int a = NativeImage.getAlpha(color);
