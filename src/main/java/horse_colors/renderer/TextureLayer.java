@@ -1,9 +1,17 @@
 package sekelsta.horse_colors.renderer;
 
+import java.io.IOException;
+
 import net.minecraft.client.renderer.texture.*;
+import net.minecraft.resources.IResource;
 import net.minecraft.resources.IResourceManager;
+import net.minecraft.util.ResourceLocation;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class TextureLayer {
+    private static final Logger LOGGER = LogManager.getLogger();
+
     public String name;
     public String description;
     public Type type;
@@ -44,7 +52,7 @@ public class TextureLayer {
             NativeImage image = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(this.name), manager);
             if (this.next != null) {
                 colorLayer(image);
-                combineLayers(image, getLayer(manager, this.next), this.next);
+                this.next.combineLayers(image, this.next.getLayer(manager));
                 // Avoid double multiply
                 this.red = 0xff;
                 this.green = 0xff;

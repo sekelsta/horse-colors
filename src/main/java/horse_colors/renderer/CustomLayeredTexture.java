@@ -6,17 +6,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-import net.minecraft.resources.IResource;
 import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class CustomLayeredTexture extends Texture {
-    private static final Logger LOGGER = LogManager.getLogger();
     public final List<TextureLayer> layers;
 
     public CustomLayeredTexture(List<TextureLayer> textures) {

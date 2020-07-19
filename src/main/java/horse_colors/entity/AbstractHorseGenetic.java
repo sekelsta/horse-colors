@@ -144,8 +144,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         compound.putInt("Immune", this.getChromosome("immune"));
         compound.putInt("Random", this.getChromosome("random"));
         compound.putInt("true_age", trueAge);
-        // TODO: uncomment when genders are done
-        //compound.putBoolean("gender", this.isMale());
+        compound.putBoolean("gender", this.isMale());
         compound.putBoolean("is_castrated", this.isCastrated());
     }
 

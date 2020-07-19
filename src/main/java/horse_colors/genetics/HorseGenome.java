@@ -663,9 +663,12 @@ public class HorseGenome extends Genome {
     }
 
     public void genesFromString(String s) {
-        String g = s.substring(0, 1);
-        entity.setMale(g.equals("M"));
-        s = s.substring(1);
+        if (s.length() % 8 != 0) {
+            String g = s.substring(0, 1);
+            entity.setMale(g.equals("M"));
+            s = s.substring(1);
+        }
+        
         for (int i = 0; i < chromosomes.size(); ++i) {
             // This will be the default value if there are parsing errors
             int val = 0;
@@ -683,16 +686,18 @@ public class HorseGenome extends Genome {
         if (s.length() < 2) {
             return false;
         }
+        // Genderless from older version
+        if (s.length() % 8 == 0) {
+            return s.matches("[0-9a-fA-F]*");
+        }
         String g = s.substring(0, 1);
         if (!g.equals("M") && !g.equals("F")) {
             return false;
         }
-        if ((s.length() - 1) % 8 != 0) {
+        s = s.substring(1);
+        if (s.length() % 8 != 0) {
             return false;
         }
-        if (!s.matches("[0-9a-fA-F]*")) {
-            return false;
-        }
-        return true;
+        return s.matches("[0-9a-fA-F]*");
     }
 }
