@@ -1,5 +1,6 @@
 package sekelsta.horse_colors;
 
+import sekelsta.horse_colors.client.HorseGui;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.ModEntities;
 import sekelsta.horse_colors.item.ModItems;
@@ -34,6 +35,7 @@ public class HorseColors
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
         MinecraftForge.EVENT_BUS.addListener(this::fixMissingRegistries);
+        MinecraftForge.EVENT_BUS.addListener(HorseGui::replaceGui);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, HorseConfig.spec);
     }

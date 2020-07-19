@@ -260,6 +260,6 @@ public class HorseConfig
 
     public static boolean isGenderEnabled() {
         // return COMMON.enableGenders.get();
-        return false;
+        return true;
     }
 }

@@ -309,6 +309,11 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         return ((Boolean)this.dataManager.get(IS_CASTRATED)).booleanValue();
     }
 
+    public boolean isPregnant() {
+        // TODO
+        return false;
+    }
+
     public void setCastrated(boolean isCastrated) {
         this.dataManager.set(IS_CASTRATED, isCastrated);
     }
