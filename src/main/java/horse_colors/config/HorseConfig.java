@@ -17,6 +17,7 @@ public class HorseConfig
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     public static final Common COMMON = new Common(BUILDER);
     public static final Growth GROWTH = new Growth(BUILDER);
+    public static final Breeding BREEDING = new Breeding(BUILDER);
     public static final Spawn HORSE_SPAWN = new Spawn(BUILDER, "horses", 2, 6, 
                                             Arrays.asList((new Spawn.BiomeWeight(BiomeDictionary.Type.PLAINS.toString(), 5)).toString(), 
                                               (new Spawn.BiomeWeight(BiomeDictionary.Type.SAVANNA.toString(), 1)).toString()));
@@ -29,7 +30,6 @@ public class HorseConfig
         public static BooleanValue horseDebugInfo;
         public static BooleanValue enableGroundTie;
         public static BooleanValue autoEquipSaddle;
-        //public static BooleanValue enableGenders;
 
         Common(final ForgeConfigSpec.Builder builder) {
             builder.comment("Common config settings")
@@ -52,10 +52,6 @@ public class HorseConfig
                              "will equip it (as long as the horse isn't already wearing something in that slot)",
                              "instead of opening the inventory.")
                     .define("autoEquipSaddle", true);
-/*
-            enableGenders = builder
-                    .comment("If enabled, horses can only breed with another of opposite gender.")
-                    .define("enableGenders", false);*/
 
             builder.pop();
         }
@@ -97,6 +93,41 @@ public class HorseConfig
 
         public int getMinAge() {
             return (int)(growTime.get() * -24000);
+        }
+    }
+
+    public static class Breeding {
+        public static BooleanValue enableGenders;
+        public static IntValue genderlessRebreedTicks;
+        public static IntValue maleRebreedTicks;
+        public static IntValue femaleRebreedTicks;
+
+        public Breeding(final ForgeConfigSpec.Builder builder) {
+            builder.comment("Config settings related to breeding and gender")
+                    .push("breeding");
+
+            enableGenders = builder
+                    .comment("Enables or disables all features relating to gender.")
+                    .define("enableGenders", false);
+
+            genderlessRebreedTicks = builder
+                    .comment("The number of ticks until horses can breed again, when genders are disabled.",
+                            "The vanilla value is 6000 (or at 20 ticks per second, 5 minutes,",
+                            "or at 24000 ticks per minecraft day, 1/4 day)")
+                    .defineInRange("genderlessRebreedTicks", 6000, 0, Integer.MAX_VALUE);
+
+            maleRebreedTicks = builder
+                    .comment("The number of ticks until male horses can breed again.",
+                            "The default value is 240 ticks (12 seconds).")
+                    .defineInRange("maleRebreedTicks", 240, 0, Integer.MAX_VALUE);
+
+            femaleRebreedTicks = builder
+                    .comment("The number of ticks until female horses can breed again.",
+                            "The default value is 24000 ticks (20 minutes, or 1 minecraft day).")
+                    .defineInRange("femaleRebreedTicks", 24000, 0, Integer.MAX_VALUE);
+
+            
+
         }
     }
 
@@ -259,7 +290,20 @@ public class HorseConfig
     public static final ForgeConfigSpec spec = BUILDER.build();
 
     public static boolean isGenderEnabled() {
-        // return COMMON.enableGenders.get();
-        return true;
+        return BREEDING.enableGenders.get();
+    }
+
+    public static int getHorseRebreedTicks(boolean isMale) {
+        if (!isGenderEnabled()) {
+            return BREEDING.genderlessRebreedTicks.get();
+        }
+        if (isMale) {
+            return BREEDING.maleRebreedTicks.get();
+        }
+        return BREEDING.femaleRebreedTicks.get();
+    }
+
+    public static int getHorseBirthAge() {
+        return GROWTH.getMinAge();
     }
 }

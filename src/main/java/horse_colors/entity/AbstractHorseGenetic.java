@@ -38,7 +38,7 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
 import sekelsta.horse_colors.config.HorseConfig;
-import sekelsta.horse_colors.entity.ai.RandomWalkGroundTie;
+import sekelsta.horse_colors.entity.ai.*;
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.item.ModItems;
 import sekelsta.horse_colors.item.GeneBookItem;
@@ -97,7 +97,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new PanicGoal(this, 1.2D));
         this.goalSelector.addGoal(1, new RunAroundLikeCrazyGoal(this, 1.2D));
-        this.goalSelector.addGoal(2, new BreedGoal(this, 1.0D, AbstractHorseEntity.class));
+        this.goalSelector.addGoal(2, new GenderedBreedGoal(this, 1.0D, AbstractHorseEntity.class));
         this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.0D));
         this.goalSelector.addGoal(6, new RandomWalkGroundTie(this, 0.7D));
         this.goalSelector.addGoal(7, new LookAtGoal(this, PlayerEntity.class, 6.0F));
@@ -309,13 +309,21 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         return ((Boolean)this.dataManager.get(IS_CASTRATED)).booleanValue();
     }
 
+    public void setCastrated(boolean isCastrated) {
+        this.dataManager.set(IS_CASTRATED, isCastrated);
+    }
+
     public boolean isPregnant() {
         // TODO
         return false;
     }
 
-    public void setCastrated(boolean isCastrated) {
-        this.dataManager.set(IS_CASTRATED, isCastrated);
+    public int getRebreedTicks() {
+        return HorseConfig.getHorseRebreedTicks(this.isMale());
+    }
+
+    public int getBirthAge() {
+        return HorseConfig.getHorseBirthAge();
     }
 
     @Override
@@ -507,8 +515,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             foal.setMale(rand.nextBoolean());
             foal.useGeneticAttributes();
             foal.setGrowingAge(HorseConfig.GROWTH.getMinAge());
-            foal.setDisplayAge(foal.getGrowingAge());
-            foal.recalculateSize();
         }
         return child;
     }
@@ -521,6 +527,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             age = HorseConfig.GROWTH.getMinAge();
         }
         super.setGrowingAge(age);
+        this.setDisplayAge(this.getGrowingAge());
+        this.recalculateSize();
     }
 
     /**

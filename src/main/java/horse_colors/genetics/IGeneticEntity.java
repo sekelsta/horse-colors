@@ -14,4 +14,8 @@ public interface IGeneticEntity {
     boolean isMale();
 
     void setMale(boolean gender);
+
+    int getRebreedTicks();
+
+    int getBirthAge();
 }

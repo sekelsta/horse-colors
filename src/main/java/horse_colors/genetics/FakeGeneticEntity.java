@@ -45,4 +45,14 @@ public class FakeGeneticEntity implements IGeneticEntity {
     public void setMale(boolean gender) {
         this.gender = gender;
     }
+
+    @Override
+    public int getRebreedTicks() {
+        return 0;
+    }
+
+    @Override
+    public int getBirthAge() {
+        return 0;
+    }
 }
