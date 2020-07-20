@@ -77,15 +77,19 @@ public class HorseConfig
                     .defineInRange("maxAge", 15.0, 0.0, 25.0);
 
             growGradually = builder
-                    .comment("If enabled, foals will slowly get bigger as they grow into adults.")
-                    .define("growGradually", true);
+                    .comment("If enabled, foals will slowly get bigger as they grow into adults. As",
+                            "a side effect, this also allows foals to pass through fences to the south or east.")
+                    .define("foalsGrowGradually", false);
 
             growTime = builder
                     .comment("The number of twenty minute Minecraft days that it takes for a foal to become an adult.")
                     .defineInRange("growTime", 1.0, 2/24000., 10000);
 
             maxChildGrowth = builder
-                    .comment("Limit how big foals can get to make it easier to see when they become adults. This will only have an effect if growGradually is enabled. Set to 1.0 to make young ones transition smoothly into adults.")
+                    .comment("Limit how big foals can get to make it easier to see when they become adults.", 
+                            "This will only have an effect if growGradually is enabled. Set to 1.0 to make", 
+                            "young ones transition smoothly into adults, or set to about 0.2 to let foals", 
+                            "grow a little while staying distinct.")
                     .defineInRange("maxChildGrowth", 0.2, 0.0, 1.0);
 
             builder.pop();
