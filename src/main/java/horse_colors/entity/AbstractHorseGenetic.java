@@ -357,6 +357,15 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
 
     @Override
     public void setMale(boolean gender) {
+        if (gender) {
+            // Prepare to become male
+            this.unbornChildren = new ArrayList<>();
+            this.dataManager.set(PREGNANT_SINCE, -1);
+        }
+        else {
+            // Prepare to become female
+            this.setCastrated(false);
+        }
         this.dataManager.set(GENDER, gender);
     }
 
