@@ -62,6 +62,8 @@ public class GenderedBreedGoal extends BreedGoal {
         if (HorseConfig.isPregnancyEnabled()) {
             if (geneticAnimal.setPregnantWith(ageableentity, this.targetMate)) {
                 ageableentity = null;
+                // Spawn heart particles
+                this.world.setEntityState(this.animal, (byte)18);
             }
         }
         ServerPlayerEntity serverplayerentity = this.animal.getLoveCause();
@@ -95,7 +97,7 @@ public class GenderedBreedGoal extends BreedGoal {
             }
             child.setLocationAndAngles(mother.getPosX(), mother.getPosY(), mother.getPosZ(), 0.0F, 0.0F);
             world.addEntity(child);
-            // I don't know what this does but BreedGoal does it
+            // Spawn heart particles
             world.setEntityState(mother, (byte)18);
     }
 }

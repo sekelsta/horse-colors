@@ -616,6 +616,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.recalculateSize();
     }
 
+    public boolean shouldRecordAge() {
+        return this.getGenes().clientNeedsAge() || this.isPregnant();
+    }
+
     /**
      * Called to update the entity's position/logic.
      */
@@ -629,8 +633,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             this.recalculateSize();
         }
 
-        // Align age
-        if (!this.world.isRemote && this.getGenes().clientNeedsAge()) {
+        // Keep track of age
+        if (!this.world.isRemote && this.shouldRecordAge()) {
             // For children, align with growing age in case they have been fed
             if (this.growingAge < 0) {
                 this.trueAge = this.growingAge;
@@ -638,12 +642,35 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             else {
                 this.trueAge = Math.max(0, this.trueAge + 1);
             }
+        }
+
+        // Align age with client
+        if (!this.world.isRemote && this.getGenes().clientNeedsAge()) {
             // Allow imprecision
             final int c = 400;
             if (this.trueAge / c != this.getDisplayAge() / c
                     || (this.trueAge < 0 != this.getDisplayAge() < 0)) {
                 this.setDisplayAge(this.trueAge);
                 this.recalculateSize();
+            }
+        }
+
+        // Pregnancy
+        if (!this.world.isRemote && this.isPregnant()) {
+            // Check pregnancy
+            if (this.unbornChildren == null
+                    || this.unbornChildren.size() == 0) {
+                this.dataManager.set(PREGNANT_SINCE, -1);
+            }
+            // Handle birth
+            int totalLength = HorseConfig.getHorsePregnancyLength();
+            int currentLength = this.trueAge - this.dataManager.get(PREGNANT_SINCE);
+            if (currentLength >= totalLength) {
+                for (AbstractHorseGenetic child : unbornChildren) {
+                    GenderedBreedGoal.spawnChild(this, child, this.world);
+                }
+                this.unbornChildren = new ArrayList<>();
+                this.dataManager.set(PREGNANT_SINCE, -1);
             }
         }
 

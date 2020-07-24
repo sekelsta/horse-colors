@@ -102,9 +102,10 @@ public class HorseConfig
 
     public static class Breeding {
         public static BooleanValue enableGenders;
-        public static IntValue genderlessRebreedTicks;
-        public static IntValue maleRebreedTicks;
-        public static IntValue femaleRebreedTicks;
+        public static IntValue genderlessBreedingCooldown;
+        public static IntValue maleBreedingCooldown;
+        public static IntValue femaleBreedingCooldown;
+        public static IntValue pregnancyLength;
 
         public Breeding(final ForgeConfigSpec.Builder builder) {
             builder.comment("Config settings related to breeding and gender")
@@ -114,21 +115,28 @@ public class HorseConfig
                     .comment("Enables or disables all features relating to gender.")
                     .define("enableGenders", false);
 
-            genderlessRebreedTicks = builder
+            genderlessBreedingCooldown = builder
                     .comment("The number of ticks until horses can breed again, when genders are disabled.",
                             "The vanilla value is 6000 (or at 20 ticks per second, 5 minutes,",
                             "or at 24000 ticks per minecraft day, 1/4 day)")
-                    .defineInRange("genderlessRebreedTicks", 6000, 0, Integer.MAX_VALUE);
+                    .defineInRange("genderlessBreedingCooldown", 6000, 0, Integer.MAX_VALUE);
 
-            maleRebreedTicks = builder
+            maleBreedingCooldown = builder
                     .comment("The number of ticks until male horses can breed again.",
                             "The default value is 240 ticks (12 seconds).")
-                    .defineInRange("maleRebreedTicks", 240, 0, Integer.MAX_VALUE);
+                    .defineInRange("maleBreedingCooldown", 240, 0, Integer.MAX_VALUE);
 
-            femaleRebreedTicks = builder
+            femaleBreedingCooldown = builder
                     .comment("The number of ticks until female horses can breed again.",
-                            "The default value is 24000 ticks (20 minutes, or 1 minecraft day).")
-                    .defineInRange("femaleRebreedTicks", 24000, 0, Integer.MAX_VALUE);
+                            "The default value is 24000 ticks (20 minutes, or 1 minecraft day).",
+                            "This must always be at least as long as pregnancyLength.")
+                    .defineInRange("femaleBreedingCooldown", 24000, 0, Integer.MAX_VALUE);
+
+            pregnancyLength = builder
+                    .comment("If genders are enabled, females will be pregnant for this many ticks.",
+                            "The default value is 24000 ticks (20 minutes, or 1 minecraft day).",
+                            "To disable pregnancy altogether, set this number to 0.")
+                    .defineInRange("pregnancyLength", 24000, 0, Integer.MAX_VALUE);
 
             builder.pop();
         }
@@ -298,12 +306,12 @@ public class HorseConfig
 
     public static int getHorseRebreedTicks(boolean isMale) {
         if (!isGenderEnabled()) {
-            return BREEDING.genderlessRebreedTicks.get();
+            return BREEDING.genderlessBreedingCooldown.get();
         }
         if (isMale) {
-            return BREEDING.maleRebreedTicks.get();
+            return BREEDING.maleBreedingCooldown.get();
         }
-        return BREEDING.femaleRebreedTicks.get();
+        return Math.max(BREEDING.femaleBreedingCooldown.get(), getHorsePregnancyLength());
     }
 
     public static int getHorseBirthAge() {
@@ -312,5 +320,9 @@ public class HorseConfig
 
     public static boolean isPregnancyEnabled() {
         return isGenderEnabled();
+    }
+
+    public static int getHorsePregnancyLength() {
+        return BREEDING.pregnancyLength.get();
     }
 }
