@@ -80,6 +80,7 @@ public class GeneBookScreen extends Screen {
         this.font.drawSplitString(pagetext, x, 32, lineWrapWidth, 0);
     }
 
+    @Override
     protected void init() {
         this.contents = genome.getBookContents();
         this.pages = new ArrayList<String>();

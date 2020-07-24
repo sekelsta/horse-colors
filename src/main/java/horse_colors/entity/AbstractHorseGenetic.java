@@ -1,6 +1,7 @@
 package sekelsta.horse_colors.entity;
 
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,8 @@ import net.minecraft.item.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpawnEggItem;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -62,6 +65,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     protected static final DataParameter<Integer> DISPLAY_AGE = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Boolean> GENDER = EntityDataManager.<Boolean>createKey(AbstractHorseGenetic.class, DataSerializers.BOOLEAN);
     protected static final DataParameter<Boolean> IS_CASTRATED = EntityDataManager.<Boolean>createKey(AbstractHorseGenetic.class, DataSerializers.BOOLEAN);
+    protected static final DataParameter<Integer> PREGNANT_SINCE = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected int trueAge;
 
     protected static final UUID CSNB_SPEED_UUID = UUID.fromString("84ca527a-5c70-4336-a737-ae3f6d40ef45");
@@ -69,11 +73,14 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     protected static final AttributeModifier CSNB_SPEED_MODIFIER = (new AttributeModifier(CSNB_SPEED_UUID, "CSNB speed penalty", -0.6, AttributeModifier.Operation.MULTIPLY_TOTAL)).setSaved(false);
     protected static final AttributeModifier CSNB_JUMP_MODIFIER = (new AttributeModifier(CSNB_JUMP_UUID, "CSNB jump penalty", -0.6, AttributeModifier.Operation.MULTIPLY_TOTAL)).setSaved(false);
 
+    protected List<AbstractHorseGenetic> unbornChildren = new ArrayList<>();
+
     public AbstractHorseGenetic(EntityType<? extends AbstractHorseGenetic> entityType, World worldIn)
     {
         super(entityType, worldIn);
         this.setChromosome("random", this.rand.nextInt());
         this.setMale(this.rand.nextBoolean());
+        this.dataManager.set(PREGNANT_SINCE, -1);
     }
 
     public HorseGenome getGenes() {
@@ -123,6 +130,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.dataManager.register(DISPLAY_AGE, Integer.valueOf(0));
         this.dataManager.register(GENDER, false);
         this.dataManager.register(IS_CASTRATED, false);
+        this.dataManager.register(PREGNANT_SINCE, -1);
     }
 
     /**
@@ -146,6 +154,17 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         compound.putInt("true_age", trueAge);
         compound.putBoolean("gender", this.isMale());
         compound.putBoolean("is_castrated", this.isCastrated());
+        compound.putInt("pregnant_since", this.dataManager.get(PREGNANT_SINCE));
+        if (this.unbornChildren != null) {
+            ListNBT unbornChildrenTag = new ListNBT();
+            for (AbstractHorseGenetic child : this.unbornChildren) {
+                CompoundNBT childNBT = new CompoundNBT();
+                childNBT.putString("species", child.getSpecies().toString());
+                childNBT.putString("genes", child.getGenes().toString());
+                unbornChildrenTag.add(childNBT);
+            }
+            compound.put("unborn_children", unbornChildrenTag);
+        }
     }
 
     @Override
@@ -192,6 +211,42 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             this.setMale(rand.nextBoolean());
         }
         this.setCastrated(compound.getBoolean("is_castrated"));
+        int pregnantSince = -1;
+        if (compound.contains("pregnant_since")) {
+            pregnantSince = compound.getInt("pregnant_since");
+        }
+        this.dataManager.set(PREGNANT_SINCE, pregnantSince);
+        if (compound.contains("unborn_children")) {
+            INBT nbt = compound.get("unborn_children");
+            if (nbt instanceof ListNBT) {
+                ListNBT childListTag = (ListNBT)nbt;
+                for (int i = 0; i < childListTag.size(); ++i) {
+                    INBT cnbt = childListTag.get(i);
+                    if (!(cnbt instanceof CompoundNBT)) {
+                        continue;
+                    }
+                    CompoundNBT childNBT = (CompoundNBT)cnbt;
+                    Species species = Species.valueOf(childNBT.getString("species"));
+                    AbstractHorseGenetic child = null;
+                    switch(species) {
+                        case HORSE:
+                            child = ModEntities.HORSE_GENETIC.create(this.world);
+                            break;
+                        case DONKEY:
+                            child = ModEntities.DONKEY_GENETIC.create(this.world);
+                            break;
+                        case MULE:
+                            child = ModEntities.MULE_GENETIC.create(this.world);
+                            break;
+                    }
+                    if (child != null) {
+                        HorseGenome genome = new HorseGenome(child);
+                        genome.genesFromString(childNBT.getString("genes"));
+                        this.unbornChildren.add(child);
+                    }
+                }
+            }
+        }
 
         this.updateHorseSlots();
 
@@ -314,8 +369,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     }
 
     public boolean isPregnant() {
-        // TODO
-        return false;
+        return this.dataManager.get(PREGNANT_SINCE) >= 0;
     }
 
     public int getRebreedTicks() {
@@ -496,6 +550,12 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     @Override
     public AgeableEntity createChild(AgeableEntity ageable)
     {
+        // Have the female create the child if possible
+        if (this.isMale() 
+                && ageable instanceof AbstractHorseGenetic
+                && !((AbstractHorseGenetic)ageable).isMale()) {
+            return ageable.createChild(this);
+        }
         AbstractHorseEntity child = this.getChild(ageable);
         if (child != null) {
             this.setOffspringAttributes(ageable, child);
@@ -517,6 +577,31 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             foal.setGrowingAge(HorseConfig.GROWTH.getMinAge());
         }
         return child;
+    }
+
+    @Override
+    public boolean setPregnantWith(AgeableEntity child, AgeableEntity otherParent) {
+        if (otherParent instanceof IGeneticEntity) {
+            IGeneticEntity otherGenetic = (IGeneticEntity)otherParent;
+            if (this.isMale() == otherGenetic.isMale()) {
+                return false;
+            }
+            else if (this.isMale() && !otherGenetic.isMale()) {
+                return otherGenetic.setPregnantWith(child, this);
+            }
+        }
+        if (this.isMale()) {
+            return false;
+        }
+
+        if (child instanceof AbstractHorseGenetic) {
+            unbornChildren.add((AbstractHorseGenetic)child);
+            if (!this.world.isRemote) {
+                this.dataManager.set(PREGNANT_SINCE, this.trueAge);
+            }
+            return true;
+        }
+        return false;
     }
 
     // So that I don't have to override all of Minecraft's code that sets the age

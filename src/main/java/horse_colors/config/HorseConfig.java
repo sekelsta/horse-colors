@@ -130,8 +130,7 @@ public class HorseConfig
                             "The default value is 24000 ticks (20 minutes, or 1 minecraft day).")
                     .defineInRange("femaleRebreedTicks", 24000, 0, Integer.MAX_VALUE);
 
-            
-
+            builder.pop();
         }
     }
 
@@ -309,5 +308,9 @@ public class HorseConfig
 
     public static int getHorseBirthAge() {
         return GROWTH.getMinAge();
+    }
+
+    public static boolean isPregnancyEnabled() {
+        return isGenderEnabled();
     }
 }

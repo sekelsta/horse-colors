@@ -1,6 +1,8 @@
 package sekelsta.horse_colors.genetics;
 
+import net.minecraft.entity.AgeableEntity;
 import sekelsta.horse_colors.genetics.Species;
+
 public interface IGeneticEntity {
     Genome getGenes();
     int getChromosome(String name);
@@ -18,4 +20,9 @@ public interface IGeneticEntity {
     int getRebreedTicks();
 
     int getBirthAge();
+
+    // Return true if successful, false otherwise
+    // Reasons for returning false could be if the animal is male or the mate is female
+    // (This prevents spawn eggs from starting a pregnancy.)
+    boolean setPregnantWith(AgeableEntity child, AgeableEntity otherParent);
 }

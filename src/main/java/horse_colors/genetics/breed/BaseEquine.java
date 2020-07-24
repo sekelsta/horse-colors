@@ -9,6 +9,8 @@ public class BaseEquine {
 
     public static HashMap<String, List<Float>> COLORS;
 
+    public static HashMap<String, Float> STATS;
+
     static {
         COLORS = new HashMap<String, List<Float>>();
 

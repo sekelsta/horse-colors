@@ -1,6 +1,7 @@
 package sekelsta.horse_colors.genetics;
 
 import java.util.HashMap;
+import net.minecraft.entity.AgeableEntity;
 import sekelsta.horse_colors.genetics.Genome;
 import sekelsta.horse_colors.genetics.IGeneticEntity;
 
@@ -54,5 +55,10 @@ public class FakeGeneticEntity implements IGeneticEntity {
     @Override
     public int getBirthAge() {
         return 0;
+    }
+
+    @Override
+    public boolean setPregnantWith(AgeableEntity child, AgeableEntity otherParent) {
+        return false;
     }
 }

@@ -14,6 +14,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 
+import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.genetics.IGeneticEntity;
 
 public class GenderedBreedGoal extends BreedGoal {
@@ -29,6 +30,7 @@ public class GenderedBreedGoal extends BreedGoal {
    /**
     * Spawns a baby animal of the same type.
     */
+    @Override
     protected void spawnBaby() {
         if (!(this.animal instanceof IGeneticEntity) || !(this.targetMate instanceof IGeneticEntity)) {
             super.spawnBaby();
@@ -38,12 +40,13 @@ public class GenderedBreedGoal extends BreedGoal {
         IGeneticEntity geneticMate = (IGeneticEntity)this.targetMate;
 
         AgeableEntity ageableentity = this.animal.createChild(this.targetMate);
-        boolean cancelled = ageableentity == null;
-        if (!cancelled) {
-            final net.minecraftforge.event.entity.living.BabyEntitySpawnEvent event = new net.minecraftforge.event.entity.living.BabyEntitySpawnEvent(animal, targetMate, ageableentity);
-            cancelled = net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(event);
-            ageableentity = event.getChild();
+        // If ageableentity is null, just let them try again
+        if (ageableentity == null) {
+            return;
         }
+        final net.minecraftforge.event.entity.living.BabyEntitySpawnEvent event = new net.minecraftforge.event.entity.living.BabyEntitySpawnEvent(animal, targetMate, ageableentity);
+        boolean cancelled = net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(event);
+        ageableentity = event.getChild();
         if (cancelled) {
             //Reset the "inLove" state for the animals
             this.animal.setGrowingAge(geneticAnimal.getRebreedTicks());
@@ -52,34 +55,47 @@ public class GenderedBreedGoal extends BreedGoal {
             this.targetMate.resetInLove();
             return;
         }
+        // Don't spawn a null entity
+        if (ageableentity == null) {
+            return;
+        }
+        if (HorseConfig.isPregnancyEnabled()) {
+            if (geneticAnimal.setPregnantWith(ageableentity, this.targetMate)) {
+                ageableentity = null;
+            }
+        }
+        ServerPlayerEntity serverplayerentity = this.animal.getLoveCause();
+        if (serverplayerentity == null && this.targetMate.getLoveCause() != null) {
+            serverplayerentity = this.targetMate.getLoveCause();
+        }
+
+        if (serverplayerentity != null) {
+            serverplayerentity.addStat(Stats.ANIMALS_BRED);
+            CriteriaTriggers.BRED_ANIMALS.trigger(serverplayerentity, this.animal, this.targetMate, ageableentity);
+        }
+
+        this.animal.setGrowingAge(geneticAnimal.getRebreedTicks());
+        this.targetMate.setGrowingAge(geneticMate.getRebreedTicks());
+        this.animal.resetInLove();
+        this.targetMate.resetInLove();
         if (ageableentity != null) {
-            ServerPlayerEntity serverplayerentity = this.animal.getLoveCause();
-            if (serverplayerentity == null && this.targetMate.getLoveCause() != null) {
-                serverplayerentity = this.targetMate.getLoveCause();
-            }
+            spawnChild(this.animal, ageableentity, this.world);
+        }
+        if (this.world.getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
+            this.world.addEntity(new ExperienceOrbEntity(this.world, this.animal.getPosX(), this.animal.getPosY(), this.animal.getPosZ(), this.animal.getRNG().nextInt(7) + 1));
+        }
+    }
 
-            if (serverplayerentity != null) {
-                serverplayerentity.addStat(Stats.ANIMALS_BRED);
-                CriteriaTriggers.BRED_ANIMALS.trigger(serverplayerentity, this.animal, this.targetMate, ageableentity);
-            }
-
-            this.animal.setGrowingAge(geneticAnimal.getRebreedTicks());
-            this.targetMate.setGrowingAge(geneticMate.getRebreedTicks());
-            this.animal.resetInLove();
-            this.targetMate.resetInLove();
-            if (ageableentity instanceof IGeneticEntity) {
-                ageableentity.setGrowingAge(((IGeneticEntity)ageableentity).getBirthAge());
+    public static void spawnChild(AgeableEntity mother, AgeableEntity child, World world) {
+            if (child instanceof IGeneticEntity) {
+                child.setGrowingAge(((IGeneticEntity)child).getBirthAge());
             }
             else {
-                ageableentity.setGrowingAge(-24000);
+                child.setGrowingAge(-24000);
             }
-            ageableentity.setLocationAndAngles(this.animal.getPosX(), this.animal.getPosY(), this.animal.getPosZ(), 0.0F, 0.0F);
-            this.world.addEntity(ageableentity);
-            this.world.setEntityState(this.animal, (byte)18);
-            if (this.world.getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
-                this.world.addEntity(new ExperienceOrbEntity(this.world, this.animal.getPosX(), this.animal.getPosY(), this.animal.getPosZ(), this.animal.getRNG().nextInt(7) + 1));
-            }
-
-        }
+            child.setLocationAndAngles(mother.getPosX(), mother.getPosY(), mother.getPosZ(), 0.0F, 0.0F);
+            world.addEntity(child);
+            // I don't know what this does but BreedGoal does it
+            world.setEntityState(mother, (byte)18);
     }
 }
