@@ -550,6 +550,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     @Override
     public AgeableEntity createChild(AgeableEntity ageable)
     {
+        if (!(ageable instanceof AnimalEntity)) {
+            return null;
+        }
+        AnimalEntity otherAnimal = (AnimalEntity)ageable;
         // Have the female create the child if possible
         if (this.isMale() 
                 && ageable instanceof AbstractHorseGenetic
@@ -570,6 +574,11 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             // is born.
             if (foal.getGenes().isEmbryonicLethal())
             {
+                // Exit love mode
+                this.resetInLove();
+                otherAnimal.resetInLove();
+                // Spawn smoke particles
+                this.world.setEntityState(this, (byte)6);
                 return null;
             }
             foal.setMale(rand.nextBoolean());
