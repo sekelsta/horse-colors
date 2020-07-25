@@ -87,10 +87,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         return genes;
     }
 
-    public java.util.Random getRand() {
-        return this.rand;
-    }
-
     public abstract boolean fluffyTail();
     public abstract boolean longEars();
     public abstract boolean thinMane();

@@ -7,7 +7,7 @@ public interface IGeneticEntity {
     Genome getGenes();
     int getChromosome(String name);
     void setChromosome(String name, int val);
-    java.util.Random getRand();
+    java.util.Random getRNG();
 
     default Species getSpecies() {
         return null;
