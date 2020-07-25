@@ -10,6 +10,7 @@
     "itemGroup.tabHorseColors": "Realistic Horse Genetics",
     "horse_colors.book.physical": "Physical examination",
     "horse_colors.book.genetic": "Genetic tests",
+    "horse_colors.gender_change_item.gender_disabled_warning": "This will have no effect unless gender is enabled in the configuration",
     "horse_colors.genes.extension.name": "Extension",
     "horse_colors.genes.extension.allele0": "e",
     "horse_colors.genes.extension.allele1": "e",
