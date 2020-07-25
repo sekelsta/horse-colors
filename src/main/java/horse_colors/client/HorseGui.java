@@ -101,7 +101,8 @@ public class HorseGui extends ContainerScreen<HorseInventoryContainer> {
             HorseInventoryScreen screen = (HorseInventoryScreen)event.getGui();
             AbstractHorseEntity horse = null;
             try {
-                horse = ObfuscationReflectionHelper.getPrivateValue(HorseInventoryScreen.class, screen, "horseEntity");
+                // field_147034_x = horseEntity
+                horse = ObfuscationReflectionHelper.getPrivateValue(HorseInventoryScreen.class, screen, "field_147034_x");
             }
             catch (ObfuscationReflectionHelper.UnableToAccessFieldException e) {
                 System.err.println("Unable to access private value horseEntity while replacing the horse GUI.");
@@ -111,7 +112,8 @@ public class HorseGui extends ContainerScreen<HorseInventoryContainer> {
                 AbstractHorseGenetic horseGenetic = (AbstractHorseGenetic)horse;
                 PlayerInventory inventory = null;
                 try {
-                    inventory = ObfuscationReflectionHelper.getPrivateValue(ContainerScreen.class, screen, "playerInventory");
+                    // field_213127_e = playerInventory
+                    inventory = ObfuscationReflectionHelper.getPrivateValue(ContainerScreen.class, screen, "field_213127_e");
                 }
                 catch (ObfuscationReflectionHelper.UnableToAccessFieldException e) {
                     System.err.println("Unable to access private value playerInventory while replacing the horse GUI.");
