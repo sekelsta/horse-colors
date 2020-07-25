@@ -631,7 +631,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
         super.setGrowingAge(age);
         this.setDisplayAge(this.getGrowingAge());
-        this.recalculateSize();
     }
 
     public boolean shouldRecordAge() {
@@ -648,7 +647,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         if (this.world.isRemote && this.dataManager.isDirty()) {
             this.dataManager.setClean();
             this.getGenes().resetTexture();
-            this.recalculateSize();
         }
 
         // Keep track of age
@@ -669,7 +667,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             if (this.trueAge / c != this.getDisplayAge() / c
                     || (this.trueAge < 0 != this.getDisplayAge() < 0)) {
                 this.setDisplayAge(this.trueAge);
-                this.recalculateSize();
             }
         }
 
@@ -765,7 +762,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.setMale(rand.nextBoolean());
         this.setGrowingAge(Math.min(0, this.trueAge));
         this.useGeneticAttributes();
-        this.recalculateSize();
     }
 
     public void initFromVillageSpawn() {
@@ -809,10 +805,5 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     // horse. 0.5 is the most foal-shaped and 1 is the most adult-shaped.
     public float getGangliness() {
         return 0.5f + 0.5f * fractionGrown() * fractionGrown();
-    }
-
-    @Override
-    public float getRenderScale() {
-        return this.getGangliness() * this.getProportionalScale();
     }
 }
