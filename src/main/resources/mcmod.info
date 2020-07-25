@@ -3,5 +3,6 @@
   "name": "Realistic Horse Genetics",
   "description": "All the pretty ponies!",
   "mcversion": "${mcversion}",
-  "authorList": ["sekelsta"]
+  "authorList": ["sekelsta"],
+  "credits": "Thanks to faainleog for some gorgeous textures!"
 }]

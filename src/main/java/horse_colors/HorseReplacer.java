@@ -1,4 +1,4 @@
-package felinoid.horse_colors;
+package sekelsta.horse_colors;
 
 import java.util.Iterator;
 
@@ -9,6 +9,9 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
+import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.entity.*;
 
 public class HorseReplacer {
 	public static void preInit() {}
@@ -21,13 +24,12 @@ public class HorseReplacer {
         // We don't want to replace subclasses of horses
         if (event.getEntity().getClass() == EntityHorse.class
             && !event.getWorld().isRemote 
-            && HorseConfig.convertVanillaHorses)
+            && HorseConfig.convertVanillaHorses())
         {
             EntityHorse horse = (EntityHorse)event.getEntity();
             if (!horse.getEntityData().hasKey("converted")) {
-                EntityHorseFelinoid newHorse = new EntityHorseFelinoid(event.getWorld());
+                HorseGeneticEntity newHorse = new HorseGeneticEntity(event.getWorld());
                 newHorse.copyAbstractHorse(horse);
-                newHorse.randomize();
                 // Spawn the new horse
                 event.getWorld().spawnEntity(newHorse);
                 // Don't convert the same horse twice

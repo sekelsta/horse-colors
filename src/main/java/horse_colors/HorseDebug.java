@@ -1,28 +1,34 @@
-package felinoid.horse_colors;
+package sekelsta.horse_colors;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.common.MinecraftForge;
-
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraft.util.math.RayTraceResult;
+
+import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.entity.HorseGeneticEntity;
+import sekelsta.horse_colors.genetics.Genome;
+import sekelsta.horse_colors.genetics.IGeneticEntity;
+import sekelsta.horse_colors.renderer.TextureLayer;
 
 // Class for putting horse info on the debug screen
 public class HorseDebug {
-    // Determines when to pring horse debug info on the screen
-    public boolean showDebug(EntityPlayer player)
+    // Determines when to print horse debug info on the screen
+    public static boolean showDebug(EntityPlayer player)
     {
-        if (!HorseConfig.horseDebugInfo)
+        if (!HorseConfig.enableDebugInfo())
         {
             return false;
         }
@@ -31,9 +37,54 @@ public class HorseDebug {
             && itemStack.getItem() == Items.STICK;
     }
 
+    public static ArrayList<String> debugNamedGenes(Genome genome) {
+        ArrayList<String> list = new ArrayList<String>();
+        for (String gene : genome.listGenes()) {
+            String s = gene + ": ";
+            s += genome.getAllele(gene, 0) + ", ";
+            s += genome.getAllele(gene, 1);
+            list.add(s);
+        }
+        return list;
+    }
+
+    public static ArrayList<String> debugStatGenes(Genome genome) {
+        ArrayList<String> list = new ArrayList<String>();
+        for (String stat : genome.listGenericChromosomes()) {
+            String s = stat;
+            s += ": " + genome.countBits(genome.getChromosome(stat));
+            s += " (";
+            int val = genome.getChromosome(stat);
+            for (int i = 16; i >0; i--) {
+                s += (val >>> (2 * i - 1)) & 1;
+                s += (val >>> (2 * i - 2)) & 1;
+                if (i > 1) {
+                    s += " ";
+                }
+            }
+            s += ")";
+            list.add(s);
+        }
+        // Uncomment to show substats
+        // addSubStats(genome, list);
+        return list;
+    }
+
+    private void addSubStats(Genome genome, List<String> list) {
+        for (String stat : genome.listStats()) {
+            String s = stat;
+            s += ": " + genome.getStatValue(stat);
+            s += " (";
+            int val = genome.getRawStat(stat);
+            s += Genome.chrToStr(val);
+            s += ")";
+            list.add(s);
+        }
+    }
+
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
-    public void renderOverlayEvent(RenderGameOverlayEvent.Text event)
+    public static void renderOverlayEvent(RenderGameOverlayEvent.Text event)
     {
         // If the player is looking at a horse and all conditions are met, add 
         // genetic information about that horse to the debug screen
@@ -42,29 +93,33 @@ public class HorseDebug {
         if (showDebug(player))
         {
             // Check if we're looking at a horse
-            if (Minecraft.getMinecraft().objectMouseOver != null
-                && Minecraft.getMinecraft().objectMouseOver.entityHit != null
-                && Minecraft.getMinecraft().objectMouseOver.entityHit instanceof EntityHorseFelinoid)
+            RayTraceResult mouseOver = Minecraft.getMinecraft().objectMouseOver;
+            if (mouseOver != null
+                && mouseOver.entityHit != null
+                && mouseOver.entityHit instanceof IGeneticEntity)
             {
                 // If so, print information about it to the debug screen
-                EntityHorseFelinoid horse = (EntityHorseFelinoid)Minecraft.getMinecraft().objectMouseOver.entityHit;
+                IGeneticEntity entity = (IGeneticEntity)mouseOver.entityHit;
                 // I thought I would need this to make everything fit on debug 
                 // mode, but it fits if I make the GUI smaller
                 // event.getRight().clear();
-                for (String gene : EntityHorseFelinoid.genes)
-                {
-                    event.getRight().add(gene + ": " + horse.getPhenotype(gene) 
-                        + " (" + horse.getAllele(gene, 1) + ", "
-                        + horse.getAllele(gene, 0) + ")");
+                for (String s : debugStatGenes(entity.getGenes())) {
+                    event.getLeft().add(s);
                 }
-                event.getLeft().add("speed: " + horse.getStat("speed") + "-"
-                    + Integer.toBinaryString(horse.getHorseVariant("speed")));
-                event.getLeft().add("health: "  + horse.getStat("health") + "-"
-                    + Integer.toBinaryString(horse.getHorseVariant("health")));
-                event.getLeft().add("jump: "  + horse.getStat("jump") + "-"
-                    + Integer.toBinaryString(horse.getHorseVariant("jump")));
-                event.getLeft().add("random: " 
-                    + Integer.toHexString(horse.getHorseVariant("random")));
+                if (entity instanceof EntityAgeable) {
+                    event.getLeft().add("Growing age: " + ((EntityAgeable)entity).getGrowingAge());
+                }
+                if (entity instanceof HorseGeneticEntity) {
+                    event.getLeft().add("Display age: " + ((HorseGeneticEntity)entity).getDisplayAge());
+                }
+                for (TextureLayer l : entity.getGenes().getVariantTexturePaths()) {
+                    if (l != null) {
+                        event.getLeft().add(l.toString());
+                    }
+                }
+                for (String s : debugNamedGenes(entity.getGenes())) {
+                    event.getRight().add(s);
+                }
             }
         }
     }
