@@ -62,7 +62,6 @@ public class HorseConfig
         public static DoubleValue maxAge;
         public static BooleanValue growGradually;
         public static DoubleValue growTime;
-        public static DoubleValue maxChildGrowth;
 
         Growth(final ForgeConfigSpec.Builder builder) {
             builder.comment("Config settings related to growth and aging")
@@ -84,13 +83,6 @@ public class HorseConfig
             growTime = builder
                     .comment("The number of twenty minute Minecraft days that it takes for a foal to become an adult.")
                     .defineInRange("growTime", 1.0, 2/24000., 10000);
-
-            maxChildGrowth = builder
-                    .comment("Limit how big foals can get to make it easier to see when they become adults.", 
-                            "This will only have an effect if growGradually is enabled. Set to 1.0 to make", 
-                            "young ones transition smoothly into adults, or set to about 0.2 to let foals", 
-                            "grow a little while staying distinct.")
-                    .defineInRange("maxChildGrowth", 0.2, 0.0, 1.0);
 
             builder.pop();
         }

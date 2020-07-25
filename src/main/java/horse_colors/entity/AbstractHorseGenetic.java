@@ -789,9 +789,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 if (this.getDisplayAge() == 0) {
                     age = minAge;
                 }
-                double maxFraction = HorseConfig.GROWTH.maxChildGrowth.get();
                 float fractionGrown = (minAge - age) / (float)minAge;
-                return fractionGrown * (float)maxFraction;
+                return fractionGrown;
             }
             return 0;
         }
