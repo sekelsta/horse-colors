@@ -150,7 +150,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         compound.putInt("true_age", trueAge);
         compound.putBoolean("gender", this.isMale());
         compound.putBoolean("is_castrated", this.isCastrated());
-        compound.putInt("pregnant_since", this.dataManager.get(PREGNANT_SINCE));
+        compound.putInt("pregnant_since", this.getPregnancyStart());
         if (this.unbornChildren != null) {
             ListNBT unbornChildrenTag = new ListNBT();
             for (AbstractHorseGenetic child : this.unbornChildren) {
@@ -374,7 +374,11 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     }
 
     public boolean isPregnant() {
-        return this.dataManager.get(PREGNANT_SINCE) >= 0;
+        return this.getPregnancyStart() >= 0;
+    }
+
+    public int getPregnancyStart() {
+        return this.dataManager.get(PREGNANT_SINCE);
     }
 
     public int getRebreedTicks() {
@@ -611,6 +615,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         if (child instanceof AbstractHorseGenetic) {
             unbornChildren.add((AbstractHorseGenetic)child);
             if (!this.world.isRemote) {
+                // Can't be a child
+                this.trueAge = Math.max(0, this.trueAge);
                 this.dataManager.set(PREGNANT_SINCE, this.trueAge);
             }
             return true;
@@ -626,7 +632,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             age = HorseConfig.GROWTH.getMinAge();
         }
         super.setGrowingAge(age);
-        this.setDisplayAge(this.getGrowingAge());
     }
 
     public boolean shouldRecordAge() {
@@ -675,7 +680,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             }
             // Handle birth
             int totalLength = HorseConfig.getHorsePregnancyLength();
-            int currentLength = this.trueAge - this.dataManager.get(PREGNANT_SINCE);
+            int currentLength = this.trueAge - this.getPregnancyStart();
             if (currentLength >= totalLength) {
                 for (AbstractHorseGenetic child : unbornChildren) {
                     GenderedBreedGoal.spawnChild(this, child, this.world);
@@ -701,8 +706,13 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
     }
 
-   public void livingTick() {
-      if (this.getGenes().isHomozygous("leopard", HorseAlleles.LEOPARD) && !this.world.isRemote()) {
+    public void livingTick() {
+        if (this.unbornChildren != null && this.unbornChildren.size() > 0
+                && this.getPregnancyStart() < 0) {
+            this.dataManager.set(PREGNANT_SINCE, 0);
+        }
+
+        if (this.getGenes().isHomozygous("leopard", HorseAlleles.LEOPARD) && !this.world.isRemote()) {
         IAttributeInstance speedAttribute = this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
         IAttributeInstance jumpAttribute = this.getAttribute(JUMP_STRENGTH);
         float brightness = this.getBrightness();
