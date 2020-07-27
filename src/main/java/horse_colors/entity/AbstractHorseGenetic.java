@@ -162,7 +162,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             for (AbstractHorseGenetic child : this.unbornChildren) {
                 CompoundNBT childNBT = new CompoundNBT();
                 childNBT.putString("species", child.getSpecies().toString());
-                childNBT.putString("genes", child.getGenes().toString());
+                childNBT.putString("genes", child.getGenes().genesToString());
                 unbornChildrenTag.add(childNBT);
             }
             compound.put("unborn_children", unbornChildrenTag);
