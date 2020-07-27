@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -94,6 +95,11 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
 
     public boolean canEquipChest() {
         return true;
+    }
+
+    @Override
+    public Random getRand() {
+        return super.getRNG();
     }
 
     @Override

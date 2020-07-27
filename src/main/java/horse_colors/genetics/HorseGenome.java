@@ -481,7 +481,7 @@ public class HorseGenome extends Genome {
     // the chance that a random uniform number between 0 and 1
     // is greater than distribution[i-1] but less than distribution[i].
     public int chooseRandomAllele(List<Float> distribution) {
-        float n = this.entity.getRNG().nextFloat();
+        float n = this.entity.getRand().nextFloat();
         for (int i = 0; i < distribution.size(); ++i) {
             if (n < distribution.get(i)) {
                 return i;
@@ -533,9 +533,9 @@ public class HorseGenome extends Genome {
         }
 
         for (String stat : this.listGenericChromosomes()) {
-            entity.setChromosome(stat, this.entity.getRNG().nextInt());
+            entity.setChromosome(stat, this.entity.getRand().nextInt());
         }
-        entity.setChromosome("random", this.entity.getRNG().nextInt());
+        entity.setChromosome("random", this.entity.getRand().nextInt());
         this.entity.setMale(this.rand.nextBoolean());
     }
 
