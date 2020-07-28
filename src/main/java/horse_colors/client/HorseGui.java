@@ -20,32 +20,34 @@ import sekelsta.horse_colors.HorseColors;
 
 @OnlyIn(Dist.CLIENT)
 public class HorseGui extends ContainerScreen<HorseInventoryContainer> {
-   private static final ResourceLocation HORSE_GUI_TEXTURES = new ResourceLocation(HorseColors.MODID, "textures/gui/horse.png");
-   /** The EntityHorse whose inventory is currently being accessed. */
-   private final AbstractHorseGenetic horseEntity;
-   /** The mouse x-position recorded during the last rendered frame. */
-   private float mousePosx;
-   /** The mouse y-position recorded during the last renderered frame. */
-   private float mousePosY;
+    private static final ResourceLocation HORSE_GUI_TEXTURES = new ResourceLocation(HorseColors.MODID, "textures/gui/horse.png");
+    /** The EntityHorse whose inventory is currently being accessed. */
+    private final AbstractHorseGenetic horseEntity;
+    /** The mouse x-position recorded during the last rendered frame. */
+    private float mousePosx;
+    /** The mouse y-position recorded during the last renderered frame. */
+    private float mousePosY;
 
-   public HorseGui(HorseInventoryContainer container, PlayerInventory playerInventory, AbstractHorseGenetic horse) {
-      super(container, playerInventory, horse.getDisplayName());
-      this.horseEntity = horse;
-      this.passEvents = false;
-   }
+    public HorseGui(HorseInventoryContainer container, PlayerInventory playerInventory, AbstractHorseGenetic horse) {
+        super(container, playerInventory, horse.getDisplayName());
+        this.horseEntity = horse;
+        this.passEvents = false;
+    }
 
    /**
     * Draw the foreground layer for the GuiContainer (everything in front of the items)
     */
-   protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-      this.font.drawString(this.title.getFormattedText(), 8.0F, 6.0F, 4210752);
-      this.font.drawString(this.playerInventory.getDisplayName().getFormattedText(), 8.0F, (float)(this.ySize - 96 + 2), 4210752);
-   }
+    @Override
+    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
+        this.font.drawString(this.title.getFormattedText(), 8.0F, 6.0F, 4210752);
+        this.font.drawString(this.playerInventory.getDisplayName().getFormattedText(), 8.0F, (float)(this.ySize - 96 + 2), 4210752);
+    }
 
    /**
     * Draws the background layer of this container (behind the items).
     */
-   protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+    @Override
+    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bindTexture(HORSE_GUI_TEXTURES);
         int i = (this.width - this.xSize) / 2;
@@ -88,6 +90,7 @@ public class HorseGui extends ContainerScreen<HorseInventoryContainer> {
         InventoryScreen.drawEntityOnScreen(i + 51, j + 60, 17, (float)(i + 51) - this.mousePosx, (float)(j + 75 - 50) - this.mousePosY, this.horseEntity);
     }
 
+    @Override
     public void render(int p_render_1_, int p_render_2_, float p_render_3_) {
         this.renderBackground();
         this.mousePosx = (float)p_render_1_;
