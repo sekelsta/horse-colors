@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -97,6 +98,11 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     }
 
     @Override
+    public Random getRand() {
+        return super.getRNG();
+    }
+
+    @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new PanicGoal(this, 1.2D));
         this.goalSelector.addGoal(1, new RunAroundLikeCrazyGoal(this, 1.2D));
@@ -156,7 +162,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             for (AbstractHorseGenetic child : this.unbornChildren) {
                 CompoundNBT childNBT = new CompoundNBT();
                 childNBT.putString("species", child.getSpecies().toString());
-                childNBT.putString("genes", child.getGenes().toString());
+                childNBT.putString("genes", child.getGenes().genesToString());
                 unbornChildrenTag.add(childNBT);
             }
             compound.put("unborn_children", unbornChildrenTag);
@@ -792,7 +798,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                     age = minAge;
                 }
                 float fractionGrown = (minAge - age) / (float)minAge;
-                return fractionGrown;
+                return Math.max(0, fractionGrown);
             }
             return 0;
         }

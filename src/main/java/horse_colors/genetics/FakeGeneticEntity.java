@@ -33,7 +33,7 @@ public class FakeGeneticEntity implements IGeneticEntity {
     }
 
     @Override
-    public java.util.Random getRNG() {
+    public java.util.Random getRand() {
         return new java.util.Random();
     }
 
