@@ -22,6 +22,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemBook;
 import net.minecraft.item.ItemStack;
+import net.minecraft.inventory.ContainerHorseChest;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.datasync.DataParameter;
@@ -33,6 +34,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.ai.RandomWalkGroundTie;
@@ -79,6 +81,11 @@ public abstract class AbstractHorseGenetic extends AbstractChestHorse implements
         // Set age
         this.setGrowingAge(horse.getGrowingAge());
         this.trueAge = horse.getGrowingAge();
+        // Transfer inventory
+        ContainerHorseChest inv = 
+            ReflectionHelper.<ContainerHorseChest, AbstractHorse>getPrivateValue(AbstractHorse.class, horse, "horseChest", "field_110296_bG");
+        this.horseChest.setInventorySlotContents(0, inv.getStackInSlot(0));
+        this.horseChest.setInventorySlotContents(1, inv.getStackInSlot(1));
         this.updateHorseSlots();
         // Copy over speed, health, and jump
         double health = horse.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).getBaseValue();
