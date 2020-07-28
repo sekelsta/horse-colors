@@ -630,16 +630,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         return false;
     }
 
-    // So that I don't have to override all of Minecraft's code that sets the age
-    // to the minimum.
-    @Override
-    public void setGrowingAge(int age) {
-        if (age == -24000) {
-            age = HorseConfig.GROWTH.getMinAge();
-        }
-        super.setGrowingAge(age);
-    }
-
     public boolean shouldRecordAge() {
         return this.getGenes().clientNeedsAge() || this.isPregnant();
     }
