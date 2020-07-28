@@ -35,7 +35,6 @@ public class HorseColors
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
         MinecraftForge.EVENT_BUS.addListener(this::fixMissingRegistries);
-        MinecraftForge.EVENT_BUS.addListener(HorseGui::replaceGui);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, HorseConfig.spec);
     }
@@ -47,6 +46,7 @@ public class HorseColors
 
     private void clientSetup(final FMLClientSetupEvent event)
     {
+        MinecraftForge.EVENT_BUS.addListener(HorseGui::replaceGui);
         ModEntities.registerRenders();
     }
 

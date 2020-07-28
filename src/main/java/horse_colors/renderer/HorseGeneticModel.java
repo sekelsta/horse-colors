@@ -336,12 +336,12 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
     @Override
     public void render(@Nonnull MatrixStack matrixStackIn, @Nonnull IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
         Consumer<ModelRenderer> render = model -> model.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
-        float f = (this.head.rotateAngleX - 0.5235988F) * 0.6031134647F;
 
         // ageScale is 0.5f for the smallest foals
         if (this.isChild) {
             matrixStackIn.push();
             matrixStackIn.scale(ageScale, 0.5F + ageScale * 0.5F, ageScale);
+            // Move the foal's legs downward so they reach the ground
             matrixStackIn.translate(0.0F, 0.95F * (1.0F - ageScale), 0.0F);
         }
 
@@ -353,16 +353,21 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
             matrixStackIn.pop();
             matrixStackIn.push();
             matrixStackIn.scale(ageScale, ageScale, ageScale);
+            // Move the body downwards but not as far as the legs
             matrixStackIn.translate(0.0F, 1.35F * (1.0F - ageScale), 0.0F);
         }
 
         ImmutableList.of(this.body, this.neck).forEach(render);
 
+        // The head's rest angle is -30 degrees
+        // This subtracts another 30 degrees, then multiplies by about 35 * pi / 180
+        // In the end the -30 degree rest angle becomes -0.63157894333
+        float f = (this.head.rotateAngleX - 0.5235988F) * 0.6031134647F;
         if (this.isChild) {
             matrixStackIn.pop();
             matrixStackIn.push();
-            float f2 = 0.5F + ageScale * ageScale * 0.5F;
-            matrixStackIn.scale(f2, f2, f2);
+            float headScale = 0.5F + ageScale * ageScale * 0.5F;
+            matrixStackIn.scale(headScale, headScale, headScale);
             if (f <= 0.0F)
             {
                 matrixStackIn.translate(0.0F, 1.35F * (1.0F - ageScale), 0.0F);
