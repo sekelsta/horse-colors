@@ -352,30 +352,23 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
 
             matrixStackIn.pop();
             matrixStackIn.push();
-            matrixStackIn.scale(ageScale, ageScale, ageScale);
             // Move the body downwards but not as far as the legs
-            matrixStackIn.translate(0.0F, 1.35F * (1.0F - ageScale), 0.0F);
+            matrixStackIn.translate(0.0F, ageScale * 1.35F * (1.0F - ageScale), 0.0F);
+            matrixStackIn.scale(ageScale, ageScale, ageScale);
         }
 
         ImmutableList.of(this.body, this.neck).forEach(render);
 
-        // The head's rest angle is -30 degrees
-        // This subtracts another 30 degrees, then multiplies by about 35 * pi / 180
-        // In the end the -30 degree rest angle becomes -0.63157894333
-        float f = (this.head.rotateAngleX - 0.5235988F) * 0.6031134647F;
         if (this.isChild) {
             matrixStackIn.pop();
             matrixStackIn.push();
             float headScale = 0.5F + ageScale * ageScale * 0.5F;
+            // Translate to match the body position
+            matrixStackIn.translate(0.0F, ageScale * 1.35F * (1.0F - ageScale), 0.0F);
             matrixStackIn.scale(headScale, headScale, headScale);
-            if (f <= 0.0F)
-            {
-                matrixStackIn.translate(0.0F, 1.35F * (1.0F - ageScale), 0.0F);
-            }
-            else
-            {
-                matrixStackIn.translate(0.0F, 0.9F * (1.0F - ageScale) * f + 1.35F * (1.0F - ageScale) * (1.0F - f), 0.15F * (1.0F - ageScale) * f);
-            }
+            float extra = (headScale - ageScale) * 1.35F * (1.0F - ageScale);
+            // The head's rest angle is 0.5235988F, 30 degrees
+            matrixStackIn.translate(0.0F, extra * Math.cos(this.head.rotateAngleX), extra * Math.sin(this.head.rotateAngleX));
         }
 
         ImmutableList.of(this.head).forEach(render);
@@ -531,11 +524,5 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         else {
             this.mane.rotationPointZ = 0.0F;
         }
-        // Partially corrects for scaling but still needs some translation
-/*
-        if (this.isChild) {
-            this.head.rotationPointY += 7.0F;
-            this.head.rotationPointZ += 1.0F;
-        }*/
     }
 }
