@@ -18,8 +18,8 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
-import sekelsta.horse_colors.genetics.HorseBreeds;
-import sekelsta.horse_colors.item.GeneBookItem;
+import sekelsta.horse_colors.genetics.breed.*;
+import sekelsta.horse_colors.genetics.Species;
 import sekelsta.horse_colors.util.Util;
 
 public class DonkeyGeneticEntity extends AbstractHorseGenetic {
@@ -58,8 +58,8 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
     }
 
     @Override
-    public GeneBookItem.Species getSpecies() {
-        return GeneBookItem.Species.DONKEY;
+    public Species getSpecies() {
+        return Species.DONKEY;
     }
 
    /**
@@ -71,7 +71,12 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
         {
             return false;
         }
-        else if (otherAnimal instanceof DonkeyGeneticEntity 
+        if (otherAnimal instanceof AbstractHorseGenetic) {
+            if (!this.isOppositeGender((AbstractHorseGenetic)otherAnimal)) {
+                return false;
+            }
+        }
+        if (otherAnimal instanceof DonkeyGeneticEntity 
                 || otherAnimal instanceof HorseGeneticEntity
                 || otherAnimal instanceof DonkeyEntity 
                 || otherAnimal instanceof HorseEntity)
@@ -111,6 +116,6 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
 
     @Override
     public Map<String, List<Float>> getSpawnFrequencies() {
-        return HorseBreeds.DONKEY;
+        return BaseDonkey.COLORS;
     }
 }

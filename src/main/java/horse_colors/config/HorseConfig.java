@@ -17,6 +17,7 @@ public class HorseConfig
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     public static final Common COMMON = new Common(BUILDER);
     public static final Growth GROWTH = new Growth(BUILDER);
+    public static final Breeding BREEDING = new Breeding(BUILDER);
     public static final Spawn HORSE_SPAWN = new Spawn(BUILDER, "horses", 2, 6, 
                                             Arrays.asList((new Spawn.BiomeWeight(BiomeDictionary.Type.PLAINS.toString(), 5)).toString(), 
                                               (new Spawn.BiomeWeight(BiomeDictionary.Type.SAVANNA.toString(), 1)).toString()));
@@ -61,7 +62,6 @@ public class HorseConfig
         public static DoubleValue maxAge;
         public static BooleanValue growGradually;
         public static DoubleValue growTime;
-        public static DoubleValue maxChildGrowth;
 
         Growth(final ForgeConfigSpec.Builder builder) {
             builder.comment("Config settings related to growth and aging")
@@ -76,22 +76,61 @@ public class HorseConfig
                     .defineInRange("maxAge", 15.0, 0.0, 25.0);
 
             growGradually = builder
-                    .comment("If enabled, foals will slowly get bigger as they grow into adults.")
-                    .define("growGradually", true);
+                    .comment("If enabled, foals will slowly get bigger as they grow into adults. As",
+                            "a side effect, this also allows foals to pass through fences to the south or east.")
+                    .define("foalsGrowGradually", false);
 
             growTime = builder
                     .comment("The number of twenty minute Minecraft days that it takes for a foal to become an adult.")
                     .defineInRange("growTime", 1.0, 2/24000., 10000);
-
-            maxChildGrowth = builder
-                    .comment("Limit how big foals can get to make it easier to see when they become adults. This will only have an effect if growGradually is enabled. Set to 1.0 to make young ones transition smoothly into adults.")
-                    .defineInRange("maxChildGrowth", 0.2, 0.0, 1.0);
 
             builder.pop();
         }
 
         public int getMinAge() {
             return (int)(growTime.get() * -24000);
+        }
+    }
+
+    public static class Breeding {
+        public static BooleanValue enableGenders;
+        public static IntValue genderlessBreedingCooldown;
+        public static IntValue maleBreedingCooldown;
+        public static IntValue femaleBreedingCooldown;
+        public static IntValue pregnancyLength;
+
+        public Breeding(final ForgeConfigSpec.Builder builder) {
+            builder.comment("Config settings related to breeding and gender")
+                    .push("breeding");
+
+            enableGenders = builder
+                    .comment("Enables or disables all features relating to gender.")
+                    .define("enableGenders", false);
+
+            genderlessBreedingCooldown = builder
+                    .comment("The number of ticks until horses can breed again, when genders are disabled.",
+                            "The vanilla value is 6000 (or at 20 ticks per second, 5 minutes,",
+                            "or at 24000 ticks per minecraft day, 1/4 day)")
+                    .defineInRange("genderlessBreedingCooldown", 6000, 0, Integer.MAX_VALUE);
+
+            maleBreedingCooldown = builder
+                    .comment("The number of ticks until male horses can breed again.",
+                            "The default value is 240 ticks (12 seconds).")
+                    .defineInRange("maleBreedingCooldown", 240, 0, Integer.MAX_VALUE);
+
+            femaleBreedingCooldown = builder
+                    .comment("The number of ticks until female horses can breed again.",
+                            "The default value is 24000 ticks (20 minutes, or 1 minecraft day).",
+                            "This must always be at least as long as pregnancyLength.")
+                    .defineInRange("femaleBreedingCooldown", 24000, 0, Integer.MAX_VALUE);
+
+            pregnancyLength = builder
+                    .comment("If genders are enabled, females will be pregnant for this many ticks.",
+                            "The default value is 24000 ticks (20 minutes, or 1 minecraft day).",
+                            "To disable pregnancy altogether, set this number to 0.")
+                    .defineInRange("pregnancyLength", 24000, 0, Integer.MAX_VALUE);
+
+            builder.pop();
         }
     }
 
@@ -252,4 +291,30 @@ public class HorseConfig
 
 
     public static final ForgeConfigSpec spec = BUILDER.build();
+
+    public static boolean isGenderEnabled() {
+        return BREEDING.enableGenders.get();
+    }
+
+    public static int getHorseRebreedTicks(boolean isMale) {
+        if (!isGenderEnabled()) {
+            return BREEDING.genderlessBreedingCooldown.get();
+        }
+        if (isMale) {
+            return BREEDING.maleBreedingCooldown.get();
+        }
+        return Math.max(BREEDING.femaleBreedingCooldown.get(), getHorsePregnancyLength());
+    }
+
+    public static int getHorseBirthAge() {
+        return GROWTH.getMinAge();
+    }
+
+    public static boolean isPregnancyEnabled() {
+        return isGenderEnabled();
+    }
+
+    public static int getHorsePregnancyLength() {
+        return BREEDING.pregnancyLength.get();
+    }
 }

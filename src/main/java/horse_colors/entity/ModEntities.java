@@ -3,7 +3,6 @@ import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.CreativeTab;
 import sekelsta.horse_colors.config.HorseConfig;
 
-import sekelsta.horse_colors.entity.*;
 import sekelsta.horse_colors.renderer.HorseGeneticRenderer;
 
 import com.google.common.collect.ImmutableList;
@@ -30,8 +29,6 @@ import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.ObjectHolder;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;

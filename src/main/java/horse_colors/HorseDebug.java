@@ -19,7 +19,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.EntityRayTraceResult;
 
 import sekelsta.horse_colors.config.HorseConfig;
-import sekelsta.horse_colors.entity.HorseGeneticEntity;
+import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 import sekelsta.horse_colors.genetics.Genome;
 import sekelsta.horse_colors.genetics.IGeneticEntity;
 import sekelsta.horse_colors.renderer.TextureLayer;
@@ -113,8 +113,9 @@ public class HorseDebug {
                 if (entity instanceof AgeableEntity) {
                     event.getLeft().add("Growing age: " + ((AgeableEntity)entity).getGrowingAge());
                 }
-                if (entity instanceof HorseGeneticEntity) {
-                    event.getLeft().add("Display age: " + ((HorseGeneticEntity)entity).getDisplayAge());
+                if (entity instanceof AbstractHorseGenetic) {
+                    event.getLeft().add("Display age: " + ((AbstractHorseGenetic)entity).getDisplayAge());
+                    event.getLeft().add("Pregnant since: " + ((AbstractHorseGenetic)entity).getPregnancyStart());
                 }
                 for (TextureLayer l : entity.getGenes().getVariantTexturePaths()) {
                     if (l != null) {

@@ -1,6 +1,7 @@
 package sekelsta.horse_colors.entity;
 
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,19 +10,16 @@ import javax.annotation.Nullable;
 
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.AgeableEntity;
-import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.horse.*;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.Pose;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.SpawnReason;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BookItem;
 import net.minecraft.item.HorseArmorItem;
@@ -29,6 +27,8 @@ import net.minecraft.item.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpawnEggItem;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -41,7 +41,7 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
 import sekelsta.horse_colors.config.HorseConfig;
-import sekelsta.horse_colors.entity.ai.RandomWalkGroundTie;
+import sekelsta.horse_colors.entity.ai.*;
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.item.ModItems;
 import sekelsta.horse_colors.item.GeneBookItem;
@@ -63,26 +63,34 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     protected static final DataParameter<Integer> HORSE_IMMUNE = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_RANDOM = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> DISPLAY_AGE = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
+    protected static final DataParameter<Boolean> GENDER = EntityDataManager.<Boolean>createKey(AbstractHorseGenetic.class, DataSerializers.BOOLEAN);
+    protected static final DataParameter<Boolean> IS_CASTRATED = EntityDataManager.<Boolean>createKey(AbstractHorseGenetic.class, DataSerializers.BOOLEAN);
+    protected static final DataParameter<Integer> PREGNANT_SINCE = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected int trueAge;
 
+    protected static final UUID CSNB_SPEED_UUID = UUID.fromString("84ca527a-5c70-4336-a737-ae3f6d40ef45");
+    protected static final UUID CSNB_JUMP_UUID = UUID.fromString("72323326-888b-4e46-bf52-f669600642f7");
+    protected static final AttributeModifier CSNB_SPEED_MODIFIER = (new AttributeModifier(CSNB_SPEED_UUID, "CSNB speed penalty", -0.6, AttributeModifier.Operation.MULTIPLY_TOTAL)).setSaved(false);
+    protected static final AttributeModifier CSNB_JUMP_MODIFIER = (new AttributeModifier(CSNB_JUMP_UUID, "CSNB jump penalty", -0.6, AttributeModifier.Operation.MULTIPLY_TOTAL)).setSaved(false);
+
+    protected List<AbstractHorseGenetic> unbornChildren = new ArrayList<>();
 
     public AbstractHorseGenetic(EntityType<? extends AbstractHorseGenetic> entityType, World worldIn)
     {
         super(entityType, worldIn);
+        this.setChromosome("random", this.rand.nextInt());
+        this.setMale(this.rand.nextBoolean());
+        this.dataManager.set(PREGNANT_SINCE, -1);
     }
 
     public HorseGenome getGenes() {
         return genes;
     }
 
-    public java.util.Random getRand() {
-        return this.rand;
-    }
-
     public abstract boolean fluffyTail();
     public abstract boolean longEars();
     public abstract boolean thinMane();
-    public abstract GeneBookItem.Species getSpecies();
+    public abstract Species getSpecies();
 
     public boolean canEquipChest() {
         return true;
@@ -92,7 +100,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new PanicGoal(this, 1.2D));
         this.goalSelector.addGoal(1, new RunAroundLikeCrazyGoal(this, 1.2D));
-        this.goalSelector.addGoal(2, new BreedGoal(this, 1.0D, AbstractHorseEntity.class));
+        this.goalSelector.addGoal(2, new GenderedBreedGoal(this, 1.0D, AbstractHorseEntity.class));
         this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.0D));
         this.goalSelector.addGoal(6, new RandomWalkGroundTie(this, 0.7D));
         this.goalSelector.addGoal(7, new LookAtGoal(this, PlayerEntity.class, 6.0F));
@@ -116,6 +124,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.dataManager.register(HORSE_JUMP, Integer.valueOf(0));
         this.dataManager.register(HORSE_RANDOM, Integer.valueOf(0));
         this.dataManager.register(DISPLAY_AGE, Integer.valueOf(0));
+        this.dataManager.register(GENDER, false);
+        this.dataManager.register(IS_CASTRATED, false);
+        this.dataManager.register(PREGNANT_SINCE, -1);
     }
 
     /**
@@ -137,6 +148,19 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         compound.putInt("Immune", this.getChromosome("immune"));
         compound.putInt("Random", this.getChromosome("random"));
         compound.putInt("true_age", trueAge);
+        compound.putBoolean("gender", this.isMale());
+        compound.putBoolean("is_castrated", this.isCastrated());
+        compound.putInt("pregnant_since", this.getPregnancyStart());
+        if (this.unbornChildren != null) {
+            ListNBT unbornChildrenTag = new ListNBT();
+            for (AbstractHorseGenetic child : this.unbornChildren) {
+                CompoundNBT childNBT = new CompoundNBT();
+                childNBT.putString("species", child.getSpecies().toString());
+                childNBT.putString("genes", child.getGenes().toString());
+                unbornChildrenTag.add(childNBT);
+            }
+            compound.put("unborn_children", unbornChildrenTag);
+        }
     }
 
     @Override
@@ -176,17 +200,56 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
         this.setChromosome("random", compound.getInt("Random"));
         this.trueAge = compound.getInt("true_age");
+        if (compound.contains("gender")) {
+            this.setMale(compound.getBoolean("gender"));
+        }
+        else {
+            this.setMale(rand.nextBoolean());
+        }
+        this.setCastrated(compound.getBoolean("is_castrated"));
+        int pregnantSince = -1;
+        if (compound.contains("pregnant_since")) {
+            pregnantSince = compound.getInt("pregnant_since");
+        }
+        this.dataManager.set(PREGNANT_SINCE, pregnantSince);
+        if (compound.contains("unborn_children")) {
+            INBT nbt = compound.get("unborn_children");
+            if (nbt instanceof ListNBT) {
+                ListNBT childListTag = (ListNBT)nbt;
+                for (int i = 0; i < childListTag.size(); ++i) {
+                    INBT cnbt = childListTag.get(i);
+                    if (!(cnbt instanceof CompoundNBT)) {
+                        continue;
+                    }
+                    CompoundNBT childNBT = (CompoundNBT)cnbt;
+                    Species species = Species.valueOf(childNBT.getString("species"));
+                    AbstractHorseGenetic child = null;
+                    switch(species) {
+                        case HORSE:
+                            child = ModEntities.HORSE_GENETIC.create(this.world);
+                            break;
+                        case DONKEY:
+                            child = ModEntities.DONKEY_GENETIC.create(this.world);
+                            break;
+                        case MULE:
+                            child = ModEntities.MULE_GENETIC.create(this.world);
+                            break;
+                    }
+                    if (child != null) {
+                        HorseGenome genome = new HorseGenome(child);
+                        genome.genesFromString(childNBT.getString("genes"));
+                        this.unbornChildren.add(child);
+                    }
+                }
+            }
+        }
 
         this.updateHorseSlots();
 
         if (this instanceof HorseGeneticEntity) {
             int spawndata = compound.getInt("VillageSpawn");
             if (spawndata != 0) {
-                System.out.println("Village horse read from NBT");
                 this.initFromVillageSpawn();
-            }
-            else {
-                System.out.println("Non-village horse read from NBT");
             }
         }
     }
@@ -281,6 +344,49 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 return 0;
         }
         
+    }
+
+    @Override
+    public boolean isMale() {
+        return ((Boolean)this.dataManager.get(GENDER)).booleanValue();
+    }
+
+    @Override
+    public void setMale(boolean gender) {
+        if (gender) {
+            // Prepare to become male
+            this.unbornChildren = new ArrayList<>();
+            this.dataManager.set(PREGNANT_SINCE, -1);
+        }
+        else {
+            // Prepare to become female
+            this.setCastrated(false);
+        }
+        this.dataManager.set(GENDER, gender);
+    }
+
+    public boolean isCastrated() {
+        return ((Boolean)this.dataManager.get(IS_CASTRATED)).booleanValue();
+    }
+
+    public void setCastrated(boolean isCastrated) {
+        this.dataManager.set(IS_CASTRATED, isCastrated);
+    }
+
+    public boolean isPregnant() {
+        return this.getPregnancyStart() >= 0;
+    }
+
+    public int getPregnancyStart() {
+        return this.dataManager.get(PREGNANT_SINCE);
+    }
+
+    public int getRebreedTicks() {
+        return HorseConfig.getHorseRebreedTicks(this.isMale());
+    }
+
+    public int getBirthAge() {
+        return HorseConfig.getHorseBirthAge();
     }
 
     @Override
@@ -440,9 +546,29 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     // correct species
     abstract AbstractHorseEntity getChild(AgeableEntity otherparent);
 
+    public boolean isOppositeGender(AbstractHorseGenetic other) {
+        if (!HorseConfig.isGenderEnabled()) {
+            return true;
+        }
+        if (this.isCastrated() || other.isCastrated()) {
+            return false;
+        }
+        return this.isMale() != other.isMale();
+    }
+
     @Override
     public AgeableEntity createChild(AgeableEntity ageable)
     {
+        if (!(ageable instanceof AnimalEntity)) {
+            return null;
+        }
+        AnimalEntity otherAnimal = (AnimalEntity)ageable;
+        // Have the female create the child if possible
+        if (this.isMale() 
+                && ageable instanceof AbstractHorseGenetic
+                && !((AbstractHorseGenetic)ageable).isMale()) {
+            return ageable.createChild(this);
+        }
         AbstractHorseEntity child = this.getChild(ageable);
         if (child != null) {
             this.setOffspringAttributes(ageable, child);
@@ -457,14 +583,45 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             // is born.
             if (foal.getGenes().isEmbryonicLethal())
             {
+                // Exit love mode
+                this.resetInLove();
+                otherAnimal.resetInLove();
+                // Spawn smoke particles
+                this.world.setEntityState(this, (byte)6);
                 return null;
             }
+            foal.setMale(rand.nextBoolean());
             foal.useGeneticAttributes();
             foal.setGrowingAge(HorseConfig.GROWTH.getMinAge());
-            foal.setDisplayAge(foal.getGrowingAge());
-            foal.recalculateSize();
         }
         return child;
+    }
+
+    @Override
+    public boolean setPregnantWith(AgeableEntity child, AgeableEntity otherParent) {
+        if (otherParent instanceof IGeneticEntity) {
+            IGeneticEntity otherGenetic = (IGeneticEntity)otherParent;
+            if (this.isMale() == otherGenetic.isMale()) {
+                return false;
+            }
+            else if (this.isMale() && !otherGenetic.isMale()) {
+                return otherGenetic.setPregnantWith(child, this);
+            }
+        }
+        if (this.isMale()) {
+            return false;
+        }
+
+        if (child instanceof AbstractHorseGenetic) {
+            unbornChildren.add((AbstractHorseGenetic)child);
+            if (!this.world.isRemote) {
+                // Can't be a child
+                this.trueAge = Math.max(0, this.trueAge);
+                this.dataManager.set(PREGNANT_SINCE, this.trueAge);
+            }
+            return true;
+        }
+        return false;
     }
 
     // So that I don't have to override all of Minecraft's code that sets the age
@@ -477,6 +634,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         super.setGrowingAge(age);
     }
 
+    public boolean shouldRecordAge() {
+        return this.getGenes().clientNeedsAge() || this.isPregnant();
+    }
+
     /**
      * Called to update the entity's position/logic.
      */
@@ -487,11 +648,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         if (this.world.isRemote && this.dataManager.isDirty()) {
             this.dataManager.setClean();
             this.getGenes().resetTexture();
-            this.recalculateSize();
         }
 
-        // Align age
-        if (!this.world.isRemote && this.getGenes().clientNeedsAge()) {
+        // Keep track of age
+        if (!this.world.isRemote && this.shouldRecordAge()) {
             // For children, align with growing age in case they have been fed
             if (this.growingAge < 0) {
                 this.trueAge = this.growingAge;
@@ -499,12 +659,34 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             else {
                 this.trueAge = Math.max(0, this.trueAge + 1);
             }
+        }
+
+        // Align age with client
+        if (!this.world.isRemote && this.getGenes().clientNeedsAge()) {
             // Allow imprecision
             final int c = 400;
             if (this.trueAge / c != this.getDisplayAge() / c
                     || (this.trueAge < 0 != this.getDisplayAge() < 0)) {
                 this.setDisplayAge(this.trueAge);
-                this.recalculateSize();
+            }
+        }
+
+        // Pregnancy
+        if (!this.world.isRemote && this.isPregnant()) {
+            // Check pregnancy
+            if (this.unbornChildren == null
+                    || this.unbornChildren.size() == 0) {
+                this.dataManager.set(PREGNANT_SINCE, -1);
+            }
+            // Handle birth
+            int totalLength = HorseConfig.getHorsePregnancyLength();
+            int currentLength = this.trueAge - this.getPregnancyStart();
+            if (currentLength >= totalLength) {
+                for (AbstractHorseGenetic child : unbornChildren) {
+                    GenderedBreedGoal.spawnChild(this, child, this.world);
+                }
+                this.unbornChildren = new ArrayList<>();
+                this.dataManager.set(PREGNANT_SINCE, -1);
             }
         }
 
@@ -523,6 +705,39 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             }
         }
     }
+
+    public void livingTick() {
+        if (this.unbornChildren != null && this.unbornChildren.size() > 0
+                && this.getPregnancyStart() < 0) {
+            this.dataManager.set(PREGNANT_SINCE, 0);
+        }
+
+        if (this.getGenes().isHomozygous("leopard", HorseAlleles.LEOPARD) && !this.world.isRemote()) {
+        IAttributeInstance speedAttribute = this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
+        IAttributeInstance jumpAttribute = this.getAttribute(JUMP_STRENGTH);
+        float brightness = this.getBrightness();
+        if (brightness > 0.5f) {
+            //setSprinting(true);
+            if (speedAttribute.getModifier(CSNB_SPEED_UUID) != null) {
+                speedAttribute.removeModifier(CSNB_SPEED_MODIFIER);
+            }
+            if (jumpAttribute.getModifier(CSNB_JUMP_UUID) != null) {
+                jumpAttribute.removeModifier(CSNB_JUMP_MODIFIER);
+            }
+        }
+        else {
+            //setSprinting(false);
+            if (speedAttribute.getModifier(CSNB_SPEED_UUID) == null) {
+                speedAttribute.applyModifier(CSNB_SPEED_MODIFIER);
+            }
+            if (jumpAttribute.getModifier(CSNB_JUMP_UUID) == null) {
+                jumpAttribute.applyModifier(CSNB_JUMP_MODIFIER);
+            }
+        }
+      }
+
+      super.livingTick();
+   }
 
     public Map<String, List<Float>> getSpawnFrequencies() {
         return new HashMap<String, List<Float>>();
@@ -550,9 +765,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         if (this.trueAge < 0) {
             this.trueAge = -24000;
         }
+        this.setMale(rand.nextBoolean());
         this.setGrowingAge(Math.min(0, this.trueAge));
         this.useGeneticAttributes();
-        this.recalculateSize();
     }
 
     public void initFromVillageSpawn() {
@@ -576,9 +791,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 if (this.getDisplayAge() == 0) {
                     age = minAge;
                 }
-                double maxFraction = HorseConfig.GROWTH.maxChildGrowth.get();
                 float fractionGrown = (minAge - age) / (float)minAge;
-                return fractionGrown * (float)maxFraction;
+                return fractionGrown;
             }
             return 0;
         }
@@ -597,10 +811,5 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     // horse. 0.5 is the most foal-shaped and 1 is the most adult-shaped.
     public float getGangliness() {
         return 0.5f + 0.5f * fractionGrown() * fractionGrown();
-    }
-
-    @Override
-    public float getRenderScale() {
-        return this.getGangliness() * this.getProportionalScale();
     }
 }

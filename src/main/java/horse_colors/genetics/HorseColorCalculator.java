@@ -697,34 +697,58 @@ public class HorseColorCalculator
             return;
         }
         TextureLayer hooves = new TextureLayer();
-        hooves.name = fixPath("leopard/striped_hooves");
+        if (horse.isHomozygous("leopard", HorseAlleles.LEOPARD)) {
+            hooves.name = fixPath("leopard/lplp_features");
+        }
+        else {
+            hooves.name = fixPath("leopard/lp_features");
+        }
         textureLayers.add(hooves);
-        TextureLayer layer = new TextureLayer();
-        int patn = horse.countAlleles("PATN1", HorseAlleles.PATN);
+        int patn = 7 * horse.countAlleles("PATN1", HorseAlleles.PATN);
+        patn += 2 * horse.countAlleles("PATN2", HorseAlleles.PATN);
+        patn += horse.countAlleles("PATN3", HorseAlleles.PATN);
+        TextureLayer spread = new TextureLayer();
         if (patn == 0)
         {
-            layer.name = fixPath("leopard/varnish_roan");
-            textureLayers.add(layer);
+            spread.name = fixPath("leopard/varnish_roan");
+            textureLayers.add(spread);
             return;
         }
+        else {
+            if (horse.hasMC1RWhiteBoost()) {
+                patn += 1;
+            }
+            if (horse.hasAllele("leopard_suppression", 1)) {
+                patn -= 1 + horse.countAlleles("PATN1", HorseAlleles.PATN);
+            }
+            if (patn < 1) {
+                spread.name = fixPath("leopard/varnish_roan");
+            }
+            else {
+                spread.name = fixPath("leopard/blanket" + patn);
+            }
+        }
+        TextureLayer spots = new TextureLayer();
         if (horse.isHomozygous("leopard", HorseAlleles.LEOPARD))
         {
-            // TODO: different coverage based on the value of patn
-            layer.name = fixPath("leopard/fewspot");
+            spots.name = fixPath("leopard/fewspot");
+        }
+        else if (horse.hasAllele("white_suppression", 1)) {
+            spots.name = fixPath("leopard/leopard_large");
+        }
+        else if (horse.hasAllele("marble", 1)) {
+            spots.name = fixPath("leopard/leopard_marble");
         }
         else
         {
-            // TODO: different coverage based on the value of patn
-            layer.name = fixPath("leopard/leopard");
+            spots.name = fixPath("leopard/leopard");
         }
-        if (patn == 2) {
-            textureLayers.add(layer);
+        if (patn >= 8) {
+            textureLayers.add(spots);
             return;
         }
-        TextureLayer spread = new TextureLayer();
-        spread.name = fixPath("leopard/blanket");
-        layer.type = TextureLayer.Type.MASK;
-        spread.next = layer;
+        spots.type = TextureLayer.Type.MASK;
+        spread.next = spots;
         textureLayers.add(spread);
     }
 
@@ -762,7 +786,7 @@ public class HorseColorCalculator
         }
 
         textureLayers.add(HorseColorCalculator.getPinto(horse));
-        //HorseColorCalculator.addLeopard(horse, textureLayers);
+        HorseColorCalculator.addLeopard(horse, textureLayers);
 
         TextureLayer highlights = new TextureLayer();
         highlights.name = HorseColorCalculator.fixPath("base");

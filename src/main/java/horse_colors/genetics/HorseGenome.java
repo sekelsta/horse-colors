@@ -102,6 +102,8 @@ public class HorseGenome extends Genome {
         "donkey_dun",
         "flaxen_boost",
         "light_dun",
+        "marble",
+        "leopard_suppression",
         "leg_stripes",   // TODO
         "stripe_spacing" // TODO
     );
@@ -319,6 +321,10 @@ public class HorseGenome extends Genome {
         return this.isHomozygous("KIT", HorseAlleles.KIT_DOMINANT_WHITE);
     }
 
+    public boolean hasERURiskFactor() {
+        return (this.getChromosome("mhc1") >>> 8) % 4 == 3;
+    }
+
     public int getSootyLevel() {
         // sooty1 and 2 dominant, 3 recessive
         return 1 + getMaxAllele("sooty1") + getMaxAllele("sooty2") 
@@ -418,9 +424,16 @@ public class HorseGenome extends Genome {
         }
     }
 
+    public float getERUHealthLoss() {
+        if (hasERURiskFactor()) {
+            return 0.5f * countAlleles("leopard", HorseAlleles.LEOPARD);
+        }
+        return 0;
+    }
+
     public float getBaseHealth() {
         if (HorseConfig.GENETICS.enableHealthEffects.get()) {
-            return -getGrayHealthLoss() - getSilverHealthLoss() - getDeafHealthLoss();
+            return -getGrayHealthLoss() - getSilverHealthLoss() - getDeafHealthLoss() - getERUHealthLoss();
         }
         else {
             return 0;
@@ -468,7 +481,7 @@ public class HorseGenome extends Genome {
     // the chance that a random uniform number between 0 and 1
     // is greater than distribution[i-1] but less than distribution[i].
     public int chooseRandomAllele(List<Float> distribution) {
-        float n = this.entity.getRand().nextFloat();
+        float n = this.entity.getRNG().nextFloat();
         for (int i = 0; i < distribution.size(); ++i) {
             if (n < distribution.get(i)) {
                 return i;
@@ -520,9 +533,10 @@ public class HorseGenome extends Genome {
         }
 
         for (String stat : this.listGenericChromosomes()) {
-            entity.setChromosome(stat, this.entity.getRand().nextInt());
+            entity.setChromosome(stat, this.entity.getRNG().nextInt());
         }
-        entity.setChromosome("random", this.entity.getRand().nextInt());
+        entity.setChromosome("random", this.entity.getRNG().nextInt());
+        this.entity.setMale(this.rand.nextBoolean());
     }
 
     private String getAbv(TextureLayer layer) {
@@ -572,19 +586,28 @@ public class HorseGenome extends Genome {
         health += "  " + Util.translate("stats.health2") + ": " + judgeStat("health2") + "\n";
         health += "  " + Util.translate("stats.health3") + ": " + judgeStat("health3") + "\n";
         health += "  " + Util.translate("stats.immune") + ": " + judgeStat((int)getImmuneHealth(), "stats.immune.");
+        String healthEffects = "";
         if (HorseConfig.GENETICS.enableHealthEffects.get()) {
             if (getDeafHealthLoss() > 0.5f) {
-                health += "\n" + Util.translate("stats.health.deaf");
+                healthEffects += "\n" + Util.translate("stats.health.deaf");
             }
             float h = getHealth() + getSilverHealthLoss();
             if ((int)getHealth() != (int)h) {
-                health += "\n" + Util.translate("stats.health.MCOA");
+                healthEffects += "\n" + Util.translate("stats.health.MCOA");
             }
-            if ((int)h != (int)(h + getGrayHealthLoss())) {
-                health += "\n" + Util.translate("stats.health.melanoma");
+            float h2 = h + getGrayHealthLoss();
+            if ((int)h != (int)h2) {
+                healthEffects += "\n" + Util.translate("stats.health.melanoma");
+            }
+            if ((int)h2 != (int)(h2 + getERUHealthLoss())) {
+                healthEffects += "\n" + Util.translate("stats.health.ERU");
+            }
+            if (isHomozygous("leopard", HorseAlleles.LEOPARD)) {
+                healthEffects += "\n" + Util.translate("stats.health.CSNB");
             }
         }
         physical.add(health);
+        physical.add(healthEffects);
         String athletics = Util.translate("stats.athletics") + "\n";
         athletics += "  " + Util.translate("stats.athletics1") + ": " + judgeStat("athletics1") + "\n";
         athletics += "  " + Util.translate("stats.athletics2") + ": " + judgeStat("athletics2");
@@ -604,7 +627,7 @@ public class HorseGenome extends Genome {
             contents.add(physical);
         }
 
-        List<String> genelist = ImmutableList.of("extension", "agouti", "dun", "gray", "cream", "silver", "KIT", "frame", "MITF");
+        List<String> genelist = ImmutableList.of("extension", "agouti", "dun", "gray", "cream", "silver", "KIT", "frame", "MITF", "leopard", "PATN1");
         List<String> genetic = new ArrayList<String>();
         genetic.add(Util.translate("book.genetic"));
         for (String gene : genelist) {
@@ -632,7 +655,7 @@ public class HorseGenome extends Genome {
     }
 
     public String genesToString() {
-        String answer = "";
+        String answer = entity.isMale()? "M" : "F";
         for (String chr : chromosomes) {
             answer += String.format("%1$08X", getChromosome(chr));
         }
@@ -640,7 +663,14 @@ public class HorseGenome extends Genome {
     }
 
     public void genesFromString(String s) {
+        if (s.length() % 8 != 0) {
+            String g = s.substring(0, 1);
+            entity.setMale(g.equals("M"));
+            s = s.substring(1);
+        }
+        
         for (int i = 0; i < chromosomes.size(); ++i) {
+            // This will be the default value if there are parsing errors
             int val = 0;
             try {
                 String c = s.substring(8 * i, 8 * (i + 1));
@@ -653,18 +683,21 @@ public class HorseGenome extends Genome {
     }
 
     public boolean isValidGeneString(String s) {
-        if (s.length() != 8 * chromosomes.size()) {
+        if (s.length() < 2) {
             return false;
         }
-        if (!s.matches("[0-9a-fA-F]*")) {
+        // Genderless from older version
+        if (s.length() % 8 == 0) {
+            return s.matches("[0-9a-fA-F]*");
+        }
+        String g = s.substring(0, 1);
+        if (!g.equals("M") && !g.equals("F")) {
             return false;
         }
-        return true;
-    }
-
-    @Override
-    public void inheritGenes(Genome parent1, Genome parent2) {
-        super.inheritGenes(parent1, parent2);
-        this.entity.setChromosome("random", this.rand.nextInt());
+        s = s.substring(1);
+        if (s.length() % 8 != 0) {
+            return false;
+        }
+        return s.matches("[0-9a-fA-F]*");
     }
 }

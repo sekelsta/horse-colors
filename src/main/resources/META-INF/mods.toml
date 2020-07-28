@@ -21,6 +21,7 @@ displayURL="https://www.curseforge.com/minecraft/mc-mods/realistic-horse-genetic
 logoFile="logo.png" #optional
 # A text field displayed in the mod UI
 authors="sekelsta" #optional
+credits="Thanks to faainleog for contributing some gorgeous textures!"
 # The description text for the mod (multi line!) (#mandatory)
 description='''
 All the pretty ponies!
