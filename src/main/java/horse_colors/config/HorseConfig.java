@@ -76,8 +76,7 @@ public class HorseConfig
                     .defineInRange("maxAge", 15.0, 0.0, 25.0);
 
             growGradually = builder
-                    .comment("If enabled, foals will slowly get bigger as they grow into adults. As",
-                            "a side effect, this also allows foals to pass through fences to the south or east.")
+                    .comment("If enabled, foals will slowly get bigger as they grow into adults.")
                     .define("foalsGrowGradually", false);
 
             growTime = builder
@@ -89,6 +88,10 @@ public class HorseConfig
 
         public int getMinAge() {
             return (int)(growTime.get() * -24000);
+        }
+
+        public int getMaxAge() {
+            return (int)(maxAge.get() * 24000);
         }
     }
 
@@ -127,7 +130,9 @@ public class HorseConfig
             pregnancyLength = builder
                     .comment("If genders are enabled, females will be pregnant for this many ticks.",
                             "The default value is 24000 ticks (20 minutes, or 1 minecraft day).",
-                            "To disable pregnancy altogether, set this number to 0.")
+                            "To disable pregnancy altogether, set this number to 0.",
+                            "Lowering this will not let female horses breed again sooner unless you",
+                            "also lower femaleRebreedTicks")
                     .defineInRange("pregnancyLength", 24000, 0, Integer.MAX_VALUE);
 
             builder.pop();

@@ -396,6 +396,13 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     }
 
     @Override
+    protected void onChildSpawnFromEgg(PlayerEntity playerIn, AgeableEntity child) {
+        if (child instanceof IGeneticEntity) {
+            child.setGrowingAge(((IGeneticEntity)child).getBirthAge());
+        }
+    }
+
+    @Override
     public boolean processInteract(PlayerEntity player, Hand hand) {
         ItemStack itemstack = player.getHeldItem(hand);
         if (!itemstack.isEmpty() && itemstack.getItem() instanceof SpawnEggItem) {
@@ -630,16 +637,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         return false;
     }
 
-    // So that I don't have to override all of Minecraft's code that sets the age
-    // to the minimum.
-    @Override
-    public void setGrowingAge(int age) {
-        if (age == -24000) {
-            age = HorseConfig.GROWTH.getMinAge();
-        }
-        super.setGrowingAge(age);
-    }
-
     public boolean shouldRecordAge() {
         return this.getGenes().clientNeedsAge() || this.isPregnant();
     }
@@ -668,7 +665,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
 
         // Align age with client
-        if (!this.world.isRemote && this.getGenes().clientNeedsAge()) {
+        if (!this.world.isRemote && (this.getGenes().clientNeedsAge())) {
             // Allow imprecision
             final int c = 400;
             if (this.trueAge / c != this.getDisplayAge() / c
@@ -764,14 +761,15 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
 
     private void randomize() {
         this.getGenes().randomize(getSpawnFrequencies());
-        // Choose a random age between 0 and 5 years old.
+        // Choose a random age
+        this.trueAge = this.rand.nextInt(HorseConfig.GROWTH.getMaxAge());
         // This preserves the ratio of child/adult
-        this.trueAge = this.rand.nextInt(5 * 24000) - 24000;
-        // Really this should just be cosmetic so let's also preserve the age of children
-        if (this.trueAge < 0) {
-            this.trueAge = -24000;
+        if (this.rand.nextInt(5) == 0) {
+            // Foals pick a random age within the younger half
+            this.trueAge = this.getBirthAge() + this.rand.nextInt(-this.getBirthAge() / 2);
         }
         this.setMale(rand.nextBoolean());
+        // Don't set the growing age to a positive value, that would be bad
         this.setGrowingAge(Math.min(0, this.trueAge));
         this.useGeneticAttributes();
     }
