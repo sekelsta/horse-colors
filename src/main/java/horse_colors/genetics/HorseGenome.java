@@ -104,6 +104,9 @@ public class HorseGenome extends Genome {
         "light_dun",
         "marble",
         "leopard_suppression",
+        "leopard_suppression2",
+        "PATN_boost1",
+        "PATN_boost2",
         "leg_stripes",   // TODO
         "stripe_spacing" // TODO
     );
@@ -132,7 +135,7 @@ public class HorseGenome extends Genome {
         "stamina"
     );
 
-    public static final ImmutableList<String> chromosomes = ImmutableList.of("0", "1", "2", "3", "speed", "jump", "health", "mhc1", "mhc2", "immune", "random");
+    public static final ImmutableList<String> chromosomes = ImmutableList.of("0", "1", "2", "3", "speed", "jump", "health", "mhc1", "mhc2", "immune", "random", "4");
 
     public HorseGenome(IGeneticEntity entityIn) {
         super(entityIn);

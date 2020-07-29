@@ -721,6 +721,16 @@ public class HorseColorCalculator
             if (horse.hasAllele("leopard_suppression", 1)) {
                 patn -= 1 + horse.countAlleles("PATN1", HorseAlleles.PATN);
             }
+            if (horse.isHomozygous("leopard_suppression2", 1)) {
+                patn -= 1;
+            }
+            if (horse.hasAllele("PATN_boost1", 1)) {
+                patn += 1;
+            }
+            if (horse.isHomozygous("PATN_boost2", 1)) {
+                patn += 1;
+            }
+
             if (patn < 1) {
                 spread.name = fixPath("leopard/varnish_roan");
             }

@@ -110,8 +110,20 @@ public class BaseHorse {
             1f      // Stretched leopard spots
         ));
         COLORS.put("leopard_suppression", ImmutableList.of(
+            0.92f,  // Full leopard
+            1f      // Semileopard
+        ));
+        COLORS.put("leopard_suppression2", ImmutableList.of(
             0.88f,  // Full leopard
             1f      // Semileopard
+        ));
+        COLORS.put("PATN_boost1", ImmutableList.of(
+            15f / 16f,  // Less pattern
+            1f          // More pattern
+        ));
+        COLORS.put("PATN_boost2", ImmutableList.of(
+            15f / 16f,  // Less pattern
+            1f          // More pattern
         ));
     }
 

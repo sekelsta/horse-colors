@@ -56,6 +56,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     protected static final DataParameter<Integer> HORSE_VARIANT2 = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_VARIANT3 = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_VARIANT4 = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
+    protected static final DataParameter<Integer> HORSE_VARIANT5 = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_SPEED = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_JUMP = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_HEALTH = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
@@ -122,6 +123,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.dataManager.register(HORSE_VARIANT2, Integer.valueOf(0));
         this.dataManager.register(HORSE_VARIANT3, Integer.valueOf(0));
         this.dataManager.register(HORSE_VARIANT4, Integer.valueOf(0));
+        this.dataManager.register(HORSE_VARIANT5, Integer.valueOf(0));
         this.dataManager.register(HORSE_SPEED, Integer.valueOf(0));
         this.dataManager.register(HORSE_HEALTH, Integer.valueOf(0));
         this.dataManager.register(HORSE_MHC1, Integer.valueOf(0));
@@ -146,6 +148,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         compound.putInt("Variant2", this.getChromosome("1"));
         compound.putInt("Variant3", this.getChromosome("2"));
         compound.putInt("Variant4", this.getChromosome("3"));
+        compound.putInt("Variant5", this.getChromosome("4"));
         compound.putInt("SpeedGenes", this.getChromosome("speed"));
         compound.putInt("JumpGenes", this.getChromosome("jump"));
         compound.putInt("HealthGenes", this.getChromosome("health"));
@@ -177,6 +180,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.setChromosome("1", compound.getInt("Variant2"));
         this.setChromosome("2", compound.getInt("Variant3"));
         this.setChromosome("3", compound.getInt("Variant4"));
+        this.setChromosome("4", compound.getInt("Variant5"));
         this.setChromosome("speed", compound.getInt("SpeedGenes"));
         this.setChromosome("jump", compound.getInt("JumpGenes"));
         this.setChromosome("health", compound.getInt("HealthGenes"));
@@ -286,6 +290,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 this.dataManager.set(HORSE_VARIANT4, variant);
                 this.getGenes().resetTexture();
                 return;
+            case "4":
+                this.dataManager.set(HORSE_VARIANT5, variant);
+                this.getGenes().resetTexture();
+                return;
             case "speed":
                 this.dataManager.set(HORSE_SPEED, variant);
                 this.useGeneticAttributes();
@@ -330,6 +338,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 return ((Integer)this.dataManager.get(HORSE_VARIANT3)).intValue();
             case "3":
                 return ((Integer)this.dataManager.get(HORSE_VARIANT4)).intValue();
+            case "4":
+                return ((Integer)this.dataManager.get(HORSE_VARIANT5)).intValue();
             case "speed":
                 return ((Integer)this.dataManager.get(HORSE_SPEED)).intValue();
             case "jump":

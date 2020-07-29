@@ -241,6 +241,18 @@ public class BaseEquine {
             1f,     // Full leopard
             1f      // Semileopard
         ));
+        COLORS.put("leopard_suppression2", ImmutableList.of(
+            1f,     // Full leopard
+            1f      // Semileopard
+        ));
+        COLORS.put("PATN_boost1", ImmutableList.of(
+            1f,     // Less pattern
+            1f      // More pattern
+        ));
+        COLORS.put("PATN_boost2", ImmutableList.of(
+            1f,     // Less pattern
+            1f      // More pattern
+        ));
     }
 
     public static void init() {
