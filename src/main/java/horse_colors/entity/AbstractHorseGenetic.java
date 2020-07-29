@@ -180,7 +180,18 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.setChromosome("1", compound.getInt("Variant2"));
         this.setChromosome("2", compound.getInt("Variant3"));
         this.setChromosome("3", compound.getInt("Variant4"));
-        this.setChromosome("4", compound.getInt("Variant5"));
+        if (compound.contains("Variant5")) {
+            this.setChromosome("4", compound.getInt("Variant5"));
+        }
+        else {
+            // MITF and PAX3 were next to each other and were 2 bits each,
+            // now PAX3 moved and they are 4 bits each
+            int prevSplash = genes.getNamedGene("MITF");
+            genes.setAllele("MITF", 0, prevSplash & 3);
+            genes.setAllele("MITF", 1, (prevSplash >>> 2) & 3);
+            genes.setAllele("PAX3", 0, (prevSplash >>> 4) & 3);
+            genes.setAllele("PAX3", 1, (prevSplash >>> 6) & 3);
+        }
         this.setChromosome("speed", compound.getInt("SpeedGenes"));
         this.setChromosome("jump", compound.getInt("JumpGenes"));
         this.setChromosome("health", compound.getInt("HealthGenes"));

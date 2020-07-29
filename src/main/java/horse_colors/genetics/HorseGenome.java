@@ -74,7 +74,6 @@ public class HorseGenome extends Genome {
         "KIT", 
         "frame", 
         "MITF", 
-        "PAX3", 
         "leopard",
         "PATN1", 
         "PATN2", 
@@ -107,6 +106,7 @@ public class HorseGenome extends Genome {
         "leopard_suppression2",
         "PATN_boost1",
         "PATN_boost2",
+        "PAX3", 
         "leg_stripes",   // TODO
         "stripe_spacing" // TODO
     );
@@ -180,6 +180,8 @@ public class HorseGenome extends Genome {
         switch(gene) 
         {
             case "KIT":
+            case "MITF":
+            case "PAX3":
             case "speed1":
             case "speed2":
             case "speed3":
@@ -196,8 +198,6 @@ public class HorseGenome extends Genome {
             case "extension":
             case "agouti": return 3;
 
-            case "MITF":
-            case "PAX3":
             case "cream":
             case "dun": return 2;
 
