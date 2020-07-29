@@ -406,7 +406,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     public boolean processInteract(PlayerEntity player, Hand hand) {
         ItemStack itemstack = player.getHeldItem(hand);
         if (!itemstack.isEmpty() && itemstack.getItem() instanceof SpawnEggItem) {
-            super.processInteract(player, hand);
+            return super.processInteract(player, hand);
         }
 
         if (!this.isChild()) {
