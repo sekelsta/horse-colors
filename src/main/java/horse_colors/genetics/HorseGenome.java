@@ -57,7 +57,6 @@ public class HorseGenome extends Genome {
         "dun", 
         "gray", 
         "cream", 
-        "silver", 
         "liver", 
         "flaxen1", 
         "flaxen2", 
@@ -70,9 +69,7 @@ public class HorseGenome extends Genome {
         "light_belly",
         "mealy1", 
         "mealy2", 
-        "white_suppression", 
         "KIT", 
-        "frame", 
         "MITF", 
         "leopard",
         "PATN1", 
@@ -107,6 +104,9 @@ public class HorseGenome extends Genome {
         "PATN_boost1",
         "PATN_boost2",
         "PAX3", 
+        "white_suppression", 
+        "frame", 
+        "silver", 
         "leg_stripes",   // TODO
         "stripe_spacing" // TODO
     );
@@ -179,7 +179,8 @@ public class HorseGenome extends Genome {
     {
         switch(gene) 
         {
-            case "KIT":
+            case "KIT": return 6;
+
             case "MITF":
             case "PAX3":
             case "speed1":
@@ -195,10 +196,10 @@ public class HorseGenome extends Genome {
             case "health3":
             case "stamina": return 4;
 
+            case "cream":
             case "extension":
             case "agouti": return 3;
 
-            case "cream":
             case "dun": return 2;
 
             default: return 1;

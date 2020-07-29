@@ -191,6 +191,24 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             genes.setAllele("MITF", 1, (prevSplash >>> 2) & 3);
             genes.setAllele("PAX3", 0, (prevSplash >>> 4) & 3);
             genes.setAllele("PAX3", 1, (prevSplash >>> 6) & 3);
+            // There was 1 bit for each allele of white_suppression, 
+            // then 4 for KIT, then 1 for frame
+            // Those were all merged into KIT and the other genes were
+            // moved elsewhere
+            int prevKIT = genes.getNamedGene("KIT");
+            genes.setAllele("white_suppression", 0, prevKIT & 1);
+            genes.setAllele("white_suppression", 1, (prevKIT >>> 1) & 1);
+            genes.setAllele("KIT", 0, (prevKIT >>> 2) & 15);
+            genes.setAllele("KIT", 1, (prevKIT >>> 6) & 15);
+            genes.setAllele("frame", 0, (prevKIT >>> 10) & 1);
+            genes.setAllele("frame", 1, (prevKIT >>> 11) & 1);
+            // Used to be 2 bits of cream and 1 of silver, 
+            // now cream is merged to where silver was
+            int prevCream = genes.getNamedGene("cream");
+            genes.setAllele("cream", 0, prevCream & 3);
+            genes.setAllele("cream", 1, (prevCream >>> 2) & 3);
+            genes.setAllele("silver", 0, (prevCream >>> 4) & 1);
+            genes.setAllele("silver", 1, (prevCream >>> 5) & 1);
         }
         this.setChromosome("speed", compound.getInt("SpeedGenes"));
         this.setChromosome("jump", compound.getInt("JumpGenes"));
