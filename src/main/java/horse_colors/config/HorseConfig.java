@@ -89,6 +89,10 @@ public class HorseConfig
         public int getMinAge() {
             return (int)(growTime.get() * -24000);
         }
+
+        public int getMaxAge() {
+            return (int)(maxAge.get() * 24000);
+        }
     }
 
     public static class Breeding {
