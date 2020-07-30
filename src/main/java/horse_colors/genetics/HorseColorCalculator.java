@@ -9,9 +9,9 @@ import sekelsta.horse_colors.renderer.TextureLayer;
 
 public class HorseColorCalculator
 {
-    private static final int UNUSED_BITS = 2;
-    private static final int FACE_MARKING_BITS = 2;
-    private static final int LEG_MARKING_BITS = 12;
+    static final int UNUSED_BITS = 2;
+    static final int FACE_MARKING_BITS = 2;
+    static final int LEG_MARKING_BITS = 12;
 
     private static final int GRAY_BODY_STAGES = 19;
     private static final int GRAY_MANE_STAGES = 20;
@@ -504,263 +504,6 @@ public class HorseColorCalculator
         }
     }
 
-    public static int getFaceWhiteLevel(HorseGenome horse) {
-        int white = -2;
-        if (horse.hasAllele("white_suppression", 1))
-        {
-            white -= 4;
-        }
-
-        white += horse.countAlleles("KIT", HorseAlleles.KIT_WHITE_BOOST);
-        white += horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS1);
-        white += 2 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS2);
-        white += 2 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS3);
-        white += 3 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS4);
-        white += 3 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS5);
-        white += 3 * horse.countW20();;
-        white += 4 * horse.countAlleles("KIT", HorseAlleles.KIT_FLASHY_WHITE);
-
-        white += 6 * horse.countAlleles("MITF", HorseAlleles.MITF_SW1);
-        white += 9 * horse.countAlleles("MITF", HorseAlleles.MITF_SW3);
-        white += 8 * horse.countAlleles("MITF", HorseAlleles.MITF_SW5);
-
-        white += 7 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW2);
-        white += 8 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW4);
-
-        white += 3 * horse.countAlleles("white_star", 1);
-        white += horse.countAlleles("white_forelegs", 1);
-        white += horse.countAlleles("white_hindlegs", 1);
-
-        if (horse.hasMC1RWhiteBoost()) {
-            white += 2;
-        }
-        return white;
-    }
-
-    public static TextureLayer getFaceMarking(HorseGenome horse)
-    {
-        int white = getFaceWhiteLevel(horse);
-        // Turn a signed integer into unsigned, also drop a few bits 
-        // used elsewhere
-        int random = (horse.getChromosome("random") << 1) 
-                        >>> (1 + UNUSED_BITS);
-
-        white += random & 3;
-
-
-        if (white <= 0) {
-            return null;
-        }
-        int face_marking = white / 5;
-
-        TextureLayer layer = new TextureLayer();
-        String folder = "face/";
-        switch (face_marking)
-        {
-            case 0:
-                break;
-            case 1:
-                layer.name = fixPath(folder + "star");
-                break;
-            case 2:
-                layer.name = fixPath(folder + "strip");
-                break;
-            case 3:
-                layer.name = fixPath(folder + "blaze");
-                break;
-            default:
-                layer.name = fixPath(folder + "blaze");
-                break;
-        }
-
-        return layer;
-    }
-
-    public static String[] getLegMarkings(HorseGenome horse)
-    {
-        int white = -3;
-        if (horse.hasAllele("white_suppression", 1))
-        {
-            white -= 4;
-        }
-
-        white += horse.countAlleles("KIT", HorseAlleles.KIT_WHITE_BOOST);
-        white += 2 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS1);
-        white += 3 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS2);
-        white += 4 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS3);
-        white += 5 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS4);
-        white += 6 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS5);
-        white += 7 * horse.countW20();
-        white += 8 * horse.countAlleles("KIT", HorseAlleles.KIT_FLASHY_WHITE);
-
-        white += 2 * horse.countAlleles("MITF", HorseAlleles.MITF_SW1);
-        white += 6 * horse.countAlleles("MITF", HorseAlleles.MITF_SW3);
-        white += 2 * horse.countAlleles("MITF", HorseAlleles.MITF_SW5);
-
-        white += 2 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW2);
-        white += 3 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW4);
-        white += horse.countAlleles("white_star", 1);
-
-        int forelegs = white;
-        forelegs += 2 * horse.countAlleles("white_forelegs", 1);
-
-        int hindlegs = white;
-        hindlegs += 2 * horse.countAlleles("white_hindlegs", 1);
-
-        String[] legs = new String[4];
-
-        // Anything after here doesn't create leg white from scratch, but
-        // only increases the size
-        int white_boost = 0;
-
-        if (horse.hasMC1RWhiteBoost()) {
-            white_boost += 2;
-        }
-
-        // Turn a signed integer into unsigned, also drop a few bits 
-        // used elsewhere
-        int random = (horse.getChromosome("random") << 1) 
-                        >>> (1 + UNUSED_BITS + FACE_MARKING_BITS);
-
-        for (int i = 0; i < 4; ++i) {
-            int r = random & 7;
-            random = random >>> 3;
-            int w = forelegs;
-            if (i >= 2) {
-                w = hindlegs;
-            }
-            // Add bonus from things that don't make socks 
-            // on their own but still increase white
-            if (w > -2) {
-                w += white_boost;
-            }
-
-            if (w < 0) {
-                legs[i] = null;
-            }
-            else {
-                legs[i] = fixPath("socks/" + String.valueOf(i) + "_" + String.valueOf(Math.min(7, w / 2 + r)));
-            }
-        }
-
-
-        return legs;
-    }
-
-    public static TextureLayer getPinto(HorseGenome horse)
-    {
-        TextureLayer layer = new TextureLayer();
-        if (horse.isWhite())
-        {
-            layer.name = fixPath("pinto/white");
-            return layer;
-        }
-
-        String folder = "pinto/";
-
-        if (horse.isTobiano())
-        {
-            if (horse.hasAllele("frame", HorseAlleles.FRAME))
-            {
-                if (horse.isHomozygous("MITF", HorseAlleles.MITF_SW1))
-                {
-                    layer.name = fixPath(folder + "medicine_hat");
-                }
-                else
-                {
-                    layer.name =  fixPath(folder + "war_shield");
-                }
-            }
-            else
-            {
-                layer.name = fixPath(folder + "tobiano");
-            }
-        }
-        else if (horse.hasAllele("frame", HorseAlleles.FRAME))
-        {
-            layer.name = fixPath(folder + "frame");
-        }
-        else if (horse.isHomozygous("MITF", HorseAlleles.MITF_SW1))
-        {
-            layer.name = fixPath(folder + "splash");
-        }
-        else if (horse.hasAllele("KIT", HorseAlleles.KIT_SABINO1))
-        {
-            layer.name = fixPath(folder + "sabino");
-        }
-        return layer;
-    }
-
-    public static void addLeopard(HorseGenome horse, List<TextureLayer> textureLayers)
-    {
-        if (!horse.hasAllele("leopard", HorseAlleles.LEOPARD)) {
-            return;
-        }
-        TextureLayer hooves = new TextureLayer();
-        if (horse.isHomozygous("leopard", HorseAlleles.LEOPARD)) {
-            hooves.name = fixPath("leopard/lplp_features");
-        }
-        else {
-            hooves.name = fixPath("leopard/lp_features");
-        }
-        textureLayers.add(hooves);
-        int patn = 7 * horse.countAlleles("PATN1", HorseAlleles.PATN);
-        patn += 2 * horse.countAlleles("PATN2", HorseAlleles.PATN);
-        patn += horse.countAlleles("PATN3", HorseAlleles.PATN);
-        TextureLayer spread = new TextureLayer();
-        if (patn == 0)
-        {
-            spread.name = fixPath("leopard/varnish_roan");
-            textureLayers.add(spread);
-            return;
-        }
-        else {
-            if (horse.hasMC1RWhiteBoost()) {
-                patn += 1;
-            }
-            if (horse.hasAllele("leopard_suppression", 1)) {
-                patn -= 1 + horse.countAlleles("PATN1", HorseAlleles.PATN);
-            }
-            if (horse.isHomozygous("leopard_suppression2", 1)) {
-                patn -= 1;
-            }
-            if (horse.hasAllele("PATN_boost1", 1)) {
-                patn += 1;
-            }
-            if (horse.isHomozygous("PATN_boost2", 1)) {
-                patn += 1;
-            }
-
-            if (patn < 1) {
-                spread.name = fixPath("leopard/varnish_roan");
-            }
-            else {
-                spread.name = fixPath("leopard/blanket" + patn);
-            }
-        }
-        TextureLayer spots = new TextureLayer();
-        if (horse.isHomozygous("leopard", HorseAlleles.LEOPARD))
-        {
-            spots.name = fixPath("leopard/fewspot");
-        }
-        else if (horse.hasAllele("white_suppression", 1)) {
-            spots.name = fixPath("leopard/leopard_large");
-        }
-        else if (horse.hasAllele("marble", 1)) {
-            spots.name = fixPath("leopard/leopard_marble");
-        }
-        else
-        {
-            spots.name = fixPath("leopard/leopard");
-        }
-        if (patn >= 8) {
-            textureLayers.add(spots);
-            return;
-        }
-        spots.type = TextureLayer.Type.MASK;
-        spread.next = spots;
-        textureLayers.add(spread);
-    }
 
     @OnlyIn(Dist.CLIENT)
     public static List<TextureLayer> getTexturePaths(HorseGenome horse) {
@@ -784,10 +527,10 @@ public class HorseColorCalculator
             textureLayers.add(roan);
         }
 
-        textureLayers.add(HorseColorCalculator.getFaceMarking(horse));
+        textureLayers.add(HorsePatternCalculator.getFaceMarking(horse));
         if (horse.showsLegMarkings())
         {
-            String[] leg_markings = HorseColorCalculator.getLegMarkings(horse);
+            String[] leg_markings = HorsePatternCalculator.getLegMarkings(horse);
             for (String marking : leg_markings) {
                 TextureLayer layer = new TextureLayer();
                 layer.name = marking;
@@ -795,8 +538,8 @@ public class HorseColorCalculator
             }
         }
 
-        textureLayers.add(HorseColorCalculator.getPinto(horse));
-        HorseColorCalculator.addLeopard(horse, textureLayers);
+        textureLayers.add(HorsePatternCalculator.getPinto(horse));
+        HorsePatternCalculator.addLeopard(horse, textureLayers);
 
         TextureLayer highlights = new TextureLayer();
         highlights.name = HorseColorCalculator.fixPath("base");

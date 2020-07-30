@@ -419,12 +419,11 @@ public class HorseGenome extends Genome {
     }
 
     public float getDeafHealthLoss() {
-        int white = HorseColorCalculator.getFaceWhiteLevel(this);
-        if (white > 18) {
-            return 1f;
+        if (HorsePatternCalculator.hasPigmentInEars(this)) {
+            return 0f;
         }
         else {
-            return 0f;
+            return 1f;
         }
     }
 
