@@ -527,7 +527,7 @@ public class HorseColorCalculator
             textureLayers.add(roan);
         }
 
-        textureLayers.add(HorsePatternCalculator.getFaceMarking(horse));
+        HorsePatternCalculator.addFaceMarkings(horse, textureLayers);
         if (horse.showsLegMarkings())
         {
             String[] leg_markings = HorsePatternCalculator.getLegMarkings(horse);

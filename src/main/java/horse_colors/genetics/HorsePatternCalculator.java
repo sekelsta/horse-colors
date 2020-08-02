@@ -15,15 +15,88 @@ public class HorsePatternCalculator {
         return boost <= 18;
     }
 
-    public static TextureLayer getFaceMarking(HorseGenome horse)
+    public static void addFaceMarkings(HorseGenome horse, List<TextureLayer> textureLayers)
     {
         WhiteBoost whiteBoost = new WhiteBoost(horse);
-        int white = whiteBoost.getMuzzle() + whiteBoost.getNoseBridge() + whiteBoost.getForehead();
         // Turn a signed integer into unsigned, also drop a few bits 
         // used elsewhere
         int random = (horse.getChromosome("random") << 1) 
                         >>> (1 + HorseColorCalculator.UNUSED_BITS);
 
+        int starSize = whiteBoost.getForehead();
+        starSize += random % 2;
+        int stripSize = whiteBoost.getNoseBridge();
+        stripSize += random % 2;
+        int snipSize = whiteBoost.getMuzzle();
+        snipSize += random % 2;
+
+        TextureLayer star = new TextureLayer();
+
+        if (starSize > 5) {
+            star.name = HorseColorCalculator.fixPath("face/star_strip");
+        }
+        else if (starSize > 4) {
+            star.name = HorseColorCalculator.fixPath("face/star_large");
+        }
+        else if (starSize > 3) {
+            star.name = HorseColorCalculator.fixPath("face/star6");
+        }
+        else if (starSize > 2) {
+            star.name = HorseColorCalculator.fixPath("face/star_lightning");
+        }
+        else if (starSize > 1) {
+            star.name = HorseColorCalculator.fixPath("face/star_moon");
+        }
+        else if (starSize > 0) {
+            star.name = HorseColorCalculator.fixPath("face/star");
+        }
+        else {
+            star.name = null;
+        }
+
+        if (star.name != null) {
+            textureLayers.add(star);
+        }
+
+        TextureLayer strip = new TextureLayer();
+
+        if (stripSize > 3) {
+            strip.name = HorseColorCalculator.fixPath("face/strip");
+        }
+        else {
+            strip.name = null;
+        }
+
+        if (strip.name != null) {
+            textureLayers.add(strip);
+        }
+
+        TextureLayer snip = new TextureLayer();
+
+        if (snipSize > 5) {
+            snip.name = HorseColorCalculator.fixPath("face/mouth");
+        }
+        else if (snipSize > 4) {
+            snip.name = HorseColorCalculator.fixPath("face/snip_large");
+        }
+        else if (snipSize > 3) {
+            snip.name = HorseColorCalculator.fixPath("face/snip_offcenter");
+        }
+        else if (snipSize > 2) {
+            snip.name = HorseColorCalculator.fixPath("face/snip");
+        }
+        else if (snipSize > 1) {
+            snip.name = HorseColorCalculator.fixPath("face/snip_small");
+        }
+        else {
+            snip.name = null;
+        }
+
+        if (snip.name != null) {
+            textureLayers.add(snip);
+        }
+/*
+        int white = whiteBoost.getMuzzle() + whiteBoost.getNoseBridge() + whiteBoost.getForehead();
         white += random & 3;
 
 
@@ -52,7 +125,7 @@ public class HorsePatternCalculator {
                 break;
         }
 
-        return layer;
+        return layer;*/
     }
 
     public static String[] getLegMarkings(HorseGenome horse)
@@ -214,6 +287,7 @@ public class HorsePatternCalculator {
         public WhiteBoost(HorseGenome horse) {
             foreleg = 2 * horse.countAlleles("white_forelegs", 1);
             hindleg = 2 * horse.countAlleles("white_hindlegs", 1);
+            forehead += horse.countAlleles("white_star", 1);
             setOldLegWhite(horse);
 
             if (horse.hasMC1RWhiteBoost()) {
@@ -262,7 +336,6 @@ public class HorsePatternCalculator {
             white += 7 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW2);
             white += 8 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW4);
 
-            white += 3 * horse.countAlleles("white_star", 1);
             white += horse.countAlleles("white_forelegs", 1);
             white += horse.countAlleles("white_hindlegs", 1);
 

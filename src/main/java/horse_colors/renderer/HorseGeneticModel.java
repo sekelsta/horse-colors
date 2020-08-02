@@ -106,22 +106,22 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         this.backLeftLeg.addBox(-2.5F, -2.0F, -2.5F, 4, 9, 5, scaleFactor);
         this.backLeftLeg.setRotationPoint(4.0F, 9.0F, 11.0F);
         this.backLeftShin = new ModelRenderer(this, 78, 43);
-        this.backLeftShin.addBox(-2.0F, 0.0F, -1.5F, 3, 5, 3, scaleFactor);
+        this.backLeftShin.addBox(-2.0F, 0.0F, -1F, 3, 5, 3, scaleFactor);
         this.backLeftShin.setRotationPoint(0.0F, 7.0F, 0.0F);
         this.backLeftLeg.addChild(backLeftShin);
         this.backLeftHoof = new ModelRenderer(this, 78, 51);
-        this.backLeftHoof.addBox(-2.5F, 5.1F, -2.0F, 4, 3, 4, scaleFactor);
+        this.backLeftHoof.addBox(-2.5F, 5.1F, -1.5F, 4, 3, 4, scaleFactor);
         this.backLeftShin.addChild(this.backLeftHoof);
 
         this.backRightLeg = new ModelRenderer(this, 96, 29);
         this.backRightLeg.addBox(-1.5F, -2.0F, -2.5F, 4, 9, 5, scaleFactor);
         this.backRightLeg.setRotationPoint(-4.0F, 9.0F, 11.0F);
         this.backRightShin = new ModelRenderer(this, 96, 43);
-        this.backRightShin.addBox(-1.0F, 0.0F, -1.5F, 3, 5, 3, scaleFactor);
+        this.backRightShin.addBox(-1.0F, 0.0F, -1F, 3, 5, 3, scaleFactor);
         this.backRightShin.setRotationPoint(0.0F, 7.0F, 0.0F);
         this.backRightLeg.addChild(this.backRightShin);
         this.backRightHoof = new ModelRenderer(this, 96, 51);
-        this.backRightHoof.addBox(-1.5F, 5.1F, -2.0F, 4, 3, 4, scaleFactor);
+        this.backRightHoof.addBox(-1.5F, 5.1F, -1.5F, 4, 3, 4, scaleFactor);
         this.backRightShin.addChild(this.backRightHoof);
 
         this.frontLeftLeg = new ModelRenderer(this, 44, 29);
