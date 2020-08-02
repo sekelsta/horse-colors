@@ -683,6 +683,9 @@ public class HorseGenome extends Genome {
             catch (NumberFormatException e) {}
             entity.setChromosome(chromosomes.get(i), val);
         }
+        if (s.length() >= 11 * 8) {
+            datafixAddingFourthChromosome();
+        }
     }
 
     public boolean isValidGeneString(String s) {
@@ -702,5 +705,33 @@ public class HorseGenome extends Genome {
             return false;
         }
         return s.matches("[0-9a-fA-F]*");
+    }
+
+    public void datafixAddingFourthChromosome() {
+        // MITF and PAX3 were next to each other and were 2 bits each,
+        // now PAX3 moved and they are 4 bits each
+        int prevSplash = this.getNamedGene("MITF");
+        this.setAllele("MITF", 0, prevSplash & 3);
+        this.setAllele("MITF", 1, (prevSplash >>> 2) & 3);
+        this.setAllele("PAX3", 0, (prevSplash >>> 4) & 3);
+        this.setAllele("PAX3", 1, (prevSplash >>> 6) & 3);
+        // There was 1 bit for each allele of white_suppression, 
+        // then 4 for KIT, then 1 for frame
+        // Those were all merged into KIT and the other genes were
+        // moved elsewhere
+        int prevKIT = this.getNamedGene("KIT");
+        this.setAllele("white_suppression", 0, prevKIT & 1);
+        this.setAllele("white_suppression", 1, (prevKIT >>> 1) & 1);
+        this.setAllele("KIT", 0, (prevKIT >>> 2) & 15);
+        this.setAllele("KIT", 1, (prevKIT >>> 6) & 15);
+        this.setAllele("frame", 0, (prevKIT >>> 10) & 1);
+        this.setAllele("frame", 1, (prevKIT >>> 11) & 1);
+        // Used to be 2 bits of cream and 1 of silver, 
+        // now cream is merged to where silver was
+        int prevCream = this.getNamedGene("cream");
+        this.setAllele("cream", 0, prevCream & 3);
+        this.setAllele("cream", 1, (prevCream >>> 2) & 3);
+        this.setAllele("silver", 0, (prevCream >>> 4) & 1);
+        this.setAllele("silver", 1, (prevCream >>> 5) & 1);
     }
 }
