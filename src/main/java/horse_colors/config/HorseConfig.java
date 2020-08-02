@@ -59,7 +59,7 @@ public class HorseConfig
 
     public static class Growth {
         public static DoubleValue yearLength;
-        public static DoubleValue maxAge;
+        public static BooleanValue grayGradually;
         public static BooleanValue growGradually;
         public static DoubleValue growTime;
 
@@ -71,9 +71,9 @@ public class HorseConfig
                     .comment("How long a year lasts in twenty minute Minecraft days, for the purposes of graying.", "Internally this number will be converted to ticks before it is used.")
                     .defineInRange("yearLength", 2.0, 2/24000., 10000);
 
-            maxAge = builder
-                    .comment("How many years a horse will age, for the purposes of graying.")
-                    .defineInRange("maxAge", 15.0, 0.0, 25.0);
+            grayGradually = builder
+                    .comment("If enabled, gray hores will be born colored and their fur will gradually turn white.")
+                    .define("grayGradually", true);
 
             growGradually = builder
                     .comment("If enabled, foals will slowly get bigger as they grow into adults.")
@@ -91,7 +91,7 @@ public class HorseConfig
         }
 
         public int getMaxAge() {
-            return (int)(maxAge.get() * 24000);
+            return (int)(15f * 24000 * yearLength.get());
         }
     }
 

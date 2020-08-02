@@ -477,9 +477,13 @@ public class HorseColorCalculator
     // num_stages does not count the starting and ending stages
     public static int grayStage(HorseGenome horse, float rate, int num_stages, float delay) {
         final int YEAR_TICKS = (int)(HorseConfig.GROWTH.yearLength.get() * 24000);
-        final int MAX_AGE = (int)(HorseConfig.GROWTH.maxAge.get() * YEAR_TICKS);
+        final int MAX_AGE = HorseConfig.GROWTH.getMaxAge();
         int age = horse.getAge() + 24000;
         age = Math.min(age, MAX_AGE);
+        if (!HorseConfig.GROWTH.grayGradually.get()) {
+            // If horses should not gray gradually, treat them as being 6 years old
+            age = (int)(MAX_AGE * 0.4f);
+        }
         float gray_age = (float)age / (float)(YEAR_TICKS * rate);
         gray_age = (gray_age - delay) / (1f - delay);
         if (gray_age <= 0) {

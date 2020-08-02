@@ -148,7 +148,7 @@ public class BaseEquine {
             1f      // Gray suppression
         ));
         COLORS.put("slow_gray1", ImmutableList.of(
-            0.75f,  // Lighter
+            0.5f,   // Lighter
             1f      // Darker
         ));
         COLORS.put("slow_gray2", ImmutableList.of(
@@ -176,7 +176,7 @@ public class BaseEquine {
             1f      // More melanoma
         ));
         COLORS.put("gray_mane1", ImmutableList.of(
-            0.5f,   // Lighter mane
+            0.25f,  // Lighter mane
             1f      // Lighter body
         ));
         COLORS.put("gray_mane2", ImmutableList.of(
