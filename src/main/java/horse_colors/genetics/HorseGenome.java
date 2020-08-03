@@ -683,7 +683,7 @@ public class HorseGenome extends Genome {
             catch (NumberFormatException e) {}
             entity.setChromosome(chromosomes.get(i), val);
         }
-        if (s.length() >= 11 * 8) {
+        if (s.length() <= 11 * 8) {
             datafixAddingFourthChromosome();
         }
     }

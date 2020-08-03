@@ -481,8 +481,8 @@ public class HorseColorCalculator
         int age = horse.getAge() + 24000;
         age = Math.min(age, MAX_AGE);
         if (!HorseConfig.GROWTH.grayGradually.get()) {
-            // If horses should not gray gradually, treat them as being 6 years old
-            age = (int)(MAX_AGE * 0.4f);
+            // If horses should not gray gradually, treat them as being 8 years old
+            age = (int)(MAX_AGE * 0.5f);
         }
         float gray_age = (float)age / (float)(YEAR_TICKS * rate);
         gray_age = (gray_age - delay) / (1f - delay);
@@ -503,8 +503,16 @@ public class HorseColorCalculator
 
     public static void setGrayConcentration(HorseGenome horse, TextureLayer layer) {
         if (horse.isGray()) {
+            float prevRed = layer.red;
+            float prevGreen = layer.green;
+            float prevBlue = layer.blue;
             float concentration = grayConcentration(horse, horse.getGrayRate());
             adjustConcentration(layer, concentration);
+            // Blacken the color a bit so it does not look so odd
+            float lightnessDiff = (float)(layer.red + layer.green + layer.blue) / (prevRed + prevGreen + prevBlue);
+            layer.red = (int)((layer.red + lightnessDiff * prevRed) / 2f);
+            layer.green = (int)((layer.green + lightnessDiff * prevGreen) / 2f);
+            layer.blue = (int)((layer.blue + lightnessDiff * prevBlue) / 2f);
         }
     }
 
