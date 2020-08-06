@@ -610,7 +610,6 @@ public class HorseGenome extends Genome {
             }
         }
         physical.add(health);
-        physical.add(healthEffects);
         String athletics = Util.translate("stats.athletics") + "\n";
         athletics += "  " + Util.translate("stats.athletics1") + ": " + judgeStat("athletics1") + "\n";
         athletics += "  " + Util.translate("stats.athletics2") + ": " + judgeStat("athletics2");
@@ -625,6 +624,7 @@ public class HorseGenome extends Genome {
         jump += "  " + Util.translate("stats.jump2") + ": " + judgeStat("jump2") + "\n";
         jump += "  " + Util.translate("stats.jump3") + ": " + judgeStat("jump3");
         physical.add(jump);
+        physical.add(healthEffects);
         if (HorseConfig.GENETICS.useGeneticStats.get() 
             && HorseConfig.GENETICS.bookShowsTraits.get()) {
             contents.add(physical);
