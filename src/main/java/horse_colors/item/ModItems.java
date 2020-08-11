@@ -1,6 +1,7 @@
 package sekelsta.horse_colors.item;
 
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -25,7 +26,8 @@ public class ModItems {
 
         genderChangeItem = new GenderChangeItem();
         genderChangeItem.setRegistryName(HorseColors.MODID, "gender_change_item");
-        genderChangeItem.setTranslationKey(geneBookItem.getRegistryName().toString());
+        genderChangeItem.setTranslationKey(genderChangeItem.getRegistryName().toString());
+        genderChangeItem.setCreativeTab(CreativeTabs.MISC);
         event.getRegistry().register(genderChangeItem);
     }
 
@@ -34,5 +36,7 @@ public class ModItems {
     {
         ModelLoader.setCustomModelResourceLocation(geneBookItem, 0, 
             new ModelResourceLocation(geneBookItem.getRegistryName(), "normal"));
+        ModelLoader.setCustomModelResourceLocation(genderChangeItem, 0, 
+            new ModelResourceLocation(genderChangeItem.getRegistryName(), "normal"));
     }
 }

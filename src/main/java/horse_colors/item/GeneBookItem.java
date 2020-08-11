@@ -13,10 +13,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.StringUtils;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -76,9 +73,7 @@ public class GeneBookItem extends Item {
                         break;
                 }
                 if (translation != null) {
-                    Style style = new Style();
-                    style.setColor(TextFormatting.GRAY);
-                    tooltip.add(new TextComponentTranslation(translation).setStyle(style).toString());
+                    tooltip.add(I18n.translateToLocal("entity." + translation + ".name"));
                 }
             }
         }

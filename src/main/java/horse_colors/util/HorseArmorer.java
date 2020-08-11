@@ -15,6 +15,9 @@ public class HorseArmorer
 {
     private static ResourceLocation getVanillaLocation(EntityLiving wearer, ItemStack armorStack)
     {
+        if (armorStack == null || armorStack.isEmpty() || armorStack.getItem() == null) {
+            return null;
+        }
         return new ResourceLocation(armorStack.getItem().getHorseArmorTexture(wearer, armorStack));
     }
 
@@ -28,8 +31,13 @@ public class HorseArmorer
             }
         }
         ResourceLocation vanilla = getVanillaLocation(wearer, armorStack);
+
         // Only use my own version of textures in the minecraft namespace
-        if (vanilla != null && vanilla.getNamespace().equals("minecraft")) {
+        if (vanilla == null) {
+            return vanilla;
+        }
+        String namespace = vanilla.getNamespace();
+        if (namespace == null || namespace.equals("minecraft")) {
             return new ResourceLocation(HorseColors.MODID, vanilla.getPath());
         }
         return vanilla;

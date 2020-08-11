@@ -11,10 +11,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -65,9 +62,7 @@ public class GenderChangeItem extends Item {
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
         if (!HorseConfig.isGenderEnabled()) {
             String translation = HorseColors.MODID + ".gender_change_item.gender_disabled_warning";
-            Style style = new Style();
-            style.setColor(TextFormatting.GRAY);
-            tooltip.add(new TextComponentTranslation(translation).setStyle(style).toString());
+            tooltip.add(I18n.translateToLocal(translation));
         }
     }
 

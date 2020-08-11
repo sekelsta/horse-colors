@@ -19,7 +19,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class HorseArmorLayer implements LayerRenderer<AbstractHorseGenetic> {
-    private final HorseGeneticModel horseModel = new HorseGeneticModel();
+    private final HorseGeneticModel horseModel = new HorseGeneticModel(0.1f);
     private final HorseGeneticRenderer renderer;
 
     public HorseArmorLayer(HorseGeneticRenderer renderer) {

@@ -1,7 +1,7 @@
 package sekelsta.horse_colors;
 
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.init.Blocks;
 
@@ -16,6 +16,6 @@ public class CreativeTab extends CreativeTabs {
 
     @Override
     public ItemStack createIcon() {
-        return new ItemStack(new ItemBlock(Blocks.HAY_BLOCK));
+        return new ItemStack(Item.getItemFromBlock(Blocks.HAY_BLOCK));
     }
 }

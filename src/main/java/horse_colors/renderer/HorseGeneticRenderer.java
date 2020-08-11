@@ -1,8 +1,5 @@
 package sekelsta.horse_colors.renderer;
 
-import sekelsta.horse_colors.entity.AbstractHorseGenetic;
-import sekelsta.horse_colors.genetics.IGeneticEntity;
-
 import com.google.common.collect.Maps;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
@@ -14,7 +11,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 import sekelsta.horse_colors.genetics.HorseColorCalculator;
+import sekelsta.horse_colors.genetics.IGeneticEntity;
 
 // Can't inherit from AbstractHorseRenderer because that uses HorseModel
 @SideOnly(Side.CLIENT)
