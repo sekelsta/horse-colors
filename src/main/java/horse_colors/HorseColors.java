@@ -1,5 +1,6 @@
 package sekelsta.horse_colors;
 
+import sekelsta.horse_colors.client.HorseGui;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.ModEntities;
 import sekelsta.horse_colors.item.ModItems;
@@ -62,6 +63,7 @@ public class HorseColors
     {
         HorseDebug hd = new HorseDebug();
         MinecraftForge.EVENT_BUS.register(hd);
+        MinecraftForge.EVENT_BUS.register(HorseGui.class);
     }
 /*
     public void fixMissingRegistries(RegistryEvent.MissingMappings<Item> event) {

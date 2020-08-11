@@ -1,8 +1,18 @@
 package sekelsta.horse_colors.renderer;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+
 import net.minecraft.client.renderer.texture.*;
+import net.minecraft.client.resources.IResource;
+import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.util.ResourceLocation;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class TextureLayer {
+    private static final Logger LOGGER = LogManager.getLogger();
+
     public String name;
     public String description;
     public Type type;
@@ -32,6 +42,149 @@ public class TextureLayer {
         HIGHLIGHT,
         POWER,
         ROOT
+    }
+
+
+    public BufferedImage getLayer(IResourceManager manager) {
+        if (this.name == null) {
+            LOGGER.error("Attempting to load unspecified texture (name is null)\n");
+            return null;
+        }
+        try (IResource iresource = manager.getResource(new ResourceLocation(this.name))) {
+            BufferedImage image = TextureUtil.readBufferedImage(iresource.getInputStream());
+            if (this.next != null) {
+                colorLayer(image);
+                this.next.combineLayers(image, this.next.getLayer(manager));
+                // Avoid double multiply
+                this.red = 0xff;
+                this.green = 0xff;
+                this.blue = 0xff;
+            }
+            return image;
+        } catch (IOException ioexception) {
+            LOGGER.error("Couldn't load layered image", (Throwable)ioexception);
+        }
+        return null;
+    }
+
+    public void combineLayers(BufferedImage base, BufferedImage image) {
+        switch(this.type) {
+            case NORMAL:
+                blendLayer(base, image);
+                break;
+            case NO_ALPHA:
+                blendLayerKeepAlpha(base, image);
+                break;
+            case MASK:
+                maskLayer(base, image);
+                break;
+            case SHADE:
+                shadeLayer(base, image);
+                break;
+            case HIGHLIGHT:
+                highlightLayer(base, image);
+                break;
+            case POWER:
+                powerLayer(base, image);
+                break;
+            case ROOT:
+                rootLayer(base, image);
+                break;
+        }
+    }
+
+    public void blendLayer(BufferedImage base, BufferedImage image) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                this.blendPixel(base, j, i, this.multiply(image.getRGB(j, i)));
+            }
+        }
+    }
+
+    public void blendLayerKeepAlpha(BufferedImage base, BufferedImage image) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                int cb = base.getRGB(j, i);
+                int ci = this.multiply(image.getRGB(j, i));
+                float a = getAlpha(ci) / 255.0F;
+                float r = getRed(ci);
+                float g = getGreen(ci);
+                float b = getBlue(ci);
+                float br = getRed(cb);
+                float bg = getGreen(cb);
+                float bb = getBlue(cb);
+                int fa = getAlpha(cb);
+                int fr = (int)(r * a + br * (1.0F-a));
+                int fg = (int)(g * a + bg * (1.0F-a));
+                int fb = (int)(b * a + bb * (1.0F-a));
+                base.setRGB(j, i, getCombined(fa, fb, fg, fr));
+            }
+        }
+    }
+
+    public void shadeLayer(BufferedImage base, BufferedImage image) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                int color = base.getRGB(j, i);
+                int shading = this.multiply(image.getRGB(j, i));
+                base.setRGB(j, i, this.shade(color, shading));
+            }
+        }
+    }
+
+    public void highlightLayer(BufferedImage base, BufferedImage image) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                int color = base.getRGB(j, i);
+                int highlight = this.multiply(image.getRGB(j, i));
+                base.setRGB(j, i, this.highlight(color, highlight));
+            }
+        }
+    }
+
+    public void maskLayer(BufferedImage base, BufferedImage image) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                int color = base.getRGB(j, i);
+                // Don't multiply here because that would do the wrong thing
+                int mask = image.getRGB(j, i);
+                int maskedColor = this.mask(color, mask);
+                base.setRGB(j, i, maskedColor);
+            }
+        }
+    }
+
+    // Raise RGB values to an exponent >= 1
+    public void powerLayer(BufferedImage base, BufferedImage image) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                int color = base.getRGB(j, i);
+                int exp = image.getRGB(j, i);
+                exp = this.multiply(exp);
+                this.blendPixel(base, j, i, this.power(color, exp));
+            }
+        }
+    }
+
+    // Raise RGB values to an exponent <= 1
+    public void rootLayer(BufferedImage base, BufferedImage image) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                int color = base.getRGB(j, i);
+                int exp = image.getRGB(j, i);
+                exp = this.multiply(exp);
+                this.blendPixel(base, j, i, this.root(color, exp));
+            }
+        }
+    }
+
+    public void colorLayer(BufferedImage image) {
+        for(int i = 0; i < image.getHeight(); ++i) {
+            for(int j = 0; j < image.getWidth(); ++j) {
+                int color = image.getRGB(j, i);
+                image.setRGB(j, i, this.multiply(color));
+            }
+        }
     }
 
     public int multiply(int color) {
@@ -158,12 +311,13 @@ public class TextureLayer {
         return s;
     }
 
+   // Buffered image uses format ARGB, unlike the NativeImage of 1.14+ which uses ABGR
    public static int getAlpha(int col) {
       return col >> 24 & 255;
    }
 
    public static int getRed(int col) {
-      return col >> 0 & 255;
+      return col >> 16 & 255;
    }
 
    public static int getGreen(int col) {
@@ -171,10 +325,48 @@ public class TextureLayer {
    }
 
    public static int getBlue(int col) {
-      return col >> 16 & 255;
+      return col >> 0 & 255;
    }
 
    public static int getCombined(int alpha, int blue, int green, int red) {
-      return (alpha & 255) << 24 | (blue & 255) << 16 | (green & 255) << 8 | (red & 255) << 0;
+      return (alpha & 255) << 24 | (red & 255) << 16 | (green & 255) << 8 | (blue & 255) << 0;
    }
+
+   public static void blendPixel(BufferedImage image, int xIn, int yIn, int colIn) {
+        int i = image.getRGB(xIn, yIn);
+        float f = (float)getAlpha(colIn) / 255.0F;
+        float f1 = (float)getBlue(colIn) / 255.0F;
+        float f2 = (float)getGreen(colIn) / 255.0F;
+        float f3 = (float)getRed(colIn) / 255.0F;
+        float f4 = (float)getAlpha(i) / 255.0F;
+        float f5 = (float)getBlue(i) / 255.0F;
+        float f6 = (float)getGreen(i) / 255.0F;
+        float f7 = (float)getRed(i) / 255.0F;
+        float f8 = 1.0F - f;
+        float f9 = f * f + f4 * f8;
+        float f10 = f1 * f + f5 * f8;
+        float f11 = f2 * f + f6 * f8;
+        float f12 = f3 * f + f7 * f8;
+        if (f9 > 1.0F) {
+            f9 = 1.0F;
+        }
+
+        if (f10 > 1.0F) {
+            f10 = 1.0F;
+        }
+
+        if (f11 > 1.0F) {
+            f11 = 1.0F;
+        }
+
+        if (f12 > 1.0F) {
+            f12 = 1.0F;
+        }
+
+        int j = (int)(f9 * 255.0F);
+        int k = (int)(f10 * 255.0F);
+        int l = (int)(f11 * 255.0F);
+        int i1 = (int)(f12 * 255.0F);
+        image.setRGB(xIn, yIn, getCombined(j, k, l, i1));
+    }
 }

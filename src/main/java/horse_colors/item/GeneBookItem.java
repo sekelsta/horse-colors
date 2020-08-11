@@ -26,6 +26,7 @@ import sekelsta.horse_colors.entity.*;
 import sekelsta.horse_colors.genetics.Genome;
 import sekelsta.horse_colors.genetics.HorseGenome;
 import sekelsta.horse_colors.genetics.IGeneticEntity;
+import sekelsta.horse_colors.genetics.Species;
 
 public class GeneBookItem extends Item {
     public GeneBookItem() {
@@ -105,11 +106,5 @@ public class GeneBookItem extends Item {
         Genome genome = new HorseGenome();
         genome.genesFromString(nbt.getString("genes"));
         mc.displayGuiScreen(new GeneBookScreen(genome));
-    }
-
-    public static enum Species {
-        HORSE,
-        DONKEY,
-        MULE
     }
 }

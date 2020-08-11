@@ -85,6 +85,10 @@ public class HorseConfig
         public int getMinAge() {
             return (int)(growTime * -24000);
         }
+
+        public int getMaxAge() {
+            return 15 * 24000;
+        }
     }
 
     public static class Breeding {
@@ -152,34 +156,6 @@ public class HorseConfig
         })
         public boolean bookShowsTraits = true;
     }
-
-    public static boolean isGenderEnabled() {
-        return BREEDING.enableGenders;
-    }
-
-    public static int getHorseRebreedTicks(boolean isMale) {
-        if (!isGenderEnabled()) {
-            return BREEDING.genderlessBreedingCooldown;
-        }
-        if (isMale) {
-            return BREEDING.maleBreedingCooldown;
-        }
-        return Math.max(BREEDING.femaleBreedingCooldown, getHorsePregnancyLength());
-    }
-
-    public static int getHorseBirthAge() {
-        return GROWTH.getMinAge();
-    }
-
-    public static boolean isPregnancyEnabled() {
-        return isGenderEnabled();
-    }
-
-    public static int getHorsePregnancyLength() {
-        return BREEDING.pregnancyLength;
-    }
-
-
 
     public static boolean getEnableGroundTie() {
         return COMMON.enableGroundTie;
@@ -260,5 +236,31 @@ public class HorseConfig
 				ConfigManager.sync(HorseColors.MODID, Config.Type.INSTANCE);
 			}
 		}
+    }
+
+    public static boolean isGenderEnabled() {
+        return BREEDING.enableGenders;
+    }
+
+    public static int getHorseRebreedTicks(boolean isMale) {
+        if (!isGenderEnabled()) {
+            return BREEDING.genderlessBreedingCooldown;
+        }
+        if (isMale) {
+            return BREEDING.maleBreedingCooldown;
+        }
+        return Math.max(BREEDING.femaleBreedingCooldown, getHorsePregnancyLength());
+    }
+
+    public static int getHorseBirthAge() {
+        return GROWTH.getMinAge();
+    }
+
+    public static boolean isPregnancyEnabled() {
+        return isGenderEnabled();
+    }
+
+    public static int getHorsePregnancyLength() {
+        return BREEDING.pregnancyLength;
     }
 }

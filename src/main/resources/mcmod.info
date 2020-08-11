@@ -4,5 +4,5 @@
   "description": "All the pretty ponies!",
   "mcversion": "${mcversion}",
   "authorList": ["sekelsta"],
-  "credits": "Thanks to faainleog for some gorgeous textures!"
+  "credits": "Thanks to faainleog for contributing many gorgeous textures, and to Mnesikos for helping backport the new features to 1.12!"
 }]

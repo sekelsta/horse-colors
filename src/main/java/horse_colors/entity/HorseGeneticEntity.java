@@ -32,8 +32,8 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
-import sekelsta.horse_colors.genetics.HorseBreeds;
-import sekelsta.horse_colors.item.GeneBookItem;
+import sekelsta.horse_colors.genetics.breed.*;
+import sekelsta.horse_colors.genetics.Species;
 import sekelsta.horse_colors.util.Util;
 
 public class HorseGeneticEntity extends AbstractHorseGenetic
@@ -150,6 +150,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         }
     }
 
+    @Override
     public void onUpdate() {
         super.onUpdate();
         ItemStack stack = this.horseChest.getStackInSlot(1);
@@ -196,8 +197,8 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     }
 
     @Override
-    public GeneBookItem.Species getSpecies() {
-        return GeneBookItem.Species.HORSE;
+    public Species getSpecies() {
+        return Species.HORSE;
     }
 
     /**
@@ -210,8 +211,14 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         {
             return false;
         }
-        else if (otherAnimal instanceof HorseGeneticEntity
-                || otherAnimal instanceof EntityDonkey 
+        if (otherAnimal instanceof AbstractHorseGenetic) {
+            if (!this.isOppositeGender((AbstractHorseGenetic)otherAnimal)) {
+                return false;
+            }
+        }
+        if (otherAnimal instanceof DonkeyGeneticEntity 
+                || otherAnimal instanceof HorseGeneticEntity
+                || otherAnimal instanceof EntityDonkey
                 || otherAnimal instanceof EntityHorse)
         {
             return this.canMate() && Util.horseCanMate((AbstractHorse)otherAnimal);

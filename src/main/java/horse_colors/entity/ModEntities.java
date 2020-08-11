@@ -3,7 +3,6 @@ import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.CreativeTab;
 import sekelsta.horse_colors.config.HorseConfig;
 
-import sekelsta.horse_colors.entity.*;
 import sekelsta.horse_colors.renderer.HorseGeneticRenderer;
 
 import com.google.common.collect.ImmutableList;
@@ -202,6 +201,8 @@ public class ModEntities {
     {
         HorseGeneticRenderer renderer = new HorseGeneticRenderer(Minecraft.getMinecraft().getRenderManager());
         RenderingRegistry.registerEntityRenderingHandler(HorseGeneticEntity.class, renderer);
+        RenderingRegistry.registerEntityRenderingHandler(MuleGeneticEntity.class, renderer);
+        RenderingRegistry.registerEntityRenderingHandler(DonkeyGeneticEntity.class, renderer);
     }
 
     public static void onLoadComplete() {

@@ -29,8 +29,8 @@ public class HorseArmorer
         }
         ResourceLocation vanilla = getVanillaLocation(wearer, armorStack);
         // Only use my own version of textures in the minecraft namespace
-        if (vanilla != null && vanilla.getResourceDomain().equals("minecraft")) {
-            return new ResourceLocation(HorseColors.MODID, vanilla.getResourcePath());
+        if (vanilla != null && vanilla.getNamespace().equals("minecraft")) {
+            return new ResourceLocation(HorseColors.MODID, vanilla.getPath());
         }
         return vanilla;
     }

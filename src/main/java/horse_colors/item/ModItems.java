@@ -14,13 +14,19 @@ import sekelsta.horse_colors.HorseColors;
 
 public class ModItems {
     public static GeneBookItem geneBookItem;
+    public static GenderChangeItem genderChangeItem;
 
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
         geneBookItem = new GeneBookItem();
         geneBookItem.setRegistryName(HorseColors.MODID, "gene_book");
-        geneBookItem.setUnlocalizedName(geneBookItem.getRegistryName().toString());
+        geneBookItem.setTranslationKey(geneBookItem.getRegistryName().toString());
         event.getRegistry().register(geneBookItem);
+
+        genderChangeItem = new GenderChangeItem();
+        genderChangeItem.setRegistryName(HorseColors.MODID, "gender_change_item");
+        genderChangeItem.setTranslationKey(geneBookItem.getRegistryName().toString());
+        event.getRegistry().register(genderChangeItem);
     }
 
 	@SubscribeEvent

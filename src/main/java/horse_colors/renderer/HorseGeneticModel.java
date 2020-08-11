@@ -332,6 +332,7 @@ public class HorseGeneticModel extends ModelBase
         if (this.isChild) {
             GlStateManager.pushMatrix();
             GlStateManager.scale(ageScale, 0.5F + ageScale * 0.5F, ageScale);
+            // Move the foal's legs downward so they reach the ground
             GlStateManager.translate(0.0F, 0.95F * (1.0F - ageScale), 0.0F);
         }
 
@@ -343,8 +344,9 @@ public class HorseGeneticModel extends ModelBase
         if (this.isChild) {
             GlStateManager.popMatrix();
             GlStateManager.pushMatrix();
+            // Move the body downwards but not as far as the legs
+            GlStateManager.translate(0.0F, ageScale * 1.35F * (1.0F - ageScale), 0.0F);
             GlStateManager.scale(ageScale, ageScale, ageScale);
-            GlStateManager.translate(0.0F, 1.35F * (1.0F - ageScale), 0.0F);
         }
 
         this.body.render(scale);
@@ -353,16 +355,13 @@ public class HorseGeneticModel extends ModelBase
         if (this.isChild) {
             GlStateManager.popMatrix();
             GlStateManager.pushMatrix();
-            float f2 = 0.5F + ageScale * ageScale * 0.5F;
-            GlStateManager.scale(f2, f2, f2);
-            if (f <= 0.0F)
-            {
-                GlStateManager.translate(0.0F, 1.35F * (1.0F - ageScale), 0.0F);
-            }
-            else
-            {
-                GlStateManager.translate(0.0F, 0.9F * (1.0F - ageScale) * f + 1.35F * (1.0F - ageScale) * (1.0F - f), 0.15F * (1.0F - ageScale) * f);
-            }
+            float headScale = 0.5F + ageScale * ageScale * 0.5F;
+            // Translate to match the body position
+            GlStateManager.translate(0.0F, ageScale * 1.35F * (1.0F - ageScale), 0.0F);
+            GlStateManager.scale(headScale, headScale, headScale);
+            float extra = (headScale - ageScale) * 1.35F * (1.0F - ageScale);
+            // The head's rest angle is 0.5235988F, 30 degrees
+            GlStateManager.translate(0.0F, extra * (float)Math.cos(this.head.rotateAngleX), extra * (float)Math.sin(this.head.rotateAngleX));
         }
 
         this.head.render(scale);
@@ -519,11 +518,5 @@ public class HorseGeneticModel extends ModelBase
         else {
             this.mane.rotationPointZ = 0.0F;
         }
-        // Partially corrects for scaling but still needs some translation
-/*
-        if (this.isChild) {
-            this.head.rotationPointY += 7.0F;
-            this.head.rotationPointZ += 1.0F;
-        }*/
     }
 }
