@@ -12,6 +12,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -36,9 +37,9 @@ public class HorseGui extends GuiContainer {
 
     ITextComponent title;
 
-    public HorseGui(IInventory playerInventory, AbstractHorseGenetic horse) {
-        super(new ContainerHorseInventory(playerInventory, horse.getInventory(), horse, Minecraft.getMinecraft().player));
-        this.playerInventory = playerInventory;
+    public HorseGui(AbstractHorseGenetic horse) {
+        super(new ContainerHorseInventory(Minecraft.getMinecraft().player.inventory, horse.getInventory(), horse, Minecraft.getMinecraft().player));
+        this.playerInventory = Minecraft.getMinecraft().player.inventory;
         this.horseInventory = horse.getInventory();
         this.horseEntity = horse;
         this.title = horse.getDisplayName();
@@ -110,6 +111,7 @@ public class HorseGui extends GuiContainer {
         this.renderHoveredToolTip(mouseX, mouseY);
     }
 
+    @SubscribeEvent
     public static void replaceGui(GuiOpenEvent event) {
         if (event.getGui() instanceof GuiScreenHorseInventory) {
             GuiScreenHorseInventory screen = (GuiScreenHorseInventory)event.getGui();
@@ -117,10 +119,7 @@ public class HorseGui extends GuiContainer {
             AbstractHorse horse = ObfuscationReflectionHelper.getPrivateValue(GuiScreenHorseInventory.class, screen, "field_147034_x");
             if (horse instanceof AbstractHorseGenetic) {
                 AbstractHorseGenetic horseGenetic = (AbstractHorseGenetic)horse;
-                // field_147030_v = playerInventory (1.12)
-                // field_213127_e = playerInventory
-                IInventory inventory = ObfuscationReflectionHelper.getPrivateValue(GuiContainer.class, screen, "field_147030_v");
-                event.setGui(new HorseGui(inventory, horseGenetic));
+                event.setGui(new HorseGui(horseGenetic));
             }
         }
     }

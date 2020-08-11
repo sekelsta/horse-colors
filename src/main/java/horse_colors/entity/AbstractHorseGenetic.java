@@ -143,7 +143,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestHorse implements
         this.tasks.addTask(0, new EntityAISwimming(this));
         this.tasks.addTask(1, new EntityAIPanic(this, 1.2D));
         this.tasks.addTask(1, new EntityAIRunAroundLikeCrazy(this, 1.2D));
-        this.tasks.addTask(2, new EntityAIMate(this, 1.0D, AbstractHorse.class));
+        this.tasks.addTask(2, new GenderedBreedGoal(this, 1.0D, AbstractHorse.class));
         this.tasks.addTask(4, new EntityAIFollowParent(this, 1.0D));
         this.tasks.addTask(6, new RandomWalkGroundTie(this, 0.7D));
         this.tasks.addTask(7, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
