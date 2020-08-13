@@ -253,6 +253,14 @@ public class BaseEquine {
             1f,     // Less pattern
             1f      // More pattern
         ));
+        COLORS.put("light_red", ImmutableList.of(
+            0.75f,  // Darker
+            1f      // Lighter
+        ));
+        COLORS.put("dark_red", ImmutableList.of(
+            0.5f,   // Lighter
+            1f      // Darker
+        ));
     }
 
     public static void init() {

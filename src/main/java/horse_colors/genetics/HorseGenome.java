@@ -107,6 +107,8 @@ public class HorseGenome extends Genome {
         "white_suppression", 
         "frame", 
         "silver", 
+        "light_red",
+        "dark_red",
         "leg_stripes",   // TODO
         "stripe_spacing" // TODO
     );

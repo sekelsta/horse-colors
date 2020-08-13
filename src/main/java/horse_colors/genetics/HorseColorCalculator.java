@@ -1,17 +1,18 @@
 package sekelsta.horse_colors.genetics;
 import java.util.*;
 
+import com.google.common.collect.ImmutableList;
+
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.renderer.TextureLayer;
+import sekelsta.horse_colors.util.RandomSupplier;
 
 public class HorseColorCalculator
 {
-    static final int UNUSED_BITS = 2;
-    static final int FACE_MARKING_BITS = 2;
-    static final int LEG_MARKING_BITS = 12;
+    static final RandomSupplier randSource = new RandomSupplier(ImmutableList.of("leg_white", "face_white"));
 
     private static final int GRAY_BODY_STAGES = 19;
     private static final int GRAY_MANE_STAGES = 20;
@@ -94,7 +95,15 @@ public class HorseColorCalculator
             white += 0.25f;
         }
 
-        if (horse.isHomozygous("rufous", 0)) {
+        if (horse.hasAllele("rufous", 1)) {
+            concentration *= 1.1f;
+        }
+
+        if (horse.isHomozygous("dark_red", 1)) {
+            concentration *= 1.2f;
+        }
+
+        if (horse.hasAllele("light_red", 1)) {
             concentration *= 0.9f;
             white += 0.04f;
         }

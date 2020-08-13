@@ -18,17 +18,14 @@ public class HorsePatternCalculator {
     public static void addFaceMarkings(HorseGenome horse, List<TextureLayer> textureLayers)
     {
         WhiteBoost whiteBoost = new WhiteBoost(horse);
-        // Turn a signed integer into unsigned, also drop a few bits 
-        // used elsewhere
-        int random = (horse.getChromosome("random") << 1) 
-                        >>> (1 + HorseColorCalculator.UNUSED_BITS);
+        int random = HorseColorCalculator.randSource.getVal("face_white", horse.getChromosome("random"));
 
         int starSize = whiteBoost.getForehead();
-        starSize += random % 2;
+        starSize += random & 1;
         int stripSize = whiteBoost.getNoseBridge();
-        stripSize += random % 2;
+        stripSize += (random >>> 1) &  1;
         int snipSize = whiteBoost.getMuzzle();
-        snipSize += random % 2;
+        snipSize += (random >>> 2)  & 1;
 
         TextureLayer star = new TextureLayer();
 
@@ -137,8 +134,10 @@ public class HorsePatternCalculator {
 
         // Turn a signed integer into unsigned, also drop a few bits 
         // used elsewhere
-        int random = (horse.getChromosome("random") << 1) 
-                        >>> (1 + HorseColorCalculator.UNUSED_BITS + HorseColorCalculator.FACE_MARKING_BITS);
+        int random = HorseColorCalculator.randSource.getVal("leg_white", horse.getChromosome("random"));
+        // Make unsigned, plus drop 4 unused bits from the beginning
+        // for compatibility with previous versions
+        random = (random << 1) >>> 5;
 
         for (int i = 0; i < 4; ++i) {
             int r = random & 7;

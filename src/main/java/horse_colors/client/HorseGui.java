@@ -91,12 +91,12 @@ public class HorseGui extends ContainerScreen<HorseInventoryContainer> {
     }
 
     @Override
-    public void render(int p_render_1_, int p_render_2_, float p_render_3_) {
+    public void render(int mouseX, int mouseY, float partialTicks) {
         this.renderBackground();
-        this.mousePosx = (float)p_render_1_;
-        this.mousePosY = (float)p_render_2_;
-        super.render(p_render_1_, p_render_2_, p_render_3_);
-        this.renderHoveredToolTip(p_render_1_, p_render_2_);
+        this.mousePosx = (float)mouseX;
+        this.mousePosY = (float)mouseY;
+        super.render(mouseX, mouseY, partialTicks);
+        this.renderHoveredToolTip(mouseX, mouseY);
     }
 
     public static void replaceGui(GuiOpenEvent event) {
