@@ -12,7 +12,7 @@ import sekelsta.horse_colors.util.RandomSupplier;
 
 public class HorseColorCalculator
 {
-    static final RandomSupplier randSource = new RandomSupplier(ImmutableList.of("leg_white", "face_white"));
+    static final RandomSupplier randSource = new RandomSupplier(ImmutableList.of("leg_white", "face_white", "star_choice"));
 
     private static final int GRAY_BODY_STAGES = 19;
     private static final int GRAY_MANE_STAGES = 20;

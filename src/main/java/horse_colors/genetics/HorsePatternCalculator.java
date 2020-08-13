@@ -32,20 +32,22 @@ public class HorsePatternCalculator {
         if (starSize > 5) {
             star.name = HorseColorCalculator.fixPath("face/star_strip");
         }
-        else if (starSize > 4) {
+        else if (starSize > 3) {
             star.name = HorseColorCalculator.fixPath("face/star_large");
         }
-        else if (starSize > 3) {
-            star.name = HorseColorCalculator.fixPath("face/star6");
-        }
-        else if (starSize > 2) {
-            star.name = HorseColorCalculator.fixPath("face/star_lightning");
-        }
-        else if (starSize > 1) {
-            star.name = HorseColorCalculator.fixPath("face/star_moon");
-        }
         else if (starSize > 0) {
-            star.name = HorseColorCalculator.fixPath("face/star");
+            int star_choice = HorseColorCalculator.randSource.getVal("star_choice", horse.getChromosome("random")) & 3;
+            String starpic = "face/star";
+            if (star_choice == 1) {
+                starpic += "_moon";
+            }
+            if (star_choice == 2) {
+                starpic += "_lightning";
+            }
+            if (star_choice == 3) {
+                starpic += "6";
+            }
+            star.name = HorseColorCalculator.fixPath(starpic);
         }
         else {
             star.name = null;
