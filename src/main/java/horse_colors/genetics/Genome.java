@@ -1,14 +1,13 @@
 package sekelsta.horse_colors.genetics;
 
-import sekelsta.horse_colors.config.HorseConfig;
-import sekelsta.horse_colors.renderer.CustomLayeredTexture;
-import sekelsta.horse_colors.renderer.TextureLayer;
+import java.util.*;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import java.util.List;
-import java.util.ArrayList;
+import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.renderer.CustomLayeredTexture;
+import sekelsta.horse_colors.renderer.TextureLayer;
 
 public abstract class Genome {
     public abstract List<String> listGenes();
@@ -201,8 +200,24 @@ public abstract class Genome {
     // Replace the given allele with a random one.
     // It may be the same as before.
     public void mutateAllele(String gene, int n) {
-        int size = getGeneSize(gene);
-        int v = this.rand.nextInt((int)Math.pow(2, size));
+        Map<String, List<Float>> map = entity.getSpawnFrequencies();
+        if (!map.containsKey(gene)) {
+            return;
+        }
+        List<Float> frequencies = map.get(gene);
+        List<Integer> allowedAlleles = new ArrayList<>();
+        float val = 0;
+        for (int i = 0; i < frequencies.size(); ++i) {
+            if (val >= 1f) {
+                break;
+            }
+            if (val < frequencies.get(i)) {
+                allowedAlleles.add(i);
+                val = frequencies.get(i);
+            }
+        }
+        int size = allowedAlleles.size();
+        int v = allowedAlleles.get(this.rand.nextInt(size));
         setAllele(gene, n, v);
     }
 

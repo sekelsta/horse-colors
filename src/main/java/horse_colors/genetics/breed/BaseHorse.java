@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// This represents the wild horse before domestication
 public class BaseHorse {
     public static HashMap<String, List<Float>> COLORS;
 

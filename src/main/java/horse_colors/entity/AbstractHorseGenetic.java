@@ -47,6 +47,7 @@ import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.item.ModItems;
 import sekelsta.horse_colors.item.GeneBookItem;
 import sekelsta.horse_colors.genetics.*;
+import sekelsta.horse_colors.genetics.breed.*;
 import sekelsta.horse_colors.util.Util;
 
 public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity implements IGeneticEntity {
@@ -758,7 +759,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
    }
 
     public Map<String, List<Float>> getSpawnFrequencies() {
-        return new HashMap<String, List<Float>>();
+        return BaseEquine.COLORS;
     }
 
     /**
