@@ -403,6 +403,12 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         return this.dataManager.get(PREGNANT_SINCE);
     }
 
+    public float getPregnancyProgress() {
+        int passed = getDisplayAge() - getPregnancyStart();
+        int total = HorseConfig.getHorsePregnancyLength();
+        return (float)passed / (float)total;
+    }
+
     public int getRebreedTicks() {
         return HorseConfig.getHorseRebreedTicks(this.isMale());
     }
@@ -678,10 +684,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             else {
                 this.trueAge = Math.max(0, this.trueAge + 1);
             }
-        }
-
-        // Align age with client
-        if (!this.world.isRemote && (this.getGenes().clientNeedsAge())) {
             // Allow imprecision
             final int c = 400;
             if (this.trueAge / c != this.getDisplayAge() / c

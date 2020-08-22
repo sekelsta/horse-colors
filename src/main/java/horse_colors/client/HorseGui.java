@@ -76,15 +76,27 @@ public class HorseGui extends ContainerScreen<HorseInventoryContainer> {
             int iconWidth = 10;
             int iconHeight = 11;
             int textureX = 176;
+            int renderX = i + 157;
+            int renderY = j + 4;
             if (this.horseEntity.isMale()) {
                 textureX += iconWidth;
             }
             int textureY = 0;
-            if (this.horseEntity.isCastrated() || this.horseEntity.isPregnant()) {
+            if (this.horseEntity.isCastrated()) {
                 textureY += iconHeight;
             }
-            // X, y to render to, x, y to render from, width and height in unknown order
-            this.blit(i + 157, j + 4, textureX, textureY, iconWidth, iconHeight);
+            if (this.horseEntity.isPregnant()) {
+                renderX -= 2;
+                int pregRenderX = renderX + iconWidth + 1;
+                // Blit pregnancy background
+                this.blit(pregRenderX, renderY + 1, 181, 23, 2, 10);
+                // Blit pregnancy foreground based on progress
+                int pregnantAmount = (int)(11 * horseEntity.getPregnancyProgress());
+                this.blit(pregRenderX, renderY + 11 - pregnantAmount, 177, 33 - pregnantAmount, 2, pregnantAmount);
+            }
+            // Blit gender icon
+            // X, y to render to, x, y to render from, width, height
+            this.blit(renderX, renderY, textureX, textureY, iconWidth, iconHeight);
         }
 
         InventoryScreen.drawEntityOnScreen(i + 51, j + 60, 17, (float)(i + 51) - this.mousePosx, (float)(j + 75 - 50) - this.mousePosY, this.horseEntity);
