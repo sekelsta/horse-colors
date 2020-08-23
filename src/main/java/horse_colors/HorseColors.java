@@ -12,6 +12,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.common.MinecraftForge;
@@ -49,8 +50,9 @@ public class HorseColors
     @Mod.EventHandler
     public void init(final FMLInitializationEvent event) 
     {
-        ModEntities.registerRenderers();
-        registerEventListeners();
+        if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
+            clientSideSetup();
+        }
     }
     
     @Mod.EventHandler
@@ -59,8 +61,9 @@ public class HorseColors
     }
 
     @SideOnly(Side.CLIENT)
-    public void registerEventListeners()
+    public void clientSideSetup()
     {
+        ModEntities.registerRenderers();
         HorseDebug hd = new HorseDebug();
         MinecraftForge.EVENT_BUS.register(hd);
         MinecraftForge.EVENT_BUS.register(HorseGui.class);
