@@ -1,18 +1,18 @@
-package sekelsta.horse_colors.genetics.breed;
-
+package sekelsta.horse_colors.genetics.breed.horse;
 
 import com.google.common.collect.ImmutableList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class HorseBreeds {
-    public static HashMap<String, List<Float>> HORSE;
-    public static HashMap<String, List<Float>> APPALOOSA;
+import sekelsta.horse_colors.genetics.breed.*;
+
+// This allows for all variations found in horses
+public class DefaultHorse {
+    public static Breed breed = new Breed(BaseHorse.breed);
 
     static {
-        BaseHorse.init();
-        HORSE = new HashMap<String, List<Float>>(BaseHorse.COLORS);
+        Map<String, List<Float>> HORSE = breed.colors;
 
         HORSE.put("extension", ImmutableList.of(
             0.5f, 0.25f, 0.375f, 0.5f, // Red
@@ -157,24 +157,6 @@ public class HorseBreeds {
         HORSE.put("leopard_suppression", ImmutableList.of(
             0.88f,  // Full leopard
             1f      // Semileopard
-        ));
-
-        APPALOOSA = new HashMap<String, List<Float>>(HORSE);
-        APPALOOSA.put("leopard", ImmutableList.of(
-            0.5f,     // Non-leopard
-            1f        // Leopard
-        ));
-        APPALOOSA.put("PATN1", ImmutableList.of(
-            0.5f,  // Non-PATN
-            1f          // PATN
-        ));
-        APPALOOSA.put("PATN2", ImmutableList.of(
-            0.5f,  // Non-PATN
-            1f          // PATN
-        ));
-        APPALOOSA.put("PATN3", ImmutableList.of(
-            0.5f,  // Non-PATN
-            1f          // PATN
         ));
     }
 }

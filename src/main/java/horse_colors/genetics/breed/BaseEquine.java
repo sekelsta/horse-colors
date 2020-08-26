@@ -6,14 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 public class BaseEquine {
-
-    public static HashMap<String, List<Float>> COLORS;
-
-    public static HashMap<String, Float> STATS;
+    public static Breed breed = new Breed();
 
     static {
-        COLORS = new HashMap<String, List<Float>>();
-
+        Map<String, List<Float>> COLORS = breed.colors;
 
         COLORS.put("extension", ImmutableList.of(
             0.2f, 0.2f, 0.2f, 0.2f, // Red
@@ -261,8 +257,5 @@ public class BaseEquine {
             0.5f,   // Lighter
             1f      // Darker
         ));
-    }
-
-    public static void init() {
     }
 }

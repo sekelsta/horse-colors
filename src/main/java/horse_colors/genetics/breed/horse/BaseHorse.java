@@ -1,18 +1,18 @@
-package sekelsta.horse_colors.genetics.breed;
-
+package sekelsta.horse_colors.genetics.breed.horse;
 
 import com.google.common.collect.ImmutableList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import sekelsta.horse_colors.genetics.breed.*;
+
 // This represents the wild horse before domestication
 public class BaseHorse {
-    public static HashMap<String, List<Float>> COLORS;
+    public static Breed breed = new Breed(BaseEquine.breed);
 
     static {
-        BaseEquine.init();
-        COLORS = new HashMap<String, List<Float>>(BaseEquine.COLORS);
+        Map<String, List<Float>> COLORS = breed.colors;
 
         COLORS.put("dun", ImmutableList.of(
             0.0f,   // Non-dun 2
@@ -126,8 +126,5 @@ public class BaseHorse {
             15f / 16f,  // Less pattern
             1f          // More pattern
         ));
-    }
-
-    public static void init() {
     }
 }

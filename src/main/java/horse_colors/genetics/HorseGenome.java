@@ -11,6 +11,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.*;
+import sekelsta.horse_colors.genetics.breed.Breed;
 import sekelsta.horse_colors.renderer.TextureLayer;
 import sekelsta.horse_colors.util.Util;
 
@@ -521,9 +522,9 @@ public class HorseGenome extends Genome {
     }
 
     /* Make the horse have random genetics. */
-    public void randomize(Map<String, List<Float>> map)
+    public void randomize(Breed breed)
     {
-        randomizeNamedGenes(map);
+        randomizeNamedGenes(breed.colors);
 
         // Replace lethal white overos with heterozygotes
         if (isHomozygous("frame", HorseAlleles.FRAME))

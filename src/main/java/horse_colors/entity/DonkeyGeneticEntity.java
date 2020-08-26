@@ -19,6 +19,7 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
 import sekelsta.horse_colors.genetics.breed.*;
+import sekelsta.horse_colors.genetics.breed.donkey.*;
 import sekelsta.horse_colors.genetics.Species;
 import sekelsta.horse_colors.util.Util;
 
@@ -115,7 +116,7 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
     }
 
     @Override
-    public Map<String, List<Float>> getSpawnFrequencies() {
-        return BaseDonkey.COLORS;
+    public Breed getDefaultBreed() {
+        return DefaultDonkey.breed;
     }
 }

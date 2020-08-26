@@ -734,34 +734,37 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
 
         if (this.getGenes().isHomozygous("leopard", HorseAlleles.LEOPARD) && !this.world.isRemote()) {
-        IAttributeInstance speedAttribute = this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
-        IAttributeInstance jumpAttribute = this.getAttribute(JUMP_STRENGTH);
-        float brightness = this.getBrightness();
-        if (brightness > 0.5f) {
-            //setSprinting(true);
-            if (speedAttribute.getModifier(CSNB_SPEED_UUID) != null) {
-                speedAttribute.removeModifier(CSNB_SPEED_MODIFIER);
+            IAttributeInstance speedAttribute = this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
+            IAttributeInstance jumpAttribute = this.getAttribute(JUMP_STRENGTH);
+            float brightness = this.getBrightness();
+            if (brightness > 0.5f) {
+                //setSprinting(true);
+                if (speedAttribute.getModifier(CSNB_SPEED_UUID) != null) {
+                    speedAttribute.removeModifier(CSNB_SPEED_MODIFIER);
+                }
+                if (jumpAttribute.getModifier(CSNB_JUMP_UUID) != null) {
+                    jumpAttribute.removeModifier(CSNB_JUMP_MODIFIER);
+                }
             }
-            if (jumpAttribute.getModifier(CSNB_JUMP_UUID) != null) {
-                jumpAttribute.removeModifier(CSNB_JUMP_MODIFIER);
+            else {
+                //setSprinting(false);
+                if (speedAttribute.getModifier(CSNB_SPEED_UUID) == null) {
+                    speedAttribute.applyModifier(CSNB_SPEED_MODIFIER);
+                }
+                if (jumpAttribute.getModifier(CSNB_JUMP_UUID) == null) {
+                    jumpAttribute.applyModifier(CSNB_JUMP_MODIFIER);
+                }
             }
         }
-        else {
-            //setSprinting(false);
-            if (speedAttribute.getModifier(CSNB_SPEED_UUID) == null) {
-                speedAttribute.applyModifier(CSNB_SPEED_MODIFIER);
-            }
-            if (jumpAttribute.getModifier(CSNB_JUMP_UUID) == null) {
-                jumpAttribute.applyModifier(CSNB_JUMP_MODIFIER);
-            }
-        }
-      }
 
-      super.livingTick();
-   }
+        super.livingTick();
+    }
 
-    public Map<String, List<Float>> getSpawnFrequencies() {
-        return BaseEquine.COLORS;
+    @Override
+    // This is needed so when the mutation chance is high, mules bred
+    // with spawn eggs do not produce all splashed white foals.
+    public Breed getDefaultBreed() {
+        return BaseEquine.breed;
     }
 
     /**
@@ -778,7 +781,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     }
 
     private void randomize() {
-        this.getGenes().randomize(getSpawnFrequencies());
+        this.getGenes().randomize(getDefaultBreed());
         // Choose a random age
         this.trueAge = this.rand.nextInt(HorseConfig.GROWTH.getMaxAge());
         // This preserves the ratio of child/adult
