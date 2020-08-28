@@ -68,8 +68,8 @@ public class HorseConfig
                     .push("growth");
 
             yearLength = builder
-                    .comment("How long a year lasts in twenty minute Minecraft days, for the purposes of graying.", "Internally this number will be converted to ticks before it is used.")
-                    .defineInRange("yearLength", 2.0, 2/24000., 10000);
+                    .comment("How long a year lasts in twenty minute Minecraft days, for age-dependent colors such as gray.")
+                    .defineInRange("yearLength", 4.0, 2/24000., 10000);
 
             grayGradually = builder
                     .comment("If enabled, gray hores will be born colored and their fur will gradually turn white.")

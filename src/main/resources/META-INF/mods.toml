@@ -24,7 +24,12 @@ authors="sekelsta" #optional
 credits="Thanks to faainleog for contributing some gorgeous textures!"
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-All the pretty ponies!
+"Blacks and bays, dapples and grays
+Running in the night
+When you wake, you shall have
+All the pretty little ponies"
+
+This mod adds biologically correct genetics for horses, massively expanding the available coat colors and patterns, as well as plausible genetics for speed, health, and jump height. Mendelian and non-Mendelian inheritance are used where applicable, including chromosome linkage based on published research.
 '''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
 [[dependencies.horse_colors]] #optional
