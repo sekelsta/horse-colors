@@ -36,6 +36,8 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IWorld;
@@ -415,6 +417,15 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
 
     public int getBirthAge() {
         return HorseConfig.getHorseBirthAge();
+    }
+
+    protected SoundEvent getHurtSound(DamageSource damageSourceIn) {
+        // Don't stop and rear in response to suffocation or cactus damage
+        if (damageSourceIn != DamageSource.IN_WALL && damageSourceIn != DamageSource.CACTUS) {
+            // Chance to rear up
+            super.getHurtSound(damageSourceIn);
+        }
+        return null;
     }
 
     @Override
