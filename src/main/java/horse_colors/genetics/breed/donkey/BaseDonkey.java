@@ -14,6 +14,20 @@ public class BaseDonkey {
     static {
         Map<String, List<Float>> COLORS = breed.colors;
 
+        COLORS.put("extension", ImmutableList.of(
+            0.2f, 0.2f, 0.2f, 0.2f, // Red
+            1.0f, 1.0f, 1.0f, 1.0f  // Black
+        ));
+        COLORS.put("agouti", ImmutableList.of(
+            0.05f,   // Black
+            0.15f,   // Seal
+            0.1f,   // Seal unused
+            0.1f,   // Bay unused
+            1f,     // Bay
+            1f,     // Bay unused
+            1f,     // Bay unused
+            1f      // Bay unused
+        ));
         // TODO: Somali wild asses don't have the shoulder cross
         COLORS.put("cross", ImmutableList.of(
             0f,     // No shoulder stripe

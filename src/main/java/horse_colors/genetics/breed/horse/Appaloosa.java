@@ -30,4 +30,6 @@ public class Appaloosa {
             1f          // PATN
         ));
     }
+
+    public static void init() {}
 }

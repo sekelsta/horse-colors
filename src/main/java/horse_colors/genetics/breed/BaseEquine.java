@@ -12,8 +12,8 @@ public class BaseEquine {
         Map<String, List<Float>> COLORS = breed.colors;
 
         COLORS.put("extension", ImmutableList.of(
-            0.2f, 0.2f, 0.2f, 0.2f, // Red
-            1.0f, 1.0f, 1.0f, 1.0f  // Black
+            0f, 0f, 0f, 0f, // Red
+            1f, 1f, 1f, 1f  // Black
         ));
         COLORS.put("gray", ImmutableList.of(
             1.0f, // Non-gray
@@ -26,7 +26,7 @@ public class BaseEquine {
             1f      // Dun for donkeys
         ));
         COLORS.put("agouti", ImmutableList.of(
-            0.1f,   // Black
+            0.0f,   // Black
             0.1f,   // Seal
             0.1f,   // Seal unused
             0.1f,   // Bay unused
@@ -90,22 +90,7 @@ public class BaseEquine {
             1f      // White suppression
         ));
         COLORS.put("KIT", ImmutableList.of(
-            1f,     // Wildtype
-            0.63f,   // White boost
-            0.66f,  // Markings1
-            0.69f,   // Markings2
-            0.72f,  // Markings3
-            0.75f,   // Markings4
-            0.77f,  // Markings5
-            0.84f,  // W20
-            0f,     // Rabicano / Unused
-            0.86f,  // Flashy white
-            0f,     // Unused
-            0.90f,  // Tobiano
-            0.94f,  // Sabino1
-            0.96f,  // Tobiano + W20
-            0.99f,  // Roan
-            1.0f    // Dominant white
+            1f     // Wildtype
         ));
         COLORS.put("frame", ImmutableList.of(
             1f,     // Non-frame
