@@ -497,22 +497,14 @@ public class HorseGenome extends Genome {
         return distribution.size() - 1;
     }
 
-    public int chooseRandom(List<Float> distribution) {
-        int left = chooseRandomAllele(distribution);
-        int right = chooseRandomAllele(distribution);
-        // Log 2
-        int size = 8 * Integer.BYTES - 1 - Integer.numberOfLeadingZeros(distribution.size());
-        // Round up
-        if (distribution.size() != 1 << size) {
-            size += 1;
-        }
-        return (left << size) | right;
-    }
-
     public void randomizeNamedGenes(Map<String, List<Float>> map) {
         for (String gene : genes) {
             if (map.containsKey(gene)) {
-                setNamedGene(gene, chooseRandom(map.get(gene)));
+                List<Float> distribution = map.get(gene);
+                int left = chooseRandomAllele(distribution);
+                int right = chooseRandomAllele(distribution);
+                int size = getGeneSize(gene);
+                setNamedGene(gene, (left << size) | right);
             }
             else {
                 HorseColors.logger.debug(gene + " is not in the given map");
