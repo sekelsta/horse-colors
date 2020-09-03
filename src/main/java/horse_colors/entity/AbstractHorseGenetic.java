@@ -78,6 +78,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     protected static final AttributeModifier CSNB_SPEED_MODIFIER = (new AttributeModifier(CSNB_SPEED_UUID, "CSNB speed penalty", -0.6, AttributeModifier.Operation.MULTIPLY_TOTAL)).setSaved(false);
     protected static final AttributeModifier CSNB_JUMP_MODIFIER = (new AttributeModifier(CSNB_JUMP_UUID, "CSNB jump penalty", -0.6, AttributeModifier.Operation.MULTIPLY_TOTAL)).setSaved(false);
 
+    protected static final int HORSE_GENETICS_VERSION = 1;
+
     protected List<AbstractHorseGenetic> unbornChildren = new ArrayList<>();
 
     public AbstractHorseGenetic(EntityType<? extends AbstractHorseGenetic> entityType, World worldIn)
@@ -147,6 +149,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     public void writeAdditional(CompoundNBT compound)
     {
         super.writeAdditional(compound);
+        // Mark what version the data was written in
+        this.getPersistentData().putInt("HorseGeneticsVersion", HORSE_GENETICS_VERSION);
         compound.putInt("Variant", this.getChromosome("0"));
         compound.putInt("Variant2", this.getChromosome("1"));
         compound.putInt("Variant3", this.getChromosome("2"));
@@ -186,7 +190,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         if (compound.contains("Variant5")) {
             this.setChromosome("4", compound.getInt("Variant5"));
         }
-        else {
+        else if (!this.getPersistentData().contains("HorseGeneticsVersion")) {
+            this.getPersistentData().putInt("HorseGeneticsVersion", HORSE_GENETICS_VERSION);
             this.getGenes().datafixAddingFourthChromosome();
         }
         this.setChromosome("speed", compound.getInt("SpeedGenes"));
