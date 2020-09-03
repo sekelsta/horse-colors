@@ -54,6 +54,14 @@ public class GeneBookItem extends Item {
         return true;
     }
 
+    public static Species getSpecies(CompoundNBT compoundnbt) {
+        String s = compoundnbt.getString("species");
+        if (!StringUtils.isNullOrEmpty(s)) {
+            return Species.valueOf(s);
+        }
+        return null;
+    }
+
     /**
      * allows items to add custom lines of information to the mouseover description
      */
@@ -61,10 +69,10 @@ public class GeneBookItem extends Item {
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
         if (stack.hasTag()) {
             CompoundNBT compoundnbt = stack.getTag();
-            String s = compoundnbt.getString("species");
-            if (!StringUtils.isNullOrEmpty(s)) {
+            Species species = getSpecies(compoundnbt);
+            if (species != null) {
                 String translation = null;
-                switch (Species.valueOf(s)) {
+                switch (species) {
                     case HORSE:
                         translation = ModEntities.HORSE_GENETIC.getTranslationKey();
                         break;
@@ -101,7 +109,7 @@ public class GeneBookItem extends Item {
     @OnlyIn(Dist.CLIENT)
     public void openGeneBook(CompoundNBT nbt) {
         Minecraft mc = Minecraft.getInstance();
-        Genome genome = new HorseGenome();
+        Genome genome = new HorseGenome(getSpecies(nbt));
         genome.genesFromString(nbt.getString("genes"));
         mc.displayGuiScreen(new GeneBookScreen(genome));
     }

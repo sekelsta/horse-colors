@@ -139,12 +139,12 @@ public class HorseGenome extends Genome {
 
     public static final ImmutableList<String> chromosomes = ImmutableList.of("0", "1", "2", "3", "speed", "jump", "health", "mhc1", "mhc2", "immune", "random", "4");
 
-    public HorseGenome(IGeneticEntity entityIn) {
-        super(entityIn);
+    public HorseGenome(Species species, IGeneticEntity entityIn) {
+        super(species, entityIn);
     }
 
-    public HorseGenome() {
-        super();
+    public HorseGenome(Species species) {
+        super(species);
     }
 
     @Override
@@ -298,8 +298,8 @@ public class HorseGenome extends Genome {
     }
 
     public boolean isTobiano() {
-        return this.hasAllele("KIT", HorseAlleles.KIT_TOBIANO)
-            || this.hasAllele("KIT", HorseAlleles.KIT_TOBIANO_W20);
+        return HorseAlleles.isTobianoAllele(getAllele("KIT", 0))
+            || HorseAlleles.isTobianoAllele(getAllele("KIT", 1));
     }
 
     public boolean isWhite() {
@@ -624,10 +624,23 @@ public class HorseGenome extends Genome {
             contents.add(physical);
         }
 
-        List<String> genelist = ImmutableList.of("extension", "agouti", "dun", "gray", "cream", "silver", "KIT", "frame", "MITF", "leopard", "PATN1");
+        List<String> genelist = ImmutableList.of("extension", "agouti", "dun", 
+            "gray", "cream", "silver", "KIT", "frame", "MITF", "leopard", "PATN1");
+        if (this.species == Species.DONKEY) {
+            genelist = ImmutableList.of("extension", "agouti", "KIT");
+        }
         List<String> genetic = new ArrayList<String>();
         genetic.add(Util.translate("book.genetic"));
         for (String gene : genelist) {
+            if (gene.equals("KIT") && this.species != Species.DONKEY) {
+                String tobianoLocation = "genes.tobiano";
+                String tobi = Util.translate(tobianoLocation + ".name") + ": ";
+                String a1 = HorseAlleles.isTobianoAllele(getAllele("KIT", 0))? "Tobiano" : "Wildtype";
+                String a2 = HorseAlleles.isTobianoAllele(getAllele("KIT", 1))? "Tobiano" : "Wildtype";
+                tobi += Util.translate(tobianoLocation + ".allele" + a1) + "/";
+                tobi += Util.translate(tobianoLocation + ".allele" + a2);
+                genetic.add(tobi);
+            }
             String translationLocation = "genes." + gene;
             String s = Util.translate(translationLocation + ".name") + ": ";
             s += Util.translate(translationLocation + ".allele" + getAllele(gene, 0)) + "/";

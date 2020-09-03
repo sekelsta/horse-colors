@@ -86,9 +86,9 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
     public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag)
     {
         spawnDataIn = super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
-        HorseGenome horse = new HorseGenome();
+        HorseGenome horse = new HorseGenome(Species.HORSE);
         horse.randomize(DefaultHorse.breed);
-        HorseGenome donkey = new HorseGenome();
+        HorseGenome donkey = new HorseGenome(Species.DONKEY);
         donkey.randomize(DefaultDonkey.breed);
         this.genes.inheritGenes(horse, donkey);
         this.useGeneticAttributes();

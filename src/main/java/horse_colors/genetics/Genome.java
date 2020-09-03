@@ -10,6 +10,7 @@ import sekelsta.horse_colors.renderer.CustomLayeredTexture;
 import sekelsta.horse_colors.renderer.TextureLayer;
 
 public abstract class Genome {
+    public final Species species;
     public abstract List<String> listGenes();
     public abstract List<String> listGenericChromosomes();
     public abstract List<String> listStats();
@@ -30,11 +31,12 @@ public abstract class Genome {
     // that should be consistent across worlds with the same seed
     public static java.util.Random rand = new java.util.Random();
 
-    public Genome() {
-        this.entity = new FakeGeneticEntity();
+    public Genome(Species species) {
+        this(species, new FakeGeneticEntity());
     }
 
-    public Genome(IGeneticEntity entityIn) {
+    public Genome(Species species, IGeneticEntity entityIn) {
+        this.species = species;
         this.entity = entityIn;
     }
 

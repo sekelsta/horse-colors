@@ -254,7 +254,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                             break;
                     }
                     if (child != null) {
-                        HorseGenome genome = new HorseGenome(child);
+                        HorseGenome genome = new HorseGenome(child.getSpecies(), child);
                         genome.genesFromString(childNBT.getString("genes"));
                         this.unbornChildren.add(child);
                     }
@@ -581,7 +581,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     protected void registerAttributes()
     {
         super.registerAttributes();
-        genes = new HorseGenome(this);
+        genes = new HorseGenome(this.getSpecies(), this);
         float maxHealth = this.getModifiedMaxHealth() + this.getGenes().getBaseHealth();
         this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue((double)maxHealth);
         this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(this.getModifiedMovementSpeed());
