@@ -7,16 +7,94 @@ import sekelsta.horse_colors.renderer.TextureLayer;
 public class HorsePatternCalculator {
 
     public static boolean hasPigmentInEars(HorseGenome horse) {
+        // Use the old value until the new system is done.
+        return getPreviousFaceWhiteLevel(horse) <= 18;/*
         WhiteBoost whiteBoost = new WhiteBoost(horse);
         int boost = whiteBoost.getForehead() * 2;
         boost += whiteBoost.getMuzzle();
         boost += whiteBoost.getNoseBridge();
         // TODO: check that this is the right number
-        return boost <= 18;
+        return boost <= 18;*/
+    }
+
+    // This will be used only until the new face markings are done
+    public static int getPreviousFaceWhiteLevel(HorseGenome horse) {
+        int white = -2;
+        if (horse.hasAllele("white_suppression", 1))
+        {
+            white -= 4;
+        }
+
+        white += horse.countAlleles("KIT", HorseAlleles.KIT_WHITE_BOOST);
+        white += horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS1);
+        white += 2 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS2);
+        white += 2 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS3);
+        white += 3 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS4);
+        white += 3 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS5);
+        white += 3 * horse.countW20();;
+        white += 4 * horse.countAlleles("KIT", HorseAlleles.KIT_FLASHY_WHITE);
+
+        white += 6 * horse.countAlleles("MITF", HorseAlleles.MITF_SW1);
+        white += 9 * horse.countAlleles("MITF", HorseAlleles.MITF_SW3);
+        white += 8 * horse.countAlleles("MITF", HorseAlleles.MITF_SW5);
+
+        white += 7 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW2);
+        white += 8 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW4);
+
+        white += 3 * horse.countAlleles("white_star", 1);
+        white += horse.countAlleles("white_forelegs", 1);
+        white += horse.countAlleles("white_hindlegs", 1);
+
+        if (horse.hasMC1RWhiteBoost()) {
+            white += 2;
+        }
+        return white;
+    }
+
+    // This will be used only until the new face markings are done
+    public static TextureLayer getPreviousFaceMarking(HorseGenome horse)
+    {
+        int white = getPreviousFaceWhiteLevel(horse);
+        // Turn a signed integer into unsigned, also drop a few bits 
+        // used elsewhere
+        int unused_bits = 2;
+        int random = (horse.getChromosome("random") << 1) 
+                        >>> (1 + unused_bits);
+
+        white += random & 3;
+
+
+        if (white <= 0) {
+            return null;
+        }
+        int face_marking = white / 5;
+
+        TextureLayer layer = new TextureLayer();
+        String folder = "face/";
+        switch (face_marking)
+        {
+            case 0:
+                break;
+            case 1:
+                layer.name = HorseColorCalculator.fixPath(folder + "star");
+                break;
+            case 2:
+                layer.name = HorseColorCalculator.fixPath(folder + "strip");
+                break;
+            case 3:
+                layer.name = HorseColorCalculator.fixPath(folder + "blaze");
+                break;
+            default:
+                layer.name = HorseColorCalculator.fixPath(folder + "blaze");
+                break;
+        }
+
+        return layer;
     }
 
     public static void addFaceMarkings(HorseGenome horse, List<TextureLayer> textureLayers)
     {
+        textureLayers.add(getPreviousFaceMarking(horse));/*
         WhiteBoost whiteBoost = new WhiteBoost(horse);
         int random = HorseColorCalculator.randSource.getVal("face_white", horse.getChromosome("random"));
 
