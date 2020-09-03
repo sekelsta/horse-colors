@@ -316,7 +316,8 @@ public class HorseGenome extends Genome {
     }
 
     public boolean isDappleInclined() {
-        return this.hasAllele("dapple", 1);
+        // Recessive so that mules are not dappled
+        return this.isHomozygous("dapple", 1);
     }
 
     public boolean isLethalWhite() {
