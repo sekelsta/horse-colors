@@ -45,10 +45,11 @@ public class DefaultHorse {
             1.0f            // Silver
         ));
         COLORS.put("cream", ImmutableList.of(
-            30f / 32f,      // Non-cream
-            30.1f/32f,      // Snowdrop
-            31f / 32f,      // Pearl (1/32)
-            1f             // Cream (1/32)
+            0.8375f,     // Non-cream
+            0.84f,     // Snowdrop
+            0.86875f,     // Pearl
+            0.9f,     // Cream
+            1f      // MAPT minor
         ));
         COLORS.put("liver", ImmutableList.of(
             0.25f,  // Liver

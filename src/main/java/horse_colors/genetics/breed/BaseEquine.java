@@ -41,9 +41,10 @@ public class BaseEquine {
         ));
         COLORS.put("cream", ImmutableList.of(
             1f,     // Non-cream
-            0f,     // Non-cream unused
-            0f,     // Pearl (1/32)
-            0f      // Cream (1/32)
+            0f,     // Snowdrop
+            0f,     // Pearl
+            0f,     // Cream
+            0f      // MAPT minor
         ));
         COLORS.put("liver", ImmutableList.of(
             0.1f,   // Liver
@@ -233,10 +234,6 @@ public class BaseEquine {
         COLORS.put("PATN_boost2", ImmutableList.of(
             1f,     // Less pattern
             1f      // More pattern
-        ));
-        COLORS.put("light_red", ImmutableList.of(
-            0.75f,  // Darker
-            1f      // Lighter
         ));
         COLORS.put("dark_red", ImmutableList.of(
             0.5f,   // Lighter

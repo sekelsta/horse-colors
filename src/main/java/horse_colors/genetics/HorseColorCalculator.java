@@ -82,12 +82,24 @@ public class HorseColorCalculator
             concentration *= 0.1f;
         }
         else if (horse.hasCream()) {
-            concentration *= 0.7f;
+            concentration *= 0.6f;
             white += 0.15f;
+            if (horse.hasAllele("cream", HorseAlleles.MATP_MINOR)) {
+                concentration *= 0.6f;
+                white += 0.04;
+            }
         }
         else if (horse.isPearl()) {
             concentration *= 0.6f;
             white += 0.15f;
+            if (horse.hasAllele("cream", HorseAlleles.MATP_MINOR)) {
+                concentration *= 0.9f;
+                white += 0.04f;
+            }
+        }
+        else if (horse.isHomozygous("cream", HorseAlleles.MATP_MINOR)) {
+            concentration *= 0.9f;
+            white += 0.04f;
         }
 
         if (horse.hasAllele("cameo", HorseAlleles.CAMEO)) {
@@ -101,11 +113,6 @@ public class HorseColorCalculator
 
         if (horse.isHomozygous("dark_red", 1)) {
             concentration *= 1.2f;
-        }
-
-        if (horse.hasAllele("light_red", 1)) {
-            concentration *= 0.9f;
-            white += 0.04f;
         }
 
         if (horse.isHomozygous("dense", 1)) {

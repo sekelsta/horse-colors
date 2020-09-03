@@ -43,6 +43,7 @@ public class HorseAlleles
     public static final int SNOWDROP = 1;
     public static final int PEARL = 2;
     public static final int CREAM = 3;
+    public static final int MATP_MINOR = 4;
 
     // Silver
     public static final int NONSILVER = 0;
