@@ -115,32 +115,20 @@ public class ModEntities {
         if (DONKEY_GENETIC == null) {
             HorseColors.logger.error("Attempting to add horse spawns with a null donkey.");
         }
-        addSpawn(HORSE_GENETIC, HorseConfig.HORSE_SPAWN);
-        addSpawn(DONKEY_GENETIC, HorseConfig.DONKEY_SPAWN);
+        int horsePlainsWeight = (int)Math.round(5 * HorseConfig.SPAWN.horseSpawnMultiplier.get());
+        addSpawn(HORSE_GENETIC, horsePlainsWeight, 2, 6, BiomeDictionary.Type.PLAINS);
+        int horseSavannaWeight = (int)Math.round(1 * HorseConfig.SPAWN.horseSpawnMultiplier.get());
+        addSpawn(HORSE_GENETIC, horseSavannaWeight, 2, 6, BiomeDictionary.Type.SAVANNA);
+        int donkeyWeight = (int)Math.round(1 * HorseConfig.SPAWN.donkeySpawnMultiplier.get());
+        addSpawn(DONKEY_GENETIC, donkeyWeight, 1, 3, BiomeDictionary.Type.PLAINS);
+        addSpawn(DONKEY_GENETIC, donkeyWeight, 1, 1, BiomeDictionary.Type.SAVANNA);
     }
 
-    private static void addSpawn(EntityType<? extends LivingEntity> entity, HorseConfig.Spawn spawn) {
-        List<? extends String> excludeList = spawn.excludeBiomes.get();
-        HashSet<Biome> excludeBiomes = new HashSet();
-        for (String rawBiome : excludeList) {
-            for (Biome b : getBiomes(HorseConfig.Spawn.BiomeWeight.getType(rawBiome))) {
-                excludeBiomes.add(b);
-            }
-        }
-
-        List<? extends String> rawList = spawn.spawnBiomeWeights.get();
-        for (String rawBiomeWeight : rawList) {
-            HorseConfig.Spawn.BiomeWeight bw = new HorseConfig.Spawn.BiomeWeight(rawBiomeWeight);
-            BiomeDictionary.Type type = HorseConfig.Spawn.BiomeWeight.getType(bw.biome);
-            for (Biome biome : getBiomes(type)) {
-                if (excludeBiomes.contains(biome)) {
-                    HorseColors.logger.debug("Skipping horse spawn for " + biome);
-                    continue;
-                }
-                HorseColors.logger.debug("Adding horse (or donkey) spawn to " + biome);
-                List<Biome.SpawnListEntry> spawns = biome.getSpawns(EntityClassification.CREATURE);
-                spawns.add(new Biome.SpawnListEntry(entity, bw.weight, spawn.minHerdSize.get(), spawn.maxHerdSize.get()));
-            }
+    private static void addSpawn(EntityType<? extends LivingEntity> entity, int weight, int minHerdSize, int maxHerdSize, BiomeDictionary.Type biometype) {
+        for (Biome biome : getBiomes(biometype)) {
+            HorseColors.logger.debug("Adding horse (or donkey) spawn to " + biome);
+            List<Biome.SpawnListEntry> spawns = biome.getSpawns(EntityClassification.CREATURE);
+            spawns.add(new Biome.SpawnListEntry(entity, weight, minHerdSize, maxHerdSize));
         }
     }
 
@@ -166,11 +154,11 @@ public class ModEntities {
                 }
                 ArrayList<Biome.SpawnListEntry> horseSpawns = new ArrayList<Biome.SpawnListEntry>();
                 for (Biome.SpawnListEntry entry : spawns) {
-                    if (entry.entityType == EntityType.HORSE && HorseConfig.HORSE_SPAWN.blockVanillaSpawns.get()) {
+                    if (entry.entityType == EntityType.HORSE && HorseConfig.SPAWN.blockVanillaHorseSpawns.get()) {
                         HorseColors.logger.debug("Removing vanilla horse spawn: " + entry + " from biome " + biome);
                         horseSpawns.add(entry);
                     }
-                    else if (entry.entityType == EntityType.DONKEY && HorseConfig.DONKEY_SPAWN.blockVanillaSpawns.get()) {
+                    else if (entry.entityType == EntityType.DONKEY && HorseConfig.SPAWN.blockVanillaDonkeySpawns.get()) {
                         HorseColors.logger.debug("Removing vanilla donkey spawn: " + entry + " from biome " + biome);
                         horseSpawns.add(entry);
                     }
@@ -205,7 +193,7 @@ public class ModEntities {
     }
 
     private static boolean keepJigsawPair(Pair<JigsawPiece, Integer> pair) {
-        if (!HorseConfig.HORSE_SPAWN.blockVanillaSpawns.get()) {
+        if (!HorseConfig.SPAWN.blockVanillaHorseSpawns.get()) {
             return true;
         }
         JigsawPiece piece = pair.getFirst();
