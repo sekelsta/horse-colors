@@ -153,6 +153,23 @@ public class DefaultHorse {
             1f,     // Darker dun
             0f      // Lighter dun
         ));
+
+        COLORS.put("leopard", ImmutableList.of(
+            31f/32f,    // Non-leopard
+            1f          // Leopard
+        ));
+        COLORS.put("PATN1", ImmutableList.of(
+            15f / 16f,  // Non-PATN
+            1f          // PATN
+        ));
+        COLORS.put("PATN2", ImmutableList.of(
+            15f / 16f,  // Non-PATN
+            1f          // PATN
+        ));
+        COLORS.put("PATN3", ImmutableList.of(
+            15f / 16f,  // Non-PATN
+            1f          // PATN
+        ));
         COLORS.put("marble", ImmutableList.of(
             0.9f,   // Round leopard spots
             1f      // Stretched leopard spots
@@ -160,6 +177,18 @@ public class DefaultHorse {
         COLORS.put("leopard_suppression", ImmutableList.of(
             0.88f,  // Full leopard
             1f      // Semileopard
+        ));
+        COLORS.put("leopard_suppression2", ImmutableList.of(
+            0.88f,  // Full leopard
+            1f      // Semileopard
+        ));
+        COLORS.put("PATN_boost1", ImmutableList.of(
+            15f / 16f,  // Less pattern
+            1f          // More pattern
+        ));
+        COLORS.put("PATN_boost2", ImmutableList.of(
+            15f / 16f,  // Less pattern
+            1f          // More pattern
         ));
     }
 
