@@ -8,10 +8,13 @@ import sekelsta.horse_colors.renderer.HorseGeneticRenderer;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.ai.attributes.GlobalEntityTypeAttributes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EntityClassification;
+import net.minecraft.entity.passive.horse.AbstractHorseEntity;
+import net.minecraft.entity.passive.horse.AbstractChestedHorseEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.SpawnEggItem;
@@ -73,6 +76,13 @@ public class ModEntities {
             MULE_SPAWN_EGG = new SpawnEggItem(MULE_GENETIC, 0x4b3a30, 0xcdb9a8, (new Item.Properties()).group(CreativeTab.instance));
             MULE_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "mule_spawn_egg"));
     }
+
+    private static void registerAttributes() {
+        GlobalEntityTypeAttributes.put(HORSE_GENETIC, AbstractHorseEntity.func_234237_fg_().create());
+        GlobalEntityTypeAttributes.put(DONKEY_GENETIC, AbstractChestedHorseEntity.func_234234_eJ_().create());
+        GlobalEntityTypeAttributes.put(MULE_GENETIC, AbstractChestedHorseEntity.func_234234_eJ_().create());
+    }
+
 /*
    private static <T extends Entity> EntityType<T> register(String key, EntityType.Builder<T> builder) {
       return Registry.register(Registry.ENTITY_TYPE, key, builder.build(key));
@@ -93,6 +103,7 @@ public class ModEntities {
                     DONKEY_GENETIC,
                     MULE_GENETIC
             );
+            registerAttributes();
         }
 
         @SubscribeEvent

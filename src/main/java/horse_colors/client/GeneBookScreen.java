@@ -1,10 +1,12 @@
 package sekelsta.horse_colors.client;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.*;
 import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.gui.DialogTexts;
 import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.screen.ReadBookScreen;
@@ -21,6 +23,8 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.ITextProperties;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -38,8 +42,13 @@ public class GeneBookScreen extends Screen {
     private static final int pageCrease = 10;
     int currPage = 0;
     private Genome genome;
+
     private List<List<String>> contents;
     private List<String> pages;
+   /** Holds a copy of the page text, split into page width lines */
+    private List<ITextProperties> cachedPageLinesLeft = Collections.emptyList();
+    private List<ITextProperties> cachedPageLinesRight = Collections.emptyList();
+    private int cachedPage = -1;
 
     private ChangePageButton buttonNextPage;
     private ChangePageButton buttonPreviousPage;
@@ -52,32 +61,55 @@ public class GeneBookScreen extends Screen {
     }
 
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks) {
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         // Render the book picture in the back
-        this.renderBackground();
-        this.setFocused((IGuiEventListener)null);
+        this.renderBackground(matrixStack);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bindTexture(new ResourceLocation(HorseColors.MODID + ":textures/gui/book.png"));
         int x = (this.width - bookWidth) / 2;
         int y = 2;
         //x = 0;
-        this.blit(x, y, 0, 0, bookWidth, bookHeight, 512, 256);
+        this.blit(matrixStack, x, y, 0, 0, bookWidth, bookHeight, 512, 256);
 
-        renderPage(currPage, this.width / 2 - pageWidth - pageCrease);
+        if (this.cachedPage != this.currPage) {
+            this.cachedPageLinesLeft = cachePageLines(this.currPage);
+            this.cachedPageLinesRight = cachePageLines(this.currPage + 1);
+        }
+        this.cachedPage = this.currPage;
+
+        renderPage(matrixStack, currPage, cachedPageLinesLeft, this.width / 2 - pageWidth - pageCrease);
         if (this.getPageCount() > currPage + 1) {
-            renderPage(currPage + 1, this.width / 2 + pageCrease);
+            renderPage(matrixStack, currPage + 1, cachedPageLinesRight, this.width / 2 + pageCrease);
         }
 
-        super.render(mouseX, mouseY, partialTicks);
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 
-    private void renderPage(int pagenum, int x) {
+    private List<ITextProperties> cachePageLines(int page) {
+        ITextProperties itextproperties;
+        if (page < 0 || page >= this.getPageCount()) {
+            itextproperties = ITextProperties.field_240651_c_;
+        }
+        else {
+            String pagetext = this.getPageText(page);
+            itextproperties = ITextProperties.func_240652_a_(pagetext);
+        }
+        return this.font.func_238420_b_().func_238362_b_(itextproperties, lineWrapWidth, Style.EMPTY);
+    }
+
+    private void renderPage(MatrixStack matrixStack, int pagenum, List<ITextProperties> cachedPageLines, int x) {
         String pageindicator = I18n.format("book.pageIndicator", pagenum + 1, this.getPageCount());
+
         String pagetext = this.getPageText(pagenum);
         int j1 = this.getTextWidth(pageindicator);
-        this.font.drawString(pageindicator, (float)(x - j1 + pageWidth), 18.0F, 0);
-        // String, x, y, wrapwidth, textcolor
-        this.font.drawSplitString(pagetext, x, 32, lineWrapWidth, 0);
+        this.font.drawString(matrixStack, pageindicator, (float)(x - j1 + pageWidth), 18.0F, 0);
+
+        int lines = Math.min(linesPerPage, cachedPageLines.size());
+        for(int i = 0; i < lines; ++i) {
+            ITextProperties text = cachedPageLines.get(i);
+            this.font.func_238422_b_(matrixStack, text, (float)x, (float)(32 + i * 9), 0);
+            //this.font.drawString(matrixStack, text.getString(), (float)x, (float)(32 + i * 9), 0);
+        }
     }
 
     @Override
@@ -89,7 +121,9 @@ public class GeneBookScreen extends Screen {
             int lines = 0;
             for (int ln = 0; ln < contents.get(ch).size(); ++ln) {
                 String text = contents.get(ch).get(ln);
-                int wrapped = font.listFormattedStringToWidth(text, lineWrapWidth).size();
+                ITextProperties itextproperties = ITextProperties.func_240652_a_(text);
+                // Get the number of lines for this block of text
+                int wrapped = this.font.func_238420_b_().func_238362_b_(itextproperties, lineWrapWidth, Style.EMPTY).size();
                 if (lines + wrapped > linesPerPage && lines > 0) {
                     pages.add(s);
                     s = "";
@@ -105,7 +139,7 @@ public class GeneBookScreen extends Screen {
     }
 
    protected void addDoneButton() {
-      this.addButton(new Button(this.width / 2 - 100, 196, 200, 20, I18n.format("gui.done"), (p_214161_1_) -> {
+      this.addButton(new Button(this.width / 2 - 100, 196, 200, 20, DialogTexts.field_240632_c_, (p_214161_1_) -> {
          this.minecraft.displayGuiScreen((Screen)null);
       }));
    }

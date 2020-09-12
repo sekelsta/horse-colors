@@ -15,8 +15,7 @@ public class HorseArmorer
 {
     private static ResourceLocation getVanillaLocation(HorseArmorItem armor)
     {
-        // func_219976_d = public ResourceLocation getTexture()
-        return armor.func_219976_d();
+        return armor.getArmorTexture();
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -16,6 +16,7 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.World;
 
 import sekelsta.horse_colors.genetics.breed.*;

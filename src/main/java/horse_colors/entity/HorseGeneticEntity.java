@@ -10,10 +10,10 @@ import net.minecraft.block.SoundType;
 import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.horse.*;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.IInventory;
@@ -28,6 +28,7 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.World;
 
 import sekelsta.horse_colors.genetics.breed.*;
@@ -61,7 +62,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
                 this.horseChest.setInventorySlotContents(1, itemstack);
             }
         }
-        this.updateHorseSlots();
+        this.func_230275_fc_();
     }
 
     public ItemStack getHorseArmor() {
@@ -76,20 +77,26 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     * Updates the items in the saddle and armor slots of the horse's inventory.
     */
     @Override
-    protected void updateHorseSlots() {
-        super.updateHorseSlots();
-        this.setHorseArmorStack(this.horseChest.getStackInSlot(1));
-        this.setDropChance(EquipmentSlotType.CHEST, 0.0F);
+    // func_230275_fc_ = updateHorseSlots
+    protected void func_230275_fc_() {
+        if (!this.world.isRemote()) {
+            super.func_230275_fc_();
+            this.setHorseArmorStack(this.horseChest.getStackInSlot(1));
+            this.setDropChance(EquipmentSlotType.CHEST, 0.0F);
+        }
     }
 
     private void setHorseArmorStack(ItemStack itemstack) {
+        // this.func_213805_k(itemStack);
         this.setHorseArmor(itemstack);
         if (!this.world.isRemote) {
-            this.getAttribute(SharedMonsterAttributes.ARMOR).removeModifier(ARMOR_MODIFIER_UUID);
+            this.getAttribute(Attributes.ARMOR).removeModifier(ARMOR_MODIFIER_UUID);
+            // Do not use this.isArmor(itemstack)) because that can return true forthings which
+            // can't be cast to HorseArmorItem
             if (itemstack.getItem() instanceof HorseArmorItem) {
-                int i = ((HorseArmorItem)itemstack.getItem()).func_219977_e();
+                int i = ((HorseArmorItem)itemstack.getItem()).getArmorValue();
                 if (i != 0) {
-                    this.getAttribute(SharedMonsterAttributes.ARMOR).applyModifier((new AttributeModifier(ARMOR_MODIFIER_UUID, "Horse armor bonus", (double)i, AttributeModifier.Operation.ADDITION)).setSaved(false));
+                    this.getAttribute(Attributes.ARMOR).applyNonPersistentModifier((new AttributeModifier(ARMOR_MODIFIER_UUID, "Horse armor bonus", (double)i, AttributeModifier.Operation.ADDITION)));
                 }
             }
         }
@@ -210,9 +217,13 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
             return child;
         }
         else if (ageable instanceof HorseEntity) {
-            HorseEntity child = EntityType.HORSE.create(this.world);
-            ((HorseEntity)child).setHorseVariant(((HorseEntity)ageable).getHorseVariant());
-            return child;
+            // Breed the vanilla horse to itself
+            AgeableEntity child = ageable.createChild(ageable);
+            if (child instanceof AbstractHorseEntity) {
+                return (AbstractHorseEntity)child;
+            }
+            // else
+            return null;
         }
         else if (ageable instanceof DonkeyEntity) {
             return EntityType.MULE.create(this.world);
@@ -220,7 +231,9 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         return null;
     }
 
-    public boolean wearsArmor() {
+    @Override
+    // func_230276_fq_ = wearsArmor
+    public boolean func_230276_fq_() {
         return true;
     }
 
