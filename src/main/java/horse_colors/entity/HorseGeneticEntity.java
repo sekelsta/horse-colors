@@ -203,7 +203,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     // Helper function for createChild that creates and spawns an entity of the 
     // correct species
     @Override
-    public AbstractHorseEntity getChild(AgeableEntity ageable)
+    public AbstractHorseEntity getChild(ServerWorld world, AgeableEntity ageable)
     {
         if (ageable instanceof AbstractHorseGenetic) {
             AbstractHorseGenetic child = null;
@@ -218,7 +218,8 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         }
         else if (ageable instanceof HorseEntity) {
             // Breed the vanilla horse to itself
-            AgeableEntity child = ageable.createChild(ageable);
+            // func_241840_a = createChild
+            AgeableEntity child = ageable.func_241840_a(world, ageable);
             if (child instanceof AbstractHorseEntity) {
                 return (AbstractHorseEntity)child;
             }

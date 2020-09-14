@@ -94,7 +94,7 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
     // Helper function for createChild that creates and spawns an entity of the 
     // correct species
     @Override
-    public AbstractHorseEntity getChild(AgeableEntity ageable)
+    public AbstractHorseEntity getChild(ServerWorld world, AgeableEntity ageable)
     {
         if (ageable instanceof AbstractHorseGenetic) {
             AbstractHorseGenetic child = null;

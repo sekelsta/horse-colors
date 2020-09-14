@@ -47,7 +47,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
@@ -121,7 +121,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new PanicGoal(this, 1.2D));
         this.goalSelector.addGoal(1, new RunAroundLikeCrazyGoal(this, 1.2D));
-        this.goalSelector.addGoal(2, new GenderedBreedGoal(this, 1.0D, AbstractHorseEntity.class));
+        this.goalSelector.addGoal(2, new BreedGoal(this, 1.0D, AbstractHorseEntity.class));
         this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.0D));
         this.goalSelector.addGoal(6, new RandomWalkGroundTie(this, 0.7D));
         this.goalSelector.addGoal(7, new LookAtGoal(this, PlayerEntity.class, 6.0F));
@@ -592,17 +592,83 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
     }
 
-    public void spawnChild(AgeableEntity child, World world) {
+    @Override
+    // In 1.16.2, this code was moved from BreedGoal's spawnBaby() to AnimalEntity
+    public void func_234177_a_(ServerWorld world, AnimalEntity mate) {
+        // If vanilla mate, handle the vanilla way
+        if (!(mate instanceof IGeneticEntity)) {
+            super.func_234177_a_(world, mate);
+            return;
+        }
+        IGeneticEntity geneticMate = (IGeneticEntity)mate;
+
+        // func_241840_a = createChild
+        AgeableEntity ageableentity = this.func_241840_a(world, mate);
+        // If ageableentity is null, leave this and the mate in love mode to try again
+        // Note posting an event with a null child could cause crashes with other
+        // mods that do not check their input carefully, so we don't do that
+        if (ageableentity == null) {
+            return;
+        }
+        final BabyEntitySpawnEvent event = new BabyEntitySpawnEvent(this, mate, ageableentity);
+        final boolean cancelled = MinecraftForge.EVENT_BUS.post(event);
+        ageableentity = event.getChild();
+        if (cancelled) {
+            //Reset the "inLove" state for the animals
+            this.setGrowingAge(this.getRebreedTicks());
+            mate.setGrowingAge(geneticMate.getRebreedTicks());
+            this.resetInLove();
+            mate.resetInLove();
+            return;
+        }
+        // Don't spawn a null entity
+        if (ageableentity == null) {
+            return;
+        }
+
+        if (HorseConfig.isPregnancyEnabled()) {
+            if (this.setPregnantWith(ageableentity, mate)) {
+                ageableentity = null;
+                // Spawn heart particles
+                this.world.setEntityState(this, (byte)18);
+            }
+        }
+        ServerPlayerEntity serverplayerentity = this.getLoveCause();
+        if (serverplayerentity == null && mate.getLoveCause() != null) {
+            serverplayerentity = mate.getLoveCause();
+        }
+
+        if (serverplayerentity != null) {
+            serverplayerentity.addStat(Stats.ANIMALS_BRED);
+            CriteriaTriggers.BRED_ANIMALS.trigger(serverplayerentity, this, mate, ageableentity);
+        }
+
+        this.setGrowingAge(this.getRebreedTicks());
+        mate.setGrowingAge(geneticMate.getRebreedTicks());
+        this.resetInLove();
+        mate.resetInLove();
+        // Spawn if pregnancy is not enabled
+        if (ageableentity != null) {
+            spawnChild(ageableentity, world);
+        }
+        // Spawn XP orbs regardless of pregnancy
+        if (world.getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
+            world.addEntity(new ExperienceOrbEntity(world, this.getPosX(), this.getPosY(), this.getPosZ(), this.getRNG().nextInt(7) + 1));
+        }
+    }
+
+    public void spawnChild(AgeableEntity child, ServerWorld world) {
         child.setChild(true);
         child.setLocationAndAngles(this.getPosX(), this.getPosY(), this.getPosZ(), 0.0F, 0.0F);
-        world.addEntity(child);
+        // world.addEntity(child);
+        world.func_242417_l(child);
         // Spawn heart particles
         world.setEntityState(this, (byte)18);
     }
 
     // Helper function for createChild that creates and spawns an entity of the 
     // correct species
-    abstract AbstractHorseEntity getChild(AgeableEntity otherparent);
+    abstract AbstractHorseEntity getChild(ServerWorld world, AgeableEntity otherparent);
 
     public boolean isOppositeGender(AbstractHorseGenetic other) {
         if (!HorseConfig.isGenderEnabled()) {
@@ -615,7 +681,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     }
 
     @Override
-    public AgeableEntity createChild(AgeableEntity ageable)
+    // func_241840_a = createChild
+    public AgeableEntity func_241840_a(ServerWorld world, AgeableEntity ageable)
     {
         if (!(ageable instanceof AnimalEntity)) {
             return null;
@@ -625,9 +692,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         if (this.isMale() 
                 && ageable instanceof AbstractHorseGenetic
                 && !((AbstractHorseGenetic)ageable).isMale()) {
-            return ageable.createChild(this);
+            return ageable.func_241840_a(world, this);
         }
-        AbstractHorseEntity child = this.getChild(ageable);
+        AbstractHorseEntity child = this.getChild(world, ageable);
         if (child != null) {
             this.setOffspringAttributes(ageable, child);
         }
@@ -727,7 +794,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             int currentLength = this.trueAge - this.getPregnancyStart();
             if (currentLength >= totalLength) {
                 for (AbstractHorseGenetic child : unbornChildren) {
-                    this.spawnChild(child, this.world);
+                    if (this.world instanceof ServerWorld) {
+                        this.spawnChild(child, (ServerWorld)this.world);
+                    }
                 }
                 this.unbornChildren = new ArrayList<>();
                 this.dataManager.set(PREGNANT_SINCE, -1);
@@ -796,7 +865,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
      */
     @Nullable
     @Override
-    public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag)
+    public ILivingEntityData onInitialSpawn(IServerWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag)
     {
         spawnDataIn = super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
         this.randomize();

@@ -20,6 +20,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
+import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
@@ -46,8 +47,8 @@ public class GeneBookScreen extends Screen {
     private List<List<String>> contents;
     private List<String> pages;
    /** Holds a copy of the page text, split into page width lines */
-    private List<ITextProperties> cachedPageLinesLeft = Collections.emptyList();
-    private List<ITextProperties> cachedPageLinesRight = Collections.emptyList();
+    private List<IReorderingProcessor> cachedPageLinesLeft = Collections.emptyList();
+    private List<IReorderingProcessor> cachedPageLinesRight = Collections.emptyList();
     private int cachedPage = -1;
 
     private ChangePageButton buttonNextPage;
@@ -85,7 +86,7 @@ public class GeneBookScreen extends Screen {
         super.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 
-    private List<ITextProperties> cachePageLines(int page) {
+    private List<IReorderingProcessor> cachePageLines(int page) {
         ITextProperties itextproperties;
         if (page < 0 || page >= this.getPageCount()) {
             itextproperties = ITextProperties.field_240651_c_;
@@ -94,10 +95,10 @@ public class GeneBookScreen extends Screen {
             String pagetext = this.getPageText(page);
             itextproperties = ITextProperties.func_240652_a_(pagetext);
         }
-        return this.font.func_238420_b_().func_238362_b_(itextproperties, lineWrapWidth, Style.EMPTY);
+        return this.font.func_238425_b_(itextproperties, lineWrapWidth);
     }
 
-    private void renderPage(MatrixStack matrixStack, int pagenum, List<ITextProperties> cachedPageLines, int x) {
+    private void renderPage(MatrixStack matrixStack, int pagenum, List<IReorderingProcessor> cachedPageLines, int x) {
         String pageindicator = I18n.format("book.pageIndicator", pagenum + 1, this.getPageCount());
 
         String pagetext = this.getPageText(pagenum);
@@ -106,7 +107,7 @@ public class GeneBookScreen extends Screen {
 
         int lines = Math.min(linesPerPage, cachedPageLines.size());
         for(int i = 0; i < lines; ++i) {
-            ITextProperties text = cachedPageLines.get(i);
+            IReorderingProcessor text = cachedPageLines.get(i);
             this.font.func_238422_b_(matrixStack, text, (float)x, (float)(32 + i * 9), 0);
             //this.font.drawString(matrixStack, text.getString(), (float)x, (float)(32 + i * 9), 0);
         }

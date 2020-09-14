@@ -12,7 +12,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.IServerWorld;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.World;
 
@@ -55,7 +55,7 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
     @Override
     // Helper function for createChild that creates and spawns an entity of the 
     // correct species
-    public AbstractHorseEntity getChild(AgeableEntity ageable) {
+    public AbstractHorseEntity getChild(ServerWorld world, AgeableEntity ageable) {
         MuleGeneticEntity child = ModEntities.MULE_GENETIC.create(this.world);
         return child;
     }
@@ -84,7 +84,7 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
      */
     @Nullable
     @Override
-    public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag)
+    public ILivingEntityData onInitialSpawn(IServerWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag)
     {
         spawnDataIn = super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
         HorseGenome horse = new HorseGenome(Species.HORSE);
