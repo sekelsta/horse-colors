@@ -12,6 +12,8 @@ import net.minecraft.world.biome.MobSpawnInfo;
 import net.minecraft.world.biome.MobSpawnInfo.Spawners;
 import net.minecraft.world.gen.feature.jigsaw.*;
 import net.minecraft.world.gen.feature.structure.PlainsVillagePools;
+import net.minecraftforge.event.world.BiomeLoadingEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
@@ -27,19 +29,19 @@ import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.ModEntities;
 import sekelsta.horse_colors.HorseColors;
 
-@Mod.EventBusSubscriber(modid = HorseColors.MODID, bus = Bus.MOD)
+@Mod.EventBusSubscriber(modid = HorseColors.MODID)
 public class Spawns {
 
     @SubscribeEvent
     public static void onLoadComplete(net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent e) {
         // This needs to happen after the config is read
         changeVillageAnimals();
-        // These need to happen after the config file is read and vanilla horse spawns are added
-        editSpawnTable();
     }
 
-    //Removes initial vanilla horse spawns
-    public static void editSpawnTable() {
+    // As the documentation to BiomeLoadingEvent describes, adding entity
+    // spawns should use HIGH priority
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void addBiomeSpawns(BiomeLoadingEvent event) {
         int horsePlainsWeight = (int)Math.round(5 * HorseConfig.SPAWN.horseSpawnMultiplier.get());
         Spawners horsePlainsSpawner = new Spawners(ModEntities.HORSE_GENETIC, horsePlainsWeight, 2, 6);
         int horseSavannaWeight = (int)Math.round(1 * HorseConfig.SPAWN.horseSpawnMultiplier.get());
@@ -48,66 +50,38 @@ public class Spawns {
         // It seems 1.16.2 has increased donkey max herd size in savannas from 1 to 3, to match the plains
         Spawners donkeySpawner = new Spawners(ModEntities.DONKEY_GENETIC, donkeyWeight, 1, 3);
 
-        Collection<Biome> allBiomes = ForgeRegistries.BIOMES.getValues();
-        for (Biome biome : allBiomes) {
-            // Get mob spawn info for the biome
-            MobSpawnInfo mobSpawnInfo = biome.func_242433_b();
-            // Get the creature spawn list
-            List<Spawners> originalSpawns = mobSpawnInfo.func_242559_a(EntityClassification.CREATURE);
-            // Copy everything that should get kept to this list
-            List<Spawners> editedSpawns = new ArrayList(originalSpawns);
-            for (Spawners entry : originalSpawns) {
-                boolean keep = true;
-                // field_242588_c is the entity type
-                if (entry.field_242588_c == EntityType.HORSE && HorseConfig.SPAWN.blockVanillaHorseSpawns.get()) {
-                    HorseColors.logger.debug("Removing vanilla horse spawn: " + entry + " from biome " + biome);
-                    keep = false;
-                }
-                else if (entry.field_242588_c == EntityType.DONKEY && HorseConfig.SPAWN.blockVanillaDonkeySpawns.get()) {
-                    HorseColors.logger.debug("Removing vanilla donkey spawn: " + entry + " from biome " + biome);
-                    keep = false;
-                }
+        // Add to the spawn list according to biome type
+        List<Spawners> spawns = event.getSpawns().getSpawner(EntityClassification.CREATURE);
+        if (event.getCategory() == Biome.Category.PLAINS) {
+            spawns.add(horsePlainsSpawner);
+            spawns.add(donkeySpawner);
+        }
+        else if (event.getCategory() == Biome.Category.SAVANNA) {
+            spawns.add(horseSavannaSpawner);
+            spawns.add(donkeySpawner);
+        }
+    }
 
-                if (keep) {
-                    editedSpawns.add(entry);
-                }
+    // And removing entity spawns should use NORMAL priority
+    @SubscribeEvent(priority = EventPriority.NORMAL)
+    public static void removeBiomeSpawns(BiomeLoadingEvent event) {
+        List<Spawners> entriesToRemove = new ArrayList<>();
+        List<Spawners> originalSpawns = event.getSpawns().getSpawner(EntityClassification.CREATURE);
+        for (Spawners entry : originalSpawns) {
+            // field_242588_c is the entity type
+            if (entry.field_242588_c == EntityType.HORSE && HorseConfig.SPAWN.blockVanillaHorseSpawns.get()) {
+                HorseColors.logger.debug("Removing vanilla horse spawn: " + entry);
+                entriesToRemove.add(entry);
             }
-
-            if (biome.getCategory() == Biome.Category.PLAINS) {
-                editedSpawns.add(horsePlainsSpawner);
-                editedSpawns.add(donkeySpawner);
+            else if (entry.field_242588_c == EntityType.DONKEY && HorseConfig.SPAWN.blockVanillaDonkeySpawns.get()) {
+                HorseColors.logger.debug("Removing vanilla donkey spawn: " + entry);
+                entriesToRemove.add(entry);
             }
-            else if (biome.getCategory() == Biome.Category.SAVANNA) {
-                editedSpawns.add(horseSavannaSpawner);
-                editedSpawns.add(donkeySpawner);
-            }
-
-            // Make a new MobSpawnInfo using the new spawner list
-            // For other entity classifications, copy over the existing values
-            MobSpawnInfo.Builder builder = new MobSpawnInfo.Builder();
-            for (EntityClassification classification : EntityClassification.values()) {
-                List<Spawners> spawners;
-                if (classification == EntityClassification.CREATURE) {
-                    spawners = editedSpawns;
-                }
-                else {
-                    spawners = mobSpawnInfo.func_242559_a(classification);
-                }
-                for (Spawners mobSpawn : spawners) {
-                    builder.func_242575_a(classification, mobSpawn);
-                }
-            }
-            // Copy over other fields
-            builder.func_242572_a(mobSpawnInfo.func_242557_a());
-            if (mobSpawnInfo.func_242562_b()) {
-                builder.func_242571_a();
-            }
-            // Build
-            MobSpawnInfo finalSpawnInfo = builder.func_242577_b();
-            // Set the builder for the biome
-            ObfuscationReflectionHelper.setPrivateValue(Biome.class, biome, finalSpawnInfo, "field_242425_l");
         }
 
+        for (Spawners entry : entriesToRemove) {
+            originalSpawns.remove(entry);
+        }
     }
 
     private static boolean isVanillaVillageHorsePiece(SingleJigsawPiece piece) {
