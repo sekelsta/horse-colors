@@ -31,9 +31,9 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.World;
 
-import sekelsta.horse_colors.genetics.breed.*;
-import sekelsta.horse_colors.genetics.breed.horse.*;
-import sekelsta.horse_colors.genetics.Species;
+import sekelsta.horse_colors.entity.genetics.breed.*;
+import sekelsta.horse_colors.entity.genetics.breed.horse.*;
+import sekelsta.horse_colors.entity.genetics.Species;
 import sekelsta.horse_colors.util.Util;
 
 public class HorseGeneticEntity extends AbstractHorseGenetic

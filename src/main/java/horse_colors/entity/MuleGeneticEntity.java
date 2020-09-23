@@ -16,11 +16,11 @@ import net.minecraft.world.IServerWorld;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.World;
 
-import sekelsta.horse_colors.genetics.breed.*;
-import sekelsta.horse_colors.genetics.breed.donkey.*;
-import sekelsta.horse_colors.genetics.breed.horse.*;
-import sekelsta.horse_colors.genetics.HorseGenome;
-import sekelsta.horse_colors.genetics.Species;
+import sekelsta.horse_colors.entity.genetics.breed.*;
+import sekelsta.horse_colors.entity.genetics.breed.donkey.*;
+import sekelsta.horse_colors.entity.genetics.breed.horse.*;
+import sekelsta.horse_colors.entity.genetics.HorseGenome;
+import sekelsta.horse_colors.entity.genetics.Species;
 
 public class MuleGeneticEntity extends AbstractHorseGenetic {
     public MuleGeneticEntity(EntityType<? extends MuleGeneticEntity> entity, World world) {

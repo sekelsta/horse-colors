@@ -10,7 +10,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import sekelsta.horse_colors.HorseColors;
-import sekelsta.horse_colors.genetics.HorseColorCalculator;
+import sekelsta.horse_colors.entity.genetics.HorseColorCalculator;
 import sekelsta.horse_colors.item.CompatibleHorseArmor;
 
 public class HorseArmorer

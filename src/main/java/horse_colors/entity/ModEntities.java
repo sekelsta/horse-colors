@@ -18,7 +18,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 
 import sekelsta.horse_colors.CreativeTab;
 import sekelsta.horse_colors.HorseColors;
-import sekelsta.horse_colors.renderer.HorseGeneticRenderer;
+import sekelsta.horse_colors.client.renderer.HorseGeneticRenderer;
 
 @Mod.EventBusSubscriber(modid = HorseColors.MODID, bus = Bus.MOD)
 public class ModEntities {

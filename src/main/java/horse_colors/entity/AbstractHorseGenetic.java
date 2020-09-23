@@ -54,11 +54,11 @@ import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
 
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.ai.*;
+import sekelsta.horse_colors.entity.genetics.*;
+import sekelsta.horse_colors.entity.genetics.breed.*;
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.item.ModItems;
 import sekelsta.horse_colors.item.GeneBookItem;
-import sekelsta.horse_colors.genetics.*;
-import sekelsta.horse_colors.genetics.breed.*;
 import sekelsta.horse_colors.util.Util;
 
 public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity implements IGeneticEntity {
