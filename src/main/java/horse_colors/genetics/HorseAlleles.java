@@ -43,6 +43,7 @@ public class HorseAlleles
     public static final int SNOWDROP = 1;
     public static final int PEARL = 2;
     public static final int CREAM = 3;
+    public static final int MATP_MINOR = 4;
 
     // Silver
     public static final int NONSILVER = 0;
@@ -123,4 +124,8 @@ public class HorseAlleles
     public static final int DONKEY_DUN = 0;
     public static final int DONKEY_NONDUN_CROSS = 1;
     public static final int DONKEY_NONDUN = 2;
+
+    public static boolean isTobianoAllele(int allele) {
+        return allele == KIT_TOBIANO || allele == KIT_TOBIANO_W20;
+    }
 };

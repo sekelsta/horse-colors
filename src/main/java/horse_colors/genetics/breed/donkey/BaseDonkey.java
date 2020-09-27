@@ -1,4 +1,4 @@
-package sekelsta.horse_colors.genetics.breed;
+package sekelsta.horse_colors.genetics.breed.donkey;
 
 
 import com.google.common.collect.ImmutableList;
@@ -6,20 +6,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import sekelsta.horse_colors.genetics.breed.*;
+
 public class BaseDonkey {
-    public static HashMap<String, List<Float>> COLORS;
+    public static Breed breed = new Breed(BaseEquine.breed);
 
     static {
-        BaseEquine.init();
-        COLORS = new HashMap<String, List<Float>>(BaseEquine.COLORS);
+        Map<String, List<Float>> COLORS = breed.colors;
 
-        COLORS.put("cameo", ImmutableList.of(
-            0.99f,  // Non cameo
-            1f      // Cameo
+        COLORS.put("extension", ImmutableList.of(
+            0.2f, 0.2f, 0.2f, 0.2f, // Red
+            1.0f, 1.0f, 1.0f, 1.0f  // Black
         ));
-        COLORS.put("ivory", ImmutableList.of(
-            0.9f,   // Non ivory
-            1f      // Ivory
+        COLORS.put("agouti", ImmutableList.of(
+            0.05f,   // Black
+            0.15f,   // Seal
+            0.1f,   // Seal unused
+            0.1f,   // Bay unused
+            1f,     // Bay
+            1f,     // Bay unused
+            1f,     // Bay unused
+            1f      // Bay unused
         ));
         // TODO: Somali wild asses don't have the shoulder cross
         COLORS.put("cross", ImmutableList.of(
@@ -40,8 +47,5 @@ public class BaseDonkey {
             1f,     // Non-dun, no cross
             0f      // Unused
         ));
-    }
-
-    public static void init() {
     }
 }

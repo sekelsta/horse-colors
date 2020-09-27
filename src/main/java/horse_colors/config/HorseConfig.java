@@ -10,20 +10,13 @@ import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
 import java.util.List;
 import java.util.*;
 
-import net.minecraftforge.common.BiomeDictionary;
-
 public class HorseConfig
 {
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     public static final Common COMMON = new Common(BUILDER);
     public static final Growth GROWTH = new Growth(BUILDER);
     public static final Breeding BREEDING = new Breeding(BUILDER);
-    public static final Spawn HORSE_SPAWN = new Spawn(BUILDER, "horses", 2, 6, 
-                                            Arrays.asList((new Spawn.BiomeWeight(BiomeDictionary.Type.PLAINS.toString(), 5)).toString(), 
-                                              (new Spawn.BiomeWeight(BiomeDictionary.Type.SAVANNA.toString(), 1)).toString()));
-    public static final Spawn DONKEY_SPAWN = new Spawn(BUILDER, "donkeys", 1, 3, 
-                                            Arrays.asList((new Spawn.BiomeWeight(BiomeDictionary.Type.PLAINS.toString(), 1)).toString(), 
-                                              (new Spawn.BiomeWeight(BiomeDictionary.Type.SAVANNA.toString(), 1)).toString()));
+    public static final Spawn SPAWN = new Spawn(BUILDER);
     public static final Genetics GENETICS = new Genetics(BUILDER);
 
     public static class Common {
@@ -59,7 +52,7 @@ public class HorseConfig
 
     public static class Growth {
         public static DoubleValue yearLength;
-        public static DoubleValue maxAge;
+        public static BooleanValue grayGradually;
         public static BooleanValue growGradually;
         public static DoubleValue growTime;
 
@@ -68,12 +61,12 @@ public class HorseConfig
                     .push("growth");
 
             yearLength = builder
-                    .comment("How long a year lasts in twenty minute Minecraft days, for the purposes of graying.", "Internally this number will be converted to ticks before it is used.")
-                    .defineInRange("yearLength", 2.0, 2/24000., 10000);
+                    .comment("How long a year lasts in twenty minute Minecraft days, for age-dependent colors such as gray.")
+                    .defineInRange("yearLength", 4.0, 2/24000., 10000);
 
-            maxAge = builder
-                    .comment("How many years a horse will age, for the purposes of graying.")
-                    .defineInRange("maxAge", 15.0, 0.0, 25.0);
+            grayGradually = builder
+                    .comment("If enabled, gray hores will be born colored and their fur will gradually turn white.")
+                    .define("grayGradually", true);
 
             growGradually = builder
                     .comment("If enabled, foals will slowly get bigger as they grow into adults.")
@@ -91,7 +84,7 @@ public class HorseConfig
         }
 
         public int getMaxAge() {
-            return (int)(maxAge.get() * 24000);
+            return (int)(15f * 24000 * yearLength.get());
         }
     }
 
@@ -183,117 +176,37 @@ public class HorseConfig
     }
 
     public static class Spawn {
-        public static BooleanValue blockVanillaSpawns;
-        public static IntValue minHerdSize;
-        public static IntValue maxHerdSize;
-        public static ForgeConfigSpec.ConfigValue<List<? extends String>> spawnBiomeWeights;
-        public static ForgeConfigSpec.ConfigValue<List<? extends String>> excludeBiomes;
-        public static class BiomeWeight {
-            BiomeWeight(String b, int w) {
-                this.biome = b;
-                this.weight = w;
-            }
+        public static DoubleValue horseSpawnMultiplier;
+        public static DoubleValue donkeySpawnMultiplier;
+        public static BooleanValue blockVanillaHorseSpawns;
+        public static BooleanValue blockVanillaDonkeySpawns;
 
-            public BiomeWeight(String s) {
-                
-                s = s.trim();
-                int comma = s.indexOf(",");
-                String rawBiome = s.substring(0, comma);
-                this.biome = rawBiome.trim();
-                String rawWeight = s.substring(comma + 1, s.length());
-                this.weight = Integer.parseInt(rawWeight.trim());
-            }
-            public int weight;
-            public String biome;
+        Spawn(final ForgeConfigSpec.Builder builder) {
+            builder.comment("Settings to configure spawning")
+                   .push("spawn");
+            horseSpawnMultiplier = builder
+                    .comment("Larger numbers make horses more common, smaller numbers make them less common.",
+                             "1.0 makes them as common as in vanilla.")
+                    .defineInRange("horseSpawnMultiplier", 1.0, 0.0, 1000.0);
+/*
+            donkeySpawnMultiplier = builder
+                    .comment("Larger numbers make donkeys more common, smaller numbers make them less common.",
+                             "1.0 makes them as common as in vanilla.")
+                    .defineInRange("donkeySpawnMultiplier", 1.0, 0.0, 1000.0);*/
 
-            public String toString() {
-                return biome + ", " + String.valueOf(weight);
-            }
-
-            public static boolean isValid(Object o) {
-                if (!(o instanceof String)) {
-                    return false;
-                }
-                // Check basic format
-                String s = (String)o;
-                s = s.trim();
-                if (s.length() < 3) {
-                    System.out.println(s + " not valid: Too short");
-                    return false;
-                }
-                int comma = s.indexOf(",");
-                if (comma == -1) {
-                    System.out.println(s + " not valid: No comma");
-                    return false;
-                }
-                String rawBiome = s.substring(0, comma);
-                // Check that the int is an int
-                String rawWeight = s.substring(comma + 1, s.length());
-                rawWeight = rawWeight.trim();
-                try {
-                    int weight = Integer.parseInt(rawWeight);
-                    if (weight < 0) {
-                        System.out.println(s + " not valid: Negative weight" + rawWeight);
-                        return false;
-                    }
-                }
-                catch (NumberFormatException e) {
-                    System.out.println(s + " not valid: Unparseable weight" + rawWeight);
-                    return false;
-                }
-                // Check that the biome is a biome
-                if (getType(rawBiome) == null) {
-                    System.out.println(s + "not valid: " + rawBiome + " is not a biome type. Make sure you enter a biome type, not a biome.");
-                }
-                return getType(rawBiome) != null;
-            }
-
-            public static BiomeDictionary.Type getType(String s) {
-                for (BiomeDictionary.Type biome : BiomeDictionary.Type.getAll()) {
-                    if (s.compareToIgnoreCase(biome.toString()) == 0) {
-                        return biome;
-                    }
-                }
-                return null;
-            }
-        }
-
-        Spawn(final ForgeConfigSpec.Builder builder, String name, int minHerd, int maxHerd, List<String> spawnWeights) {
-            builder.comment("Spawning settings for " + name)
-                    .push("spawn " + name);
-
-            blockVanillaSpawns = builder
-                    .comment("If set to true, only " + name + " created by this mod will spawn.",
-            "This mainly affects newly generated areas.")
-                    .define("blockVanillaSpawns", true);
-
-            minHerdSize = builder
-                    .comment("What size groups " + name + " will spawn in")
-                    .defineInRange("minHerdSize", minHerd, 0, Integer.MAX_VALUE);
-
-            maxHerdSize = builder
-                    .comment("")
-                    .defineInRange("maxHerdSize", maxHerd, 0, Integer.MAX_VALUE);
-
-            spawnBiomeWeights = builder
-                    .comment("A list of biome types " + name + " can spawn in, and how often they spawn there.")
-                    .<String>defineList("spawnBiomeWeights", 
-                                spawnWeights, 
-                                BiomeWeight::isValid);
-
-            excludeBiomes = builder
-                    .comment("A list of biome types that should not spawn horses.",
-                             "For instance, set to [\"MOUNTAIN\", \"HILLS\", \"PLATEAU\"]",
-                             "to prevent horses from spawning in non-flat biomes.")
-                    .<String>defineList("excludeBiomes", 
-                                Arrays.asList(),
-                                // Lambda function to check if the biome is valid
-                                o -> BiomeDictionary.Type.getAll().contains(BiomeWeight.getType(String.valueOf(o))));
-
+            blockVanillaHorseSpawns =  builder
+                    .comment("Whether to allow new vanilla horses to spawn. This will not affect any",
+                             "horses that already exist.")
+                    .define("blockVanillaHorseSpawns", true);
+/*
+            blockVanillaDonkeySpawns =  builder
+                    .comment("Whether to allow new vanilla donkeys to spawn. This will not affect any",
+                             "horses that already exist.")
+                    .define("blockVanillaDonkeySpawns", true);*/
             builder.pop();
         }
-    }
 
+    }
 
     public static final ForgeConfigSpec spec = BUILDER.build();
 
