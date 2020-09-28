@@ -55,6 +55,7 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.server.ServerWorld;
@@ -200,6 +201,16 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         if (compound.contains("Breed")) {
             this.randomize(getBreed(compound.getString("Breed")));
         }
+
+        // Replace saddle reading functionality from AbstractHorseEntity with
+        // one that accepts alternate saddles
+        if (compound.contains("SaddleItem", 10)) {
+            ItemStack itemstack = ItemStack.read(compound.getCompound("SaddleItem"));
+            if (isSaddle(itemstack)) {
+                this.horseChest.setInventorySlotContents(0, itemstack);
+            }
+        }
+
         if (compound.contains("Genes")) {
             this.setGeneData(compound.getString("Genes"));
         }
@@ -514,6 +525,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             * this.getGenome().getGeneticWeightKg() / HorseGenome.MINIATURE_CUTOFF;
     }
 
+    public Inventory getHorseChest() {
+        return this.horseChest;
+    }
+
     private boolean itemInteract(PlayerEntity player, ItemStack itemstack, Hand hand) {
         // Enter genetic test results
         if (itemstack.getItem() == Items.BOOK
@@ -555,8 +570,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             return true;
         }
         // If tame, equip saddle
-        if (!this.isHorseSaddled() && itemstack.getItem() == Items.SADDLE
-            && this.canWearSaddle()) {
+        if (!this.isHorseSaddled() && isSaddle(itemstack) && this.canWearSaddle()) {
              if (HorseConfig.COMMON.autoEquipSaddle.get()) {
                 if (!this.world.isRemote) {
                     ItemStack saddle = itemstack.split(1);
@@ -1029,6 +1043,27 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
         // Mare
         return new TranslationTextComponent(s + "female");
+    }
+
+    public boolean isSaddle(ItemStack stack) {
+        if (stack.getItem() == Items.SADDLE) {
+            return true;
+        }
+        ResourceLocation registryName = stack.getItem().getRegistryName();
+        return registryName.getNamespace().equals("eanimod") && registryName.getPath().contains("saddle");
+    }
+
+    @Override
+    // Override to allow alternate saddles to be equipped
+    public boolean replaceItemInInventory(int slot, ItemStack stack) {
+        if (super.replaceItemInInventory(slot, stack)) {
+            return true;
+        }
+        int num = slot - 400;
+        if (num == 0 && isSaddle(stack)) {
+            this.horseChest.setInventorySlotContents(num, stack);
+        }
+        return false;
     }
 
     @Override

@@ -46,6 +46,7 @@ public class HorseColors
     {
         MinecraftForge.EVENT_BUS.addListener(HorseGui::replaceGui);
         MinecraftForge.EVENT_BUS.addListener(ClientEventHandler::handleInteract);
+        MinecraftForge.EVENT_BUS.addListener(HorseGui::editContainer);
         ModEntities.registerRenders();
     }
 }

@@ -100,7 +100,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         this.setHorseArmor(itemstack);
         if (!this.world.isRemote) {
             this.getAttribute(Attributes.ARMOR).removeModifier(ARMOR_MODIFIER_UUID);
-            // Do not use this.isArmor(itemstack)) because that can return true forthings which
+            // Do not use this.isArmor(itemstack)) because that can return true for things which
             // can't be cast to HorseArmorItem
             if (itemstack.getItem() instanceof HorseArmorItem) {
                 int i = ((HorseArmorItem)itemstack.getItem()).getArmorValue();

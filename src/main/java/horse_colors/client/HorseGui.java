@@ -8,7 +8,10 @@ import net.minecraft.entity.passive.horse.AbstractChestedHorseEntity;
 import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.entity.passive.horse.LlamaEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.HorseInventoryContainer;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -16,6 +19,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import sekelsta.horse_colors.config.HorseConfig;
@@ -156,8 +160,47 @@ public class HorseGui extends HorseInventoryScreen {
                     System.err.println("Unable to access private value playerInventory while replacing the horse GUI.");
                     System.err.println(e);
                 }
+
+                replaceSaddleSlot(horseGenetic, screen.getContainer());
                 event.setGui(new HorseGui(screen.getContainer(), inventory, horseGenetic));
             }
         }
+    }
+
+    public static void editContainer(PlayerContainerEvent.Open event) {
+                if (!(event.getContainer() instanceof HorseInventoryContainer)) {
+                    return;
+                }
+                HorseInventoryContainer horseContainer = (HorseInventoryContainer)event.getContainer();
+                AbstractHorseEntity horse = null;
+                try {
+                // , "field_188516_a"
+                    horse = ObfuscationReflectionHelper.getPrivateValue(HorseInventoryContainer.class, horseContainer, "field_111242_f");
+                }
+                catch (ObfuscationReflectionHelper.UnableToAccessFieldException e) {
+                    System.err.println("Unable to access private value horse while replacing the horse container.");
+                    System.err.println(e);
+                }
+
+                if (horse == null || !(horse instanceof AbstractHorseGenetic)) {
+                    return;
+                }
+                AbstractHorseGenetic horseGenetic = (AbstractHorseGenetic)horse;
+                replaceSaddleSlot(horseGenetic, horseContainer);
+    }
+
+    // Replace the saddle slot with one that accepts alternate saddles
+    private static void replaceSaddleSlot(AbstractHorseGenetic horse, Container container) {
+        Slot saddleSlot = new Slot(horse.getHorseChest(), 0, 8, 18) {
+            public boolean isItemValid(ItemStack stack) {
+            return horse.isSaddle(stack) && !this.getHasStack() && horse.func_230264_L__();
+            }
+
+            @OnlyIn(Dist.CLIENT)
+            public boolean isEnabled() {
+            return horse.func_230264_L__();
+            }
+        };
+        container.inventorySlots.set(0, saddleSlot);
     }
 }
