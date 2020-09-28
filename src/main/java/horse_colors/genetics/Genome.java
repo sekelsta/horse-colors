@@ -1,16 +1,16 @@
 package sekelsta.horse_colors.genetics;
 
-import sekelsta.horse_colors.config.HorseConfig;
-import sekelsta.horse_colors.renderer.CustomLayeredTexture;
-import sekelsta.horse_colors.renderer.TextureLayer;
+import java.util.*;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.List;
-import java.util.ArrayList;
+import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.renderer.CustomLayeredTexture;
+import sekelsta.horse_colors.renderer.TextureLayer;
 
 public abstract class Genome {
+    public final Species species;
     public abstract List<String> listGenes();
     public abstract List<String> listGenericChromosomes();
     public abstract List<String> listStats();
@@ -31,11 +31,12 @@ public abstract class Genome {
     // that should be consistent across worlds with the same seed
     public static java.util.Random rand = new java.util.Random();
 
-    public Genome() {
-        this.entity = new FakeGeneticEntity();
+    public Genome(Species species) {
+        this(species, new FakeGeneticEntity());
     }
 
-    public Genome(IGeneticEntity entityIn) {
+    public Genome(Species species, IGeneticEntity entityIn) {
+        this.species = species;
         this.entity = entityIn;
     }
 
@@ -201,8 +202,24 @@ public abstract class Genome {
     // Replace the given allele with a random one.
     // It may be the same as before.
     public void mutateAllele(String gene, int n) {
-        int size = getGeneSize(gene);
-        int v = this.rand.nextInt((int)Math.pow(2, size));
+        Map<String, List<Float>> map = entity.getDefaultBreed().colors;
+        if (!map.containsKey(gene)) {
+            return;
+        }
+        List<Float> frequencies = map.get(gene);
+        List<Integer> allowedAlleles = new ArrayList<>();
+        float val = 0;
+        for (int i = 0; i < frequencies.size(); ++i) {
+            if (val >= 1f) {
+                break;
+            }
+            if (val < frequencies.get(i)) {
+                allowedAlleles.add(i);
+                val = frequencies.get(i);
+            }
+        }
+        int size = allowedAlleles.size();
+        int v = allowedAlleles.get(this.rand.nextInt(size));
         setAllele(gene, n, v);
     }
 

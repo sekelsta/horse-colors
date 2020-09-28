@@ -47,49 +47,52 @@ public class ModEntities {
     public static final int horseEggSecondary = 0x110E0D;
     static
     {
-            // Default tracker is fine, or could use .tracker(64, 2, false)
-            final ResourceLocation horseRegistryName = new ResourceLocation(HorseColors.MODID, "horse_felinoid");
-            // Vanilla size in 1.12 was 1.3964844F, 1.6F
-		    HORSE_GENETIC = EntityEntryBuilder.create()
-                .entity(HorseGeneticEntity.class)
-                // Last parameter is network ID, which needs to be unique per mod.
-                .id(horseRegistryName, ID++)
-                .name(horseRegistryName.toString())
-                .egg(horseEggPrimary, horseEggSecondary)
-                .tracker(64, 2, false)
-                .spawn(EnumCreatureType.CREATURE, 5, 
-                    4, 6, 
-                    BiomeDictionary.getBiomes(BiomeDictionary.Type.PLAINS))
-                .spawn(EnumCreatureType.CREATURE, 1, 
-                    4, 6, 
-                    BiomeDictionary.getBiomes(BiomeDictionary.Type.SAVANNA))
-                .build();
+        int horsePlainsWeight = (int)Math.round(5 * HorseConfig.COMMON.horseSpawnMultiplier);
+        int horseSavannaWeight = (int)Math.round(1 * HorseConfig.COMMON.horseSpawnMultiplier);
 
-            final ResourceLocation donkeyRegistryName = new ResourceLocation(HorseColors.MODID, "donkey");
-		    DONKEY_GENETIC = EntityEntryBuilder.create()
-                .entity(DonkeyGeneticEntity.class)
-                // Last parameter is network ID, which needs to be unique per mod.
-                .id(donkeyRegistryName, ID++)
-                .name(donkeyRegistryName.toString())
-                .egg(0x726457, 0xcdc0b5)
-                .tracker(64, 2, false)
-                .spawn(EnumCreatureType.CREATURE, 1, 
-                    1, 3, 
-                    BiomeDictionary.getBiomes(BiomeDictionary.Type.PLAINS))
-                .spawn(EnumCreatureType.CREATURE, 1, 
-                    1, 1, 
-                    BiomeDictionary.getBiomes(BiomeDictionary.Type.SAVANNA))
-                .build();
+        // Default tracker is fine, or could use .tracker(64, 2, false)
+        final ResourceLocation horseRegistryName = new ResourceLocation(HorseColors.MODID, "horse_felinoid");
+        // Vanilla size in 1.12 was 1.3964844F, 1.6F
+	    HORSE_GENETIC = EntityEntryBuilder.create()
+            .entity(HorseGeneticEntity.class)
+            // Last parameter is network ID, which needs to be unique per mod.
+            .id(horseRegistryName, ID++)
+            .name(horseRegistryName.toString())
+            .egg(horseEggPrimary, horseEggSecondary)
+            .tracker(64, 2, false)
+            .spawn(EnumCreatureType.CREATURE, horsePlainsWeight, 
+                4, 6, 
+                BiomeDictionary.getBiomes(BiomeDictionary.Type.PLAINS))
+            .spawn(EnumCreatureType.CREATURE, horseSavannaWeight, 
+                4, 6, 
+                BiomeDictionary.getBiomes(BiomeDictionary.Type.SAVANNA))
+            .build();
 
-            final ResourceLocation muleRegistryName = new ResourceLocation(HorseColors.MODID, "mule");
-		    MULE_GENETIC = EntityEntryBuilder.create()
-                .entity(MuleGeneticEntity.class)
-                // Last parameter is network ID, which needs to be unique per mod.
-                .id(muleRegistryName, ID++)
-                .name(muleRegistryName.toString())
-                .egg(0x4b3a30, 0xcdb9a8)
-                .tracker(64, 2, false)
-                .build();
+        final ResourceLocation donkeyRegistryName = new ResourceLocation(HorseColors.MODID, "donkey");
+	    DONKEY_GENETIC = EntityEntryBuilder.create()
+            .entity(DonkeyGeneticEntity.class)
+            // Last parameter is network ID, which needs to be unique per mod.
+            .id(donkeyRegistryName, ID++)
+            .name(donkeyRegistryName.toString())
+            .egg(0x726457, 0xcdc0b5)
+            .tracker(64, 2, false)/*
+            .spawn(EnumCreatureType.CREATURE, 1, 
+                1, 3, 
+                BiomeDictionary.getBiomes(BiomeDictionary.Type.PLAINS))
+            .spawn(EnumCreatureType.CREATURE, 1, 
+                1, 1, 
+                BiomeDictionary.getBiomes(BiomeDictionary.Type.SAVANNA))*/
+            .build();
+
+        final ResourceLocation muleRegistryName = new ResourceLocation(HorseColors.MODID, "mule");
+	    MULE_GENETIC = EntityEntryBuilder.create()
+            .entity(MuleGeneticEntity.class)
+            // Last parameter is network ID, which needs to be unique per mod.
+            .id(muleRegistryName, ID++)
+            .name(muleRegistryName.toString())
+            .egg(0x4b3a30, 0xcdb9a8)
+            .tracker(64, 2, false)
+            .build();
     }
 /*
    private static <T extends Entity> EntityType<T> register(String key, EntityType.Builder<T> builder) {
@@ -114,51 +117,11 @@ public class ModEntities {
         // I just need the biome registry for later
         @SubscribeEvent
         public static void catchBiomeRegistry(final RegistryEvent.Register<Biome> event) {
-
             biomeRegistry = event.getRegistry();
         }
 
     }
 
-    // This needs to be called AFTER registerEntities()
-    // Also after the config is parsed
-    public static void addSpawns()
-    {/*
-        if (HORSE_GENETIC == null) {
-            HorseColors.logger.error("Attempting to add horse spawns with a null horse.");
-        }
-        if (DONKEY_GENETIC == null) {
-            HorseColors.logger.error("Attempting to add horse spawns with a null donkey.");
-        }
-        addSpawn(HORSE_GENETIC, HorseConfig.HORSE_SPAWN);
-        addSpawn(DONKEY_GENETIC, HorseConfig.DONKEY_SPAWN);*/
-    }
-/*
-    private static void addSpawn(EntityEntry entity, HorseConfig.Spawn spawn) {
-        List<? extends String> excludeList = spawn.excludeBiomes.get();
-        HashSet<Biome> excludeBiomes = new HashSet();
-        for (String rawBiome : excludeList) {
-            for (Biome b : getBiomes(HorseConfig.Spawn.BiomeWeight.getType(rawBiome))) {
-                excludeBiomes.add(b);
-            }
-        }
-
-        List<? extends String> rawList = spawn.spawnBiomeWeights.get();
-        for (String rawBiomeWeight : rawList) {
-            HorseConfig.Spawn.BiomeWeight bw = new HorseConfig.Spawn.BiomeWeight(rawBiomeWeight);
-            BiomeDictionary.Type type = HorseConfig.Spawn.BiomeWeight.getType(bw.biome);
-            for (Biome biome : getBiomes(type)) {
-                if (excludeBiomes.contains(biome)) {
-                    HorseColors.logger.debug("Skipping horse spawn for " + biome);
-                    continue;
-                }
-                HorseColors.logger.debug("Adding horse (or donkey) spawn to " + biome);
-                List<Biome.SpawnListEntry> spawns = biome.getSpawns(EnumCreatureType.CREATURE);
-                spawns.add(new Biome.SpawnListEntry(entity, bw.weight, spawn.minHerdSize.get(), spawn.maxHerdSize.get()));
-            }
-        }
-    }
-*/
     /**
      * Get an array of {@link Biome}s with the specified {@link BiomeDictionary.Type}.
      *
@@ -184,11 +147,11 @@ public class ModEntities {
                     if (entry.entityClass == EntityHorse.class && HorseConfig.blockVanillaHorseSpawns()) {
                         HorseColors.logger.debug("Removing vanilla horse spawn: " + entry + " from biome " + biome);
                         horseSpawns.add(entry);
-                    }
+                    }/*
                     else if (entry.entityClass == EntityDonkey.class && HorseConfig.blockVanillaDonkeySpawns()) {
                         HorseColors.logger.debug("Removing vanilla donkey spawn: " + entry + " from biome " + biome);
                         horseSpawns.add(entry);
-                    }
+                    }*/
                 }
                 for (Biome.SpawnListEntry horseSpawn : horseSpawns) {
                     spawns.remove(horseSpawn);
@@ -206,9 +169,7 @@ public class ModEntities {
     }
 
     public static void onLoadComplete() {
-        // These need to happen after the config file is read and vanilla horse spawns are added
+        // This needs to happen after the config file is read and vanilla horse spawns are added
         editSpawnTable();
-        addSpawns();
     }
-
 }

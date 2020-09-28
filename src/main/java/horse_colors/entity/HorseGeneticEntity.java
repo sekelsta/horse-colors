@@ -33,6 +33,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import sekelsta.horse_colors.genetics.breed.*;
+import sekelsta.horse_colors.genetics.breed.horse.*;
 import sekelsta.horse_colors.genetics.Species;
 import sekelsta.horse_colors.util.Util;
 
@@ -268,7 +269,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     }
 
     @Override
-    public Map<String, List<Float>> getSpawnFrequencies() {
-        return HorseBreeds.HORSE;
+    public Breed getDefaultBreed() {
+        return DefaultHorse.breed;
     }
 }

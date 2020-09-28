@@ -32,9 +32,25 @@ public class HorseDebug {
         {
             return false;
         }
+        return showBasicDebug(player) || showGeneDebug(player);
+    }
+
+    public static boolean showBasicDebug(EntityPlayer player) {
         ItemStack itemStack = player.getHeldItemOffhand();
-        return itemStack != null 
-            && itemStack.getItem() == Items.STICK;
+        if (itemStack != null && itemStack.getItem() == Items.STICK) {
+            return true;
+        }
+        ItemStack inHand = player.getHeldItemMainhand();
+        return inHand != null && inHand.getItem() == Items.STICK;
+    }
+
+    public static boolean showGeneDebug(EntityPlayer player) {
+        ItemStack itemStack = player.getHeldItemOffhand();
+        if (itemStack != null && itemStack.getItem() == Items.TOTEM_OF_UNDYING) {
+            return true;
+        }
+        ItemStack inHand = player.getHeldItemMainhand();
+        return inHand != null && inHand.getItem() == Items.TOTEM_OF_UNDYING;
     }
 
     public static ArrayList<String> debugNamedGenes(Genome genome) {
@@ -90,34 +106,38 @@ public class HorseDebug {
         // genetic information about that horse to the debug screen
 
         EntityPlayer player = Minecraft.getMinecraft().player;
-        if (showDebug(player))
+        if (!showDebug(player))
         {
-            // Check if we're looking at a horse
-            RayTraceResult mouseOver = Minecraft.getMinecraft().objectMouseOver;
-            if (mouseOver != null
-                && mouseOver.entityHit != null
-                && mouseOver.entityHit instanceof IGeneticEntity)
-            {
-                // If so, print information about it to the debug screen
-                IGeneticEntity entity = (IGeneticEntity)mouseOver.entityHit;
-                // I thought I would need this to make everything fit on debug 
-                // mode, but it fits if I make the GUI smaller
-                // event.getRight().clear();
+            return;
+        }
+        // Check if we're looking at a horse
+        RayTraceResult mouseOver = Minecraft.getMinecraft().objectMouseOver;
+        if (mouseOver != null
+            && mouseOver.entityHit != null
+            && mouseOver.entityHit instanceof IGeneticEntity)
+        {
+            // If so, print information about it to the debug screen
+            IGeneticEntity entity = (IGeneticEntity)mouseOver.entityHit;
+            if (showGeneDebug(player)) {
                 for (String s : debugStatGenes(entity.getGenes())) {
                     event.getLeft().add(s);
                 }
-                if (entity instanceof EntityAgeable) {
-                    event.getLeft().add("Growing age: " + ((EntityAgeable)entity).getGrowingAge());
-                }
-                if (entity instanceof AbstractHorseGenetic) {
-                    event.getLeft().add("Display age: " + ((AbstractHorseGenetic)entity).getDisplayAge());
-                    event.getLeft().add("Pregnant since: " + ((AbstractHorseGenetic)entity).getPregnancyStart());
-                }
+            }
+            if (showBasicDebug(player) && entity instanceof EntityAgeable) {
+                event.getLeft().add("Growing age: " + ((EntityAgeable)entity).getGrowingAge());
+            }
+            if (showBasicDebug(player) && entity instanceof AbstractHorseGenetic) {
+                event.getLeft().add("Display age: " + ((AbstractHorseGenetic)entity).getDisplayAge());
+                event.getLeft().add("Pregnant since: " + ((AbstractHorseGenetic)entity).getPregnancyStart());
+            }
+            if (showBasicDebug(player)) {
                 for (TextureLayer l : entity.getGenes().getVariantTexturePaths()) {
                     if (l != null) {
                         event.getLeft().add(l.toString());
                     }
                 }
+            }
+            if (showGeneDebug(player)) {
                 for (String s : debugNamedGenes(entity.getGenes())) {
                     event.getRight().add(s);
                 }

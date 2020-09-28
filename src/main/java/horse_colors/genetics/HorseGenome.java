@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.*;
+import sekelsta.horse_colors.genetics.breed.Breed;
 import sekelsta.horse_colors.renderer.TextureLayer;
 import sekelsta.horse_colors.util.Util;
 import net.minecraftforge.fml.relauncher.Side;
@@ -57,7 +58,6 @@ public class HorseGenome extends Genome {
         "dun", 
         "gray", 
         "cream", 
-        "silver", 
         "liver", 
         "flaxen1", 
         "flaxen2", 
@@ -70,11 +70,8 @@ public class HorseGenome extends Genome {
         "light_belly",
         "mealy1", 
         "mealy2", 
-        "white_suppression", 
         "KIT", 
-        "frame", 
         "MITF", 
-        "PAX3", 
         "leopard",
         "PATN1", 
         "PATN2", 
@@ -104,6 +101,14 @@ public class HorseGenome extends Genome {
         "light_dun",
         "marble",
         "leopard_suppression",
+        "leopard_suppression2",
+        "PATN_boost1",
+        "PATN_boost2",
+        "PAX3", 
+        "white_suppression", 
+        "frame", 
+        "silver", 
+        "dark_red",
         "leg_stripes",   // TODO
         "stripe_spacing" // TODO
     );
@@ -132,14 +137,14 @@ public class HorseGenome extends Genome {
         "stamina"
     );
 
-    public static final ImmutableList<String> chromosomes = ImmutableList.of("0", "1", "2", "3", "speed", "jump", "health", "mhc1", "mhc2", "immune", "random");
+    public static final ImmutableList<String> chromosomes = ImmutableList.of("0", "1", "2", "3", "speed", "jump", "health", "mhc1", "mhc2", "immune", "random", "4");
 
-    public HorseGenome(IGeneticEntity entityIn) {
-        super(entityIn);
+    public HorseGenome(Species species, IGeneticEntity entityIn) {
+        super(species, entityIn);
     }
 
-    public HorseGenome() {
-        super();
+    public HorseGenome(Species species) {
+        super(species);
     }
 
     @Override
@@ -176,7 +181,10 @@ public class HorseGenome extends Genome {
     {
         switch(gene) 
         {
-            case "KIT":
+            case "KIT": return 6;
+
+            case "MITF":
+            case "PAX3":
             case "speed1":
             case "speed2":
             case "speed3":
@@ -190,12 +198,10 @@ public class HorseGenome extends Genome {
             case "health3":
             case "stamina": return 4;
 
+            case "cream":
             case "extension":
             case "agouti": return 3;
 
-            case "MITF":
-            case "PAX3":
-            case "cream":
             case "dun": return 2;
 
             default: return 1;
@@ -292,8 +298,8 @@ public class HorseGenome extends Genome {
     }
 
     public boolean isTobiano() {
-        return this.hasAllele("KIT", HorseAlleles.KIT_TOBIANO)
-            || this.hasAllele("KIT", HorseAlleles.KIT_TOBIANO_W20);
+        return HorseAlleles.isTobianoAllele(getAllele("KIT", 0))
+            || HorseAlleles.isTobianoAllele(getAllele("KIT", 1));
     }
 
     public boolean isWhite() {
@@ -310,7 +316,8 @@ public class HorseGenome extends Genome {
     }
 
     public boolean isDappleInclined() {
-        return this.hasAllele("dapple", 1);
+        // Recessive so that mules are not dappled
+        return this.isHomozygous("dapple", 1);
     }
 
     public boolean isLethalWhite() {
@@ -415,12 +422,11 @@ public class HorseGenome extends Genome {
     }
 
     public float getDeafHealthLoss() {
-        int white = HorseColorCalculator.getFaceWhiteLevel(this);
-        if (white > 18) {
-            return 1f;
+        if (HorsePatternCalculator.hasPigmentInEars(this)) {
+            return 0f;
         }
         else {
-            return 0f;
+            return 1f;
         }
     }
 
@@ -491,22 +497,14 @@ public class HorseGenome extends Genome {
         return distribution.size() - 1;
     }
 
-    public int chooseRandom(List<Float> distribution) {
-        int left = chooseRandomAllele(distribution);
-        int right = chooseRandomAllele(distribution);
-        // Log 2
-        int size = 8 * Integer.BYTES - 1 - Integer.numberOfLeadingZeros(distribution.size());
-        // Round up
-        if (distribution.size() != 1 << size) {
-            size += 1;
-        }
-        return (left << size) | right;
-    }
-
     public void randomizeNamedGenes(Map<String, List<Float>> map) {
         for (String gene : genes) {
             if (map.containsKey(gene)) {
-                setNamedGene(gene, chooseRandom(map.get(gene)));
+                List<Float> distribution = map.get(gene);
+                int left = chooseRandomAllele(distribution);
+                int right = chooseRandomAllele(distribution);
+                int size = getGeneSize(gene);
+                setNamedGene(gene, (left << size) | right);
             }
             else {
                 HorseColors.logger.debug(gene + " is not in the given map");
@@ -516,9 +514,9 @@ public class HorseGenome extends Genome {
     }
 
     /* Make the horse have random genetics. */
-    public void randomize(Map<String, List<Float>> map)
+    public void randomize(Breed breed)
     {
-        randomizeNamedGenes(map);
+        randomizeNamedGenes(breed.colors);
 
         // Replace lethal white overos with heterozygotes
         if (isHomozygous("frame", HorseAlleles.FRAME))
@@ -608,7 +606,6 @@ public class HorseGenome extends Genome {
             }
         }
         physical.add(health);
-        physical.add(healthEffects);
         String athletics = Util.translate("stats.athletics") + "\n";
         athletics += "  " + Util.translate("stats.athletics1") + ": " + judgeStat("athletics1") + "\n";
         athletics += "  " + Util.translate("stats.athletics2") + ": " + judgeStat("athletics2");
@@ -623,15 +620,29 @@ public class HorseGenome extends Genome {
         jump += "  " + Util.translate("stats.jump2") + ": " + judgeStat("jump2") + "\n";
         jump += "  " + Util.translate("stats.jump3") + ": " + judgeStat("jump3");
         physical.add(jump);
-        if (HorseConfig.getUseGeneticStats() 
-            && HorseConfig.getBookShowsTraits()) {
+        physical.add(healthEffects);
+        if (HorseConfig.GENETICS.useGeneticStats 
+            && HorseConfig.GENETICS.bookShowsTraits) {
             contents.add(physical);
         }
 
-        List<String> genelist = ImmutableList.of("extension", "agouti", "dun", "gray", "cream", "silver", "KIT", "frame", "MITF", "leopard", "PATN1");
+        List<String> genelist = ImmutableList.of("extension", "agouti", "dun", 
+            "gray", "cream", "silver", "KIT", "frame", "MITF", "leopard", "PATN1");
+        if (this.species == Species.DONKEY) {
+            genelist = ImmutableList.of("extension", "agouti", "KIT");
+        }
         List<String> genetic = new ArrayList<String>();
         genetic.add(Util.translate("book.genetic"));
         for (String gene : genelist) {
+            if (gene.equals("KIT") && this.species != Species.DONKEY) {
+                String tobianoLocation = "genes.tobiano";
+                String tobi = Util.translate(tobianoLocation + ".name") + ": ";
+                String a1 = HorseAlleles.isTobianoAllele(getAllele("KIT", 0))? "Tobiano" : "Wildtype";
+                String a2 = HorseAlleles.isTobianoAllele(getAllele("KIT", 1))? "Tobiano" : "Wildtype";
+                tobi += Util.translate(tobianoLocation + ".allele" + a1) + "/";
+                tobi += Util.translate(tobianoLocation + ".allele" + a2);
+                genetic.add(tobi);
+            }
             String translationLocation = "genes." + gene;
             String s = Util.translate(translationLocation + ".name") + ": ";
             s += Util.translate(translationLocation + ".allele" + getAllele(gene, 0)) + "/";
@@ -681,6 +692,9 @@ public class HorseGenome extends Genome {
             catch (NumberFormatException e) {}
             entity.setChromosome(chromosomes.get(i), val);
         }
+        if (s.length() <= 11 * 8) {
+            datafixAddingFourthChromosome();
+        }
     }
 
     public boolean isValidGeneString(String s) {
@@ -700,5 +714,33 @@ public class HorseGenome extends Genome {
             return false;
         }
         return s.matches("[0-9a-fA-F]*");
+    }
+
+    public void datafixAddingFourthChromosome() {
+        // MITF and PAX3 were next to each other and were 2 bits each,
+        // now PAX3 moved and they are 4 bits each
+        int prevSplash = this.getNamedGene("MITF");
+        this.setAllele("MITF", 0, prevSplash & 3);
+        this.setAllele("MITF", 1, (prevSplash >>> 2) & 3);
+        this.setAllele("PAX3", 0, (prevSplash >>> 4) & 3);
+        this.setAllele("PAX3", 1, (prevSplash >>> 6) & 3);
+        // There was 1 bit for each allele of white_suppression, 
+        // then 4 for KIT, then 1 for frame
+        // Those were all merged into KIT and the other genes were
+        // moved elsewhere
+        int prevKIT = this.getNamedGene("KIT");
+        this.setAllele("white_suppression", 0, prevKIT & 1);
+        this.setAllele("white_suppression", 1, (prevKIT >>> 1) & 1);
+        this.setAllele("KIT", 0, (prevKIT >>> 2) & 15);
+        this.setAllele("KIT", 1, (prevKIT >>> 6) & 15);
+        this.setAllele("frame", 0, (prevKIT >>> 10) & 1);
+        this.setAllele("frame", 1, (prevKIT >>> 11) & 1);
+        // Used to be 2 bits of cream and 1 of silver, 
+        // now cream is merged to where silver was
+        int prevCream = this.getNamedGene("cream");
+        this.setAllele("cream", 0, prevCream & 3);
+        this.setAllele("cream", 1, (prevCream >>> 2) & 3);
+        this.setAllele("silver", 0, (prevCream >>> 4) & 1);
+        this.setAllele("silver", 1, (prevCream >>> 5) & 1);
     }
 }

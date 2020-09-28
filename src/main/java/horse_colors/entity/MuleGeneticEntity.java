@@ -14,6 +14,8 @@ import net.minecraft.world.storage.loot.LootTableList;
 import net.minecraft.world.World;
 
 import sekelsta.horse_colors.genetics.breed.*;
+import sekelsta.horse_colors.genetics.breed.donkey.*;
+import sekelsta.horse_colors.genetics.breed.horse.*;
 import sekelsta.horse_colors.genetics.HorseGenome;
 import sekelsta.horse_colors.genetics.Species;
 
@@ -88,10 +90,10 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData spawnDataIn)
     {
         spawnDataIn = super.onInitialSpawn(difficulty, spawnDataIn);
-        HorseGenome horse = new HorseGenome();
-        horse.randomize(HorseBreeds.HORSE);
-        HorseGenome donkey = new HorseGenome();
-        donkey.randomize(BaseDonkey.COLORS);
+        HorseGenome horse = new HorseGenome(Species.HORSE);
+        horse.randomize(DefaultHorse.breed);
+        HorseGenome donkey = new HorseGenome(Species.DONKEY);
+        donkey.randomize(DefaultDonkey.breed);
         this.genes.inheritGenes(horse, donkey);
         this.useGeneticAttributes();
         return spawnDataIn;

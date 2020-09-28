@@ -62,19 +62,26 @@ public class HorseConfig
             "or will spawn."
         })
         public boolean convertVanillaHorses = false;
+
+        @Comment({
+            "Larger numbers make horses more common, smaller numbers make them less common.",
+                             "1.0 makes them as common as in vanilla."
+        })
+        @Config.RangeDouble(min = 0.0, max = 1000.0)
+        public double horseSpawnMultiplier = 1.0;
     }
 
     public static class Growth {
         @Comment({
-                "How long a year lasts in twenty minute Minecraft days, for the purposes of graying.",
-                "Internally this number will be converted to ticks before it is used."
+            "If enabled, gray hores will be born colored and their fur will gradually turn white."
+        })
+        public boolean grayGradually = true;
+
+        @Comment({
+                "How long a year lasts in twenty minute Minecraft days, for age-dependent colors such as gray."
         })
         @RangeDouble(min = 2/24000, max = 10000)
         public double yearLength = 2.0;
-
-        @Comment("How many years a horse will age, for the purposes of graying.")
-        @Config.RangeDouble(min = 0.0, max = 25.0)
-        public double maxAge = 15.0;
 
         @Comment({"If enabled, foals will slowly get bigger as they grow into adults."})
         public boolean foalsGrowGradually = false;
@@ -87,7 +94,7 @@ public class HorseConfig
         }
 
         public int getMaxAge() {
-            return 15 * 24000;
+            return (int)(15f * 24000 * yearLength);
         }
     }
 
@@ -191,11 +198,6 @@ public class HorseConfig
 
     public static int getYearLength() {
         return (int)(GROWTH.yearLength * 24000);
-    }
-
-    public static int getMaxAge() {
-        //return (int)(HorseConfig.GROWTH.maxAge.get() * getYearLength());
-        return (int)(GROWTH.maxAge * getYearLength());
     }
 
     public static boolean enableDebugInfo() {
