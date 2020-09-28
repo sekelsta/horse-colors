@@ -1,0 +1,16 @@
+Thanks to faainleog for the textures:
+horse/leopard/blanket1.png
+horse/leopard/blanket2.png
+horse/leopard/blanket3.png
+horse/leopard/blanket4.png
+horse/leopard/blanket5.png
+horse/leopard/blanket6.png
+horse/leopard/blanket7.png
+horse/leopard/fewspot.png
+horse/leopard/leopard.png
+horse/leopard/leopard_large.png
+horse/leopard/leopard_marble.png
+horse/leopard/lp_features.png
+horse/leopard/lplp_features.png
+
+Gray themed gender icons in gui/horse.png by mokiyoki of Genetic Animals, used with permission
