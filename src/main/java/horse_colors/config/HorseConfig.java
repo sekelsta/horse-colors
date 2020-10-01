@@ -23,7 +23,6 @@ public class HorseConfig
         public static BooleanValue horseDebugInfo;
         public static BooleanValue enableGroundTie;
         public static BooleanValue autoEquipSaddle;
-        public static BooleanValue useGeneticAnimalsIcons;
 
         Common(final ForgeConfigSpec.Builder builder) {
             builder.comment("Common config settings")
@@ -46,11 +45,6 @@ public class HorseConfig
                              "will equip it (as long as the horse isn't already wearing something in that slot)",
                              "instead of opening the inventory.")
                     .define("autoEquipSaddle", true);
-
-            useGeneticAnimalsIcons = builder
-                    .comment("Whether to use the gray themed gender icons from Genetic Animals (by mokiyoki,",
-                             "used by permission) in place of the default pink and blue icons.")
-                    .define("useGeneticAnimalsIcons", false);
 
             builder.pop();
         }

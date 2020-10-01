@@ -537,18 +537,6 @@ public class HorseGenome extends Genome {
         this.entity.setMale(this.rand.nextBoolean());
     }
 
-    private String getAbv(TextureLayer layer) {
-        if (layer == null || layer.name == null) {
-            return "";
-        }        
-        String abv = layer.toString() + "_";
-        if (layer.next != null) {
-            abv += ".-" + getAbv(layer.next) + "-.";
-        }
-        // Upper case characters will cause a crash
-        return abv.toLowerCase();
-    }
-
     public String judgeStatRaw(int val) {
         if (val <= 0) {
             return "worst";
@@ -658,11 +646,7 @@ public class HorseGenome extends Genome {
     public void setTexturePaths()
     {
         this.textureLayers = HorseColorCalculator.getTexturePaths(this);
-        this.textureCacheName = "horse/cache_";
-
-        for (int i = 0; i < textureLayers.size(); ++i) {
-            this.textureCacheName += getAbv(this.textureLayers.get(i));
-        }
+        this.textureCacheName = "horse/cache_" + this.textureLayers.getUniqueName();
     }
 
     public String genesToString() {

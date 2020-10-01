@@ -6,7 +6,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import sekelsta.horse_colors.client.renderer.CustomLayeredTexture;
-import sekelsta.horse_colors.client.renderer.TextureLayer;
+import sekelsta.horse_colors.client.renderer.TextureLayerGroup;
 import sekelsta.horse_colors.config.HorseConfig;
 
 public abstract class Genome {
@@ -25,7 +25,7 @@ public abstract class Genome {
     protected IGeneticEntity entity;
 
     protected String textureCacheName;
-    protected List<TextureLayer> textureLayers;
+    protected TextureLayerGroup textureLayers;
 
     // Make sure to use this.entity.getRand() instead for anything
     // that should be consistent across worlds with the same seed
@@ -61,7 +61,7 @@ public abstract class Genome {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public List<TextureLayer> getVariantTexturePaths()
+    public TextureLayerGroup getTexturePaths()
     {
         if (this.textureCacheName == null)
         {

@@ -19,10 +19,7 @@ public class TextureLayer {
     public int red;
     public int green;
     public int blue;
-    // Don't go overboard and chain thousands of layers together
-    // They all have to fit in memory at once and are rendered
-    // recursively so there is potential for stack overflow
-    public TextureLayer next;
+
     public TextureLayer() {
         name = null;
         description = null;
@@ -50,14 +47,6 @@ public class TextureLayer {
         }
         try (IResource iresource = manager.getResource(new ResourceLocation(this.name))) {
             NativeImage image = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(this.name), manager);
-            if (this.next != null) {
-                colorLayer(image);
-                this.next.combineLayers(image, this.next.getLayer(manager));
-                // Avoid double multiply
-                this.red = 0xff;
-                this.green = 0xff;
-                this.blue = 0xff;
-            }
             return image;
         } catch (IOException ioexception) {
             LOGGER.error("Couldn't load layered image", (Throwable)ioexception);
@@ -286,7 +275,7 @@ public class TextureLayer {
         return Math.max(0, Math.min(x, 255));
     }
 
-    private String getAbv(String s) {
+    static String getAbv(String s) {
         int i = s.lastIndexOf("/");
         if (i > -1) {
             s = s.substring(i + 1);
@@ -308,6 +297,26 @@ public class TextureLayer {
         s += Integer.toHexString(this.green);
         s += Integer.toHexString(this.blue);
         return s;
+    }
+
+    // Return a string unique for all the layers in the group,
+    // ideally shorter rather than longer
+    public String getUniqueName() {
+        if (this.name == null) {
+            return "";
+        }
+        String s = getAbv(this.name);
+        if (this.type != Type.NORMAL) {
+            s += "-" + this.type.toString();
+        }
+        if (this.alpha != 255 || this.red != 255 | this.green != 255 || this.blue != 255) {
+            s += "-" + Integer.toHexString(this.alpha);
+            s += Integer.toHexString(this.red);
+            s += Integer.toHexString(this.green);
+            s += Integer.toHexString(this.blue);
+        }
+        s += "_";
+        return s.toLowerCase();
     }
 
     public void blendPixel(NativeImage image, int x, int y, int color) {

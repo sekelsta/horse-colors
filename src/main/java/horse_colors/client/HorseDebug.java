@@ -139,10 +139,10 @@ public class HorseDebug {
                 event.getLeft().add("Pregnant since: " + ((AbstractHorseGenetic)entity).getPregnancyStart());
             }
             if (showBasicDebug(player)) {
-                for (TextureLayer l : entity.getGenes().getVariantTexturePaths()) {
-                    if (l != null) {
-                        event.getLeft().add(l.toString());
-                    }
+                event.getLeft().add(entity.getGenes().getTexture());
+                event.getLeft().add("Layers:");
+                for (String s : entity.getGenes().getTexturePaths().getDebugStrings()) {
+                    event.getLeft().add(s);
                 }
             }
             if (showGeneDebug(player)) {

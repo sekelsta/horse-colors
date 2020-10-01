@@ -48,7 +48,7 @@ public class HorseGeneticRenderer extends MobRenderer<AbstractHorseGenetic, Hors
                 resourcelocation = new ResourceLocation(s);
                 Minecraft.getInstance().getTextureManager().loadTexture(
                     resourcelocation, 
-                    new CustomLayeredTexture(((IGeneticEntity)entity).getGenes().getVariantTexturePaths())
+                    new CustomLayeredTexture(((IGeneticEntity)entity).getGenes().getTexturePaths())
                 );
                 LAYERED_LOCATION_CACHE.put(s, resourcelocation);
             }

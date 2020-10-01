@@ -3,6 +3,7 @@ import java.util.*;
 
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.client.renderer.TextureLayer;
+import sekelsta.horse_colors.client.renderer.TextureLayerGroup;
 
 public class HorsePatternCalculator {
 
@@ -342,8 +343,11 @@ public class HorsePatternCalculator {
             return;
         }
         spots.type = TextureLayer.Type.MASK;
-        spread.next = spots;
-        textureLayers.add(spread);
+        // Make the spots mask the spread
+        ArrayList<TextureLayer> layers = new ArrayList<>();
+        layers.add(spread);
+        layers.add(spots);
+        textureLayers.add(new TextureLayerGroup(layers));
     }
 
     // For figuring out what parts of the horse get what amount more or less white

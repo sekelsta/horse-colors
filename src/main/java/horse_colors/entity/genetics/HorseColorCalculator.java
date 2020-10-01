@@ -8,6 +8,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.client.renderer.TextureLayer;
+import sekelsta.horse_colors.client.renderer.TextureLayerGroup;
 import sekelsta.horse_colors.util.RandomSupplier;
 
 public class HorseColorCalculator
@@ -378,11 +379,11 @@ public class HorseColorCalculator
         return layer;
     }
 
-    public static TextureLayer getMealy(HorseGenome horse)
+    public static void addMealy(HorseGenome horse, List<TextureLayer> textureLayers)
     {
         // Agouti black hides mealy
         if (!horse.isMealy()) {
-            return null;
+            return;
         }
 
         TextureLayer light_belly = new TextureLayer();
@@ -399,6 +400,7 @@ public class HorseColorCalculator
         }
         
         String prefix = "";
+        TextureLayer other = null;
         if (horse.isHomozygous("light_legs", 1)) {
             // Use version with darker legs
             prefix = "l";
@@ -409,10 +411,10 @@ public class HorseColorCalculator
             prefix = "l";
             if (spread > 1) {
                 spread -= 1;
-                light_belly.next = new TextureLayer();
-                light_belly.next.name = fixPath("mealy/mealy1");
-                colorRedBody(horse, light_belly.next);
-                adjustConcentration(light_belly.next, 0.04f * (2 - color));
+                other = new TextureLayer();
+                other.name = fixPath("mealy/mealy1");
+                colorRedBody(horse, other);
+                adjustConcentration(other, 0.04f * (2 - color));
             }
         }
 
@@ -420,9 +422,10 @@ public class HorseColorCalculator
         colorRedBody(horse, light_belly);
         adjustConcentration(light_belly, 0.04f * (2 - color));
 
-
-
-        return light_belly;
+        textureLayers.add(light_belly);
+        if (other != null) {
+            textureLayers.add(other);
+        }
     }
 
     public static void addPoints(HorseGenome horse, List<TextureLayer> layers) {
@@ -534,11 +537,11 @@ public class HorseColorCalculator
 
 
     @OnlyIn(Dist.CLIENT)
-    public static List<TextureLayer> getTexturePaths(HorseGenome horse) {
+    public static TextureLayerGroup getTexturePaths(HorseGenome horse) {
         List<TextureLayer> textureLayers = new ArrayList<TextureLayer>();
         TextureLayer red = HorseColorCalculator.getRedBody(horse);
         textureLayers.add(red);
-        textureLayers.add(HorseColorCalculator.getMealy(horse));
+        addMealy(horse, textureLayers);
         TextureLayer black = HorseColorCalculator.getBlackBody(horse);
         textureLayers.add(black);
         HorseColorCalculator.addDun(horse, textureLayers);
@@ -584,6 +587,6 @@ public class HorseColorCalculator
         TextureLayer common = new TextureLayer();
         common.name = HorseColorCalculator.fixPath("common");
         textureLayers.add(common);
-        return textureLayers;
+        return new TextureLayerGroup(textureLayers);
     }
 }
