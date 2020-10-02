@@ -74,7 +74,7 @@ public class ModEntities {
             // Last parameter is network ID, which needs to be unique per mod.
             .id(donkeyRegistryName, ID++)
             .name(donkeyRegistryName.toString())
-            .egg(0x726457, 0xcdc0b5)
+            //.egg(0x726457, 0xcdc0b5)
             .tracker(64, 2, false)/*
             .spawn(EnumCreatureType.CREATURE, 1, 
                 1, 3, 
@@ -90,7 +90,7 @@ public class ModEntities {
             // Last parameter is network ID, which needs to be unique per mod.
             .id(muleRegistryName, ID++)
             .name(muleRegistryName.toString())
-            .egg(0x4b3a30, 0xcdb9a8)
+            //.egg(0x4b3a30, 0xcdb9a8)
             .tracker(64, 2, false)
             .build();
     }
