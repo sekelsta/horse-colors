@@ -856,6 +856,12 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         super.livingTick();
     }
 
+    // Returns the Y offset from the entity's position for any entity riding this one.
+    @Override
+    public double getMountedYOffset() {
+        return (double)this.getHeight() * 0.685D;
+    }
+
     @Override
     // This is needed so when the mutation chance is high, mules bred
     // with spawn eggs do not produce all splashed white foals.
