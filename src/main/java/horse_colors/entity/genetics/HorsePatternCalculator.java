@@ -258,16 +258,15 @@ public class HorsePatternCalculator {
 
         if (horse.isTobiano())
         {
-            if (horse.hasAllele("frame", HorseAlleles.FRAME))
+            // Splashed white and tobiano can combine to make most of the horse white
+            // See Pacific Pintos, Pacific Cloud Nine
+            if (horse.isHomozygous("MITF", HorseAlleles.MITF_SW1))
             {
-                if (horse.isHomozygous("MITF", HorseAlleles.MITF_SW1))
-                {
-                    layer.name = HorseColorCalculator.fixPath(folder + "medicine_hat");
-                }
-                else
-                {
-                    layer.name =  HorseColorCalculator.fixPath(folder + "war_shield");
-                }
+                layer.name = HorseColorCalculator.fixPath(folder + "medicine_hat");
+            }
+            else if (horse.hasAllele("frame", HorseAlleles.FRAME))
+            {
+                layer.name =  HorseColorCalculator.fixPath(folder + "war_shield");
             }
             else
             {
