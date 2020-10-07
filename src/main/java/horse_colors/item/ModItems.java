@@ -33,7 +33,7 @@ public class ModItems {
         genderChangeItem.setRegistryName("gender_change_item");
         ForgeRegistries.ITEMS.register(genderChangeItem);
 
-        netheriteHorseArmor = new CompatibleHorseArmor(13, "netherite", (new Item.Properties()).maxStackSize(1).group(CreativeTab.instance));
+        netheriteHorseArmor = new CompatibleHorseArmor(13, "netherite", (new Item.Properties()).maxStackSize(1).group(CreativeTab.instance).isBurnable());
         netheriteHorseArmor.setRegistryName("netherite_horse_armor");
         ForgeRegistries.ITEMS.register(netheriteHorseArmor);
         registerDispenserBehaviour();
