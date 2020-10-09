@@ -33,6 +33,9 @@ import sekelsta.horse_colors.HorseColors;
 public class Spawns {
 
     @SubscribeEvent
+    // This is not registered to the event queue by the Mod.EventBusSubscriber 
+    // annotation because that only registers Forge events, not mod lifecycle 
+    // events. Instead it is subscribed from the HorseColors class.
     public static void onLoadComplete(net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent e) {
         // This needs to happen after the config is read
         changeVillageAnimals();
