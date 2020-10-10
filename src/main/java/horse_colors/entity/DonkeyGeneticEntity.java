@@ -19,6 +19,7 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.World;
 
+import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.genetics.breed.*;
 import sekelsta.horse_colors.entity.genetics.breed.donkey.*;
 import sekelsta.horse_colors.entity.genetics.Species;
@@ -101,6 +102,10 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
             AbstractHorseGenetic other = (AbstractHorseGenetic)ageable;
             if (ageable instanceof HorseGeneticEntity) {
                 child = ModEntities.MULE_GENETIC.create(this.world);
+                if (HorseConfig.BREEDING.enableGenders.get()
+                        && !this.isMale() && ((HorseGeneticEntity)ageable).isMale()) {
+                    ((MuleGeneticEntity)child).setSpecies(Species.HINNY);
+                }
             }
             else if (ageable instanceof DonkeyGeneticEntity) {
                 child = ModEntities.DONKEY_GENETIC.create(this.world);

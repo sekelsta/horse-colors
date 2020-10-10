@@ -42,9 +42,11 @@ import net.minecraft.potion.Effects;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.Hand;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
-import net.minecraft.util.Hand;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.server.ServerWorld;
@@ -268,7 +270,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                             child = ModEntities.DONKEY_GENETIC.create(this.world);
                             break;
                         case MULE:
+                        case HINNY:
                             child = ModEntities.MULE_GENETIC.create(this.world);
+                            ((MuleGeneticEntity)child).species = species;
                             break;
                     }
                     if (child != null) {
@@ -860,6 +864,35 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     @Override
     public double getMountedYOffset() {
         return (double)this.getHeight() * 0.685D;
+    }
+
+    @Override
+    protected ITextComponent getProfessionName() {
+        String species = this.getSpecies().toString().toLowerCase();
+        String s = "entity." + HorseColors.MODID + "." + species + ".";
+        if (this.isChild()) {
+            // Foal
+            if (!HorseConfig.BREEDING.enableGenders.get()) {
+                return new TranslationTextComponent(s + "foal");
+            }
+            // Colt
+            if (this.isMale()) {
+                return new TranslationTextComponent(s + "colt");
+            }
+            // Filly
+            return new TranslationTextComponent(s + "filly");
+        }
+
+        // Horse
+        if (!HorseConfig.BREEDING.enableGenders.get()) {
+            return super.getProfessionName();
+        }
+        // Stallion
+        if (this.isMale()) {
+            return new TranslationTextComponent(s + "male");
+        }
+        // Mare
+        return new TranslationTextComponent(s + "female");
     }
 
     @Override
