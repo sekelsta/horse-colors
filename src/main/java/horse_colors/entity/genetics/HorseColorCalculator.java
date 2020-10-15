@@ -561,15 +561,10 @@ public class HorseColorCalculator
         HorsePatternCalculator.addFaceMarkings(horse, textureLayers);
         if (horse.showsLegMarkings())
         {
-            String[] leg_markings = HorsePatternCalculator.getLegMarkings(horse);
-            for (String marking : leg_markings) {
-                TextureLayer layer = new TextureLayer();
-                layer.name = marking;
-                textureLayers.add(layer);
-            }
+            HorsePatternCalculator.addLegMarkings(horse, textureLayers);
         }
 
-        textureLayers.add(HorsePatternCalculator.getPinto(horse));
+        HorsePatternCalculator.addPinto(horse, textureLayers);
         HorsePatternCalculator.addLeopard(horse, textureLayers);
 
         TextureLayer highlights = new TextureLayer();

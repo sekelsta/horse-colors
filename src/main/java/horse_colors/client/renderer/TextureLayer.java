@@ -51,6 +51,7 @@ public class TextureLayer {
         } catch (IOException ioexception) {
             LOGGER.error("Couldn't load layered image", (Throwable)ioexception);
         }
+        LOGGER.error("Skipping layer " + this.toString());
         return null;
     }
 

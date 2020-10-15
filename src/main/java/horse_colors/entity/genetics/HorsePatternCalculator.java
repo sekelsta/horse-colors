@@ -95,7 +95,10 @@ public class HorsePatternCalculator {
 
     public static void addFaceMarkings(HorseGenome horse, List<TextureLayer> textureLayers)
     {
-        textureLayers.add(getPreviousFaceMarking(horse));/*
+        TextureLayer face = getPreviousFaceMarking(horse);
+        if (face != null && face.name != null) {
+            textureLayers.add(face);
+        }/*
         WhiteBoost whiteBoost = new WhiteBoost(horse);
         int random = HorseColorCalculator.randSource.getVal("face_white", horse.getChromosome("random"));
 
@@ -206,7 +209,7 @@ public class HorsePatternCalculator {
         return layer;*/
     }
 
-    public static String[] getLegMarkings(HorseGenome horse)
+    public static void addLegMarkings(HorseGenome horse, List<TextureLayer> textureLayers)
     {
         WhiteBoost whiteBoost = new WhiteBoost(horse);
 
@@ -241,17 +244,23 @@ public class HorsePatternCalculator {
             }
         }
 
-
-        return legs;
+        for (String marking : legs) {
+            if (marking != null) {
+                TextureLayer layer = new TextureLayer();
+                layer.name = marking;
+                textureLayers.add(layer);
+            }
+        }
     }
 
-    public static TextureLayer getPinto(HorseGenome horse)
+    public static void addPinto(HorseGenome horse, List<TextureLayer> textureLayers)
     {
         TextureLayer layer = new TextureLayer();
         if (horse.isWhite())
         {
             layer.name = HorseColorCalculator.fixPath("pinto/white");
-            return layer;
+            textureLayers.add(layer);
+            return;
         }
 
         String folder = "pinto/";
@@ -285,7 +294,10 @@ public class HorsePatternCalculator {
         {
             layer.name = HorseColorCalculator.fixPath(folder + "sabino");
         }
-        return layer;
+        // Use the layer
+        if (layer.name != null && !layer.name.equals("")) {
+            textureLayers.add(layer);
+        }
     }
 
     public static void addLeopard(HorseGenome horse, List<TextureLayer> textureLayers)

@@ -272,7 +272,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                         case MULE:
                         case HINNY:
                             child = ModEntities.MULE_GENETIC.create(this.world);
-                            ((MuleGeneticEntity)child).species = species;
+                            ((MuleGeneticEntity)child).setSpecies(species);
                             break;
                     }
                     if (child != null) {
