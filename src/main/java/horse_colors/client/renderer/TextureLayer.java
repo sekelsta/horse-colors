@@ -10,7 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class TextureLayer {
-    private static final Logger LOGGER = LogManager.getLogger();
+    protected static final Logger LOGGER = LogManager.getLogger();
 
     public String name;
     public String description;
@@ -42,7 +42,7 @@ public class TextureLayer {
 
     public NativeImage getLayer(IResourceManager manager) {
         if (this.name == null) {
-            LOGGER.error("Attempting to load unspecified texture (name is null)\n");
+            LOGGER.error("Attempting to load unspecified texture (name is null): " + this.toString());
             return null;
         }
         try (IResource iresource = manager.getResource(new ResourceLocation(this.name))) {
@@ -287,10 +287,10 @@ public class TextureLayer {
     }
 
     public String toString() {
-        if (this.name == null) {
-            return "";
+        String s = "";
+        if (this.name != null) {
+            s += getAbv(this.name);
         }
-        String s = getAbv(this.name);
         s += "-" + this.type.toString();
         s += "-" + Integer.toHexString(this.alpha);
         s += Integer.toHexString(this.red);
