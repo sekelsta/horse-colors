@@ -12,8 +12,11 @@ import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.AgeableEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
@@ -43,6 +46,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.text.ITextComponent;
@@ -54,6 +58,7 @@ import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.ai.*;
@@ -65,6 +70,7 @@ import sekelsta.horse_colors.item.GeneBookItem;
 import sekelsta.horse_colors.util.Util;
 
 public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity implements IGeneticEntity {
+    public static final double PLAYER_OFFSET = -0.295;
 
     protected HorseGenome genes = new HorseGenome(this.getSpecies(), this);
     protected static final DataParameter<Integer> HORSE_VARIANT = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
@@ -391,6 +397,23 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 return 0;
         }
         
+    }
+
+    @Override
+    public void notifyDataManagerChange(DataParameter<?> key) {
+        if (HORSE_VARIANT5.equals(key)) {
+            this.recalculateSize();
+        }
+
+        super.notifyDataManagerChange(key);
+    }
+
+    @Override
+    public void recalculateSize() {
+        super.recalculateSize();
+        // Remove this if Forge fixes the eye height issue
+        float eyeHeight = getStandingEyeHeight(getPose(), getSize(getPose()));
+        ObfuscationReflectionHelper.setPrivateValue(Entity.class, this, eyeHeight, "field_213326_aJ");
     }
 
     @Override
@@ -863,7 +886,43 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     // Returns the Y offset from the entity's position for any entity riding this one.
     @Override
     public double getMountedYOffset() {
-        return (double)this.getHeight() * 0.685D;
+        double coef = 0.833;
+        // Compensate for saddle
+        if (this.isHorseSaddled()) {
+            coef += 0.04;
+        }
+        return (double)this.getHeight() * coef;
+    }
+
+    @Override
+    // Overriden so passenger position white rearing depends on the horse's size
+    public void updatePassenger(Entity passenger) {
+        super.updatePassenger(passenger);
+        if (passenger instanceof MobEntity) {
+            MobEntity mobentity = (MobEntity)passenger;
+            this.renderYawOffset = mobentity.renderYawOffset;
+        }
+
+        double yOffset = this.getMountedYOffset() + passenger.getYOffset();
+        if (passenger instanceof PlayerEntity) {
+            yOffset += PLAYER_OFFSET;
+        }
+        float prevRearingAmount = this.getRearingAmount(0F);
+        if (prevRearingAmount > 0.0F) {
+            float facingX = MathHelper.sin(this.renderYawOffset * ((float)Math.PI / 180F));
+            float facingZ = MathHelper.cos(this.renderYawOffset * ((float)Math.PI / 180F));
+            // A rearing amount of 1 corresponds to 45 degrees up
+            float rearAngle = prevRearingAmount * (float)Math.PI / 4F;
+            float rearXZ = (1F - MathHelper.cos(rearAngle)) * this.getWidth();
+            float rearY = MathHelper.sin(rearAngle) * this.getWidth() / 2F;
+            passenger.setPosition(this.getPosX() + (double)(rearXZ * facingX), this.getPosY() + yOffset + (double)rearY, this.getPosZ() - (double)(rearXZ * facingZ));
+            if (passenger instanceof LivingEntity) {
+                ((LivingEntity)passenger).renderYawOffset = this.renderYawOffset;
+            }
+        }
+        else {
+            passenger.setPosition(this.getPosX(), this.getPosY() + yOffset, this.getPosZ());
+        }
     }
 
     @Override
@@ -959,8 +1018,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         return 1;
     }
 
-    // Total size change that does not change proportions
-    public float getProportionalScale() {
+    // Total size change based on age that does not change proportions
+    public float getProportionalAgeScale() {
         // TODO: use size genes once they exist and once I've found how to make
         // players sit at the right height for different sizes
         float ageScale = 0.5f + 0.5f * fractionGrown();
@@ -971,5 +1030,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     // horse. 0.5 is the most foal-shaped and 1 is the most adult-shaped.
     public float getGangliness() {
         return 0.5f + 0.5f * fractionGrown() * fractionGrown();
+    }
+
+    @Override
+    public float getRenderScale() {
+        return this.getGenes().getGeneticScale() * super.getRenderScale();
     }
 }

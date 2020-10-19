@@ -106,6 +106,7 @@ public class Spawns {
     public static void changeVillageAnimals() {
         // Force the static block to run
         PlainsVillagePools.init();
+        HorseColors.logger.debug("Modifying village animal spawns");
         ResourceLocation animalsLoc = new ResourceLocation("village/common/animals");
         java.util.Optional<JigsawPattern> animalsOpt = WorldGenRegistries.field_243656_h.func_241873_b(animalsLoc);
         if (!animalsOpt.isPresent()) {

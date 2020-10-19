@@ -109,6 +109,8 @@ public class HorseGenome extends Genome {
         "frame", 
         "silver", 
         "dark_red",
+        "LCORL",
+        "HMGA2",
         "leg_stripes",   // TODO
         "stripe_spacing" // TODO
     );
@@ -200,7 +202,9 @@ public class HorseGenome extends Genome {
 
             case "cream":
             case "extension":
-            case "agouti": return 3;
+            case "agouti":
+            case "LCORL":
+            case "HMGA2": return 3;
 
             case "dun": return 2;
 
@@ -465,6 +469,41 @@ public class HorseGenome extends Genome {
                 + countAlleles("KIT", HorseAlleles.KIT_TOBIANO_W20);
     }
 
+    // Genetic-based size, which unlike age-based size should affect the hitbox
+    // This is a multiplier for both width and height, so adjust for that when
+    // calculating weight.
+    public float getGeneticScale() {
+        if (!HorseConfig.COMMON.enableSizes.get()) {
+            return 1f;
+        }
+        float size = 1f;
+        size *= this.entity.isMale() ? 1.01f : 0.99f;
+        // LCORL is based off of information from the Center for Animal Genetics
+        // They list T/T warmbloods as ~159 cm, T/C warmbloods as ~164 cm, and
+        // C/C warmbloods as ~169 cm.
+        // I've assumed the relationship is multiplicative.
+        // 0 is T, 1 is C
+        for (int i = 0; i < this.countAlleles("LCORL", 1); ++i) {
+            size *= 1.03f;
+        }
+        // HMGA2 is based off of information from the Center for Animal Genetics
+        // They list G/G ponies as 104 cm tall at the withers, G/A as 98 cm,
+        // and A/A as 84 cm.
+        // Again, I'm assuming the relationship is multiplicative.
+        // 0 is G, 1 is A
+        if (this.isHomozygous("HMGA2", 1)) {
+            size *= 0.81f;
+        }
+        else if (this.hasAllele("HMGA2", 1)) {
+            size *= 0.94f;
+        }
+        // Donkeys are smaller
+        if (this.species == Species.DONKEY) {
+            size *= 0.9f;
+        }
+        return size;
+    }
+
     // Return true if the client needs to know the age to render properly,
     // aside from just whether the animal is a child
     public boolean clientNeedsAge() {
@@ -564,6 +603,25 @@ public class HorseGenome extends Genome {
         return Util.translate("stats." + judgeStatRaw(getStatValue(stat)));
     }
 
+    private void listGenes(ArrayList<String> list, List<String> genelist) {
+        for (String gene : genelist) {
+            if (gene.equals("KIT") && this.species != Species.DONKEY) {
+                String tobianoLocation = "genes.tobiano";
+                String tobi = Util.translate(tobianoLocation + ".name") + ": ";
+                String a1 = HorseAlleles.isTobianoAllele(getAllele("KIT", 0))? "Tobiano" : "Wildtype";
+                String a2 = HorseAlleles.isTobianoAllele(getAllele("KIT", 1))? "Tobiano" : "Wildtype";
+                tobi += Util.translate(tobianoLocation + ".allele" + a1) + "/";
+                tobi += Util.translate(tobianoLocation + ".allele" + a2);
+                list.add(tobi);
+            }
+            String translationLocation = "genes." + gene;
+            String s = Util.translate(translationLocation + ".name") + ": ";
+            s += Util.translate(translationLocation + ".allele" + getAllele(gene, 0)) + "/";
+            s += Util.translate(translationLocation + ".allele" + getAllele(gene, 1));
+            list.add(s);
+        }
+    }
+
     public List<List<String>> getBookContents() {
         List<List<String>> contents = new ArrayList<List<String>>();
         List<String> physical = new ArrayList<String>();
@@ -614,31 +672,23 @@ public class HorseGenome extends Genome {
             contents.add(physical);
         }
 
-        List<String> genelist = ImmutableList.of("extension", "agouti", "dun", 
+        List<String> colorgenelist = ImmutableList.of("extension", "agouti", "dun", 
             "gray", "cream", "silver", "KIT", "frame", "MITF", "leopard", "PATN1");
         if (this.species == Species.DONKEY) {
-            genelist = ImmutableList.of("extension", "agouti", "KIT");
+            colorgenelist = ImmutableList.of("extension", "agouti", "KIT");
         }
-        List<String> genetic = new ArrayList<String>();
-        genetic.add(Util.translate("book.genetic"));
-        for (String gene : genelist) {
-            if (gene.equals("KIT") && this.species != Species.DONKEY) {
-                String tobianoLocation = "genes.tobiano";
-                String tobi = Util.translate(tobianoLocation + ".name") + ": ";
-                String a1 = HorseAlleles.isTobianoAllele(getAllele("KIT", 0))? "Tobiano" : "Wildtype";
-                String a2 = HorseAlleles.isTobianoAllele(getAllele("KIT", 1))? "Tobiano" : "Wildtype";
-                tobi += Util.translate(tobianoLocation + ".allele" + a1) + "/";
-                tobi += Util.translate(tobianoLocation + ".allele" + a2);
-                genetic.add(tobi);
-            }
-            String translationLocation = "genes." + gene;
-            String s = Util.translate(translationLocation + ".name") + ": ";
-            s += Util.translate(translationLocation + ".allele" + getAllele(gene, 0)) + "/";
-            s += Util.translate(translationLocation + ".allele" + getAllele(gene, 1));
-            genetic.add(s);
-        }
+        ArrayList<String> genetic = new ArrayList<>();
+        genetic.add(Util.translate("book.genetic_color"));
+        listGenes(genetic, colorgenelist);
+        ArrayList<String> sizes = new ArrayList<>();
+        sizes.add(Util.translate("book.genetic_size"));
+        listGenes(sizes, ImmutableList.of("LCORL", "HMGA2"));
+        // TODO: add a note that unknown genes and envorinmental factors may affect size
         if (HorseConfig.GENETICS.bookShowsGenes.get()) {
             contents.add(genetic);
+        }
+        if (HorseConfig.COMMON.enableSizes.get()) {
+            contents.add(sizes);
         }
         return contents;
     }

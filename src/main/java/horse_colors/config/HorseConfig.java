@@ -24,6 +24,7 @@ public class HorseConfig
         public static BooleanValue enableGroundTie;
         public static BooleanValue autoEquipSaddle;
         public static BooleanValue spookyHorses;
+        public static BooleanValue enableSizes;
 
         Common(final ForgeConfigSpec.Builder builder) {
             builder.comment("Common config settings")
@@ -50,6 +51,10 @@ public class HorseConfig
             spookyHorses = builder
                     .comment("If enabled, horses will be spooked by monsters and throw their rider.")
                     .define("spookyHorses", false);
+
+            enableSizes = builder
+                    .comment("If enabled, horses can be different sizes.")
+                    .define("enableSizes", true);
 
             builder.pop();
         }
