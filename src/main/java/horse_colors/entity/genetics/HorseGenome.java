@@ -111,6 +111,7 @@ public class HorseGenome extends Genome {
         "dark_red",
         "LCORL",
         "HMGA2",
+        "mushroom",
         "leg_stripes",   // TODO
         "stripe_spacing" // TODO
     );
@@ -246,6 +247,10 @@ public class HorseGenome extends Genome {
         return (this.hasAllele("cream", HorseAlleles.CREAM)
                 || this.hasAllele("cream", HorseAlleles.SNOWDROP))
             && this.hasAllele("cream", HorseAlleles.PEARL);
+    }
+
+    public boolean isMushroom() {
+        return this.isHomozygous("mushroom", 1);
     }
 
     public boolean isSilver() {
@@ -673,7 +678,8 @@ public class HorseGenome extends Genome {
         }
 
         List<String> colorgenelist = ImmutableList.of("extension", "agouti", "dun", 
-            "gray", "cream", "silver", "KIT", "frame", "MITF", "leopard", "PATN1");
+            "gray", "cream", "silver", "KIT", "frame", "MITF", "leopard", "PATN1", 
+            "mushroom");
         if (this.species == Species.DONKEY) {
             colorgenelist = ImmutableList.of("extension", "agouti", "KIT");
         }

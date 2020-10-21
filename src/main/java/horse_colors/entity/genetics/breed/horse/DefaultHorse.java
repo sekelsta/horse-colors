@@ -198,6 +198,10 @@ public class DefaultHorse {
             15f / 16f,  // Normal size
             1f          // Small, found in small ponies
         ));
+        COLORS.put("mushroom", ImmutableList.of(
+            0.995f,     // Wild type
+            1f          // Mushroom
+        ));
     }
 
     public static void init() {}

@@ -68,6 +68,14 @@ public class HorseColorCalculator
         addWhite(layer, white);
     }
 
+    public static void setMushroomPheomelanin(TextureLayer layer, float concentration, float white) {
+        layer.red = 0xde;
+        layer.green = 0xcf;
+        layer.blue = 0xbc;
+        adjustConcentration(layer, concentration);
+        addWhite(layer, white);
+    }
+
     public static void colorRedBody(HorseGenome horse, TextureLayer layer) {
         // 5, 0.2 looks haflingerish
         // 5, 0.1 looks medium chestnut
@@ -122,7 +130,12 @@ public class HorseColorCalculator
         }
 
         white = Math.max(white, 0);
-        setPheomelanin(layer, concentration, white);
+        if (horse.isMushroom()) {
+            setMushroomPheomelanin(layer, concentration, white);
+        }
+        else {
+            setPheomelanin(layer, concentration, white);
+        }
 
         // Treat liver like it leaks some eumelanin into the coat
         if (horse.isChestnut() 
@@ -230,7 +243,8 @@ public class HorseColorCalculator
         }
 
         if (!horse.isHomozygous("flaxen1", HorseAlleles.FLAXEN)
-                && !horse.isHomozygous("flaxen2", HorseAlleles.FLAXEN)) {
+                && !horse.isHomozygous("flaxen2", HorseAlleles.FLAXEN)
+                && !horse.isMushroom()) {
             // No flaxen, nothing to do
             return;
         }
@@ -255,6 +269,10 @@ public class HorseColorCalculator
         if (horse.hasAllele("flaxen_boost", 1)) {
             Math.pow(power, 1.5);
             white *= 1.5;
+        }
+        if (horse.isMushroom()) {
+            power *= 0.5f;
+            white += 0.02f;
         }
         adjustConcentration(flaxen, power);
         setGrayConcentration(horse, flaxen);

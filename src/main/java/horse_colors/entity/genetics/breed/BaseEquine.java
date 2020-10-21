@@ -247,5 +247,9 @@ public class BaseEquine {
             1f,     // Wild type
             1f      // Smaller shetlands
         ));
+        COLORS.put("mushroom", ImmutableList.of(
+            1f,     // Wild type
+            1f      // Mushroom
+        ));
     }
 }
