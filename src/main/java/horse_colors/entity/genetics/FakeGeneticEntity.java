@@ -5,30 +5,38 @@ import net.minecraft.entity.AgeableEntity;
 
 public class FakeGeneticEntity implements IGeneticEntity {
     private Genome genome; 
-    private HashMap<String, Integer> map;
+    private String geneData;
     private boolean gender;
     private float motherSize;
+    private int seed;
 
     public FakeGeneticEntity() {
-         map = new HashMap<String, Integer>();
+         geneData = "";
     }
 
     @Override
-    public Genome getGenes() {
+    public Genome getGenome() {
         return genome;
     }
 
     @Override
-    public int getChromosome(String name) {
-        if (map.containsKey(name)) {
-            return map.get(name);
-        }
-        return 0;
+    public String getGeneData() {
+        return geneData;
     }
 
     @Override
-    public void setChromosome(String name, int val) {
-        map.put(name, val);
+    public void setGeneData(String genes) {
+        this.geneData = genes;
+    }
+
+    @Override
+    public int getSeed() {
+        return seed;
+    }
+
+    @Override
+    public void setSeed(int seed) {
+        this.seed = seed;
     }
 
     @Override

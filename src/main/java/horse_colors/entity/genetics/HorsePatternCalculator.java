@@ -59,8 +59,7 @@ public class HorsePatternCalculator {
         // Turn a signed integer into unsigned, also drop a few bits 
         // used elsewhere
         int unused_bits = 2;
-        int random = (horse.getChromosome("random") << 1) 
-                        >>> (1 + unused_bits);
+        int random = (horse.getRandom("leg_white") << 1) >>> (1 + unused_bits);
 
         white += random & 3;
 
@@ -218,7 +217,7 @@ public class HorsePatternCalculator {
 
         // Turn a signed integer into unsigned, also drop a few bits 
         // used elsewhere
-        int random = HorseColorCalculator.randSource.getVal("leg_white", horse.getChromosome("random"));
+        int random = horse.getRandom("leg_white");
         // Make unsigned, plus drop 4 unused bits from the beginning
         // for compatibility with previous versions
         random = (random << 1) >>> 5;

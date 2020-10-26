@@ -8,12 +8,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import sekelsta.horse_colors.client.renderer.CustomLayeredTexture;
 import sekelsta.horse_colors.client.renderer.TextureLayerGroup;
 import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.util.RandomSupplier;
 
 public abstract class Genome {
     public final Species species;
     public abstract List<String> listGenes();
-    public abstract List<String> listGenericChromosomes();
-    public abstract List<String> listStats();
     public List<Linkage> listLinkages() {
         ArrayList linkages = new ArrayList<Genome.Linkage>();
         for (String gene : listGenes()) {
@@ -27,17 +26,18 @@ public abstract class Genome {
     protected String textureCacheName;
     protected TextureLayerGroup textureLayers;
 
-    // Make sure to use this.entity.getRand() instead for anything
-    // that should be consistent across worlds with the same seed
+    protected final RandomSupplier randSource;
+
     public static java.util.Random rand = new java.util.Random();
 
-    public Genome(Species species) {
-        this(species, new FakeGeneticEntity());
+    public Genome(Species species, RandomSupplier rand) {
+        this(species, new FakeGeneticEntity(), rand);
     }
 
-    public Genome(Species species, IGeneticEntity entityIn) {
+    public Genome(Species species, IGeneticEntity entityIn, RandomSupplier rand) {
         this.species = species;
         this.entity = entityIn;
+        this.randSource = rand;
     }
 
     public void resetTexture() {
@@ -71,73 +71,32 @@ public abstract class Genome {
         return this.textureLayers;
     }
 
+    @Deprecated
     public abstract int getGeneSize(String gene);
 
-    public int getChromosome(String name) {
-        return entity.getChromosome(name);
-    }
-
-    public void setNamedGene(String name, int val)
+    @Deprecated
+    public void setNamedGene(String name, int val, Map<String, Integer> map)
     {
         String chr = getGeneChromosome(name);
-        entity.setChromosome(chr, (entity.getChromosome(chr) & (~getGeneLoci(name))) 
+        map.put(chr, (map.get(chr) & (~getGeneLoci(name))) 
             | (val << (getGenePos(name) % 32)));
     }
 
-    public int getNamedGene(String name)
+    @Deprecated
+    public int getNamedGene(String name, Map<String, Integer> map)
     {
         String chr = getGeneChromosome(name);
         // Use unsigned right shift to avoid returning negative numbers
-        return (entity.getChromosome(chr) & getGeneLoci(name)) >>> getGenePos(name);
+        return (map.get(chr) & getGeneLoci(name)) >>> getGenePos(name);
     }
 
-    // This returns the chromosome masked to contain only the relevent bits
-    public int getRawStat(String name)
-    {
-        String chr = listGenericChromosomes().get(getStatPos(name) / 32);
-        return entity.getChromosome(chr) & getStatLoci(name);
-    }
-
-    // This returns the number of '1' bits in the stat's position
-    public int getStatValue(String name)
-    {
-        int val = getRawStat(name);
-        return countBits(val);
-    }
-
-    public int countBits(int val) {
-        int count = 0;
-        for (int i = 0; i < 32; ++i)
-        {
-            count += ((val % 2) + 2) % 2;
-            val >>= 1;
-        }
-        return count;
-    }
-
-    public int countDiffs(int val) {
-        int count = 0;
-        for (int i = 0; i < 16; ++i)
-        {
-            int one = ((val % 2) + 2) % 2;
-            val >>= 1;
-            int two = ((val % 2) + 2) % 2;
-            val >>= 1;
-            count += one ^ two;
-        }
-        return count;
-    }
-
+    @Deprecated
     public int getGenePos(String name)
     {
         return getPos(name, listGenes());
     }
 
-    public int getStatPos(String name)
-    {
-        return getPos(name, listStats());
-    }
-
+    @Deprecated
     private int getPos(String name, List<String> genes)
     {
         int i = 0;
@@ -162,41 +121,72 @@ public abstract class Genome {
         return -1;
     }
 
+    public int getGeneIndex(String name) {
+        int n = 0;
+        for (String gene : listGenes()) {
+            if (gene.equals(name)) {
+                return n;
+            }
+            ++n;
+        }
+        throw new RuntimeException("Unrecognized name");
+    }
+
+    @Deprecated
     public int getGeneLoci(String gene)
     {
         return getLoci(gene, getGenePos(gene));
     }
 
-    public int getStatLoci(String gene)
-    {
-        return getLoci(gene, getStatPos(gene));
-    }
-
     /* This returns a bitmask which is 1 where the gene is stored and 0 everywhere else. */
+    @Deprecated
     private int getLoci(String gene, int pos)
     {
         return ((1 << (2 * getGeneSize(gene))) - 1) << (pos % 32);
     }
 
+    @Deprecated
     public String getGeneChromosome(String gene)
     {
         // Which of the ints full of genes ours is on
         return Integer.toString(getGenePos(gene) / 32);
     }
 
-    public int getAllele(String name, int n)
+    @Deprecated
+    public int getAlleleOld(String name, int n, Map<String, Integer> map)
     {
-        int gene = getNamedGene(name);
+        int gene = getNamedGene(name, map);
         gene >>= n * getGeneSize(name);
         gene %= 1 << getGeneSize(name);
         return gene;
     }
 
-    public void setAllele(String name, int n, int v)
+    @Deprecated
+    public void setAlleleOld(String name, int n, int v, Map<String, Integer> map)
     {
         int other = getAllele(name, 1 - n);
         int size = getGeneSize(name);
-        setNamedGene(name, (other << ((1 - n) * size)) | (v << (n * size)));
+        setNamedGene(name, (other << ((1 - n) * size)) | (v << (n * size)), map);
+    }
+
+    public int getAllele(String name, int n) {
+        // Each gene has two alleles, so double the index
+        int index = 2 * getGeneIndex(name) + n;
+        if (index >= entity.getGeneData().length()) {
+            return 0;
+        }
+        return (int)entity.getGeneData().charAt(index);
+    }
+
+    public void setAllele(String name, int n, int v) {
+        int index = 2 * getGeneIndex(name) + n;
+        StringBuffer buffer = new StringBuffer(entity.getGeneData());
+        // Append null characters until it is long enough
+        if (buffer.length() <= index) {
+            buffer.setLength(index + 1);
+        }
+        buffer.setCharAt(index, (char)v);
+        entity.setGeneData(new String(buffer));
     }
 
     // Replace the given allele with a random one.
@@ -230,30 +220,6 @@ public abstract class Genome {
         }
     }
 
-    // Get a number where each binary digit has p
-    // probability of being a 1. 
-    public int mutateIntMask(double p) {
-        int mask = 0;
-        if (this.rand.nextDouble() < p) {
-            mask++;
-        }
-        for (int i = 1; i < Integer.SIZE; ++i) {
-            mask <<= 1;
-            if (this.rand.nextDouble() < p) {
-                mask++;
-            }
-        }
-        return mask;
-    }
-
-
-    public void mutateGenericChromosome(String name, double p) {
-        // xor with an int where each digit has a p / 2 chance of being 1
-        // This is equivalent to picking a random replacement with p probability
-        // because half the time that would pick the same value as before
-        entity.setChromosome(name, entity.getChromosome(name) ^ mutateIntMask(p / 2));
-    }
-
     public void mutate() {
         double p = HorseConfig.GENETICS.mutationChance.get();
         for (String gene : listGenes()) {
@@ -262,11 +228,18 @@ public abstract class Genome {
             mutateAlleleChance(gene, 0, p);
             mutateAlleleChance(gene, 1, p);
         }
-        for (String stat : listGenericChromosomes()) {
-            mutateGenericChromosome(stat, p);
-        }
     }
 
+    // Add together allele values for a set of genes named according to
+    // name + n, where min <= n < max
+    public int sumGenes(String name, int min, int max) {
+        int sum = 0;
+        for (int i = min; i < max; ++i) {
+            sum += getAllele(name + i, 0);
+            sum += getAllele(name + i, 1);
+        }
+        return sum;
+    }
 
     public boolean hasAllele(String name, int allele)
     {
@@ -294,23 +267,7 @@ public abstract class Genome {
         return count;
     }
 
-    public int getRandomGenericGenes(int n, int data, float linkage)
-    {
-        int rand = this.rand.nextInt(2);
-        int answer = 0;
-        for (int i = 0; i < 16; i++)
-        {
-            if (this.rand.nextFloat() < linkage)
-            {
-                rand = 1 - rand;
-            }
-            answer += ((data & (1 << (2 * i + rand))) >> rand) << n;
-        }
-        return answer;
-    }
-
-    // 
-    public void inheritNamedGenes(Genome parent1, Genome parent2) {
+    public void inheritGenes(Genome parent1, Genome parent2) {
         int rand1 = this.rand.nextInt(2);
         int rand2 = this.rand.nextInt(2);
         for (Linkage link : this.listLinkages()) {
@@ -325,40 +282,11 @@ public abstract class Genome {
                 rand2 = 1 - rand2;
             }
         }
-    }
-
-    // Convert chromosome from int to pretty print string
-    public static String chrToStr(int chr) {
-        String s = "";
-        for (int i = 16; i >0; i--) {
-            s += (chr >>> (2 * i - 1)) & 1;
-            s += (chr >>> (2 * i - 2)) & 1;
-            if (i > 1) {
-                s += " ";
-            }
-        }
-        return s;
-    }
-
-    public void inheritGenericGenes(Genome parent1, Genome parent2) {
-        float linkage = 0.5f;
-        for (String chr : this.listGenericChromosomes()) {
-            if (chr.startsWith("mhc")) {
-                linkage = 0.05f;
-            }
-            else {
-                linkage = 0.5f;
-            }
-            int mother = parent1.getRandomGenericGenes(1, parent1.getChromosome(chr), linkage);
-            int father = parent2.getRandomGenericGenes(0, parent2.getChromosome(chr), linkage);
-            this.entity.setChromosome(chr, mother | father);
-        }
-    }
-
-    public void inheritGenes(Genome parent1, Genome parent2) {
-        inheritNamedGenes(parent1, parent2);
-        inheritGenericGenes(parent1, parent2);
         mutate();
+    }
+
+    public int getRandom(String key) {
+        return randSource.getVal(key, this.entity.getSeed());
     }
 
     // Chromosomal linkage for storing in a list

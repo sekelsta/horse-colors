@@ -2,21 +2,13 @@ package sekelsta.horse_colors.entity.genetics;
 
 public class HorseAlleles
 {
-    // In general more recessive alleles are given lower numbers and more
-    // dominant ones are given higher numbers
+    // In earlier genes more recessive alleles are given lower numbers and more
+    // dominant ones are given higher numbers.
+    // In later genes the most common allele is given 0
 
     // Extension (MC1R)
-    // There are 3 extra reds and 3 extra blacks. 
-    // This is in case new alleles are found, or very
-    // closely linked genes are discovered.
     public static final int E_RED = 0;
-    public static final int E_RED2 = 1;
-    public static final int E_RED3 = 2;
-    public static final int E_RED4 = 3;
-    public static final int E_BLACK3 = 4;
-    public static final int E_BLACK2 = 5;
-    public static final int E_BLACK1 = 6;
-    public static final int E_BLACK = 7;
+    public static final int E_BLACK = 1;
 
     // Agouti (ASIP)
     public static final int A_BLACK = 0;
@@ -24,9 +16,6 @@ public class HorseAlleles
     public static final int A_BROWN = 2;
     public static final int A_BAY_DARK = 3;
     public static final int A_BAY = 4;
-    public static final int A_BAY_LIGHT = 5;
-    public static final int A_BAY_SEMIWILD = 6;
-    public static final int A_BAY_WILD = 7;
 
     // Dun (TBX3)
     public static final int NONDUN2 = 0;
@@ -106,7 +95,6 @@ public class HorseAlleles
     public static final int PAX3_WILDTYPE = 0;
     public static final int PAX3_SW2 = 1;
     public static final int PAX3_SW4 = 2;
-    public static final int PAX3_UNUSED = 3;
 
     // Champagne
     public static final int NONCHAMPAGNE = 0;
