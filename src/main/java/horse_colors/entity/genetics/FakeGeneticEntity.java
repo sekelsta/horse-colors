@@ -7,6 +7,7 @@ public class FakeGeneticEntity implements IGeneticEntity {
     private Genome genome; 
     private HashMap<String, Integer> map;
     private boolean gender;
+    private float motherSize;
 
     public FakeGeneticEntity() {
          map = new HashMap<String, Integer>();
@@ -58,5 +59,15 @@ public class FakeGeneticEntity implements IGeneticEntity {
     @Override
     public boolean setPregnantWith(AgeableEntity child, AgeableEntity otherParent) {
         return false;
+    }
+
+    @Override
+    public float getMotherSize() {
+        return this.motherSize;
+    }
+
+    @Override
+    public void setMotherSize(float size) {
+        this.motherSize = size;
     }
 }

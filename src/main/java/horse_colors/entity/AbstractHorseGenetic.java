@@ -78,6 +78,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     protected static final DataParameter<Integer> HORSE_VARIANT3 = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_VARIANT4 = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_VARIANT5 = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
+    protected static final DataParameter<Integer> HORSE_VARIANT6 = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_SPEED = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_JUMP = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
     protected static final DataParameter<Integer> HORSE_HEALTH = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
@@ -89,6 +90,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     protected static final DataParameter<Boolean> GENDER = EntityDataManager.<Boolean>createKey(AbstractHorseGenetic.class, DataSerializers.BOOLEAN);
     protected static final DataParameter<Boolean> IS_CASTRATED = EntityDataManager.<Boolean>createKey(AbstractHorseGenetic.class, DataSerializers.BOOLEAN);
     protected static final DataParameter<Integer> PREGNANT_SINCE = EntityDataManager.<Integer>createKey(AbstractHorseGenetic.class, DataSerializers.VARINT);
+    protected static final DataParameter<Float> MOTHER_SIZE = EntityDataManager.<Float>createKey(AbstractHorseGenetic.class, DataSerializers.FLOAT);
     protected int trueAge;
 
     protected static final UUID CSNB_SPEED_UUID = UUID.fromString("84ca527a-5c70-4336-a737-ae3f6d40ef45");
@@ -150,6 +152,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.dataManager.register(HORSE_VARIANT3, 0);
         this.dataManager.register(HORSE_VARIANT4, 0);
         this.dataManager.register(HORSE_VARIANT5, 0);
+        this.dataManager.register(HORSE_VARIANT6, 0);
         this.dataManager.register(HORSE_SPEED, 0);
         this.dataManager.register(HORSE_HEALTH, 0);
         this.dataManager.register(HORSE_MHC1, 0);
@@ -161,6 +164,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.dataManager.register(GENDER, false);
         this.dataManager.register(IS_CASTRATED, false);
         this.dataManager.register(PREGNANT_SINCE, -1);
+        this.dataManager.register(MOTHER_SIZE, 1f);
     }
 
     /**
@@ -177,6 +181,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         compound.putInt("Variant3", this.getChromosome("2"));
         compound.putInt("Variant4", this.getChromosome("3"));
         compound.putInt("Variant5", this.getChromosome("4"));
+        compound.putInt("Variant6", this.getChromosome("5"));
         compound.putInt("SpeedGenes", this.getChromosome("speed"));
         compound.putInt("JumpGenes", this.getChromosome("jump"));
         compound.putInt("HealthGenes", this.getChromosome("health"));
@@ -197,7 +202,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 unbornChildrenTag.add(childNBT);
             }
             compound.put("unborn_children", unbornChildrenTag);
-        }
+        }   
+        compound.putFloat("mother_size", this.getMotherSize());
     }
 
     @Override
@@ -215,6 +221,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             this.getPersistentData().putInt("HorseGeneticsVersion", HORSE_GENETICS_VERSION);
             this.getGenes().datafixAddingFourthChromosome();
         }
+        this.setChromosome("5", compound.getInt("Variant6"));
         this.setChromosome("speed", compound.getInt("SpeedGenes"));
         this.setChromosome("jump", compound.getInt("JumpGenes"));
         this.setChromosome("health", compound.getInt("HealthGenes"));
@@ -289,6 +296,11 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 }
             }
         }
+        float motherSize = 1f;
+        if (compound.contains("mother_size")) {
+            motherSize = compound.getFloat("mother_size");
+        }
+        setMotherSize(motherSize);
 
         // updateHorseSlots
         this.func_230275_fc_();
@@ -329,6 +341,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 return;
             case "4":
                 this.dataManager.set(HORSE_VARIANT5, variant);
+                this.getGenes().resetTexture();
+                return;
+            case "5":
+                this.dataManager.set(HORSE_VARIANT6, variant);
                 this.getGenes().resetTexture();
                 return;
             case "speed":
@@ -377,6 +393,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 return ((Integer)this.dataManager.get(HORSE_VARIANT4)).intValue();
             case "4":
                 return ((Integer)this.dataManager.get(HORSE_VARIANT5)).intValue();
+            case "5":
+                return ((Integer)this.dataManager.get(HORSE_VARIANT6)).intValue();
             case "speed":
                 return ((Integer)this.dataManager.get(HORSE_SPEED)).intValue();
             case "jump":
@@ -399,9 +417,19 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         
     }
 
+    public void setMotherSize(float size) {
+        this.dataManager.set(MOTHER_SIZE, size);
+    }
+
+    public float getMotherSize() {
+        return ((Float)this.dataManager.get(MOTHER_SIZE)).floatValue();
+    }
+
     @Override
     public void notifyDataManagerChange(DataParameter<?> key) {
-        if (HORSE_VARIANT5.equals(key)) {
+        if (HORSE_VARIANT5.equals(key)
+            || GENDER.equals(key)
+            || MOTHER_SIZE.equals(key)) {
             this.recalculateSize();
         }
 
@@ -746,6 +774,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 this.world.setEntityState(this, (byte)6);
                 return null;
             }
+            foal.setMotherSize(this.getGenes().getGeneticScale());
             foal.setMale(rand.nextBoolean());
             foal.useGeneticAttributes();
             foal.setGrowingAge(HorseConfig.GROWTH.getMinAge());

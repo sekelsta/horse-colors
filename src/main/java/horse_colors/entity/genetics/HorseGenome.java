@@ -506,6 +506,8 @@ public class HorseGenome extends Genome {
         if (this.species == Species.DONKEY) {
             size *= 0.9f;
         }
+        // Weighted arithmetic average with mother's size
+        size = (float)(Math.pow(size, 0.97) * Math.pow(entity.getMotherSize(), 0.03));
         return size;
     }
 

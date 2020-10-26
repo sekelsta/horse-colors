@@ -31,4 +31,7 @@ public interface IGeneticEntity {
     default Breed getDefaultBreed() {
         return new Breed();
     }
+
+    float getMotherSize();
+    void setMotherSize(float size);
 }
