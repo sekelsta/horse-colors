@@ -171,6 +171,7 @@ public class HorseGenome extends Genome {
         "mhc5",
         "mhc6",
         "mhc7",
+        "liver_boost",
         "leg_stripes",   // TODO
         "stripe_spacing" // TODO
     );
@@ -597,7 +598,7 @@ public class HorseGenome extends Genome {
     /* Make the horse have random genetics. */
     public void randomize(Breed breed)
     {
-        randomizeGenes(breed.colors);
+        randomizeGenes(breed.genes);
 
         // Replace lethal white overos with heterozygotes
         if (isHomozygous("frame", HorseAlleles.FRAME))

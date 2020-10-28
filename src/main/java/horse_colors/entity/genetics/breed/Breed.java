@@ -10,34 +10,34 @@ public class Breed {
     public int population;
     // The strings represent gene names
     // The list of floats determines the likelihood of each allele
-    public Map<String, List<Float>> colors;
+    public Map<String, List<Float>> genes;
 
     public Breed() {
-        colors = new HashMap<>();
+        genes = new HashMap<>();
     }
 
     public Breed(Breed copy) {
-        colors = new HashMap(copy.colors);
+        genes = new HashMap(copy.genes);
     }
 
     // Mix with another breed.
     // Mixes 'weight' of the other breed with '1 - weight' of this one.
     public void merge(Breed breed, float weight) {
         // Merge colors (named genes)
-        TreeSet<String> colorKeys = new TreeSet(this.colors.keySet());
-        for (String key : breed.colors.keySet()) {
-            colorKeys.add(key);
+        TreeSet<String> geneKeys = new TreeSet(this.genes.keySet());
+        for (String key : breed.genes.keySet()) {
+            geneKeys.add(key);
         }
-        for (String s : colorKeys) {
+        for (String s : geneKeys) {
             List<Float> l1 = ImmutableList.of(1f);
-            if (this.colors.containsKey(s)) {
-                l1 = this.colors.get(s);
+            if (this.genes.containsKey(s)) {
+                l1 = this.genes.get(s);
             }
             List<Float> l2 = ImmutableList.of(1f);
-            if (breed.colors.containsKey(s)) {
-                l2 = breed.colors.get(s);
+            if (breed.genes.containsKey(s)) {
+                l2 = breed.genes.get(s);
             }
-            this.colors.put(s, mergeList(l1, l2, weight));
+            this.genes.put(s, mergeList(l1, l2, weight));
         }
     }
 

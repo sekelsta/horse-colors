@@ -135,15 +135,27 @@ public class HorseColorCalculator
         }
 
         // Treat liver like it leaks some eumelanin into the coat
-        if (horse.isChestnut() 
-                && horse.isHomozygous("liver", HorseAlleles.LIVER)) {
+        int liv = horse.countAlleles("liver", HorseAlleles.LIVER);
+        if (liv > 0) {
             TextureLayer dark = new TextureLayer();
-            setEumelanin(dark, concentration * 4f, white * 0.8f);
+            colorBlackBody(horse, dark);
+            addWhite(dark, 0.02f);
+
             // Adjust liver chestnut strength randomly
             float a = 0.4f;
             int r = horse.getRandom("liver_darkness") >>> 1;
-            a *= 0.2f + (r % 64) / 64f;
-            a *= 1f + (r / 64 % 64) / 64f;
+            float r1 = (r % 64) / 64f;
+            float r2 = (r / 64 % 64) / 64f;
+            if (horse.hasAllele("liver_boost", 1)) {
+                r1 = (float)Math.pow(r1, 0.5);
+            }
+            if (liv == 1) {
+                // Make incomplete dominant
+                r1 *= 0.5f;
+                r2 = 0;
+            }
+            a *= (0.2f + r1) * (1f + r2);
+
             layer.red = (int)(dark.red * a + layer.red * (1 - a));
             layer.green = (int)(dark.green * a + layer.green * (1 - a));
             layer.blue = (int)(dark.blue * a + layer.blue * (1 - a));

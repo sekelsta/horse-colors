@@ -192,7 +192,7 @@ public abstract class Genome {
     // Replace the given allele with a random one.
     // It may be the same as before.
     public void mutateAllele(String gene, int n) {
-        Map<String, List<Float>> map = entity.getDefaultBreed().colors;
+        Map<String, List<Float>> map = entity.getDefaultBreed().genes;
         if (!map.containsKey(gene)) {
             return;
         }
