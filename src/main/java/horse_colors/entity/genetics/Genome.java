@@ -164,7 +164,7 @@ public abstract class Genome {
     @Deprecated
     public void setAlleleOld(String name, int n, int v, Map<String, Integer> map)
     {
-        int other = getAllele(name, 1 - n);
+        int other = getAlleleOld(name, 1 - n, map);
         int size = getGeneSize(name);
         setNamedGene(name, (other << ((1 - n) * size)) | (v << (n * size)), map);
     }

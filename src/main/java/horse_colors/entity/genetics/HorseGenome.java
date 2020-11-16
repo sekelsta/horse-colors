@@ -176,6 +176,9 @@ public class HorseGenome extends Genome {
         "stripe_spacing" // TODO
     );
 
+    // For converting to and from the save format used in horse_colors-1.4.x and earlier
+    private static final ImmutableList<String> chromosomes = ImmutableList.of("0", "1", "2", "3", "speed", "jump", "health", "mhc1", "mhc2", "immune", "random", "4");
+
     public HorseGenome(Species species, IGeneticEntity entityIn) {
         super(species, entityIn, new RandomSupplier(ImmutableList.of("leg_white", "face_white", "star_choice", "roan_density", "liver_darkness", "shade")));
     }
@@ -775,7 +778,6 @@ public class HorseGenome extends Genome {
         
 
     private Map<String, Integer> parseLegacyGenes(String s) {
-        ImmutableList<String> chromosomes = ImmutableList.of("0", "1", "2", "3", "speed", "jump", "health", "mhc1", "mhc2", "immune", "random", "4");
         Map<String, Integer> map = new HashMap<>();
         for (int i = 0; i < chromosomes.size(); ++i) {
             // This will be the default value if there are parsing errors
@@ -850,6 +852,48 @@ public class HorseGenome extends Genome {
                 mhc = mhc >>> 4;
             }
         }
+    }
+
+    // For saving data in the previous format. Won't be needed once 1.16 is 
+    // no longer supported.
+    public Map<String, Integer> getLegacyGenes() {
+        Map<String, Integer> map = new HashMap<>();
+        for (String chr : chromosomes) {
+            map.put(chr, 0);
+        }
+        int i = 0;
+        for (i = 0; i < genes.size(); ++i) {
+            String gene = genes.get(i);
+            if ("speed0".equals(gene)) {
+                break;
+            }
+            setAlleleOld(gene, 0, getAllele(gene, 0), map);
+            setAlleleOld(gene, 1, getAllele(gene, 1), map);
+        }
+        List<String> stats = ImmutableList.of("speed", "jump", "health");
+        for (String stat : stats) {
+            int chr = 0;
+            for (int s = 0; s < 16; ++s) {
+                String statGene = genes.get(i + s);
+                int allele0 = getAllele(statGene, 0) & 1;
+                int allele1 = getAllele(statGene, 1) & 1;
+                chr = chr | (allele0 << (2 * s)) | (allele1 << (2 * s + 1));
+            }
+            i += 16;
+            map.put(stat, chr);
+        }
+        // An approximation since hopefully this code will never be called anyway
+        List<String> immunes = ImmutableList.of("mhc1", "mhc2", "immune");
+        for (String immune : immunes) {
+            map.put(immune, entity.getRand().nextInt());
+        }
+        // Convert the extension gene back
+        for (int n = 0; n < 2; ++n) {
+            if (getAlleleOld("extension", n, map) != 0) {
+                setAlleleOld("extension", n, 4, map);
+            }
+        }
+        return map;
     }
 
     public boolean isValidGeneString(String s) {
