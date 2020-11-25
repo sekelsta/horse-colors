@@ -1,6 +1,7 @@
 package sekelsta.horse_colors.entity;
 
 import com.google.common.collect.ImmutableList;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +26,7 @@ import net.minecraft.entity.item.ExperienceOrbEntity;
 import net.minecraft.entity.monster.MonsterEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.horse.*;
+import net.minecraft.entity.passive.WaterMobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.SpawnReason;
@@ -47,6 +49,7 @@ import net.minecraft.util.ActionResultType;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.text.ITextComponent;
@@ -70,8 +73,6 @@ import sekelsta.horse_colors.item.GeneBookItem;
 import sekelsta.horse_colors.util.Util;
 
 public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity implements IGeneticEntity {
-    public static final double PLAYER_OFFSET = -0.295;
-
     protected HorseGenome genes = new HorseGenome(this.getSpecies(), this);
     protected static final DataParameter<String> GENES = EntityDataManager.<String>createKey(AbstractHorseGenetic.class, DataSerializers.STRING);
 
@@ -90,6 +91,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     protected static final int HORSE_GENETICS_VERSION = 2;
 
     protected List<AbstractHorseGenetic> unbornChildren = new ArrayList<>();
+
+    // field_110282_bM = prevRearingAmount
+    private Field rearingAmountField = ObfuscationReflectionHelper.findField(AbstractHorseEntity.class, "field_110282_bM");
 
     public AbstractHorseGenetic(EntityType<? extends AbstractHorseGenetic> entityType, World worldIn)
     {
@@ -110,6 +114,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
 
     public boolean canEquipChest() {
         return true;
+    }
+
+    protected boolean canWearSaddle() {
+        return !this.getGenome().isMiniature();
     }
 
     @Override
@@ -312,6 +320,14 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.dataManager.set(DISPLAY_AGE, age);
     }
 
+    @Override
+    public int getAge() {
+        if (isChild() && getDisplayAge() >= 0) {
+            return getBirthAge();
+        }
+        return getDisplayAge();
+    }
+
     public void setGeneData(String genes) {
         this.dataManager.set(GENES, genes);
     }
@@ -389,6 +405,12 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         return HorseConfig.getHorseBirthAge();
     }
 
+    // Since miniaure horses are too small to ride, they can't be tamed the usual way
+    @Override
+    public boolean isTame() {
+        return getGenome().isMiniature() || super.isTame();
+    }
+
     protected SoundEvent getHurtSound(DamageSource damageSourceIn) {
         // Don't stop and rear in response to suffocation or cactus damage
         if (damageSourceIn != DamageSource.IN_WALL && damageSourceIn != DamageSource.CACTUS) {
@@ -435,7 +457,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             return true;
         }
         // If tame, equip chest
-        if (!this.hasChest() && itemstack.getItem() == Blocks.CHEST.asItem()) {
+        if (!this.hasChest() && itemstack.getItem() == Blocks.CHEST.asItem()
+                && this.canEquipChest()) {
             this.setChested(true);
             this.playChestEquipSound();
             if (!player.abilities.isCreativeMode) {
@@ -446,7 +469,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             return true;
         }
         // If tame, equip saddle
-        if (!this.isHorseSaddled() && itemstack.getItem() == Items.SADDLE) {
+        if (!this.isHorseSaddled() && itemstack.getItem() == Items.SADDLE
+            && !this.canWearSaddle()) {
              if (HorseConfig.COMMON.autoEquipSaddle.get()) {
                 if (!this.world.isRemote) {
                     ItemStack saddle = itemstack.split(1);
@@ -476,6 +500,49 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         return false;
     }
 
+    private double getRiderWeight(Entity rider) {
+        double weight = rider.getBoundingBox().getXSize()
+                            * rider.getBoundingBox().getYSize()
+                            * rider.getBoundingBox().getZSize();
+        if (rider instanceof AnimalEntity) {
+            weight *= 2;
+        }
+        // Adjust to avoid baby villagers being interpreted as weighing 19 pounds
+        if (rider instanceof AgeableEntity
+                && ((AgeableEntity)rider).isChild()) {
+            weight *= 2;
+        }
+        return weight;
+    }
+
+    @Override
+    protected boolean canFitPassenger(Entity passenger) {
+        // Riders must be peaceful
+        if (!passenger.getType().getClassification().getPeacefulCreature()) {
+            return false;
+        }
+        // No aquatic riders
+        if (passenger instanceof WaterMobEntity) {
+            return false;
+        }
+        // Ignore the size stuff if its disabled
+        if (!HorseConfig.COMMON.enableSizes.get()) {
+            return super.canFitPassenger(passenger);
+        }
+        // Max two riders
+        if (this.getPassengers().size() >= 2) {
+            return false;
+        }
+        // Calculate size of current passengers
+        double riderweight = 0;
+        for (Entity rider : this.getPassengers()) {
+            riderweight += getRiderWeight(rider);
+        }
+        // Calculate size of mounting entity
+        double weight = getRiderWeight(passenger);
+        return riderweight + weight < 0.65 * this.getGenome().getGeneticWeightKg() / 317.5;
+    }
+
     @Override
     // Before 1.16 this was public boolean processInteract(PlayerEntity player, Hand hand)
     public ActionResultType func_230254_b_(PlayerEntity player, Hand hand) {
@@ -485,13 +552,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 this.openGUI(player);
                 return ActionResultType.func_233537_a_(this.world.isRemote);
             }
-
-            if (this.isBeingRidden()) {
-                return super.func_230254_b_(player, hand);
-            }
         }
 
-        if (!itemstack.isEmpty()) {
+        // Only interact items with horses that aren't being ridden by another player
+        if (!itemstack.isEmpty() && !this.isBeingRidden()) {
             // Try to eat it
             if (this.isBreedingItem(itemstack)) {
                 // Eat the item
@@ -508,12 +572,12 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             }
         }
 
-        if (this.isChild()) {
-            return super.func_230254_b_(player, hand);
+        if (!this.isChild() && canFitPassenger(player)) {
+            this.mountTo(player);
+            return ActionResultType.func_233537_a_(this.world.isRemote);
         }
         // else
-        this.mountTo(player);
-        return ActionResultType.func_233537_a_(this.world.isRemote);
+        return super.func_230254_b_(player, hand);
     }
 
     protected void useGeneticAttributes()
@@ -667,7 +731,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 this.world.setEntityState(this, (byte)6);
                 return null;
             }
-            foal.setMotherSize(this.getGenome().getGeneticScale());
+            foal.setMotherSize(this.getGenome().getAdultScale());
             foal.setMale(rand.nextBoolean());
             foal.useGeneticAttributes();
             foal.setGrowingAge(HorseConfig.GROWTH.getMinAge());
@@ -808,42 +872,89 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     // Returns the Y offset from the entity's position for any entity riding this one.
     @Override
     public double getMountedYOffset() {
-        double coef = 0.833;
-        // Compensate for saddle
-        if (this.isHorseSaddled()) {
-            coef += 0.04;
-        }
-        return (double)this.getHeight() * coef;
+        return (double)this.getHeight() * 0.833 - 0.295;
+    }
+
+    /**
+     * returns true if all the conditions for steering the entity are met. For pigs, this is true if it is being ridden
+     * by a player and the player is holding a carrot-on-a-stick
+     */
+    @Override
+    public boolean canBeSteered() {
+        return this.getControllingPassenger() instanceof LivingEntity
+            && !(this.getControllingPassenger() instanceof AnimalEntity)
+            && (this.getControllingPassenger() instanceof PlayerEntity 
+                || !this.getLeashed());
     }
 
     @Override
-    // Overriden so passenger position white rearing depends on the horse's size
+    // Overriden so passenger position while rearing depends on the horse's size,
+    // also to support multiple passengers.
     public void updatePassenger(Entity passenger) {
-        super.updatePassenger(passenger);
-        if (passenger instanceof MobEntity) {
-            MobEntity mobentity = (MobEntity)passenger;
-            this.renderYawOffset = mobentity.renderYawOffset;
+        if (!this.isPassenger(passenger)) {
+            return;
         }
+        // Do not call super.updatePassenger. AbstractHorseEntity's implementation
+        // sets this's renderYawOffset to that of the passenger without
+        // checking that the passenger can steer.
+        // Setting rotationYaw happens in AbstractHorseEntity.travel
+
+        float xzOffset = -0.1f;
+        if (this.getPassengers().size() > 1) {
+            int i = this.getPassengers().indexOf(passenger);
+            if (i == 0) {
+                xzOffset = 0.1f;
+            } else {
+                xzOffset = -0.5f;
+            }
+        }
+        xzOffset *= this.getGenome().getAdultScale();
 
         double yOffset = this.getMountedYOffset() + passenger.getYOffset();
-        if (passenger instanceof PlayerEntity) {
-            yOffset += PLAYER_OFFSET;
+        // Compensate for saddle for players
+        if (passenger instanceof PlayerEntity && this.isHorseSaddled()) {
+            yOffset += 0.04 * this.getGenome().getAdultScale();
         }
-        float prevRearingAmount = this.getRearingAmount(0F);
+        float prevRearingAmount = 0;
+        try {
+            prevRearingAmount = (Float)rearingAmountField.get(this);
+        }
+        catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
         if (prevRearingAmount > 0.0F) {
+            float xLoc = this.getWidth() + xzOffset;
             float facingX = MathHelper.sin(this.renderYawOffset * ((float)Math.PI / 180F));
             float facingZ = MathHelper.cos(this.renderYawOffset * ((float)Math.PI / 180F));
             // A rearing amount of 1 corresponds to 45 degrees up
             float rearAngle = prevRearingAmount * (float)Math.PI / 4F;
-            float rearXZ = (1F - MathHelper.cos(rearAngle)) * this.getWidth();
-            float rearY = MathHelper.sin(rearAngle) * this.getWidth() / 2F;
-            passenger.setPosition(this.getPosX() + (double)(rearXZ * facingX), this.getPosY() + yOffset + (double)rearY, this.getPosZ() - (double)(rearXZ * facingZ));
+            float rearXZ = -1f * (1F - MathHelper.cos(rearAngle)) * xLoc;
+            float rearY = MathHelper.sin(rearAngle) * xLoc / 2F;
+            xzOffset += rearXZ;
+            yOffset += rearY;
             if (passenger instanceof LivingEntity) {
                 ((LivingEntity)passenger).renderYawOffset = this.renderYawOffset;
             }
         }
-        else {
-            passenger.setPosition(this.getPosX(), this.getPosY() + yOffset, this.getPosZ());
+
+
+        // Here boats use this.rotationYaw, but we use this.renderYawOffset,
+        // because this.rotationYaw doesn't change when the unsaddled horse moves around
+        Vector3d vector3d = (new Vector3d((double)xzOffset, 0.0D, 0.0D)).rotateYaw(-this.renderYawOffset * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
+        passenger.setPosition(this.getPosX() + vector3d.x, this.getPosY() + yOffset, this.getPosZ() + vector3d.z);
+        this.applyYaw(passenger);
+        if (passenger instanceof AnimalEntity && this.getPassengers().size() > 1) {
+            int degrees = passenger.getEntityId() % 2 == 0 ? 90 : 270;
+            passenger.setRenderYawOffset(((AnimalEntity)passenger).renderYawOffset + (float)degrees);
+            passenger.setRotationYawHead(passenger.getRotationYawHead() + (float)degrees);
+        }
+    }
+
+    private void applyYaw(Entity entity) {
+        if (!(entity instanceof PlayerEntity)) {
+            entity.setRenderYawOffset(this.renderYawOffset);
+            entity.rotationYaw = this.renderYawOffset;
+            entity.setRotationYawHead(this.renderYawOffset);
         }
     }
 
@@ -892,12 +1003,13 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     public ILivingEntityData onInitialSpawn(IServerWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag)
     {
         spawnDataIn = super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
-        this.randomize();
+        this.randomize(getDefaultBreed());
+        this.setMotherSize(this.getGenome().getAdultScale());
         return spawnDataIn;
     }
 
-    private void randomize() {
-        this.getGenome().randomize(getDefaultBreed());
+    private void randomize(Breed breed) {
+        this.getGenome().randomize(breed);
         // Choose a random age
         this.trueAge = this.rand.nextInt(HorseConfig.GROWTH.getMaxAge());
         // This preserves the ratio of child/adult
@@ -912,7 +1024,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     }
 
     public void initFromVillageSpawn() {
-        this.randomize();
+        this.randomize(getDefaultBreed());
         // All village horses are easier to tame
         this.increaseTemper(this.getMaxTemper() / 2);
         if (!this.isChild() && rand.nextInt(16) == 0) {
@@ -923,39 +1035,32 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
     }
 
-    public float fractionGrown() {
-        if (this.isChild()) {
-            if (HorseConfig.GROWTH.growGradually.get()) {
-                int minAge = HorseConfig.GROWTH.getMinAge();
-                int age = Math.min(0, this.getDisplayAge());
-                // 0 can't be accurate so assume it hasn't been set yet
-                if (this.getDisplayAge() == 0) {
-                    age = minAge;
-                }
-                float fractionGrown = (minAge - age) / (float)minAge;
-                return Math.max(0, fractionGrown);
-            }
-            return 0;
-        }
-        return 1;
-    }
-
     // Total size change based on age that does not change proportions
     public float getProportionalAgeScale() {
-        // TODO: use size genes once they exist and once I've found how to make
-        // players sit at the right height for different sizes
-        float ageScale = 0.5f + 0.5f * fractionGrown();
-        return ageScale / getGangliness();
+        return getGenome().getCurrentScale() / getGangliness();
     }
 
     // The horse model uses this number to decide how foal-shaped to make the
     // horse. 0.5 is the most foal-shaped and 1 is the most adult-shaped.
     public float getGangliness() {
-        return 0.5f + 0.5f * fractionGrown() * fractionGrown();
+        return 0.5f + 0.5f * getFractionGrown() * getFractionGrown();
     }
 
     @Override
+    // Affects hitbox size.
     public float getRenderScale() {
-        return this.getGenome().getGeneticScale() * super.getRenderScale();
+        return this.getGenome().getAdultScale() * super.getRenderScale();
+    }
+
+    // func_230264_L__() = canBeSaddled()
+    @Override
+    public boolean func_230264_L__() {
+        return !this.getGenome().isMiniature() && super.func_230264_L__();
+    }
+
+    @Override
+    public boolean canBePushed() {
+        return !(this.isBeingRidden() 
+            && this.getControllingPassenger() instanceof PlayerEntity);
     }
 }

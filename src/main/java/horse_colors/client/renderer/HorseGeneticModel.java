@@ -282,14 +282,14 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         this.muleRightChest.showModel = hasChest;
 
         boolean isSaddled = entityIn.isHorseSaddled();
-        boolean isRidden = entityIn.isBeingRidden();
+        boolean showReins = entityIn.canPassengerSteer();
 
         for(ModelRenderer tack_piece : this.tackArray) {
             tack_piece.showModel = isSaddled;
         }
 
         for(ModelRenderer extra_tack : this.extraTackArray) {
-            extra_tack.showModel = isRidden && isSaddled;
+            extra_tack.showModel = showReins && isSaddled;
         }
 
         // Probably because the body only rotates for rearing
@@ -426,7 +426,7 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         float notRearingAmount = 1.0F - rearingAmount;
         boolean isSwishingTail = abstracthorse.tailCounter != 0;
         boolean isSaddled = abstracthorse.isHorseSaddled();
-        boolean isBeingRidden = abstracthorse.isBeingRidden();
+        boolean areStirrupsForward = abstracthorse.canPassengerSteer();
         float ticks = (float)entityIn.ticksExisted + partialTickTime;
         float legRotationBase = MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI);
         float legRotation1 = legRotationBase * 0.8F * limbSwingAmount;
@@ -477,7 +477,7 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
             this.muleLeftChest.rotationPointY = this.muleRightChest.rotationPointY;
             this.muleLeftChest.rotationPointZ = this.muleRightChest.rotationPointZ;
 
-            if (isBeingRidden)
+            if (areStirrupsForward)
             {
                 this.horseLeftSaddleRope.rotateAngleX = -1.0471976F;
                 this.horseRightSaddleRope.rotateAngleX = -1.0471976F;

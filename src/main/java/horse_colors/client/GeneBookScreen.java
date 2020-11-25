@@ -95,7 +95,7 @@ public class GeneBookScreen extends Screen {
             String pagetext = this.getPageText(page);
             itextproperties = ITextProperties.func_240652_a_(pagetext);
         }
-        return this.font.func_238425_b_(itextproperties, lineWrapWidth);
+        return this.font.trimStringToWidth(itextproperties, lineWrapWidth);
     }
 
     private void renderPage(MatrixStack matrixStack, int pagenum, List<IReorderingProcessor> cachedPageLines, int x) {
@@ -124,7 +124,7 @@ public class GeneBookScreen extends Screen {
                 String text = contents.get(ch).get(ln);
                 ITextProperties itextproperties = ITextProperties.func_240652_a_(text);
                 // Get the number of lines for this block of text
-                int wrapped = this.font.func_238420_b_().func_238362_b_(itextproperties, lineWrapWidth, Style.EMPTY).size();
+                int wrapped = this.font.getCharacterManager().func_238362_b_(itextproperties, lineWrapWidth, Style.EMPTY).size();
                 if (lines + wrapped > linesPerPage && lines > 0) {
                     pages.add(s);
                     s = "";
@@ -140,7 +140,7 @@ public class GeneBookScreen extends Screen {
     }
 
    protected void addDoneButton() {
-      this.addButton(new Button(this.width / 2 - 100, 196, 200, 20, DialogTexts.field_240632_c_, (p_214161_1_) -> {
+      this.addButton(new Button(this.width / 2 - 100, 196, 200, 20, DialogTexts.GUI_DONE, (param) -> {
          this.minecraft.displayGuiScreen((Screen)null);
       }));
    }

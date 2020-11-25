@@ -71,12 +71,11 @@ public class Spawns {
         List<Spawners> entriesToRemove = new ArrayList<>();
         List<Spawners> originalSpawns = event.getSpawns().getSpawner(EntityClassification.CREATURE);
         for (Spawners entry : originalSpawns) {
-            // field_242588_c is the entity type
-            if (entry.field_242588_c == EntityType.HORSE && HorseConfig.SPAWN.blockVanillaHorseSpawns.get()) {
+            if (entry.type == EntityType.HORSE && HorseConfig.SPAWN.blockVanillaHorseSpawns.get()) {
                 HorseColors.logger.debug("Removing vanilla horse spawn: " + entry);
                 entriesToRemove.add(entry);
             }
-            else if (entry.field_242588_c == EntityType.DONKEY && HorseConfig.SPAWN.blockVanillaDonkeySpawns.get()) {
+            else if (entry.type == EntityType.DONKEY && HorseConfig.SPAWN.blockVanillaDonkeySpawns.get()) {
                 HorseColors.logger.debug("Removing vanilla donkey spawn: " + entry);
                 entriesToRemove.add(entry);
             }
@@ -108,7 +107,7 @@ public class Spawns {
         PlainsVillagePools.init();
         HorseColors.logger.debug("Modifying village animal spawns");
         ResourceLocation animalsLoc = new ResourceLocation("village/common/animals");
-        java.util.Optional<JigsawPattern> animalsOpt = WorldGenRegistries.field_243656_h.func_241873_b(animalsLoc);
+        java.util.Optional<JigsawPattern> animalsOpt = WorldGenRegistries.JIGSAW_POOL.getOptional(animalsLoc);
         if (!animalsOpt.isPresent()) {
             System.err.println("Trying to overwrite village spawns too soon");
             return;

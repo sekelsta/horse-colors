@@ -258,7 +258,7 @@ public class BaseEquine {
             GENES.put("health" + i, halfAndHalf);
         }
         for (int i = 0; i < 8; ++i) {
-            GENES.put("speedjump" + i, halfAndHalf);
+            GENES.put("athletics" + i, halfAndHalf);
         }
         // Sixteen equally likely alleles for each immune diversity gene
         ArrayList<Float> sixteen = new ArrayList<>();
@@ -269,5 +269,24 @@ public class BaseEquine {
             GENES.put("immune" + i, sixteen);
             GENES.put("mhc" + i, sixteen);
         }
+        ImmutableList<Float> five = ImmutableList.of(0.2f, 0.4f, 0.6f, 0.8f, 1f);
+        for (int i = 0; i < 8; ++i) {
+            GENES.put("size_minor" + i, five);
+        }
+
+        ArrayList<Float> size_subtle = new ArrayList();
+        size_subtle.add(0.2f);
+        for (int i = 1; i < 9; ++i) {
+            size_subtle.add(0.1f * (i + 2));
+        }
+        for (int i = 0; i < 8; ++i) {
+            GENES.put("size_subtle" + i, size_subtle);
+        }
+
+        ImmutableList<Float> one = ImmutableList.of(1f);
+        GENES.put("size0", one);
+        GENES.put("size2", one);
+        GENES.put("size3", one);
+        GENES.put("size4", one);
     }
 }

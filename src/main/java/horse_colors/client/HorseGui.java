@@ -10,6 +10,9 @@ import net.minecraft.entity.passive.horse.LlamaEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.HorseInventoryContainer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.GuiOpenEvent;
@@ -86,6 +89,36 @@ public class HorseGui extends HorseInventoryScreen {
         }
 
         InventoryScreen.drawEntityOnScreen(i + 51, j + 60, 17, (float)(i + 51) - mouseX, (float)(j + 75 - 50) - mouseY, this.horseGenetic);
+    }
+
+    @Override
+    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int x, int y) {
+        super.drawGuiContainerForegroundLayer(matrixStack, x, y);
+        if (!HorseConfig.COMMON.enableSizes.get() || horseGenetic.isChild()) {
+            // Avoid showing an inaccurate height for foals
+            return;
+        }
+        float height = horseGenetic.getGenome().getGeneticHeightCm();
+        int cm = Math.round(height);
+        int inches = Math.round(height / 2.54f);
+        int hands = inches / 4;
+        int point = inches % 4;
+        String translationKey = HorseColors.MODID + ".gui.height";
+        ITextComponent heightText = new TranslationTextComponent(
+                                        translationKey, hands, point, cm);
+        String heightString = heightText.getStringTruncated(1000);
+        int yy = 20;
+        for (String line : heightString.split("\n")) {
+            // matrix stack, text, x, y, color
+            this.font.func_243248_b(matrixStack, new StringTextComponent(line), 82, yy, 0x404040);
+            yy += 9;
+        }
+        if (horseGenetic.getGenome().isMiniature()) {
+            this.font.func_243248_b(matrixStack, new TranslationTextComponent(HorseColors.MODID + ".gui.miniature"), 82, yy, 0x404040);
+        }
+        else if (horseGenetic.getGenome().isLarge()) {
+            this.font.func_243248_b(matrixStack, new TranslationTextComponent(HorseColors.MODID + ".gui.large"), 82, yy, 0x404040);
+        }
     }
 
     public static void replaceGui(GuiOpenEvent event) {

@@ -108,6 +108,7 @@ public class HorseGenome extends Genome {
         "frame", 
         "silver", 
         "dark_red",
+        "liver_boost",
         "LCORL",
         "HMGA2",
         "mushroom",
@@ -171,7 +172,27 @@ public class HorseGenome extends Genome {
         "mhc5",
         "mhc6",
         "mhc7",
-        "liver_boost",
+        "size_minor0",
+        "size_minor1",
+        "size_minor2",
+        "size_minor3",
+        "size_minor4",
+        "size_minor5",
+        "size_minor6",
+        "size_minor7",
+        "size0",
+        "size1",
+        "size2",
+        "size3",
+        "size4",
+        "size_subtle0",
+        "size_subtle1",
+        "size_subtle2",
+        "size_subtle3",
+        "size_subtle4",
+        "size_subtle5",
+        "size_subtle6",
+        "size_subtle7",
         "leg_stripes",   // TODO
         "stripe_spacing" // TODO
     );
@@ -180,7 +201,9 @@ public class HorseGenome extends Genome {
     private static final ImmutableList<String> chromosomes = ImmutableList.of("0", "1", "2", "3", "speed", "jump", "health", "mhc1", "mhc2", "immune", "random", "4");
 
     public HorseGenome(Species species, IGeneticEntity entityIn) {
-        super(species, entityIn, new RandomSupplier(ImmutableList.of("leg_white", "face_white", "star_choice", "roan_density", "liver_darkness", "shade")));
+        super(species, entityIn, new RandomSupplier(ImmutableList.of("leg_white",
+                "face_white", "star_choice", "roan_density", "liver_darkness", 
+                "shade", "size")));
     }
 
     public HorseGenome(Species species) {
@@ -224,9 +247,7 @@ public class HorseGenome extends Genome {
 
             case "cream":
             case "extension":
-            case "agouti":
-            case "LCORL":
-            case "HMGA2": return 3;
+            case "agouti": return 3;
 
             case "dun": return 2;
 
@@ -501,8 +522,17 @@ public class HorseGenome extends Genome {
                             + this.sumGenes("health", 8, 12)
                             + this.getImmuneHealth();
         float maxHealth = 15.0F + healthStat * 0.5F;
+        if (HorseConfig.COMMON.enableSizes.get()) {
+            // Adjust so a very small horse can have 10-20 health while a very
+            // large horse can have about 20-45 health.
+            // On the small end, compare to cows which have 10 health.
+            // On the large end, compare to players which have 20 - by the time
+            // a horse is big enough to have 40 health, it can carry two players.
+            maxHealth *= Math.min(this.getAdultScale(), 1.5f);
+        }
         maxHealth += this.getBaseHealth();
-        return maxHealth;
+        // Horse always have at least 4 health
+        return Math.max(maxHealth, 4);
     }
 
     // A special case because it has two different alleles
@@ -511,10 +541,18 @@ public class HorseGenome extends Genome {
                 + countAlleles("KIT", HorseAlleles.KIT_TOBIANO_W20);
     }
 
+    // Helper function for perfectly codominant size genes
+    private float getSizeContribution(String gene, int allele, float size, float coef) {
+        for (int i = 0; i < countAlleles(gene, allele); ++i) {
+            size *= coef;
+        }
+        return size;
+    }
+
     // Genetic-based size, which unlike age-based size should affect the hitbox
     // This is a multiplier for both width and height, so adjust for that when
     // calculating weight.
-    public float getGeneticScale() {
+    private float getGeneticScale() {
         if (!HorseConfig.COMMON.enableSizes.get()) {
             return 1f;
         }
@@ -525,9 +563,7 @@ public class HorseGenome extends Genome {
         // C/C warmbloods as ~169 cm.
         // I've assumed the relationship is multiplicative.
         // 0 is T, 1 is C
-        for (int i = 0; i < this.countAlleles("LCORL", 1); ++i) {
-            size *= 1.03f;
-        }
+        size = getSizeContribution("LCORL", 1, size, 1.03f);
         // HMGA2 is based off of information from the Center for Animal Genetics
         // They list G/G ponies as 104 cm tall at the withers, G/A as 98 cm,
         // and A/A as 84 cm.
@@ -539,13 +575,154 @@ public class HorseGenome extends Genome {
         else if (this.hasAllele("HMGA2", 1)) {
             size *= 0.94f;
         }
+        // Minor size variations
+        size = getSizeContribution("size_minor0", 1, size, 1.002f);
+        size = getSizeContribution("size_minor0", 2, size, 1f/1.002f);
+        size = getSizeContribution("size_minor0", 3, size, 1.009f);
+        size = getSizeContribution("size_minor0", 4, size, 1f/1.009f);
+
+        size = getSizeContribution("size_minor1", 1, size, 1.003f);
+        size = getSizeContribution("size_minor1", 2, size, 1f/1.003f);
+        size = getSizeContribution("size_minor1", 3, size, 1.015f);
+        size = getSizeContribution("size_minor1", 4, size, 1f/1.015f);
+
+        size = getSizeContribution("size_minor2", 1, size, 1.001f);
+        size = getSizeContribution("size_minor2", 2, size, 1f/1.001f);
+        size = getSizeContribution("size_minor2", 3, size, 1.012f);
+        size = getSizeContribution("size_minor2", 4, size, 1f/1.012f);
+
+        size = getSizeContribution("size_minor3", 1, size, 1.001f);
+        size = getSizeContribution("size_minor3", 2, size, 1f/1.001f);
+        size = getSizeContribution("size_minor3", 3, size, 1.01f);
+        size = getSizeContribution("size_minor3", 4, size, 1f/1.01f);
+
+        size = getSizeContribution("size_minor4", 1, size, 1.002f);
+        size = getSizeContribution("size_minor4", 2, size, 1f/1.002f);
+        size = getSizeContribution("size_minor4", 3, size, 1.008f);
+        size = getSizeContribution("size_minor4", 4, size, 1f/1.008f);
+
+        size = getSizeContribution("size_minor5", 1, size, 1.001f);
+        size = getSizeContribution("size_minor5", 2, size, 1f/1.001f);
+        size = getSizeContribution("size_minor5", 3, size, 1.005f);
+        size = getSizeContribution("size_minor5", 4, size, 1f/1.005f);
+
+        size = getSizeContribution("size_minor6", 1, size, 1.0025f);
+        size = getSizeContribution("size_minor6", 2, size, 1f/1.0025f);
+        size = getSizeContribution("size_minor6", 3, size, 1.005f);
+        size = getSizeContribution("size_minor6", 4, size, 1f/1.005f);
+
+        size = getSizeContribution("size_minor7", 1, size, 1.0025f);
+        size = getSizeContribution("size_minor7", 2, size, 1f/1.0025f);
+        size = getSizeContribution("size_minor7", 3, size, 1.005f);
+        size = getSizeContribution("size_minor7", 4, size, 1f/1.005f);
+
+        // More small effect genes
+        for (int i = 0; i < 8; ++i) {
+            for (int n = 1; n < 5; ++n) {
+                float x = 1f + 0.001f * n;
+                size = getSizeContribution("size_subtle" + i, 1, size, x);
+                size = getSizeContribution("size_subtle" + i, 1, size, 1f/x);
+            }
+        }
+
+        // Larger effect size genes
+        // Imprinted gene, unmethylated copy inherited from the mother
+        if (this.getAllele("size0", 0) == 1) {
+            size *= 1.06f;
+        }
+        // Mostly dominant
+        if (this.isHomozygous("size1", 1)) {
+            size *= 1.1f;
+        }
+        else if (this.hasAllele("size1", 1)) {
+            size *= 1.08f;
+        }
+        // Incomplete dominant
+        size = getSizeContribution("size2", 1, size, 1.002f);
+        size = getSizeContribution("size2", 2, size, 1.03f);
+        size = getSizeContribution("size2", 3, size, 1.05f);
+        // Imprinted gene, unmethylated copy inherited from the father
+        if (this.getAllele("size3", 1) == 1) {
+            size /= 1.08;
+        }
+        // Larger effects (smaller horse) semi-recessive
+        float[] size6 = {1f, 1f};
+        for (int n = 0; n < 2; ++n) {
+            switch(getAllele("size4", n)) {
+                case 1:
+                    size6[n] = 1/1.005f;
+                    break;
+                case 2:
+                    size6[n] = 1/1.02f;
+                    break;
+                case 3:
+                    size6[n] = 1/1.05f;
+                    break;
+                case 4:
+                    size6[n] = 1/1.06f;
+            }
+        }
+        float smaller = Math.min(size6[0], size6[1]);
+        float larger = Math.max(size6[0], size6[1]);
+        size *= Math.pow(smaller, 0.4) * Math.pow(larger, 1.6);
+        
+
+        // A little bit of randomness to size
+        int r = getRandom("size") >>> 1;
+        size *= 1f + 0.01f * (float)(r % 64 - 32)/32f;
+
         // Donkeys are smaller
         if (this.species == Species.DONKEY) {
             size *= 0.9f;
         }
-        // Weighted arithmetic average with mother's size
-        size = (float)(Math.pow(size, 0.97) * Math.pow(entity.getMotherSize(), 0.03));
         return size;
+    }
+
+    // Numbers here are guided by
+    // https://royalsocietypublishing.org/doi/pdf/10.1098/rspb.1938.0029
+    // (a study of shetland-shire crosses)
+    public float getCurrentScale() {
+        // Birth size is restricted by the mother's size and by foal's growth
+        float birthSize = (float)Math.min(
+            // 0.46 scale cubed makes it 10% of the mother's weight
+            0.46 * entity.getMotherSize(),
+            0.55 * this.getAdultScale()
+        );
+        float f = entity.getFractionGrown();
+        f = Math.min(1f, (Math.max(0f, f)));
+        return getAdultScale() * f + birthSize * (1f - f);
+    }
+
+    // Scale for an adult horse after accounting for genetic and environmental factors
+    public float getAdultScale() {
+        float size = this.getGeneticScale();
+        // Weighted geometric average with mother's size
+        return (float)(Math.pow(size, 0.7) * Math.pow(entity.getMotherSize(), 0.3));
+    }
+
+    // Returns adult weight in kilograms
+    public float getGeneticWeightKg() {
+        // A full-grown horse with scale 1 is 132 cm tall and weighs ~800 pounds
+        float scale = this.getAdultScale();
+        return 362.9f * scale * scale * scale;
+    }
+
+    // Returns adult height in centimeters
+    public float getGeneticHeightCm() {
+        float scale = this.getAdultScale();
+        return 132f * scale;
+    }
+
+    public boolean isMiniature() {
+        // Assuming the rider and saddle together weight 140 pounds, a horse
+        // needs to weigh at least 700 pounds to carry a rider
+        return getGeneticWeightKg() < 317.5;
+    }
+
+    public boolean isLarge() {
+        // Assuming two riders and a large saddle weigh 280 pounds, a horse
+        // needs to be at least 1400 pounds to carry them both
+        return getGeneticWeightKg() > 635;
     }
 
     // Return true if the client needs to know the age to render properly,
@@ -673,6 +850,9 @@ public class HorseGenome extends Genome {
         health += "  " + Util.translate("stats.health2") + ": " + judgeStat("health", 4, 8) + "\n";
         health += "  " + Util.translate("stats.health3") + ": " + judgeStat("health", 8, 12) + "\n";
         health += "  " + Util.translate("stats.immune") + ": " + judgeStat((int)getImmuneHealth(), "stats.immune.");
+        if (HorseConfig.COMMON.enableSizes.get()) {
+            health += "\n" + Util.translate("stats.health_size_note");
+        }
         String healthEffects = "";
         if (HorseConfig.GENETICS.enableHealthEffects.get()) {
             if (getDeafHealthLoss() > 0.5f) {
@@ -726,11 +906,13 @@ public class HorseGenome extends Genome {
         ArrayList<String> sizes = new ArrayList<>();
         sizes.add(Util.translate("book.genetic_size"));
         listGenes(sizes, ImmutableList.of("LCORL", "HMGA2"));
+        sizes.add(""); // Blank line
+        sizes.add(Util.translate("book.size_disclaimer"));
         // TODO: add a note that unknown genes and envorinmental factors may affect size
         if (HorseConfig.GENETICS.bookShowsGenes.get()) {
             contents.add(genetic);
         }
-        if (HorseConfig.COMMON.enableSizes.get()) {
+        if (HorseConfig.COMMON.enableSizes.get() && this.species != Species.DONKEY) {
             contents.add(sizes);
         }
         return contents;
@@ -851,6 +1033,15 @@ public class HorseGenome extends Genome {
                 setAllele("mhc" + i, n, (int)(mhc & 15));
                 mhc = mhc >>> 4;
             }
+        }
+        // Initialize to always the same seed for each horse
+        // Doesn't really matter which one
+        Random randgenes = new Random(getRandom("leg_white"));
+        // Randomly set minor size genes
+        for (int n = 0; n < 2; ++n) {
+            for (int i = 0; i < 8; ++i) {
+                setAllele("size_minor" + i, n, (randgenes.nextInt() >>> 1) % 5);
+            }  
         }
     }
 
