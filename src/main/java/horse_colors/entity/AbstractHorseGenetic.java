@@ -26,7 +26,6 @@ import net.minecraft.entity.item.ExperienceOrbEntity;
 import net.minecraft.entity.monster.MonsterEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.horse.*;
-import net.minecraft.entity.passive.WaterMobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.SpawnReason;
@@ -521,10 +520,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         if (!passenger.getType().getClassification().getPeacefulCreature()) {
             return false;
         }
-        // No aquatic riders
-        if (passenger instanceof WaterMobEntity) {
-            return false;
-        }
         // Ignore the size stuff if its disabled
         if (!HorseConfig.COMMON.enableSizes.get()) {
             return super.canFitPassenger(passenger);
@@ -540,7 +535,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
         // Calculate size of mounting entity
         double weight = getRiderWeight(passenger);
-        return riderweight + weight < 0.65 * this.getGenome().getGeneticWeightKg() / 317.5;
+        // The player's hitbox is 0.6 * 0.6 * 1.8, so this will almost exactly allow
+        // them to ride any horse heavier than the miniature cutoff
+        return riderweight + weight < 0.648001 
+            * this.getGenome().getGeneticWeightKg() / HorseGenome.MINIATURE_CUTOFF;
     }
 
     @Override

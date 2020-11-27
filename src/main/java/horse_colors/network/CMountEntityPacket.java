@@ -9,6 +9,7 @@ import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.passive.WaterMobEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.fml.network.NetworkEvent.Context;
@@ -42,6 +43,10 @@ public class CMountEntityPacket {
     private boolean tryMounting(Entity rider, Entity mount) {
         // Ban boats and whatnot from riding
         if (!(rider instanceof LivingEntity)) {
+            return false;
+        }
+        // No aquatic riders
+        if (rider instanceof WaterMobEntity) {
             return false;
         }
         if (!(mount instanceof IGeneticEntity)) {

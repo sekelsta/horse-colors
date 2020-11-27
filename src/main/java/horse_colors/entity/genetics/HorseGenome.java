@@ -197,6 +197,8 @@ public class HorseGenome extends Genome {
         "stripe_spacing" // TODO
     );
 
+    public static final double MINIATURE_CUTOFF = 317.5;
+
     // For converting to and from the save format used in horse_colors-1.4.x and earlier
     private static final ImmutableList<String> chromosomes = ImmutableList.of("0", "1", "2", "3", "speed", "jump", "health", "mhc1", "mhc2", "immune", "random", "4");
 
@@ -716,7 +718,7 @@ public class HorseGenome extends Genome {
     public boolean isMiniature() {
         // Assuming the rider and saddle together weight 140 pounds, a horse
         // needs to weigh at least 700 pounds to carry a rider
-        return getGeneticWeightKg() < 317.5;
+        return getGeneticWeightKg() < MINIATURE_CUTOFF;
     }
 
     public boolean isLarge() {
