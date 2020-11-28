@@ -115,8 +115,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         return true;
     }
 
+    // Wrapper to avoid nonsense name
     protected boolean canWearSaddle() {
-        return !this.getGenome().isMiniature();
+        return this.func_230264_L__();
     }
 
     @Override
@@ -469,7 +470,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
         // If tame, equip saddle
         if (!this.isHorseSaddled() && itemstack.getItem() == Items.SADDLE
-            && !this.canWearSaddle()) {
+            && this.canWearSaddle()) {
              if (HorseConfig.COMMON.autoEquipSaddle.get()) {
                 if (!this.world.isRemote) {
                     ItemStack saddle = itemstack.split(1);
