@@ -123,6 +123,11 @@ public class CMountEntityPacket {
                     return;
                 }
             }
+            // Only if the target had a passenger before the click, though
+            if (target.getPassengers().size() == 1 
+                    && target.getControllingPassenger() == sender) {
+                return;
+            }
             target.removePassengers();
         }
     }
