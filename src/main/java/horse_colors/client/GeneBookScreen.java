@@ -26,7 +26,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import sekelsta.horse_colors.HorseColors;
-import sekelsta.horse_colors.genetics.Genome;
+import sekelsta.horse_colors.entity.genetics.Genome;
 
 @OnlyIn(Dist.CLIENT)
 public class GeneBookScreen extends Screen {

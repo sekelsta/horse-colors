@@ -1,6 +1,4 @@
 package sekelsta.horse_colors.util;
-import sekelsta.horse_colors.HorseColors;
-import sekelsta.horse_colors.genetics.HorseColorCalculator;
 
 import net.minecraft.block.CarpetBlock;
 import net.minecraft.item.BlockItem;
@@ -10,6 +8,9 @@ import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import sekelsta.horse_colors.HorseColors;
+import sekelsta.horse_colors.entity.genetics.HorseColorCalculator;
 
 public class HorseArmorer
 {

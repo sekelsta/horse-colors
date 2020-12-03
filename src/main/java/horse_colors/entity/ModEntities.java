@@ -1,9 +1,6 @@
 package sekelsta.horse_colors.entity;
-import sekelsta.horse_colors.HorseColors;
-import sekelsta.horse_colors.CreativeTab;
-import sekelsta.horse_colors.config.HorseConfig;
 
-import sekelsta.horse_colors.renderer.HorseGeneticRenderer;
+import java.util.*;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
@@ -31,11 +28,10 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
+import sekelsta.horse_colors.HorseColors;
+import sekelsta.horse_colors.CreativeTab;
+import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.client.renderer.HorseGeneticRenderer;
 
 @Mod.EventBusSubscriber(modid = HorseColors.MODID, bus = Bus.MOD)
 public class ModEntities {
@@ -99,8 +95,8 @@ public class ModEntities {
         public static void registerSpawnEggs(RegistryEvent.Register<Item> event) {
 
             event.getRegistry().register(HORSE_SPAWN_EGG);
-            event.getRegistry().register(DONKEY_SPAWN_EGG);
-            event.getRegistry().register(MULE_SPAWN_EGG);
+            //event.getRegistry().register(DONKEY_SPAWN_EGG);
+            //event.getRegistry().register(MULE_SPAWN_EGG);
         }
 
     }
@@ -119,9 +115,9 @@ public class ModEntities {
         addSpawn(HORSE_GENETIC, horsePlainsWeight, 2, 6, BiomeDictionary.Type.PLAINS);
         int horseSavannaWeight = (int)Math.round(1 * HorseConfig.SPAWN.horseSpawnMultiplier.get());
         addSpawn(HORSE_GENETIC, horseSavannaWeight, 2, 6, BiomeDictionary.Type.SAVANNA);
-        int donkeyWeight = (int)Math.round(1 * HorseConfig.SPAWN.donkeySpawnMultiplier.get());
+        /*int donkeyWeight = (int)Math.round(1 * HorseConfig.SPAWN.donkeySpawnMultiplier.get());
         addSpawn(DONKEY_GENETIC, donkeyWeight, 1, 3, BiomeDictionary.Type.PLAINS);
-        addSpawn(DONKEY_GENETIC, donkeyWeight, 1, 1, BiomeDictionary.Type.SAVANNA);
+        addSpawn(DONKEY_GENETIC, donkeyWeight, 1, 1, BiomeDictionary.Type.SAVANNA);*/
     }
 
     private static void addSpawn(EntityType<? extends LivingEntity> entity, int weight, int minHerdSize, int maxHerdSize, BiomeDictionary.Type biometype) {
@@ -157,11 +153,11 @@ public class ModEntities {
                     if (entry.entityType == EntityType.HORSE && HorseConfig.SPAWN.blockVanillaHorseSpawns.get()) {
                         HorseColors.logger.debug("Removing vanilla horse spawn: " + entry + " from biome " + biome);
                         horseSpawns.add(entry);
-                    }
+                    }/*
                     else if (entry.entityType == EntityType.DONKEY && HorseConfig.SPAWN.blockVanillaDonkeySpawns.get()) {
                         HorseColors.logger.debug("Removing vanilla donkey spawn: " + entry + " from biome " + biome);
                         horseSpawns.add(entry);
-                    }
+                    }*/
                 }
                 for (Biome.SpawnListEntry horseSpawn : horseSpawns) {
                     spawns.remove(horseSpawn);

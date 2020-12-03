@@ -15,7 +15,7 @@ import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 
 import sekelsta.horse_colors.config.HorseConfig;
-import sekelsta.horse_colors.genetics.IGeneticEntity;
+import sekelsta.horse_colors.entity.genetics.IGeneticEntity;
 
 public class GenderedBreedGoal extends BreedGoal {
 
