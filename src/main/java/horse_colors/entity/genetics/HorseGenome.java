@@ -690,6 +690,10 @@ public class HorseGenome extends Genome {
             0.46 * entity.getMotherSize(),
             0.55 * this.getAdultScale()
         );
+        // If sizes aren't enabled, the mother's size shouldn't have an effect
+        if (!HorseConfig.COMMON.enableSizes.get()) {
+            birthSize = 0.46f;
+        }
         float f = entity.getFractionGrown();
         f = Math.min(1f, (Math.max(0f, f)));
         return getAdultScale() * f + birthSize * (1f - f);
@@ -699,7 +703,10 @@ public class HorseGenome extends Genome {
     public float getAdultScale() {
         float size = this.getGeneticScale();
         // Weighted geometric average with mother's size
-        return (float)(Math.pow(size, 0.7) * Math.pow(entity.getMotherSize(), 0.3));
+        if (HorseConfig.COMMON.enableSizes.get()) {
+            size = (float)(Math.pow(size, 0.7) * Math.pow(entity.getMotherSize(), 0.3));
+        }
+        return size;
     }
 
     // Returns adult weight in kilograms

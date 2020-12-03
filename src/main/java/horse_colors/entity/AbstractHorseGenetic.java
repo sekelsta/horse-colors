@@ -1054,7 +1054,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     // func_230264_L__() = canBeSaddled()
     @Override
     public boolean func_230264_L__() {
-        return !this.getGenome().isMiniature() && super.func_230264_L__();
+        return (!HorseConfig.COMMON.enableSizes.get() || !this.getGenome().isMiniature()) 
+                && super.func_230264_L__();
     }
 
     @Override
