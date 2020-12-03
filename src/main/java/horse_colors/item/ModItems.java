@@ -15,7 +15,6 @@ import sekelsta.horse_colors.HorseColors;
 public class ModItems {
     public static GeneBookItem geneBookItem;
     public static GenderChangeItem genderChangeItem;
-    public static CompatibleHorseArmor netheriteHorseArmor;
 
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
@@ -26,9 +25,5 @@ public class ModItems {
         genderChangeItem = new GenderChangeItem((new Item.Properties()).maxStackSize(64).group(CreativeTab.instance));
         genderChangeItem.setRegistryName("gender_change_item");
         ForgeRegistries.ITEMS.register(genderChangeItem);
-
-        netheriteHorseArmor = new CompatibleHorseArmor(13, "netherite", (new Item.Properties()).maxStackSize(1).group(CreativeTab.instance));
-        netheriteHorseArmor.setRegistryName("netherite_horse_armor");
-        ForgeRegistries.ITEMS.register(netheriteHorseArmor);
     }
 }

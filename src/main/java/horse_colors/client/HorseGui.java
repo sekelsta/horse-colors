@@ -1,7 +1,6 @@
 package sekelsta.horse_colors.client;
 import net.minecraft.client.gui.screen.inventory.*;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.inventory.HorseInventoryScreen;
 import net.minecraft.entity.passive.horse.AbstractChestedHorseEntity;
@@ -32,39 +31,44 @@ public class HorseGui extends ContainerScreen<HorseInventoryContainer> {
     public HorseGui(HorseInventoryContainer container, PlayerInventory playerInventory, AbstractHorseGenetic horse) {
         super(container, playerInventory, horse.getDisplayName());
         this.horseEntity = horse;
-        this.passEvents = false;/*
-        this.titleX = 8;
-        this.titleY = 6;*/
+        this.passEvents = false;
+    }
+
+   /**
+    * Draw the foreground layer for the GuiContainer (everything in front of the items)
+    */
+    @Override
+    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
+        this.font.drawString(this.title.getFormattedText(), 8.0F, 6.0F, 4210752);
+        this.font.drawString(this.playerInventory.getDisplayName().getFormattedText(), 8.0F, (float)(this.ySize - 96 + 2), 4210752);
     }
 
    /**
     * Draws the background layer of this container (behind the items).
     */
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.minecraft.getTextureManager().bindTexture(HORSE_GUI_TEXTURES);
         int i = (this.width - this.xSize) / 2;
         int j = (this.height - this.ySize) / 2;
-        this.blit(matrixStack, i, j, 0, 0, this.xSize, this.ySize);
+        this.blit(i, j, 0, 0, this.xSize, this.ySize);
         if (this.horseEntity instanceof AbstractChestedHorseEntity) {
             AbstractChestedHorseEntity abstractchestedhorseentity = (AbstractChestedHorseEntity)this.horseEntity;
             if (abstractchestedhorseentity.hasChest()) {
-                this.blit(matrixStack, i + 79, j + 17, 0, this.ySize, abstractchestedhorseentity.getInventoryColumns() * 18, 54);
+                this.blit(i + 79, j + 17, 0, this.ySize, abstractchestedhorseentity.getInventoryColumns() * 18, 54);
             }
         }
 
-        // func_230264_L__() = canBeSaddled()
-        if (this.horseEntity.func_230264_L__()) {
-            this.blit(matrixStack, i + 7, j + 35 - 18, 18, this.ySize + 54, 18, 18);
+        if (this.horseEntity.canBeSaddled()) {
+            this.blit(i + 7, j + 35 - 18, 18, this.ySize + 54, 18, 18);
         }
 
-        // func_230276_fq_() = wearsArmor()
-        if (this.horseEntity.func_230276_fq_()) {/*
+        if (this.horseEntity.wearsArmor()) {/*
             if (this.horseEntity instanceof LlamaEntity) {
                 this.blit(i + 7, j + 35, 36, this.ySize + 54, 18, 18);
             } else {*/
-                this.blit(matrixStack, i + 7, j + 35, 0, this.ySize + 54, 18, 18);
+                this.blit(i + 7, j + 35, 0, this.ySize + 54, 18, 18);
             //}
         }
 
@@ -85,27 +89,26 @@ public class HorseGui extends ContainerScreen<HorseInventoryContainer> {
                 renderX -= 2;
                 int pregRenderX = renderX + iconWidth + 1;
                 // Blit pregnancy background
-                this.blit(matrixStack, pregRenderX, renderY + 1, 181, 23, 2, 10);
+                this.blit(pregRenderX, renderY + 1, 181, 23, 2, 10);
                 // Blit pregnancy foreground based on progress
                 int pregnantAmount = (int)(11 * horseEntity.getPregnancyProgress());
-                this.blit(matrixStack, pregRenderX, renderY + 11 - pregnantAmount, 177, 33 - pregnantAmount, 2, pregnantAmount);
+                this.blit(pregRenderX, renderY + 11 - pregnantAmount, 177, 33 - pregnantAmount, 2, pregnantAmount);
             }
             // Blit gender icon
             // X, y to render to, x, y to render from, width, height
-            this.blit(matrixStack, renderX, renderY, textureX, textureY, iconWidth, iconHeight);
+            this.blit(renderX, renderY, textureX, textureY, iconWidth, iconHeight);
         }
 
         InventoryScreen.drawEntityOnScreen(i + 51, j + 60, 17, (float)(i + 51) - this.mousePosx, (float)(j + 75 - 50) - this.mousePosY, this.horseEntity);
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(matrixStack);
+    public void render(int mouseX, int mouseY, float partialTicks) {
+        this.renderBackground();
         this.mousePosx = (float)mouseX;
         this.mousePosY = (float)mouseY;
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
-        // func_230459_a_ = renderHoveredToolTip
-        this.func_230459_a_(matrixStack, mouseX, mouseY);
+        super.render(mouseX, mouseY, partialTicks);
+        this.renderHoveredToolTip(mouseX, mouseY);
     }
 
     public static void replaceGui(GuiOpenEvent event) {

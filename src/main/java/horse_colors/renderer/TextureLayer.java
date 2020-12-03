@@ -94,7 +94,7 @@ public class TextureLayer {
     public void blendLayer(NativeImage base, NativeImage image) {
         for(int i = 0; i < image.getHeight(); ++i) {
             for(int j = 0; j < image.getWidth(); ++j) {
-                blendPixel(base, j, i, this.multiply(image.getPixelRGBA(j, i)));
+                base.blendPixel(j, i, this.multiply(image.getPixelRGBA(j, i)));
             }
         }
     }
@@ -159,7 +159,7 @@ public class TextureLayer {
                 int color = base.getPixelRGBA(j, i);
                 int exp = image.getPixelRGBA(j, i);
                 exp = this.multiply(exp);
-                blendPixel(base, j, i, this.power(color, exp));
+                base.blendPixel(j, i, this.power(color, exp));
             }
         }
     }
@@ -171,7 +171,7 @@ public class TextureLayer {
                 int color = base.getPixelRGBA(j, i);
                 int exp = image.getPixelRGBA(j, i);
                 exp = this.multiply(exp);
-                blendPixel(base, j, i, this.root(color, exp));
+                base.blendPixel(j, i, this.root(color, exp));
             }
         }
     }
@@ -308,39 +308,5 @@ public class TextureLayer {
         s += Integer.toHexString(this.green);
         s += Integer.toHexString(this.blue);
         return s;
-    }
-
-    public void blendPixel(NativeImage image, int x, int y, int color) {
-        int baseColor = image.getPixelRGBA(x, y);
-        float a = (float)image.getAlpha(color) / 255.0F;
-        float blue = (float)image.getBlue(color);
-        float green = (float)image.getGreen(color);
-        float red = (float)image.getRed(color);
-        float baseAlpha = (float)image.getAlpha(baseColor) / 255.0F;
-        float baseBlue = (float)image.getBlue(baseColor);
-        float baseGreen = (float)image.getGreen(baseColor);
-        float baseRed = (float)image.getRed(baseColor);
-        float alph = a * a + baseAlpha * (1 - a);
-        int finalAlpha = (int)(alph * 255.0F);
-        int finalBlue = (int)(blue * a + baseBlue * (1 - a));
-        int finalGreen = (int)(green * a + baseGreen * (1 - a));
-        int finalRed = (int)(red * a + baseRed * (1 - a));
-        if (finalAlpha > 255) {
-            finalAlpha = 255;
-        }
-
-        if (finalBlue > 255) {
-            finalBlue =  255;
-        }
-
-        if (finalGreen > 255) {
-            finalGreen = 255;
-        }
-
-        if (finalRed > 255) {
-            finalRed = 255;
-        }
-
-        image.setPixelRGBA(x, y, image.getCombined(finalAlpha, finalBlue, finalGreen, finalRed));
     }
 }

@@ -13,6 +13,6 @@ public class Util {
     }
 
     public static String translate(String in) {
-        return new TranslationTextComponent(HorseColors.MODID + "." + in).getStringTruncated(10000);
+        return new TranslationTextComponent(HorseColors.MODID + "." + in).getFormattedText();
     }
 }

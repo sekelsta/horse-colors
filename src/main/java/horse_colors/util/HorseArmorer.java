@@ -1,4 +1,6 @@
 package sekelsta.horse_colors.util;
+import sekelsta.horse_colors.HorseColors;
+import sekelsta.horse_colors.genetics.HorseColorCalculator;
 
 import net.minecraft.block.CarpetBlock;
 import net.minecraft.item.BlockItem;
@@ -9,23 +11,17 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import sekelsta.horse_colors.HorseColors;
-import sekelsta.horse_colors.genetics.HorseColorCalculator;
-import sekelsta.horse_colors.item.CompatibleHorseArmor;
-
 public class HorseArmorer
 {
     private static ResourceLocation getVanillaLocation(HorseArmorItem armor)
     {
-        return armor.getArmorTexture();
+        // func_219976_d = public ResourceLocation getTexture()
+        return armor.func_219976_d();
     }
 
     @OnlyIn(Dist.CLIENT)
     public static ResourceLocation getTexture(Item armor)
     {
-        if (armor instanceof CompatibleHorseArmor) {
-            return ((CompatibleHorseArmor)armor).getAlternateTexture();
-        }
         if (armor instanceof HorseArmorItem) {
             ResourceLocation vanilla = getVanillaLocation((HorseArmorItem)armor);
             // Only use my own version of textures in the minecraft namespace

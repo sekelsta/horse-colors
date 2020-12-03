@@ -84,8 +84,7 @@ public class GeneBookItem extends Item {
                         break;
                 }
                 if (translation != null) {
-                    // Compare to the author name on written books
-                    tooltip.add(new TranslationTextComponent(translation).mergeStyle(TextFormatting.GRAY));
+                    tooltip.add(new TranslationTextComponent(translation).applyTextStyle(TextFormatting.GRAY));
                 }
             }
         }

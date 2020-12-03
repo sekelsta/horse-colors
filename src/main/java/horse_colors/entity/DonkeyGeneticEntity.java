@@ -16,7 +16,6 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IWorld;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.World;
 
 import sekelsta.horse_colors.genetics.breed.*;
@@ -94,7 +93,7 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
     // Helper function for createChild that creates and spawns an entity of the 
     // correct species
     @Override
-    public AbstractHorseEntity getChild(ServerWorld world, AgeableEntity ageable)
+    public AbstractHorseEntity getChild(AgeableEntity ageable)
     {
         if (ageable instanceof AbstractHorseGenetic) {
             AbstractHorseGenetic child = null;

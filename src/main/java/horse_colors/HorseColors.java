@@ -4,7 +4,6 @@ import sekelsta.horse_colors.client.HorseGui;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.ModEntities;
 import sekelsta.horse_colors.item.ModItems;
-import sekelsta.horse_colors.world.Spawns;
 
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
@@ -33,9 +32,16 @@ public class HorseColors
     {
         instance = this;
 
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
+        MinecraftForge.EVENT_BUS.addListener(this::fixMissingRegistries);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, HorseConfig.spec);
+    }
+
+    private void commonSetup(final FMLCommonSetupEvent event)
+    {
+        MinecraftForge.EVENT_BUS.register(ModEntities.class);
     }
 
     private void clientSetup(final FMLClientSetupEvent event)
@@ -43,4 +49,13 @@ public class HorseColors
         MinecraftForge.EVENT_BUS.addListener(HorseGui::replaceGui);
         ModEntities.registerRenders();
     }
+
+    public void fixMissingRegistries(RegistryEvent.MissingMappings<Item> event) {
+        for (RegistryEvent.MissingMappings.Mapping<Item> mapping : event.getAllMappings()) {
+            if (mapping.key.equals(new ResourceLocation("horse_colors:horse_genetic_spawn_egg"))) {
+                mapping.remap(ModEntities.HORSE_SPAWN_EGG);
+            }
+        }
+    }
+
 }

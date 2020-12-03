@@ -8,7 +8,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
@@ -30,7 +29,7 @@ public class GenderChangeItem extends Item {
     }
 
     @Override
-    public ActionResultType itemInteractionForEntity(ItemStack stack, PlayerEntity player, LivingEntity target, Hand hand) {
+    public boolean itemInteractionForEntity(ItemStack stack, PlayerEntity player, LivingEntity target, Hand hand) {
         if (target instanceof IGeneticEntity) {
             IGeneticEntity g = (IGeneticEntity)target;
             g.setMale(!g.isMale());
@@ -40,9 +39,9 @@ public class GenderChangeItem extends Item {
             if (player == null || !player.abilities.isCreativeMode) {
                 stack.shrink(1);
             }
-            return ActionResultType.func_233537_a_(player.world.isRemote);
+            return true;
         }
-        return ActionResultType.PASS;
+        return false;
     } 
 
   /**
@@ -64,7 +63,7 @@ public class GenderChangeItem extends Item {
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
         if (!HorseConfig.isGenderEnabled()) {
             String translation = HorseColors.MODID + ".gender_change_item.gender_disabled_warning";
-            tooltip.add(new TranslationTextComponent(translation).mergeStyle(TextFormatting.GRAY));
+            tooltip.add(new TranslationTextComponent(translation).applyTextStyle(TextFormatting.GRAY));
         }
     }
 
