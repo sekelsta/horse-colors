@@ -74,7 +74,12 @@ public class HorseGui extends HorseInventoryScreen {
                 textureX += iconWidth;
             }
             int textureY = 0;
-            if (this.horseGenetic.isPregnant()) {
+            boolean grayIcons = HorseConfig.COMMON.useGeneticAnimalsIcons.get();
+            if (grayIcons) {
+                textureX += 2 * iconWidth;
+            }
+            // Render pregnancy progress bar
+            if (this.horseGenetic.isPregnant() && !grayIcons) {
                 renderX -= 2;
                 int pregRenderX = renderX + iconWidth + 1;
                 // Blit pregnancy background
@@ -86,6 +91,13 @@ public class HorseGui extends HorseInventoryScreen {
             // Blit gender icon
             // X, y to render to, x, y to render from, width, height
             this.blit(matrixStack, renderX, renderY, textureX, textureY, iconWidth, iconHeight);
+
+            // Render genetic animals pregnancy progress indicator
+            if (this.horseGenetic.isPregnant() && grayIcons) {
+                // Blit pregnancy foreground based on progress
+                int pregnantAmount = (int)(10 * horseGenetic.getPregnancyProgress()) + 1;
+                this.blit(matrixStack, renderX, renderY + 11 - pregnantAmount, textureX, textureY + iconHeight + 11 - pregnantAmount, iconWidth, pregnantAmount);
+            }
         }
 
         InventoryScreen.drawEntityOnScreen(i + 51, j + 60, 17, (float)(i + 51) - mouseX, (float)(j + 75 - 50) - mouseY, this.horseGenetic);

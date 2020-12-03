@@ -26,6 +26,7 @@ public class HorseConfig
         public static BooleanValue spookyHorses;
         public static BooleanValue enableSizes;
         public static IntValue mountingTweaks;
+        public static BooleanValue useGeneticAnimalsIcons;
 
         Common(final ForgeConfigSpec.Builder builder) {
             builder.comment("Common config settings")
@@ -65,6 +66,11 @@ public class HorseConfig
                              "Setting to 2 allows this to work on any peaceful creature, not just horses.",
                              "Defaults to 1.")
                     .defineInRange("mountingTweaks", 1, 0, 2);
+
+            useGeneticAnimalsIcons = builder
+                    .comment("Whether to use the gray themed gender icons from Genetic Animals (by mokiyoki,",
+                             "used by permission) in place of the default pink and blue icons.")
+                    .define("useGeneticAnimalsIcons", false);
 
             builder.pop();
         }
