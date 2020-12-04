@@ -239,5 +239,17 @@ public class BaseEquine {
             0.5f,   // Lighter
             1f      // Darker
         ));
+        COLORS.put("LCORL", ImmutableList.of(
+            1f,     // Wild type
+            1f      // Larger warmbloods
+        ));
+        COLORS.put("HMGA2", ImmutableList.of(
+            1f,     // Wild type
+            1f      // Smaller shetlands
+        ));
+        COLORS.put("mushroom", ImmutableList.of(
+            1f,     // Wild type
+            1f      // Mushroom
+        ));
     }
 }

@@ -190,6 +190,18 @@ public class DefaultHorse {
             15f / 16f,  // Less pattern
             1f          // More pattern
         ));
+        COLORS.put("LCORL", ImmutableList.of(
+            15f / 16f,  // Normal size
+            1f          // Large, found in warmbloods
+        ));
+        COLORS.put("HMGA2", ImmutableList.of(
+            15f / 16f,  // Normal size
+            1f          // Small, found in small ponies
+        ));
+        COLORS.put("mushroom", ImmutableList.of(
+            0.995f,     // Wild type
+            1f          // Mushroom
+        ));
     }
 
     public static void init() {}

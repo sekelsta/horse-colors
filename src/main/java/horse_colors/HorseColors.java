@@ -1,10 +1,5 @@
 package sekelsta.horse_colors;
 
-import sekelsta.horse_colors.client.HorseGui;
-import sekelsta.horse_colors.config.HorseConfig;
-import sekelsta.horse_colors.entity.ModEntities;
-import sekelsta.horse_colors.item.ModItems;
-
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
@@ -18,6 +13,11 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.common.MinecraftForge;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import sekelsta.horse_colors.client.HorseGui;
+import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.entity.ModEntities;
+import sekelsta.horse_colors.item.ModItems;
 
 @Mod(HorseColors.MODID)
 public class HorseColors
