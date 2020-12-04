@@ -13,7 +13,7 @@ import sekelsta.horse_colors.util.RandomSupplier;
 
 public class HorseColorCalculator
 {
-    static final RandomSupplier randSource = new RandomSupplier(ImmutableList.of("leg_white", "face_white", "star_choice"));
+    static final RandomSupplier randSource = new RandomSupplier(ImmutableList.of("leg_white", "face_white", "star_choice", "roan_density", "liver_darkness", "shade"));
 
     private static final int GRAY_BODY_STAGES = 19;
     private static final int GRAY_MANE_STAGES = 20;
@@ -72,7 +72,7 @@ public class HorseColorCalculator
         // 5, 0.2 looks haflingerish
         // 5, 0.1 looks medium chestnut
         // 6, 0.1 looks liver chestnutish
-        float concentration = 5f;
+        float concentration = 5f * getRandomShadeModifier(horse);
         float white = 0.08f;
 
         if (horse.isDoubleCream() || horse.isHomozygous("ivory", HorseAlleles.IVORY)) {
@@ -128,8 +128,12 @@ public class HorseColorCalculator
         if (horse.isChestnut() 
                 && horse.isHomozygous("liver", HorseAlleles.LIVER)) {
             TextureLayer dark = new TextureLayer();
-            setPheomelanin(dark, concentration * 5f, white);
+            setEumelanin(dark, concentration * 4f, white * 0.8f);
+            // Adjust liver chestnut strength randomly
             float a = 0.4f;
+            int r = randSource.getVal("liver_darkness", horse.getChromosome("random")) >>> 1;
+            a *= 0.2f + (r % 64) / 64f;
+            a *= 1f + (r / 64 % 64) / 64f;
             layer.red = (int)(dark.red * a + layer.red * (1 - a));
             layer.green = (int)(dark.green * a + layer.green * (1 - a));
             layer.blue = (int)(dark.blue * a + layer.blue * (1 - a));
@@ -146,7 +150,7 @@ public class HorseColorCalculator
     }
 
     public static void colorBlackBody(HorseGenome horse, TextureLayer layer) {
-        float concentration = 20f;
+        float concentration = 20f * getRandomShadeModifier(horse);
         float white = 0.02f;
         if (horse.isDoubleCream() || horse.isHomozygous("ivory", HorseAlleles.IVORY)) {
             concentration *= 0.02f;
@@ -200,6 +204,13 @@ public class HorseColorCalculator
         colorBlackBody(horse, layer);
         setGrayConcentration(horse, layer);
         return layer;
+    }
+
+    public static float getRandomShadeModifier(HorseGenome horse) {
+        int r = randSource.getVal("shade", horse.getChromosome("random")) >>> 1;
+        // Number ranging from -8 to 8
+        int x = r % 8 + r / 8 % 8 - 8;
+        return 1f + x / 100f;
     }
 
     public static void addRedManeTail(HorseGenome horse, List<TextureLayer> layers) {
@@ -555,21 +566,19 @@ public class HorseColorCalculator
         if (horse.hasAllele("KIT", HorseAlleles.KIT_ROAN)) {
             TextureLayer roan = new TextureLayer();
             roan.name = HorseColorCalculator.fixPath("roan/roan");
+            int r = randSource.getVal("roan_density", horse.getChromosome("random")) >>> 1;
+            float a = (50 - (r % 16) - (r / 16 % 16)) / 50f;
+            roan.alpha = (int)(roan.alpha * a);
             textureLayers.add(roan);
         }
 
         HorsePatternCalculator.addFaceMarkings(horse, textureLayers);
         if (horse.showsLegMarkings())
         {
-            String[] leg_markings = HorsePatternCalculator.getLegMarkings(horse);
-            for (String marking : leg_markings) {
-                TextureLayer layer = new TextureLayer();
-                layer.name = marking;
-                textureLayers.add(layer);
-            }
+            HorsePatternCalculator.addLegMarkings(horse, textureLayers);
         }
 
-        textureLayers.add(HorsePatternCalculator.getPinto(horse));
+        HorsePatternCalculator.addPinto(horse, textureLayers);
         HorsePatternCalculator.addLeopard(horse, textureLayers);
 
         TextureLayer highlights = new TextureLayer();
