@@ -82,9 +82,6 @@ public class HorseGui extends ContainerScreen<HorseInventoryContainer> {
                 textureX += iconWidth;
             }
             int textureY = 0;
-            if (this.horseEntity.isCastrated()) {
-                textureY += iconHeight;
-            }
             if (this.horseEntity.isPregnant()) {
                 renderX -= 2;
                 int pregRenderX = renderX + iconWidth + 1;

@@ -1,9 +1,7 @@
 package sekelsta.horse_colors.entity.genetics.breed;
 
 import com.google.common.collect.ImmutableList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BaseEquine {
     public static Breed breed = new Breed();
@@ -251,5 +249,24 @@ public class BaseEquine {
             1f,     // Wild type
             1f      // Mushroom
         ));
+
+        ImmutableList<Float> halfAndHalf = ImmutableList.of(0.5f, 1f);
+        for (int i = 0; i < 12; ++i) {
+            COLORS.put("speed" + i, halfAndHalf);
+            COLORS.put("jump" + i, halfAndHalf);
+            COLORS.put("health" + i, halfAndHalf);
+        }
+        for (int i = 0; i < 8; ++i) {
+            COLORS.put("speedjump" + i, halfAndHalf);
+        }
+        // Sixteen equally likely alleles for each immune diversity gene
+        ArrayList<Float> sixteen = new ArrayList<>();
+        for (int i = 0; i < 16; ++i) {
+            sixteen.add((i + 1) / 16f);
+        }
+        for (int i = 0; i < 8; ++i) {
+            COLORS.put("immune" + i, sixteen);
+            COLORS.put("mhc" + i, sixteen);
+        }
     }
 }

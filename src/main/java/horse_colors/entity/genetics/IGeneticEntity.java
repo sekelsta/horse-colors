@@ -6,17 +6,17 @@ import net.minecraft.entity.AgeableEntity;
 import sekelsta.horse_colors.entity.genetics.breed.Breed;
 
 public interface IGeneticEntity {
-    Genome getGenes();
-    int getChromosome(String name);
-    void setChromosome(String name, int val);
+    Genome getGenome();
+
+    String getGeneData();
+    void setGeneData(String genes);
+
+    int getSeed();
+    void setSeed(int seed);
+
     Random getRand();
 
-    default Species getSpecies() {
-        return null;
-    }
-
     boolean isMale();
-
     void setMale(boolean gender);
 
     int getRebreedTicks();

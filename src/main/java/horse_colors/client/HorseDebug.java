@@ -55,7 +55,7 @@ public class HorseDebug {
         return inHand != null && inHand.getItem() == Items.DEBUG_STICK;
     }
 
-    public static ArrayList<String> debugNamedGenes(Genome genome) {
+    public static ArrayList<String> debugGenes(Genome genome) {
         ArrayList<String> list = new ArrayList<String>();
         for (String gene : genome.listGenes()) {
             String s = gene + ": ";
@@ -64,40 +64,6 @@ public class HorseDebug {
             list.add(s);
         }
         return list;
-    }
-
-    public static ArrayList<String> debugStatGenes(Genome genome) {
-        ArrayList<String> list = new ArrayList<String>();
-        for (String stat : genome.listGenericChromosomes()) {
-            String s = stat;
-            s += ": " + genome.countBits(genome.getChromosome(stat));
-            s += " (";
-            int val = genome.getChromosome(stat);
-            for (int i = 16; i >0; i--) {
-                s += (val >>> (2 * i - 1)) & 1;
-                s += (val >>> (2 * i - 2)) & 1;
-                if (i > 1) {
-                    s += " ";
-                }
-            }
-            s += ")";
-            list.add(s);
-        }
-        // Uncomment to show substats
-        // addSubStats(genome, list);
-        return list;
-    }
-
-    private void addSubStats(Genome genome, List<String> list) {
-        for (String stat : genome.listStats()) {
-            String s = stat;
-            s += ": " + genome.getStatValue(stat);
-            s += " (";
-            int val = genome.getRawStat(stat);
-            s += Genome.chrToStr(val);
-            s += ")";
-            list.add(s);
-        }
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -123,14 +89,6 @@ public class HorseDebug {
         {
             // If so, print information about it to the debug screen
             IGeneticEntity entity = (IGeneticEntity)((EntityRayTraceResult)mouseOver).getEntity();
-            // I thought I would need this to make everything fit on debug 
-            // mode, but it fits if I make the GUI smaller
-            // event.getRight().clear();
-            if (showGeneDebug(player)) {
-                for (String s : debugStatGenes(entity.getGenes())) {
-                    event.getLeft().add(s);
-                }
-            }
             if (showBasicDebug(player) && entity instanceof AgeableEntity) {
                 event.getLeft().add("Growing age: " + ((AgeableEntity)entity).getGrowingAge());
             }
@@ -139,15 +97,19 @@ public class HorseDebug {
                 event.getLeft().add("Pregnant since: " + ((AbstractHorseGenetic)entity).getPregnancyStart());
             }
             if (showBasicDebug(player)) {
-                event.getLeft().add(entity.getGenes().getTexture());
+                event.getLeft().add(entity.getGenome().getTexture());
                 event.getLeft().add("Layers:");
-                for (String s : entity.getGenes().getTexturePaths().getDebugStrings()) {
+                for (String s : entity.getGenome().getTexturePaths().getDebugStrings()) {
                     event.getLeft().add(s);
                 }
             }
             if (showGeneDebug(player)) {
-                for (String s : debugNamedGenes(entity.getGenes())) {
-                    event.getRight().add(s);
+                List<String> strings = debugGenes(entity.getGenome());
+                for (int i = 0; i < strings.size() / 2; ++i) {
+                    event.getRight().add(strings.get(i));
+                }
+                for (int i = strings.size() / 2; i < strings.size(); ++i) {
+                    event.getLeft().add(strings.get(i));
                 }
             }
         }

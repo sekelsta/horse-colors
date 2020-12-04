@@ -20,7 +20,7 @@ import sekelsta.horse_colors.entity.genetics.HorseColorCalculator;
 public class HorseGeneticRenderer extends MobRenderer<AbstractHorseGenetic, HorseGeneticModel<AbstractHorseGenetic>>
 {
     protected void preRenderCallback(AbstractHorseGenetic horse, MatrixStack matrixStackIn, float partialTickTime) {
-        float scale = horse.getProportionalAgeScale() * horse.getGenes().getGeneticScale();
+        float scale = horse.getProportionalAgeScale() * horse.getGenome().getGeneticScale();
         matrixStackIn.scale(scale, scale, scale);
         this.shadowSize = 0.75F * scale;
         super.preRenderCallback(horse, matrixStackIn, partialTickTime);
@@ -41,7 +41,7 @@ public class HorseGeneticRenderer extends MobRenderer<AbstractHorseGenetic, Hors
     public ResourceLocation getEntityTexture(AbstractHorseGenetic entity)
     {
         if (entity instanceof IGeneticEntity) {
-            String s = ((IGeneticEntity)entity).getGenes().getTexture();
+            String s = ((IGeneticEntity)entity).getGenome().getTexture();
             ResourceLocation resourcelocation = LAYERED_LOCATION_CACHE.get(s);
 
             if (resourcelocation == null)
@@ -49,7 +49,7 @@ public class HorseGeneticRenderer extends MobRenderer<AbstractHorseGenetic, Hors
                 resourcelocation = new ResourceLocation(s);
                 Minecraft.getInstance().getTextureManager().loadTexture(
                     resourcelocation, 
-                    new CustomLayeredTexture(((IGeneticEntity)entity).getGenes().getTexturePaths())
+                    new CustomLayeredTexture(((IGeneticEntity)entity).getGenome().getTexturePaths())
                 );
                 LAYERED_LOCATION_CACHE.put(s, resourcelocation);
             }

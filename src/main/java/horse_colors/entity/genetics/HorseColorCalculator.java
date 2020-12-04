@@ -9,12 +9,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.client.renderer.TextureLayer;
 import sekelsta.horse_colors.client.renderer.TextureLayerGroup;
-import sekelsta.horse_colors.util.RandomSupplier;
 
 public class HorseColorCalculator
 {
-    static final RandomSupplier randSource = new RandomSupplier(ImmutableList.of("leg_white", "face_white", "star_choice", "roan_density", "liver_darkness", "shade"));
-
     private static final int GRAY_BODY_STAGES = 19;
     private static final int GRAY_MANE_STAGES = 20;
 
@@ -144,7 +141,7 @@ public class HorseColorCalculator
             setEumelanin(dark, concentration * 4f, white * 0.8f);
             // Adjust liver chestnut strength randomly
             float a = 0.4f;
-            int r = randSource.getVal("liver_darkness", horse.getChromosome("random")) >>> 1;
+            int r = horse.getRandom("liver_darkness") >>> 1;
             a *= 0.2f + (r % 64) / 64f;
             a *= 1f + (r / 64 % 64) / 64f;
             layer.red = (int)(dark.red * a + layer.red * (1 - a));
@@ -220,7 +217,7 @@ public class HorseColorCalculator
     }
 
     public static float getRandomShadeModifier(HorseGenome horse) {
-        int r = randSource.getVal("shade", horse.getChromosome("random")) >>> 1;
+        int r = horse.getRandom("shade") >>> 1;
         // Number ranging from -8 to 8
         int x = r % 8 + r / 8 % 8 - 8;
         return 1f + x / 100f;
@@ -584,7 +581,7 @@ public class HorseColorCalculator
         if (horse.hasAllele("KIT", HorseAlleles.KIT_ROAN)) {
             TextureLayer roan = new TextureLayer();
             roan.name = HorseColorCalculator.fixPath("roan/roan");
-            int r = randSource.getVal("roan_density", horse.getChromosome("random")) >>> 1;
+            int r = horse.getRandom("roan_density") >>> 1;
             float a = (50 - (r % 16) - (r / 16 % 16)) / 50f;
             roan.alpha = (int)(roan.alpha * a);
             textureLayers.add(roan);
