@@ -16,6 +16,7 @@ import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.ai.goal.*;
+import net.minecraft.entity.monster.MonsterEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.horse.*;
 import net.minecraft.entity.player.PlayerEntity;
@@ -112,6 +113,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new PanicGoal(this, 1.2D));
         this.goalSelector.addGoal(1, new RunAroundLikeCrazyGoal(this, 1.2D));
+        if (HorseConfig.COMMON.spookyHorses.get()) {
+            this.goalSelector.addGoal(1, new SpookGoal(this, MonsterEntity.class, 8.0F, 1.5, 1.5));
+        }
         this.goalSelector.addGoal(2, new GenderedBreedGoal(this, 1.0D, AbstractHorseEntity.class));
         this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.0D));
         this.goalSelector.addGoal(6, new RandomWalkGroundTie(this, 0.7D));
@@ -774,6 +778,12 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
 
         super.livingTick();
+    }
+
+    // Returns the Y offset from the entity's position for any entity riding this one.
+    @Override
+    public double getMountedYOffset() {
+        return (double)this.getHeight() * 0.685D;
     }
 
     @Override

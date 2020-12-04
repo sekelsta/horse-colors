@@ -1,8 +1,14 @@
 package sekelsta.horse_colors.item;
 
+import net.minecraft.block.DispenserBlock;
+import net.minecraft.dispenser.*;
+import net.minecraft.entity.passive.horse.AbstractHorseEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraft.item.Item;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.registries.ForgeRegistries;
