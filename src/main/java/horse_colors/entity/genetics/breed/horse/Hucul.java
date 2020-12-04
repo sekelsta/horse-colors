@@ -28,26 +28,22 @@ public class Hucul {
     public static Breed breed;
 
     static {
-        TarpanEurope.init();
-        breed = new Breed(TarpanEurope.breed);
-        EarlyDomesticHorse.init();
-        breed.merge(EarlyDomesticHorse.breed, 0.2f);
-        MongolianHorse.init();
-        breed.merge(MongolianHorse.breed, 0.2f);
+        Mongolian.init();
+        breed = new Breed(Mongolian.breed);
         // There may also have been contributions from Norikers, Arabians, 
         // and Turkish horses
         breed.name = "hucul";
         breed.population = 4000;
-        Map<String, List<Float>> COLORS = breed.colors;
+        Map<String, List<Float>> GENES = breed.genes;
 
         // 28% chestnut frequency to get 8% chestnut horses
-        COLORS.put("extension", ImmutableList.of(
+        GENES.put("extension", ImmutableList.of(
             0.28f, 0.28f, 0.28f, 0.28f, // Red
             1.0f, 1.0f, 1.0f, 1.0f  // Black
         ));
         // Of non-chestnut horses, want 76% bay and 24% black,
         // so the black allele should have a 50% frequency
-        COLORS.put("agouti", ImmutableList.of(
+        GENES.put("agouti", ImmutableList.of(
             0.5f,       // Black
             0.6f,       // Seal
             0.6f,       // Seal unused
@@ -58,14 +54,14 @@ public class Hucul {
             1f          // Bay unused
         ));
         // 7% dun frequency to get 13% dun horses, non-dun 1 common
-        COLORS.put("dun", ImmutableList.of(
+        GENES.put("dun", ImmutableList.of(
             0.3f,   // Non-dun 2
             0.8f,   // Non-dun 1
             1f,     // Dun
             0f      // Dun unused
         ));
         // Should have 11% tobiano allele frequency to get 22% tobiano horses
-        COLORS.put("KIT", ImmutableList.of(
+        GENES.put("KIT", ImmutableList.of(
             0.89f,  // Wildtype
             0.89f,  // White boost
             0.89f,  // Markings1
@@ -84,32 +80,32 @@ public class Hucul {
             1.0f    // Dominant white
         ));
         // Gray was bred out
-        COLORS.put("gray", ImmutableList.of(
+        GENES.put("gray", ImmutableList.of(
             1f,     // Non-gray
             1f      // Gray
         ));
         // Cream was bred out
-        COLORS.put("cream", ImmutableList.of(
+        GENES.put("cream", ImmutableList.of(
             1f,     // Non-cream
             1f,     // Snowdrop
             1f,     // Pearl
             1f      // Cream
         ));
         // Presumably leopard was bred out
-        COLORS.put("leopard", ImmutableList.of(
+        GENES.put("leopard", ImmutableList.of(
             1f,     // Non-leopard
             1f      // Leopard
         ));
         // Remove mealy
-        COLORS.put("light_belly", ImmutableList.of(
+        GENES.put("light_belly", ImmutableList.of(
             1f,     // Non-mealy
             1f      // Mealy
         ));
-        COLORS.put("mealy1", ImmutableList.of(
+        GENES.put("mealy1", ImmutableList.of(
             0.75f,  // Non-mealy
             1f      // Mealy
         ));
-        COLORS.put("mealy2", ImmutableList.of(
+        GENES.put("mealy2", ImmutableList.of(
             0.75f,  // Non-mealy
             1f      // Mealy
         ));

@@ -170,6 +170,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             compound.put("unborn_children", unbornChildrenTag);
         }   
         compound.putFloat("mother_size", this.getMotherSize());
+        writeLegacyAdditional(compound);
     }
 
     @Override
@@ -275,6 +276,22 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             map.put("immune", this.rand.nextInt());
         }
         this.genes.setLegacyGenes(map);
+    }
+
+    // This will no longer be needed after dropping support for Minecraft 1.16
+    public void writeLegacyAdditional(CompoundNBT compound) {
+        Map<String, Integer> map = getGenome().getLegacyGenes();
+        compound.putInt("Variant", map.get("0"));
+        compound.putInt("Variant2", map.get("1"));
+        compound.putInt("Variant3", map.get("2"));
+        compound.putInt("Variant4", map.get("3"));
+        compound.putInt("Variant5", map.get("4"));
+        compound.putInt("SpeedGenes", map.get("speed"));
+        compound.putInt("JumpGenes", map.get("jump"));
+        compound.putInt("HealthGenes", map.get("health"));
+        compound.putInt("MHC1", map.get("mhc1"));
+        compound.putInt("MHC2", map.get("mhc2"));
+        compound.putInt("Immune", map.get("immune"));
     }
 
     public int getDisplayAge() {

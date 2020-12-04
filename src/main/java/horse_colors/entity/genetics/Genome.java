@@ -164,7 +164,7 @@ public abstract class Genome {
     @Deprecated
     public void setAlleleOld(String name, int n, int v, Map<String, Integer> map)
     {
-        int other = getAllele(name, 1 - n);
+        int other = getAlleleOld(name, 1 - n, map);
         int size = getGeneSize(name);
         setNamedGene(name, (other << ((1 - n) * size)) | (v << (n * size)), map);
     }
@@ -192,7 +192,7 @@ public abstract class Genome {
     // Replace the given allele with a random one.
     // It may be the same as before.
     public void mutateAllele(String gene, int n) {
-        Map<String, List<Float>> map = entity.getDefaultBreed().colors;
+        Map<String, List<Float>> map = entity.getDefaultBreed().genes;
         if (!map.containsKey(gene)) {
             return;
         }
