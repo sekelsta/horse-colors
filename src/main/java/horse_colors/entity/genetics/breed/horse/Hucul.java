@@ -16,7 +16,8 @@ import sekelsta.horse_colors.entity.genetics.breed.*;
 // https://meetings.eaap.org/wp-content/uploads/2018/Session71/71.20_cd0o43jf.pdf
 // See here for information about inbreeding and heterozygosity:
 // https://doi.org/10.5194/aab-58-23-2015
-// Allele frequencies are from table 2 here:
+// Allele frequencies are from here: https://www.researchgate.net/profile/Antoni_Brodacki/publication/289650841_Allele_frequency_in_loci_which_control_coat_colours_in_Hucul_horse_population/links/5c45a6d1299bf12be3d7edaa/Allele-frequency-in-loci-which-control-coat-colours-in-Hucul-horse-population.pdf
+// Allele frequencies used to be from table 2 here:
 // https://www.tandfonline.com/doi/pdf/10.1080/09712119.2020.1715224
 // The above link also has pictures including what appears to be a dun with
 // bider markings
@@ -36,42 +37,34 @@ public class Hucul {
         breed.population = 4000;
         Map<String, List<Float>> GENES = breed.genes;
 
-        // 28% chestnut frequency to get 8% chestnut horses
         GENES.put("extension", ImmutableList.of(
-            0.28f, 0.28f, 0.28f, 0.28f, // Red
-            1.0f, 1.0f, 1.0f, 1.0f  // Black
+            0.115f, // Red
+            1.0f    // Black
         ));
-        // Of non-chestnut horses, want 76% bay and 24% black,
-        // so the black allele should have a 50% frequency
         GENES.put("agouti", ImmutableList.of(
-            0.5f,       // Black
+            0.521f,       // Black
             0.6f,       // Seal
             0.6f,       // Seal unused
             0.6f,       // Bay unused
-            1f,         // Bay
-            1f,         // Bay unused
-            1f,         // Bay unused
-            1f          // Bay unused
+            1f          // Bay
         ));
-        // 7% dun frequency to get 13% dun horses, non-dun 1 common
         GENES.put("dun", ImmutableList.of(
-            0.3f,   // Non-dun 2
-            0.8f,   // Non-dun 1
-            1f,     // Dun
-            0f      // Dun unused
+            0.7f,       // Non-dun 2
+            0.878f,     // Non-dun 1
+            1f,         // Dun
+            0f          // Dun unused
         ));
-        // Should have 11% tobiano allele frequency to get 22% tobiano horses
         GENES.put("KIT", ImmutableList.of(
-            0.89f,  // Wildtype
-            0.89f,  // White boost
-            0.89f,  // Markings1
-            0.89f,  // Markings2
-            0.89f,  // Markings3
-            0.89f,  // Markings4
-            0.89f,  // Markings5
-            0.89f,  // W20
+            0.929f, // Wildtype
+            0f,     // White boost
+            0f,     // Markings1
+            0f,     // Markings2
+            0f,     // Markings3
+            0f,     // Markings4
+            0f,     // Markings5
+            0f,     // W20
             0f,     // Rabicano / Unused
-            0.89f,  // Flashy white
+            0f,     // Flashy white
             0f,     // Unused
             1.0f,   // Tobiano
             1.0f,   // Sabino1
@@ -79,10 +72,10 @@ public class Hucul {
             1.0f,   // Roan
             1.0f    // Dominant white
         ));
-        // Gray was bred out
+        // Included for historic reasons
         GENES.put("gray", ImmutableList.of(
-            1f,     // Non-gray
-            1f      // Gray
+            0.997f,     // Non-gray
+            1f          // Gray
         ));
         // Cream was bred out
         GENES.put("cream", ImmutableList.of(

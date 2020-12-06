@@ -65,6 +65,11 @@ public class FakeGeneticEntity implements IGeneticEntity {
     }
 
     @Override
+    public int getAge() {
+        return 0;
+    }
+
+    @Override
     public boolean setPregnantWith(AgeableEntity child, AgeableEntity otherParent) {
         return false;
     }

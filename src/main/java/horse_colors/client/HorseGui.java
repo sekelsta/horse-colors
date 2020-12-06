@@ -9,6 +9,9 @@ import net.minecraft.entity.passive.horse.LlamaEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.HorseInventoryContainer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.GuiOpenEvent;
@@ -17,6 +20,7 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 import sekelsta.horse_colors.HorseColors;
+import sekelsta.horse_colors.util.Util;
 
 @OnlyIn(Dist.CLIENT)
 public class HorseGui extends HorseInventoryScreen {
@@ -70,7 +74,12 @@ public class HorseGui extends HorseInventoryScreen {
                 textureX += iconWidth;
             }
             int textureY = 0;
-            if (this.horseGenetic.isPregnant()) {
+            boolean grayIcons = HorseConfig.COMMON.useGeneticAnimalsIcons.get();
+            if (grayIcons) {
+                textureX += 2 * iconWidth;
+            }
+            // Render pregnancy progress bar
+            if (this.horseGenetic.isPregnant() && !grayIcons) {
                 renderX -= 2;
                 int pregRenderX = renderX + iconWidth + 1;
                 // Blit pregnancy background
@@ -82,9 +91,46 @@ public class HorseGui extends HorseInventoryScreen {
             // Blit gender icon
             // X, y to render to, x, y to render from, width, height
             this.blit(renderX, renderY, textureX, textureY, iconWidth, iconHeight);
+
+            // Render genetic animals pregnancy progress indicator
+            if (this.horseGenetic.isPregnant() && grayIcons) {
+                // Blit pregnancy foreground based on progress
+                int pregnantAmount = (int)(10 * horseGenetic.getPregnancyProgress()) + 1;
+                this.blit(renderX, renderY + 11 - pregnantAmount, textureX, textureY + iconHeight + 11 - pregnantAmount, iconWidth, pregnantAmount);
+            }
         }
 
         InventoryScreen.drawEntityOnScreen(i + 51, j + 60, 17, (float)(i + 51) - mouseX, (float)(j + 75 - 50) - mouseY, this.horseGenetic);
+    }
+
+    @Override
+    protected void drawGuiContainerForegroundLayer(int x, int y) {
+        super.drawGuiContainerForegroundLayer(x, y);
+        if (!HorseConfig.COMMON.enableSizes.get() || horseGenetic.isChild()) {
+            // Avoid showing an inaccurate height for foals
+            return;
+        }
+        float height = horseGenetic.getGenome().getGeneticHeightCm();
+        int cm = Math.round(height);
+        int inches = Math.round(height / 2.54f);
+        int hands = inches / 4;
+        int point = inches % 4;
+        String translationKey = HorseColors.MODID + ".gui.height";
+        ITextComponent heightText = new TranslationTextComponent(
+                                        translationKey, hands, point, cm);
+        String heightString = heightText.getStringTruncated(1000);
+        int yy = 20;
+        for (String line : heightString.split("\n")) {
+            // text, x, y, color
+            this.font.drawString(line, 82, yy, 0x404040);
+            yy += 9;
+        }
+        if (horseGenetic.getGenome().isMiniature()) {
+            this.font.drawString(Util.translate("gui.miniature"), 82, yy, 0x404040);
+        }
+        else if (horseGenetic.getGenome().isLarge()) {
+            this.font.drawString(Util.translate("gui.large"), 82, yy, 0x404040);
+        }
     }
 
     public static void replaceGui(GuiOpenEvent event) {

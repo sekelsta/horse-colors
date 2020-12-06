@@ -6,6 +6,7 @@ import sekelsta.horse_colors.util.HorseArmorer;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexBuilderUtils;
 import net.minecraft.block.CarpetBlock;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
@@ -68,7 +69,8 @@ public class HorseArmorLayer extends LayerRenderer<AbstractHorseGenetic, HorseGe
                b = 1.0F;
             }
 
-            IVertexBuilder ivertexbuilder = renderTypeBuffer.getBuffer(RenderType.getEntityCutoutNoCull(textureLocation));
+            IVertexBuilder ivertexbuilder 
+                = renderTypeBuffer.getBuffer(RenderType.getEntityCutoutNoCull(textureLocation));
             this.horseModel.render(matrixStack, ivertexbuilder, p_225628_3_, OverlayTexture.NO_OVERLAY, r, g, b, 1.0F);
         }
     }

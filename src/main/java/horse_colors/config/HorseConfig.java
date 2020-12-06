@@ -25,6 +25,8 @@ public class HorseConfig
         public static BooleanValue autoEquipSaddle;
         public static BooleanValue spookyHorses;
         public static BooleanValue enableSizes;
+        public static IntValue mountingTweaks;
+        public static BooleanValue useGeneticAnimalsIcons;
 
         Common(final ForgeConfigSpec.Builder builder) {
             builder.comment("Common config settings")
@@ -55,6 +57,20 @@ public class HorseConfig
             enableSizes = builder
                     .comment("If enabled, horses can be different sizes.")
                     .define("enableSizes", true);
+
+            mountingTweaks = builder
+                    .comment("Allows ctrl + right click to mount the clicked creature on a horse the player",
+                             "is riding or leading, or dismount all passengers of the clicked horse if it",
+                             "is not being ridden by another player.",
+                             "Setting to 0 disables this entirely.",
+                             "Setting to 2 allows this to work on any peaceful creature, not just horses.",
+                             "Defaults to 1.")
+                    .defineInRange("mountingTweaks", 1, 0, 2);
+
+            useGeneticAnimalsIcons = builder
+                    .comment("Whether to use the gray themed gender icons from Genetic Animals (by mokiyoki,",
+                             "used by permission) in place of the default pink and blue icons.")
+                    .define("useGeneticAnimalsIcons", false);
 
             builder.pop();
         }
