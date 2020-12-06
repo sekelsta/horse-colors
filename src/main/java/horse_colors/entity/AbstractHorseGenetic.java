@@ -84,8 +84,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
 
     protected static final UUID CSNB_SPEED_UUID = UUID.fromString("84ca527a-5c70-4336-a737-ae3f6d40ef45");
     protected static final UUID CSNB_JUMP_UUID = UUID.fromString("72323326-888b-4e46-bf52-f669600642f7");
-    protected static final AttributeModifier CSNB_SPEED_MODIFIER = (new AttributeModifier(CSNB_SPEED_UUID, "CSNB speed penalty", -0.6, AttributeModifier.Operation.MULTIPLY_TOTAL));
-    protected static final AttributeModifier CSNB_JUMP_MODIFIER = (new AttributeModifier(CSNB_JUMP_UUID, "CSNB jump penalty", -0.6, AttributeModifier.Operation.MULTIPLY_TOTAL));
+    protected static final AttributeModifier CSNB_SPEED_MODIFIER = new AttributeModifier(CSNB_SPEED_UUID, "CSNB speed penalty", -0.6, AttributeModifier.Operation.MULTIPLY_TOTAL);
+    protected static final AttributeModifier CSNB_JUMP_MODIFIER = new AttributeModifier(CSNB_JUMP_UUID, "CSNB jump penalty", -0.6, AttributeModifier.Operation.MULTIPLY_TOTAL);
 
     protected static final int HORSE_GENETICS_VERSION = 2;
 
@@ -428,6 +428,48 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.setGrowingAge(isChild ? this.getBirthAge() : 0);
     }
 
+    private double getRiderWeight(Entity rider) {
+        double weight = rider.getBoundingBox().getXSize()
+                            * rider.getBoundingBox().getYSize()
+                            * rider.getBoundingBox().getZSize();
+        if (rider instanceof AnimalEntity) {
+            weight *= 2;
+        }
+        // Adjust to avoid baby villagers being interpreted as weighing 19 pounds
+        if (rider instanceof AgeableEntity
+                && ((AgeableEntity)rider).isChild()) {
+            weight *= 2;
+        }
+        return weight;
+    }
+
+    @Override
+    protected boolean canFitPassenger(Entity passenger) {
+        // Riders must be peaceful
+        if (!passenger.getType().getClassification().getPeacefulCreature()) {
+            return false;
+        }
+        // Ignore the size stuff if its disabled
+        if (!HorseConfig.COMMON.enableSizes.get()) {
+            return super.canFitPassenger(passenger);
+        }
+        // Max two riders
+        if (this.getPassengers().size() >= 2) {
+            return false;
+        }
+        // Calculate size of current passengers
+        double riderweight = 0;
+        for (Entity rider : this.getPassengers()) {
+            riderweight += getRiderWeight(rider);
+        }
+        // Calculate size of mounting entity
+        double weight = getRiderWeight(passenger);
+        // The player's hitbox is 0.6 * 0.6 * 1.8, so this will almost exactly allow
+        // them to ride any horse heavier than the miniature cutoff
+        return riderweight + weight < 0.648001 
+            * this.getGenome().getGeneticWeightKg() / HorseGenome.MINIATURE_CUTOFF;
+    }
+
     private boolean itemInteract(PlayerEntity player, ItemStack itemstack, Hand hand) {
         // Enter genetic test results
         if (itemstack.getItem() == Items.BOOK
@@ -500,48 +542,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         return false;
     }
 
-    private double getRiderWeight(Entity rider) {
-        double weight = rider.getBoundingBox().getXSize()
-                            * rider.getBoundingBox().getYSize()
-                            * rider.getBoundingBox().getZSize();
-        if (rider instanceof AnimalEntity) {
-            weight *= 2;
-        }
-        // Adjust to avoid baby villagers being interpreted as weighing 19 pounds
-        if (rider instanceof AgeableEntity
-                && ((AgeableEntity)rider).isChild()) {
-            weight *= 2;
-        }
-        return weight;
-    }
-
-    @Override
-    protected boolean canFitPassenger(Entity passenger) {
-        // Riders must be peaceful
-        if (!passenger.getType().getClassification().getPeacefulCreature()) {
-            return false;
-        }
-        // Ignore the size stuff if its disabled
-        if (!HorseConfig.COMMON.enableSizes.get()) {
-            return super.canFitPassenger(passenger);
-        }
-        // Max two riders
-        if (this.getPassengers().size() >= 2) {
-            return false;
-        }
-        // Calculate size of current passengers
-        double riderweight = 0;
-        for (Entity rider : this.getPassengers()) {
-            riderweight += getRiderWeight(rider);
-        }
-        // Calculate size of mounting entity
-        double weight = getRiderWeight(passenger);
-        // The player's hitbox is 0.6 * 0.6 * 1.8, so this will almost exactly allow
-        // them to ride any horse heavier than the miniature cutoff
-        return riderweight + weight < 0.648001 
-            * this.getGenome().getGeneticWeightKg() / HorseGenome.MINIATURE_CUTOFF;
-    }
-
     @Override
     // Before 1.16 this was public boolean processInteract(PlayerEntity player, Hand hand)
     public ActionResultType func_230254_b_(PlayerEntity player, Hand hand) {
@@ -560,12 +560,12 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 // Eat the item
                 return this.func_241395_b_(player, itemstack);
             }
-            // See if the item interacts
+            // See if the item interacts with us
             ActionResultType actionresulttype = itemstack.interactWithEntity(player, this, hand);
             if (actionresulttype.isSuccessOrConsume()) {
                 return actionresulttype;
             }
-            // Try other interactions
+            // See if we interact with the item
             if (itemInteract(player, itemstack, hand)) {
                 return ActionResultType.func_233537_a_(this.world.isRemote);
             }
@@ -671,7 +671,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
         // Spawn XP orbs regardless of pregnancy
         if (world.getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
-            world.addEntity(new ExperienceOrbEntity(world, this.getPosX(), this.getPosY(), this.getPosZ(), this.getRNG().nextInt(7) + 1));
+            int xp = this.getRNG().nextInt(7) + 1;
+            world.addEntity(new ExperienceOrbEntity(world, this.getPosX(), this.getPosY(), this.getPosZ(), xp));
         }
     }
 
@@ -939,7 +940,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
 
         // Here boats use this.rotationYaw, but we use this.renderYawOffset,
         // because this.rotationYaw doesn't change when the unsaddled horse moves around
-        Vector3d vector3d = (new Vector3d((double)xzOffset, 0.0D, 0.0D)).rotateYaw(-this.renderYawOffset * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
+        Vector3d vector3d = new Vector3d((double)xzOffset, 0.0D, 0.0D);
+        vector3d = vector3d.rotateYaw(-this.renderYawOffset * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
         passenger.setPosition(this.getPosX() + vector3d.x, this.getPosY() + yOffset, this.getPosZ() + vector3d.z);
         this.applyYaw(passenger);
         if (passenger instanceof AnimalEntity && this.getPassengers().size() > 1) {
@@ -999,7 +1001,11 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
      */
     @Nullable
     @Override
-    public ILivingEntityData onInitialSpawn(IServerWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag)
+    public ILivingEntityData onInitialSpawn(IServerWorld worldIn, 
+                                            DifficultyInstance difficultyIn, 
+                                            SpawnReason reason, 
+                                            @Nullable ILivingEntityData spawnDataIn, 
+                                            @Nullable CompoundNBT dataTag)
     {
         spawnDataIn = super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
         this.randomize(getDefaultBreed());
