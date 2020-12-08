@@ -78,6 +78,9 @@ public abstract class Genome {
     public void setNamedGene(String name, int val, Map<String, Integer> map)
     {
         String chr = getGeneChromosome(name);
+        if (map.get(chr) == null) {
+            map.put(chr, 0);
+        }
         map.put(chr, (map.get(chr) & (~getGeneLoci(name))) 
             | (val << (getGenePos(name) % 32)));
     }
@@ -86,6 +89,9 @@ public abstract class Genome {
     public int getNamedGene(String name, Map<String, Integer> map)
     {
         String chr = getGeneChromosome(name);
+        if (map.get(chr) == null) {
+            map.put(chr, 0);
+        }
         // Use unsigned right shift to avoid returning negative numbers
         return (map.get(chr) & getGeneLoci(name)) >>> getGenePos(name);
     }
