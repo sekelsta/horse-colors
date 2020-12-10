@@ -37,15 +37,15 @@ public class ModEntities {
             final ResourceLocation horseRegistryName = new ResourceLocation(HorseColors.MODID, "horse_felinoid");
             // Vanilla size in 1.12 was 1.3964844F, 1.6F
             // Size numbers are width, height
-            HORSE_GENETIC = EntityType.Builder.create(HorseGeneticEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F).build(horseRegistryName.toString());
+            HORSE_GENETIC = EntityType.Builder.create(HorseGeneticEntity::new, EntityClassification.CREATURE).size(1.2F, 1.6F).build(horseRegistryName.toString());
             HORSE_GENETIC.setRegistryName(horseRegistryName);
 
             final ResourceLocation donkeyRegistryName = new ResourceLocation(HorseColors.MODID, "donkey");
-            DONKEY_GENETIC = EntityType.Builder.create(DonkeyGeneticEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F).build(donkeyRegistryName.toString());
+            DONKEY_GENETIC = EntityType.Builder.create(DonkeyGeneticEntity::new, EntityClassification.CREATURE).size(1.2F, 1.6F).build(donkeyRegistryName.toString());
             DONKEY_GENETIC.setRegistryName(donkeyRegistryName);
 
             final ResourceLocation muleRegistryName = new ResourceLocation(HorseColors.MODID, "mule");
-            MULE_GENETIC = EntityType.Builder.create(MuleGeneticEntity::new, EntityClassification.CREATURE).size(1.3964844F, 1.6F).build(muleRegistryName.toString());
+            MULE_GENETIC = EntityType.Builder.create(MuleGeneticEntity::new, EntityClassification.CREATURE).size(1.2F, 1.6F).build(muleRegistryName.toString());
             MULE_GENETIC.setRegistryName(muleRegistryName);
 
             HORSE_SPAWN_EGG = new SpawnEggItem(HORSE_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).group(CreativeTab.instance));
