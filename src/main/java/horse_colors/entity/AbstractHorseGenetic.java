@@ -42,6 +42,7 @@ import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.SoundEvent;
@@ -75,8 +76,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
 
     protected static final UUID CSNB_SPEED_UUID = UUID.fromString("84ca527a-5c70-4336-a737-ae3f6d40ef45");
     protected static final UUID CSNB_JUMP_UUID = UUID.fromString("72323326-888b-4e46-bf52-f669600642f7");
-    protected static final AttributeModifier CSNB_SPEED_MODIFIER = (new AttributeModifier(CSNB_SPEED_UUID, "CSNB speed penalty", -0.6, AttributeModifier.Operation.MULTIPLY_TOTAL)).setSaved(false);
-    protected static final AttributeModifier CSNB_JUMP_MODIFIER = (new AttributeModifier(CSNB_JUMP_UUID, "CSNB jump penalty", -0.6, AttributeModifier.Operation.MULTIPLY_TOTAL)).setSaved(false);
+    protected static final AttributeModifier CSNB_SPEED_MODIFIER = new AttributeModifier(CSNB_SPEED_UUID, "CSNB speed penalty", -0.6, AttributeModifier.Operation.MULTIPLY_TOTAL).setSaved(false);
+    protected static final AttributeModifier CSNB_JUMP_MODIFIER = new AttributeModifier(CSNB_JUMP_UUID, "CSNB jump penalty", -0.6, AttributeModifier.Operation.MULTIPLY_TOTAL).setSaved(false);
 
     protected static final int HORSE_GENETICS_VERSION = 2;
 
@@ -490,7 +491,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         return false;
     }
 
-
     @Override
     public boolean processInteract(PlayerEntity player, Hand hand) {
         ItemStack itemstack = player.getHeldItem(hand);
@@ -867,7 +867,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
 
         // Here boats use this.rotationYaw, but we use this.renderYawOffset,
         // because this.rotationYaw doesn't change when the unsaddled horse moves around
-        Vec3d Vec3d = (new Vec3d((double)xzOffset, 0.0D, 0.0D)).rotateYaw(-this.renderYawOffset * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
+        Vec3d Vec3d = new Vec3d((double)xzOffset, 0.0D, 0.0D);
+        Vec3d = Vec3d.rotateYaw(-this.renderYawOffset * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
         passenger.setPosition(this.getPosX() + Vec3d.x, this.getPosY() + yOffset, this.getPosZ() + Vec3d.z);
         this.applyYaw(passenger);
         if (passenger instanceof AnimalEntity && this.getPassengers().size() > 1) {
@@ -928,7 +929,11 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
      */
     @Nullable
     @Override
-    public ILivingEntityData onInitialSpawn(IWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag)
+    public ILivingEntityData onInitialSpawn(IWorld worldIn, 
+                                            DifficultyInstance difficultyIn, 
+                                            SpawnReason reason, 
+                                            @Nullable ILivingEntityData spawnDataIn, 
+                                            @Nullable CompoundNBT dataTag)
     {
         spawnDataIn = super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
         this.randomize(getDefaultBreed());
@@ -975,9 +980,20 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     }
 
     @Override
+    public AxisAlignedBB getBoundingBox() {
+        if (this.isChild()) {
+            return super.getBoundingBox().expand(0, 0.3 * this.getRenderScale(), 0);
+        }
+        return super.getBoundingBox();
+    }
+
+    @Override
     // Affects hitbox size.
     public float getRenderScale() {
-        return this.getGenome().getAdultScale() * super.getRenderScale();
+        // This is different from LivingEntity.getRenderScale which uses
+        // 0.5 for children
+        float base = isChild()? 0.6f : 1.0f;
+        return this.getGenome().getAdultScale() * base;
     }
 
     @Override
