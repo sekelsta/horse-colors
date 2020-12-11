@@ -47,6 +47,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.SoundEvent;
@@ -1052,9 +1053,20 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     }
 
     @Override
+    public AxisAlignedBB getBoundingBox() {
+        if (this.isChild()) {
+            return super.getBoundingBox().expand(0, 0.3 * this.getRenderScale(), 0);
+        }
+        return super.getBoundingBox();
+    }
+
+    @Override
     // Affects hitbox size.
     public float getRenderScale() {
-        return this.getGenome().getAdultScale() * super.getRenderScale();
+        // This is different from LivingEntity.getRenderScale which uses
+        // 0.5 for children
+        float base = isChild()? 0.6f : 1.0f;
+        return this.getGenome().getAdultScale() * base;
     }
 
     // func_230264_L__() = canBeSaddled()
