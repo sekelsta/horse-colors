@@ -285,6 +285,7 @@ public class BaseEquine {
 
         ImmutableList<Float> one = ImmutableList.of(1f);
         GENES.put("size0", one);
+        GENES.put("size1", one);
         GENES.put("size2", one);
         GENES.put("size3", one);
         GENES.put("size4", one);

@@ -1,5 +1,7 @@
 package sekelsta.horse_colors.entity.genetics;
 
+import com.google.common.collect.ImmutableList;
+import java.util.List;
 import java.util.Random;
 
 import net.minecraft.entity.AgeableEntity;
@@ -45,6 +47,30 @@ public interface IGeneticEntity {
 
     default Breed getDefaultBreed() {
         return new Breed();
+    }
+
+    default int getPopulation() {
+        int count = 0;
+        for (Breed breed : getBreeds()) {
+            count += breed.population;
+        }
+        return count;
+    }
+
+    default List<Breed> getBreeds() {
+        return ImmutableList.of(getDefaultBreed());
+    }
+
+    default Breed getRandomBreed() {
+        int r = getRand().nextInt(getPopulation());
+        int count = 0;
+        for (Breed breed : getBreeds()) {
+            count += breed.population;
+            if (r < count) {
+                return breed;
+            }
+        }
+        return getDefaultBreed();
     }
 
     float getMotherSize();

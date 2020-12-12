@@ -29,8 +29,8 @@ public class Hucul {
     public static Breed breed;
 
     static {
-        Mongolian.init();
-        breed = new Breed(Mongolian.breed);
+        MongolianHorse.init();
+        breed = new Breed(MongolianHorse.breed);
         // There may also have been contributions from Norikers, Arabians, 
         // and Turkish horses
         breed.name = "hucul";

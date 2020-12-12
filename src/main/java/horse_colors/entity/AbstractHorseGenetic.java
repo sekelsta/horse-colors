@@ -1008,10 +1008,13 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                                             @Nullable ILivingEntityData spawnDataIn, 
                                             @Nullable CompoundNBT dataTag)
     {
-        spawnDataIn = super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
-        this.randomize(getDefaultBreed());
-        this.setMotherSize(this.getGenome().getAdultScale());
-        return spawnDataIn;
+        if (!(spawnDataIn instanceof GeneticData)) {
+            Breed breed = this.getRandomBreed();
+            spawnDataIn = new GeneticData(breed);
+        }
+        Breed breed = ((GeneticData)spawnDataIn).breed;
+        this.randomize(breed);
+        return super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
     }
 
     private void randomize(Breed breed) {
@@ -1027,6 +1030,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         // Don't set the growing age to a positive value, that would be bad
         this.setGrowingAge(Math.min(0, this.trueAge));
         this.useGeneticAttributes();
+        // Assume mother was the same size
+        this.setMotherSize(this.getGenome().getAdultScale());
     }
 
     public void initFromVillageSpawn() {
@@ -1080,5 +1085,15 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     public boolean canBePushed() {
         return !(this.isBeingRidden() 
             && this.getControllingPassenger() instanceof PlayerEntity);
+    }
+
+    // For holding spawn data
+    public static class GeneticData extends AgeableEntity.AgeableData {
+        public final Breed breed;
+
+        public GeneticData(Breed breed) {
+            super(true);
+            this.breed = breed;
+        }
     }
 }

@@ -12,8 +12,8 @@ public class DefaultHorse {
     public static Breed breed;
 
     static {
-        Mongolian.init();
-        breed = new Breed(Mongolian.breed);
+        MongolianHorse.init();
+        breed = new Breed(MongolianHorse.breed);
         Map<String, List<Float>> GENES = breed.genes;
 
         GENES.put("extension", ImmutableList.of(

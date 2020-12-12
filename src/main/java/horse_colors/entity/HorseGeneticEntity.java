@@ -1,5 +1,6 @@
 package sekelsta.horse_colors.entity;
 
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -40,6 +41,9 @@ import sekelsta.horse_colors.util.Util;
 
 public class HorseGeneticEntity extends AbstractHorseGenetic
 {
+    public static List<Breed> breeds = ImmutableList.of(Appaloosa.breed, 
+        Hucul.breed, MongolianHorse.breed, QuarterHorse.breed);
+
     private static final UUID ARMOR_MODIFIER_UUID = UUID.fromString("556E1665-8B10-40C8-8F9D-CF9B1667F295");
 
     private static final ResourceLocation LOOT_TABLE = new ResourceLocation("minecraft", "entities/horse");
@@ -262,5 +266,15 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     @Override
     public Breed getDefaultBreed() {
         return DefaultHorse.breed;
+    }
+
+    @Override
+    public int getPopulation() {
+        return 60000000;
+    }
+
+    @Override
+    public List<Breed> getBreeds() {
+        return breeds;
     }
 }
