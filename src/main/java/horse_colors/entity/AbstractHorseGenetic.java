@@ -980,14 +980,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     }
 
     @Override
-    public AxisAlignedBB getBoundingBox() {
-        if (this.isChild()) {
-            return super.getBoundingBox().expand(0, 0.3 * this.getRenderScale(), 0);
-        }
-        return super.getBoundingBox();
-    }
-
-    @Override
     // Affects hitbox size.
     public float getRenderScale() {
         // This is different from LivingEntity.getRenderScale which uses
