@@ -26,10 +26,12 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.World;
+import net.minecraft.world.storage.loot.LootTableList;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import sekelsta.horse_colors.genetics.breed.*;
@@ -176,6 +178,12 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     protected SoundEvent getAngrySound() {
         super.getAngrySound();
         return SoundEvents.ENTITY_HORSE_ANGRY;
+    }
+
+    @Override
+    protected ResourceLocation getLootTable()
+    {
+        return LootTableList.ENTITIES_HORSE;
     }
 
     @Override
