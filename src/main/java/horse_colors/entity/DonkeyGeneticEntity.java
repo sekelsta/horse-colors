@@ -14,6 +14,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.server.ServerWorld;
@@ -26,8 +27,16 @@ import sekelsta.horse_colors.entity.genetics.Species;
 import sekelsta.horse_colors.util.Util;
 
 public class DonkeyGeneticEntity extends AbstractHorseGenetic {
+
+    private static final ResourceLocation LOOT_TABLE = new ResourceLocation("minecraft", "entities/donkey");
+
     public DonkeyGeneticEntity(EntityType<? extends DonkeyGeneticEntity> entityType, World world) {
         super(entityType, world);
+    }
+
+    @Override
+    public ResourceLocation getLootTable() {
+        return this.LOOT_TABLE;
     }
 
     protected SoundEvent getAmbientSound() {
