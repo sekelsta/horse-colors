@@ -14,6 +14,7 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.DifficultyInstance;
@@ -30,6 +31,8 @@ import sekelsta.horse_colors.HorseColors;
 
 public class MuleGeneticEntity extends AbstractHorseGenetic {
     protected static final DataParameter<Integer> SPECIES = EntityDataManager.<Integer>createKey(MuleGeneticEntity.class, DataSerializers.VARINT);
+
+    private static final ResourceLocation LOOT_TABLE = new ResourceLocation("minecraft", "entities/mule");
 
     public MuleGeneticEntity(EntityType<? extends MuleGeneticEntity> entity, World world) {
         super(entity, world);
@@ -53,6 +56,11 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
     public void readAdditional(CompoundNBT compound) {
         super.readAdditional(compound);
         this.setSpecies(Species.valueOf(compound.getString("Species")));
+    }
+
+    @Override
+    public ResourceLocation getLootTable() {
+        return this.LOOT_TABLE;
     }
 
     @Override

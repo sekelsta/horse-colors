@@ -24,6 +24,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpawnEggItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.world.DifficultyInstance;
@@ -39,6 +40,9 @@ import sekelsta.horse_colors.util.Util;
 public class HorseGeneticEntity extends AbstractHorseGenetic
 {
     private static final UUID ARMOR_MODIFIER_UUID = UUID.fromString("556E1665-8B10-40C8-8F9D-CF9B1667F295");
+
+    private static final ResourceLocation LOOT_TABLE = new ResourceLocation("minecraft", "entities/horse");
+
     public HorseGeneticEntity(EntityType<? extends HorseGeneticEntity> entityType, World worldIn)
     {
         super(entityType, worldIn);
@@ -106,6 +110,11 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         if (this.ticksExisted > 20 && this.isArmor(itemstack1) && itemstack != itemstack1) {
             this.playSound(SoundEvents.ENTITY_HORSE_ARMOR, 0.5F, 1.0F);
         }
+    }
+
+    @Override
+    public ResourceLocation getLootTable() {
+        return this.LOOT_TABLE;
     }
 
     protected void playGallopSound(SoundType p_190680_1_) {
