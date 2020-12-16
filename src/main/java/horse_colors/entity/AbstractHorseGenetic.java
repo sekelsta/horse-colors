@@ -882,11 +882,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestHorse implements
         return 1;
     }
 
-    @Override
-    public void setScaleForAge(boolean child) {
-        this.setScale(getProportionalScale());
-    }
-
     // Total size change that does not change proportions
     public float getProportionalScale() {
         // TODO: use size genes once they exist and once I've found how to make
