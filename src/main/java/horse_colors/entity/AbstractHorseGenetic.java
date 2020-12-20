@@ -195,10 +195,23 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     public void readAdditional(CompoundNBT compound)
     {
         super.readAdditional(compound);
+        // Use a breed for a base if given one
+        if (compound.contains("Breed")) {
+            this.randomize(getBreed(compound.getString("Breed")));
+        }
         if (compound.contains("Genes")) {
             this.setGeneData(compound.getString("Genes"));
         }
         else {
+            // If we haven't been given color data, we should randomize
+            // anything not specified
+            if (!compound.contains("Variant")
+                    && !compound.contains("Variant2")
+                    && !compound.contains("Variant3")
+                    && !compound.contains("Variant4")
+                    && !compound.contains("Breed")) {
+                randomize(getRandomBreed());
+            }
             readLegacyAdditional(compound);
         }
         this.setSeed(compound.getInt("Random"));
@@ -253,6 +266,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
         setMotherSize(motherSize);
 
+        // Set any genes that were specified in a human-readable format
+        readExtraGenes(compound);
+
         // updateHorseSlots
         this.func_230275_fc_();
 
@@ -264,12 +280,32 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
     }
 
+    private void readExtraGenes(CompoundNBT compound) {
+        for (String gene : this.getGenome().listGenes()) {
+            if (compound.contains(gene)) {
+                System.out.println(compound.get(gene).getType());
+                System.out.println(compound.getIntArray(gene).length);
+                int alleles[] = compound.getIntArray(gene);
+                getGenome().setAllele(gene, 0, alleles[0]);
+                getGenome().setAllele(gene, 1, alleles[1]);
+            }
+        }
+    }
+
     public void readLegacyAdditional(CompoundNBT compound) {
         Map<String, Integer> map = new HashMap<>();
-        map.put("0", compound.getInt("Variant"));
-        map.put("1", compound.getInt("Variant2"));
-        map.put("2", compound.getInt("Variant3"));
-        map.put("3", compound.getInt("Variant4"));
+        if (compound.contains("Variant")) {
+            map.put("0", compound.getInt("Variant"));
+        }
+        if (compound.contains("Variant2")) {
+            map.put("1", compound.getInt("Variant2"));
+        }
+        if (compound.contains("Variant3")) {
+            map.put("2", compound.getInt("Variant3"));
+        }
+        if (compound.contains("Variant4")) {
+            map.put("3", compound.getInt("Variant4"));
+        }
         if (compound.contains("Variant5")) {
             map.put("4", compound.getInt("Variant5"));
         }
@@ -277,9 +313,15 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             this.getPersistentData().putInt("HorseGeneticsVersion", HORSE_GENETICS_VERSION);
             this.getGenome().datafixAddingFourthChromosome(map);
         }
-        map.put("speed", compound.getInt("SpeedGenes"));
-        map.put("jump", compound.getInt("JumpGenes"));
-        map.put("health", compound.getInt("HealthGenes"));
+        if (compound.contains("SpeedGenes")) {
+            map.put("speed", compound.getInt("SpeedGenes"));
+        }
+        if (compound.contains("JumpGenes")) {
+            map.put("jump", compound.getInt("JumpGenes"));
+        }
+        if (compound.contains("HealthGenes")) {
+            map.put("health", compound.getInt("HealthGenes"));
+        }
         if (compound.contains("MHC1")) {
             map.put("mhc1", compound.getInt("MHC1"));
             map.put("mhc2", compound.getInt("MHC2"));
@@ -1035,7 +1077,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     }
 
     public void initFromVillageSpawn() {
-        this.randomize(getDefaultBreed());
+        this.randomize(getRandomBreed());
         // All village horses are easier to tame
         this.increaseTemper(this.getMaxTemper() / 2);
         if (!this.isChild() && rand.nextInt(16) == 0) {

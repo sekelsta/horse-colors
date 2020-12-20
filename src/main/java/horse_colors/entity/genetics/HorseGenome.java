@@ -1005,6 +1005,10 @@ public class HorseGenome extends Genome {
             if (gene.equals("speed0")) {
                 break;
             }
+            // Skip genes that don't have data specified
+            if (!map.containsKey(getGeneChromosome(gene))) {
+                continue;
+            }
             // Use legacy access method and updated setter
             int allele0 = getAlleleOld(gene, 0, map);
             int allele1 = getAlleleOld(gene, 1, map);
@@ -1020,27 +1024,51 @@ public class HorseGenome extends Genome {
             setAllele(gene, 1, allele1);
         }
         // Convert speed, health, and jump genes
-        int speed = map.get("speed");
-        int jump = map.get("jump") >>> 8;
-        int health = map.get("health");
-        int athletics = (speed >>> 24) | ((map.get("jump") & 255) << 8);
-        setGenericGenes("speed", 12, speed);
-        setGenericGenes("health", 12, health);
-        setGenericGenes("jump", 12, jump);
-        setGenericGenes("athletics", 8, athletics);
+        int speed = 0;
+        if (map.containsKey("speed")) {
+            speed = map.get("speed");
+            setGenericGenes("speed", 12, speed);
+        }
+        int jump_residue = 0;
+        if (map.containsKey("jump")) {
+            jump_residue = map.get("jump") & 255;
+            int jump = map.get("jump") >>> 8;
+            setGenericGenes("jump", 12, jump);
+        }
+        if (map.containsKey("speed") || map.containsKey("jump")) {
+            int athletics = (speed >>> 24) | (jump_residue << 8);
+            setGenericGenes("athletics", 8, athletics);
+        }
+        if (map.containsKey("health")) {
+            int health = map.get("health");
+            setGenericGenes("health", 12, health);
+        }
         // Convert immune diversity genes
-        long mhc1 = map.get("mhc1");
-        long mhc2 = map.get("mhc2");
-        long mhc = mhc1 | (mhc2 << 32);
-        int immune = map.get("immune");
-        for (int i = 0; i < 8; ++i) {
-            for (int n = 0; n < 2; ++n) {
-                // 3 == 0b11
-                setAllele("immune" + i, n, immune & 3);
-                immune = immune >>> 2;
-                // 15 == 0b1111
-                setAllele("mhc" + i, n, (int)(mhc & 15));
-                mhc = mhc >>> 4;
+        if (map.containsKey("mhc1") 
+                || map.containsKey("mhc2") 
+                || map.containsKey("immune")) {
+            long mhc1 = 0;
+            long mhc2 = 0;
+            if (map.containsKey("mhc1")) {
+                mhc1 = map.get("mhc1");
+            }
+            if (map.containsKey("mhc2")) {
+                mhc2 = map.get("mhc2");
+            }
+            long mhc = mhc1 | (mhc2 << 32);
+            int immune = 0;
+            if (map.containsKey("immune")) {
+                immune = map.get("immune");
+            }
+            for (int i = 0; i < 8; ++i) {
+                for (int n = 0; n < 2; ++n) {
+                    // 3 == 0b11
+                    setAllele("immune" + i, n, immune & 3);
+                    immune = immune >>> 2;
+                    // 15 == 0b1111
+                    setAllele("mhc" + i, n, (int)(mhc & 15));
+                    mhc = mhc >>> 4;
+                }
             }
         }
         // Initialize to always the same seed for each horse
@@ -1117,6 +1145,11 @@ public class HorseGenome extends Genome {
     }
 
     public void datafixAddingFourthChromosome(Map<String, Integer> map) {
+        if (!map.containsKey(getGeneChromosome("MITF"))
+                && !map.containsKey(getGeneChromosome("KIT"))
+                && !map.containsKey(getGeneChromosome("cream"))) {
+            return;
+        }
         // MITF and PAX3 were next to each other and were 2 bits each,
         // now PAX3 moved and they are 4 bits each
         int prevSplash = this.getNamedGene("MITF", map);

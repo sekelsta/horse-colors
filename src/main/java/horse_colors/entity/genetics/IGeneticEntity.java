@@ -73,6 +73,15 @@ public interface IGeneticEntity {
         return getDefaultBreed();
     }
 
+    default Breed getBreed(String name) {
+        for (Breed breed : getBreeds()) {
+            if (name.equals(breed.name)) {
+                return breed;
+            }
+        }
+        return null;
+    }
+
     float getMotherSize();
     void setMotherSize(float size);
 }
