@@ -62,7 +62,7 @@ public interface IGeneticEntity {
     }
 
     default Breed getRandomBreed() {
-        int r = getRand().nextInt(getPopulation());
+        int r = getRand().nextInt(Math.max(1, getPopulation()));
         int count = 0;
         for (Breed breed : getBreeds()) {
             count += breed.population;

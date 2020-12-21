@@ -29,6 +29,7 @@ import net.minecraft.entity.passive.horse.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.SpawnReason;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BookItem;
 import net.minecraft.item.HorseArmorItem;
@@ -722,8 +723,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     public void spawnChild(AgeableEntity child, ServerWorld world) {
         child.setChild(true);
         child.setLocationAndAngles(this.getPosX(), this.getPosY(), this.getPosZ(), 0.0F, 0.0F);
-        // world.addEntity(child);
-        world.func_242417_l(child);
+        world.addEntity(child);
         // Spawn heart particles
         world.setEntityState(this, (byte)18);
     }
