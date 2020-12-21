@@ -662,10 +662,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(movementSpeed);
             this.getAttribute(Attributes.HORSE_JUMP_STRENGTH).setBaseValue(jumpStrength);
         }
-        else {
-            float maxHealth = this.getModifiedMaxHealth() + this.getGenome().getBaseHealth();
-            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue((double)maxHealth);
-        }
     }
 
     @Override
@@ -1091,6 +1087,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
         Breed breed = ((GeneticData)spawnDataIn).breed;
         this.randomize(breed);
+        this.randomizeAttributes();
         return super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
     }
 
@@ -1109,6 +1106,16 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.useGeneticAttributes();
         // Assume mother was the same size
         this.setMotherSize(this.getGenome().getAdultScale());
+    }
+
+    private void randomizeAttributes() {
+        // Set stats for vanilla-like breeding
+        if (!HorseConfig.GENETICS.useGeneticStats.get()) {
+            float maxHealth = this.getModifiedMaxHealth() + this.getGenome().getBaseHealth();
+            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue((double)maxHealth);
+            this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(this.getModifiedMovementSpeed());
+            this.getAttribute(Attributes.HORSE_JUMP_STRENGTH).setBaseValue(this.getModifiedJumpStrength());
+        }
     }
 
     public void initFromVillageSpawn() {
