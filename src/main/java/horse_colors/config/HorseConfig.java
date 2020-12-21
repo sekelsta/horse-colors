@@ -206,6 +206,7 @@ public class HorseConfig
         public static DoubleValue donkeySpawnMultiplier;
         public static BooleanValue blockVanillaHorseSpawns;
         public static BooleanValue blockVanillaDonkeySpawns;
+        public static BooleanValue convertVanillaHorses;
 
         Spawn(final ForgeConfigSpec.Builder builder) {
             builder.comment("Settings to configure spawning")
@@ -229,6 +230,11 @@ public class HorseConfig
                     .comment("Whether to allow new vanilla donkeys to spawn. This will not affect any",
                              "horses that already exist.")
                     .define("blockVanillaDonkeySpawns", true);
+
+            convertVanillaHorses = builder
+                    .comment("If this is set to true, existing horses will be turned into horses with genetics")
+                    .define("convertVanillaHorses", false);
+
             builder.pop();
         }
 
