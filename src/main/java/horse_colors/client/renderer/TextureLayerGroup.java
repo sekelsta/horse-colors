@@ -5,6 +5,7 @@ import net.minecraft.resources.IResourceManager;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import sekelsta.horse_colors.util.Color;
 
 public class TextureLayerGroup extends TextureLayer {
     public List<TextureLayer> layers;
@@ -15,6 +16,10 @@ public class TextureLayerGroup extends TextureLayer {
 
     public TextureLayerGroup(List<TextureLayer> layers) {
         this.layers = layers;
+    }
+
+    public void add(TextureLayer layer) {
+        layers.add(layer);
     }
 
     @Override
@@ -40,10 +45,8 @@ public class TextureLayerGroup extends TextureLayer {
         }
 
         this.colorLayer(baseimage);
-        // Avoid double multiply
-        this.red = 0xff;
-        this.green = 0xff;
-        this.blue = 0xff;
+        // Set white to avoid a double multiply
+        this.color = new Color();
 
         return baseimage;
     }

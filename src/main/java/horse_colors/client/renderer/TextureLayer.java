@@ -8,6 +8,7 @@ import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sekelsta.horse_colors.util.Color;
 
 public class TextureLayer {
     protected static final Logger LOGGER = LogManager.getLogger();
@@ -15,19 +16,13 @@ public class TextureLayer {
     public String name;
     public String description;
     public Type type;
-    public int alpha;
-    public int red;
-    public int green;
-    public int blue;
+    public Color color;
 
     public TextureLayer() {
         name = null;
         description = null;
         type = Type.NORMAL;
-        alpha = 255;
-        red = 255;
-        green = 255;
-        blue = 255;
+        color = new Color();
     }
 
     public enum Type {
@@ -178,13 +173,13 @@ public class TextureLayer {
 
     public int multiply(int color) {
         int a = NativeImage.getAlpha(color);
-        a = (int)((float)a * (float)this.alpha / 255.0F);
+        a = (int)((float)a * this.color.a);
         int r = NativeImage.getRed(color);
-        r = (int)((float)r * (float)this.red / 255.0F);
+        r = (int)((float)r * this.color.r);
         int g = NativeImage.getGreen(color);
-        g = (int)((float)g * (float)this.green / 255.0F);
+        g = (int)((float)g * this.color.g);
         int b = NativeImage.getBlue(color);
-        b = (int)((float)b * (float)this.blue / 255.0F);
+        b = (int)((float)b * this.color.b);
         return NativeImage.getCombined(a, b, g, r);
     }
 
@@ -258,7 +253,7 @@ public class TextureLayer {
     public int mask(int color, int mask) {
         float a = NativeImage.getAlpha(color) * NativeImage.getAlpha(mask);
         a /= 255.0F;
-        float weight = this.alpha / 255f;
+        float weight = this.color.a;
         a = a * weight + NativeImage.getAlpha(color) * (1 - weight);
         int r = NativeImage.getRed(color);
         int g = NativeImage.getGreen(color);
@@ -267,11 +262,6 @@ public class TextureLayer {
     }
 
     // Restrict to range [0, 255]
-    public void clamp() {
-        this.red = clamp(this.red);
-        this.green = clamp(this.green);
-        this.blue = clamp(this.blue);
-    }
     private int clamp(int x) {
         return Math.max(0, Math.min(x, 255));
     }
@@ -293,10 +283,7 @@ public class TextureLayer {
             s += getAbv(this.name);
         }
         s += "-" + this.type.toString();
-        s += "-" + Integer.toHexString(this.alpha);
-        s += Integer.toHexString(this.red);
-        s += Integer.toHexString(this.green);
-        s += Integer.toHexString(this.blue);
+        s += "-" + this.color.toHexString();
         return s;
     }
 
@@ -310,11 +297,9 @@ public class TextureLayer {
         if (this.type != Type.NORMAL) {
             s += "-" + this.type.toString();
         }
-        if (this.alpha != 255 || this.red != 255 | this.green != 255 || this.blue != 255) {
-            s += "-" + Integer.toHexString(this.alpha);
-            s += Integer.toHexString(this.red);
-            s += Integer.toHexString(this.green);
-            s += Integer.toHexString(this.blue);
+        if (color.getIntRed() != 255 || color.getIntGreen() != 255 
+                || color.getIntBlue() != 255 || color.getIntAlpha() != 255) {
+            s += "-" + this.color.toHexString();
         }
         s += "_";
         return s.toLowerCase();

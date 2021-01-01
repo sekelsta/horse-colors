@@ -9,11 +9,19 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.client.renderer.TextureLayer;
 import sekelsta.horse_colors.client.renderer.TextureLayerGroup;
+import sekelsta.horse_colors.util.Color;
+import sekelsta.horse_colors.util.Pigment;
 
 public class HorseColorCalculator
 {
     private static final int GRAY_BODY_STAGES = 19;
     private static final int GRAY_MANE_STAGES = 20;
+
+    private static final Color EUMELANIN = new Color(0xc0, 0x9a, 0x5f);
+    private static final Color PHEOMELANIN = new Color(0xe4, 0xc0, 0x77);
+    private static final Color MUSHROOM = new Color(0xde, 0xcf, 0xbc);
+    private static final Color SHELL_HOOF = new Color(0xff, 0xe5, 0xb8);
+    private static final Color PINK_SKIN = new Color(0xff, 0xd6, 0xb6);
 
     public static String fixPath(String inStr) {
         if (inStr == null || inStr.contains(".png")) {
@@ -28,52 +36,7 @@ public class HorseColorCalculator
         }
     }
 
-    public static void adjustConcentration(TextureLayer layer, float power) {
-
-        float r = layer.red / 255.0F;
-        float g = layer.green / 255.0F;
-        float b = layer.blue / 255.0F;
-
-        float red = (float)Math.pow(r, power) * 255.0F;
-        float green = (float)Math.pow(g, power) * 255.0F;
-        float blue = (float)Math.pow(b, power) * 255.0F;
-
-        layer.red = Math.max(0, Math.min(255, (int)red));
-        layer.green = Math.max(0, Math.min(255, (int)green));
-        layer.blue = Math.max(0, Math.min(255, (int)blue));
-    }
-
-    public static void addWhite(TextureLayer layer, float white) {
-        layer.red = (int)(255. * white + layer.red * (1f - white));
-        layer.green = (int)(255. * white + layer.green * (1f - white));
-        layer.blue = (int)(255. * white + layer.blue * (1f - white));
-    }
-
-    public static void setPheomelanin(TextureLayer layer, float concentration, float white) {
-        layer.red = 0xe4;
-        layer.green = 0xc0;
-        layer.blue = 0x77;
-        adjustConcentration(layer, concentration);
-        addWhite(layer, white);
-    }
-
-    public static void setEumelanin(TextureLayer layer, float concentration, float white) {
-        layer.red = 0xc0;
-        layer.green = 0x9a;
-        layer.blue = 0x5f;
-        adjustConcentration(layer, concentration);
-        addWhite(layer, white);
-    }
-
-    public static void setMushroomPheomelanin(TextureLayer layer, float concentration, float white) {
-        layer.red = 0xde;
-        layer.green = 0xcf;
-        layer.blue = 0xbc;
-        adjustConcentration(layer, concentration);
-        addWhite(layer, white);
-    }
-
-    public static void colorRedBody(HorseGenome horse, TextureLayer layer) {
+    public static Pigment redFurPigment(HorseGenome horse) {
         // 5, 0.2 looks haflingerish
         // 5, 0.1 looks medium chestnut
         // 6, 0.1 looks liver chestnutish
@@ -127,19 +90,24 @@ public class HorseColorCalculator
         }
 
         white = Math.max(white, 0);
+
+        Color color;
         if (horse.isMushroom()) {
-            setMushroomPheomelanin(layer, concentration, white);
+            color = MUSHROOM;
         }
         else {
-            setPheomelanin(layer, concentration, white);
+            color = PHEOMELANIN;
         }
+        return new Pigment(color, concentration, white);
+    }
 
+    public static Color redBodyColor(HorseGenome horse) {
+        Color color = redFurPigment(horse).toColor();
         // Treat liver like it leaks some eumelanin into the coat
         int liv = horse.countAlleles("liver", HorseAlleles.LIVER);
         if (liv > 0) {
-            TextureLayer dark = new TextureLayer();
-            colorBlackBody(horse, dark);
-            addWhite(dark, 0.02f);
+            Color dark = blackBodyColor(horse);
+            dark.addWhite(0.02f);
 
             // Adjust liver chestnut strength randomly
             float a = 0.4f;
@@ -155,46 +123,43 @@ public class HorseColorCalculator
                 r2 = 0;
             }
             a *= (0.2f + r1) * (1f + r2);
-
-            layer.red = (int)(dark.red * a + layer.red * (1 - a));
-            layer.green = (int)(dark.green * a + layer.green * (1 - a));
-            layer.blue = (int)(dark.blue * a + layer.blue * (1 - a));
-            layer.clamp();
+            color.average(dark, a);
         }
+        return color;
     }
 
     public static TextureLayer getRedBody(HorseGenome horse) {
         TextureLayer layer = new TextureLayer();
         layer.name = fixPath("base");
-        colorRedBody(horse, layer);
+        layer.color = redBodyColor(horse);
         setGrayConcentration(horse, layer);
         return layer;
     }
 
-    public static void colorBlackBody(HorseGenome horse, TextureLayer layer) {
-        float concentration = 20f * getRandomShadeModifier(horse);
+    public static Pigment blackFurPigment(HorseGenome horse) {
+        float concentration = 15f * getRandomShadeModifier(horse);
         float white = 0.02f;
         if (horse.isDoubleCream() || horse.isHomozygous("ivory", HorseAlleles.IVORY)) {
-            concentration *= 0.02f;
+            concentration *= 0.027f;
         }
         else if (horse.isCreamPearl()) {
-            concentration *= 0.025f;
+            concentration *= 0.033f;
         }
         else if (horse.hasCream()) {
-            concentration *= 0.5f;
+            concentration *= 0.7f;
         }
         else if (horse.isPearl()) {
-            concentration *= 0.25f;
+            concentration *= 0.33f;
             white += 0.18f;
         }
 
         if (horse.hasAllele("cameo", HorseAlleles.CAMEO)) {
-            concentration *= 0.2f;
+            concentration *= 0.27f;
             white += 0.2f;
         }
 
         if (horse.hasAllele("silver", HorseAlleles.SILVER)) {
-            concentration *= 0.4f;
+            concentration *= 0.53f;
         }
 
         if (horse.isHomozygous("dense", 1)) {
@@ -203,7 +168,11 @@ public class HorseColorCalculator
         }
  
         white = Math.max(white, 0);
-        setEumelanin(layer, concentration, white);
+        return new Pigment(EUMELANIN, concentration, white);
+    }
+
+    public static Color blackBodyColor(HorseGenome horse) {
+        return blackFurPigment(horse).toColor();
     }
 
     public static TextureLayer getBlackBody(HorseGenome horse) {
@@ -223,7 +192,7 @@ public class HorseColorCalculator
         else {
             return getSooty(horse);
         }
-        colorBlackBody(horse, layer);
+        layer.color = blackBodyColor(horse);
         setGrayConcentration(horse, layer);
         return layer;
     }
@@ -245,8 +214,8 @@ public class HorseColorCalculator
             TextureLayer palomino_mane = new TextureLayer();
             palomino_mane.description = "palomino mane";
             palomino_mane.name = fixPath("manetail");
-            colorRedBody(horse, palomino_mane);
-            adjustConcentration(palomino_mane, PALOMINO_POWER);
+            palomino_mane.color = redBodyColor(horse);
+            palomino_mane.color.power(PALOMINO_POWER);
             setGrayConcentration(horse, palomino_mane);
             layers.add(palomino_mane);
         }
@@ -261,7 +230,7 @@ public class HorseColorCalculator
         TextureLayer flaxen = new TextureLayer();
         flaxen.name = fixPath("flaxen");
         flaxen.description = "flaxen";
-        colorRedBody(horse, flaxen);
+        flaxen.color = redBodyColor(horse);
         float power = 1f;
         if (horse.hasAllele("cream", HorseAlleles.CREAM)) {
             power *= PALOMINO_POWER;
@@ -283,9 +252,9 @@ public class HorseColorCalculator
             power *= 0.5f;
             white += 0.02f;
         }
-        adjustConcentration(flaxen, power);
+        flaxen.color.power(power);
         setGrayConcentration(horse, flaxen);
-        addWhite(flaxen, white);
+        flaxen.color.addWhite(white);
         layers.add(flaxen);
     }
 
@@ -299,7 +268,9 @@ public class HorseColorCalculator
         TextureLayer layer = new TextureLayer();
         layer.name = fixPath("flaxen");
         layer.description = "silver dapple mane";
-        setEumelanin(layer, 0.3f, 0.0f);
+        Pigment black = blackFurPigment(horse);
+        black.concentration *= 0.3f / 15f;
+        layer.color = black.toColor();
         setGrayConcentration(horse, layer);
         return layer;
     }
@@ -307,23 +278,24 @@ public class HorseColorCalculator
     public static void colorSkin(HorseGenome horse, TextureLayer layer) {
         if (horse.isCreamPearl() || horse.hasAllele("cameo", HorseAlleles.CAMEO)) {
             // Light skin
-            setEumelanin(layer, 5f, 0.2f);
+            layer.color = new Pigment(EUMELANIN, 5f, 0.2f).toColor();
         }
-        else if (!(horse.isDoubleCream() || horse.isHomozygous("ivory", HorseAlleles.IVORY))) {
+        else if (horse.isDoubleCream() || horse.isHomozygous("ivory", HorseAlleles.IVORY)) {
+            // Very light skin
+            layer.color = new Pigment(EUMELANIN, 0.1f, 0.1f).toColor();
+        }
+        else {
             // Black skin
-            setEumelanin(layer, 18f, 0.1f);
+            layer.color = new Pigment(EUMELANIN, 18f, 0.1f).toColor();
         }
-        // White to pink (red is unchanged)
-        int old = layer.green;
-        layer.green = (int)(layer.green * 0xd6 / 255f);
-        old = layer.blue;
-        layer.blue = (int)(layer.blue * 0xb6 / 255f);
+        // Multiply by pink
+        layer.color.multiply(PINK_SKIN);
     }
 
     public static void colorGray(HorseGenome horse, TextureLayer layer) {
         // Show skin very faintly through the white hairs
         colorSkin(horse, layer);
-        addWhite(layer, 0.99f);
+        layer.color.addWhite(0.99f);
     }
 
     public static TextureLayer getNose(HorseGenome horse) {
@@ -337,12 +309,9 @@ public class HorseColorCalculator
         TextureLayer layer = new TextureLayer();
         layer.name = fixPath("hooves");
         colorSkin(horse, layer);
-        addWhite(layer, 0.4f);
+        layer.color.addWhite(0.4f);
         // Multiply by the shell color of hooves
-        layer.red = (int)((float)layer.red * 255f / 255f);
-        layer.green = (int)((float)layer.green * 229f / 255f);
-        layer.blue= (int)((float)layer.blue * 184f / 255f);
-        layer.clamp();
+        layer.color.multiply(SHELL_HOOF);
         return layer;
     }
 
@@ -351,28 +320,25 @@ public class HorseColorCalculator
             return;
         }
         TextureLayer white = new TextureLayer();
-        white.name = fixPath("dun");
-        white.alpha = (int)(0.1f * 255f);
+        white.name = fixPath("dun/dun_dilute");
+        white.color.a = 0.1f;
         if (!horse.isDun()) {
-            white.alpha = (int)(white.alpha * 0.1);
+            white.color.a *= 0.1f;
         }
         if (horse.isHomozygous("light_dun", 1)) {
-            white.alpha *= 2;
+            white.color.a *= 2f;
         }
         white.type = TextureLayer.Type.SHADE;
         layers.add(white);
 
         TextureLayer layer = new TextureLayer();
-        layer.name = fixPath("dun");
+        layer.name = fixPath("dun/dun_dilute");
         layer.type = TextureLayer.Type.ROOT;
         float dunpower = 0.6f;
         if (!horse.isDun()) {
             dunpower = 0.9f;
         }
-        int val = (int)(dunpower * 255);
-        layer.red = val;
-        layer.green = val;
-        layer.blue = val;
+        layer.color = new Color(dunpower, dunpower, dunpower);
         layers.add(layer);
     }
 
@@ -385,21 +351,21 @@ public class HorseColorCalculator
             case 0:
                 return null;
             case 1:
-                layer.alpha = (int)(0.4F * 255.0F);
+                layer.color.a = 0.4f;
                 break;
             case 2:
-                layer.alpha = (int)(0.8F * 255.0F);
+                layer.color.a = 0.8f;
                 break;
             case 3:
-                layer.alpha = 255;
+                layer.color.a = 1f;
                 break;
             default:
-                layer.alpha = 255;
+                layer.color.a = 1f;
         }
 
         // TODO: replace this with something that actually looks good
         if (horse.hasAllele("donkey_dark", 1) && !horse.isChestnut()) {
-            layer.alpha = 255;
+            layer.color.a = 1f;
         }
 
         layer.name = fixPath("sooty_countershade");
@@ -408,10 +374,10 @@ public class HorseColorCalculator
         }
         else if (horse.isChestnut()) {
             layer.name = fixPath("base");
-            layer.alpha /= 2;
+            layer.color.a *= 0.5f;
         }
 
-        colorBlackBody(horse, layer);
+        layer.color = blackBodyColor(horse);
         setGrayConcentration(horse, layer);
 
         return layer;
@@ -451,14 +417,14 @@ public class HorseColorCalculator
                 spread -= 1;
                 other = new TextureLayer();
                 other.name = fixPath("mealy/mealy1");
-                colorRedBody(horse, other);
-                adjustConcentration(other, 0.04f * (2 - color));
+                other.color = redBodyColor(horse);
+                other.color.power(0.04f * (2 - color));
             }
         }
 
         light_belly.name = fixPath("mealy/" + prefix + "mealy" + spread);
-        colorRedBody(horse, light_belly);
-        adjustConcentration(light_belly, 0.04f * (2 - color));
+        light_belly.color = redBodyColor(horse);
+        light_belly.color.power(0.04f * (2 - color));
 
         textureLayers.add(light_belly);
         if (other != null) {
@@ -467,31 +433,44 @@ public class HorseColorCalculator
     }
 
     public static void addPoints(HorseGenome horse, List<TextureLayer> layers) {
-        String prefix = "";
-        if (horse.hasAllele("reduced_points", 1)) {
-            prefix = "wild_";
-        }
+        TextureLayerGroup points = new TextureLayerGroup();
+        // Add dorsal stripe for dun primitive markings
         if (horse.hasStripe()) {
             TextureLayer stripe = new TextureLayer();
             if (horse.hasAllele("cross", 1)) {
-                stripe.name = fixPath("marks/" + prefix + "cross");
+                stripe.name = fixPath("dun/cross");
             }
             else {
-                stripe.name = fixPath("marks/" + prefix + "dorsal");
+                stripe.name = fixPath("dun/dorsal");
             }
-            if (horse.isChestnut()) {
-                colorRedBody(horse, stripe);
-            }
-            else {
-                colorBlackBody(horse, stripe);
-            }
-            adjustConcentration(stripe, 1.2f);
-            layers.add(stripe);
+            points.add(stripe);
         }
-        else if (!horse.isChestnut()) {
-            TextureLayer points = new TextureLayer();
-            points.name = fixPath(prefix + "bay");
-            colorBlackBody(horse, points);
+        // Add black mane, tail, and legs for bay or bay dun horses and 
+        // undiluted mane, tail, and legs for red duns or grullos
+        if (horse.hasStripe() || !horse.isChestnut()) {
+            TextureLayer legs = new TextureLayer();
+            String name = "bay";
+            if (horse.hasAllele("reduced_points", 1)) {
+                name = "wild_bay";
+            }
+            legs.name = fixPath(name);
+            points.add(legs);
+
+            TextureLayer mane = new TextureLayer();
+            mane.name = fixPath("manetail");
+            points.add(mane);
+        }
+        // Set the points to be the right color depending on whether the horse
+        // is a red dun or bay/black based
+        if (horse.isChestnut()) {
+            points.color = redBodyColor(horse);
+        }
+        else {
+            points.color = blackBodyColor(horse);
+        }
+        points.color.power(1.1f);
+        // Ignore this for horses that don't need it
+        if (points.layers.size() > 0) {
             layers.add(points);
         }
     }
@@ -560,16 +539,15 @@ public class HorseColorCalculator
 
     public static void setGrayConcentration(HorseGenome horse, TextureLayer layer) {
         if (horse.isGray()) {
-            float prevRed = layer.red;
-            float prevGreen = layer.green;
-            float prevBlue = layer.blue;
+            // Darken by increasing concentration
             float concentration = grayConcentration(horse, horse.getGrayRate());
-            adjustConcentration(layer, concentration);
-            // Blacken the color a bit so it does not look so odd
-            float lightnessDiff = (float)(layer.red + layer.green + layer.blue) / (prevRed + prevGreen + prevBlue);
-            layer.red = (int)((layer.red + lightnessDiff * prevRed) / 2f);
-            layer.green = (int)((layer.green + lightnessDiff * prevGreen) / 2f);
-            layer.blue = (int)((layer.blue + lightnessDiff * prevBlue) / 2f);
+            Color dark = new Color(layer.color);
+            dark.power(concentration);
+            // Darken by averaging with black
+            float lightnessDiff = (float)(dark.r + dark.g + dark.b) / (layer.color.r + layer.color.g + layer.color.b);
+            layer.color.average(Color.BLACK, 1f - lightnessDiff);
+            // Average the two darkened versions
+            layer.color.average(dark, 0.5f);
         }
     }
 
@@ -595,7 +573,7 @@ public class HorseColorCalculator
             roan.name = HorseColorCalculator.fixPath("roan/roan");
             int r = horse.getRandom("roan_density") >>> 1;
             float a = (50 - (r % 16) - (r / 16 % 16)) / 50f;
-            roan.alpha = (int)(roan.alpha * a);
+            roan.color.a *= a;
             textureLayers.add(roan);
         }
 
@@ -611,13 +589,13 @@ public class HorseColorCalculator
         TextureLayer highlights = new TextureLayer();
         highlights.name = HorseColorCalculator.fixPath("base");
         highlights.type = TextureLayer.Type.HIGHLIGHT;
-        highlights.alpha = (int)(255f * 0.2f);
+        highlights.color.a = 0.2f;
         textureLayers.add(highlights);
 
         TextureLayer shading = new TextureLayer();
         shading.name = HorseColorCalculator.fixPath("shading");
         shading.type = TextureLayer.Type.SHADE;
-        shading.alpha = (int)(255 * 0.5);
+        shading.color.a = 0.5f;
         textureLayers.add(shading);
 
         TextureLayer common = new TextureLayer();
