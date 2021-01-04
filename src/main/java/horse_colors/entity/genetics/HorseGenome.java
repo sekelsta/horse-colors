@@ -221,7 +221,13 @@ public class HorseGenome extends Genome {
     public List<Genome.Linkage> listLinkages() {
         List<Genome.Linkage> linkages = super.listLinkages();
         // It doesn't matter if some appear twice, the last will be used
-        linkages.add(new Genome.Linkage("extension", 0.015f));
+        // Extension and KIT are about 20 cM apart, based on the map in
+        // https://www.researchgate.net/publication/7666109_International_Equine_Gene_Mapping_Workshop_Report_A_comprehensive_linkage_map_constructed_with_data_from_new_markers_and_by_merging_four_mapping_resources
+        // Note that because tobiano is an inversion in between extension and
+        // KIT, a heterozygous tobiano horse would have much closer linkage.
+        // See https://www.mun.ca/biology/scarr/iGen3_16-08.html for a 
+        // diagram of the effect an inversion has on crossover and linkage
+        linkages.add(new Genome.Linkage("extension", 0.2f));
         linkages.add(new Genome.Linkage("KIT"));
 
         linkages.add(new Genome.Linkage("agouti", 0.0f));
