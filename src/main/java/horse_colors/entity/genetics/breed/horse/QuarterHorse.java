@@ -18,6 +18,7 @@ public class QuarterHorse {
         Map<String, List<Float>> GENES = breed.genes;
 
         // Source: https://onlinelibrary.wiley.com/doi/full/10.1111/jvim.15403#jvim15403-tbl-0002
+        // Also: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4608717/
         GENES.put("HMGA2", ImmutableList.of(
             1f,     // Wild type (G)
             1f      // Smaller ponies (A)

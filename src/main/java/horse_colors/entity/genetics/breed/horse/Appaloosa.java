@@ -59,6 +59,12 @@ public class Appaloosa {
             0.996f,     // Non-gray
             1f          // Gray
         ));
+
+        // Source: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4608717/
+        GENES.put("HMGA2", ImmutableList.of(
+            1f,     // Normal size
+            0f      // Small
+        ));
     }
 
     public static void init() {}
