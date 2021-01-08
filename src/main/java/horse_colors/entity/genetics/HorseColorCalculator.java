@@ -473,6 +473,7 @@ public class HorseColorCalculator
         if (points.layers.size() > 0) {
             layers.add(points);
         }
+        setGrayConcentration(horse, points);
     }
 
     public static void addGray(HorseGenome horse, List<TextureLayer> layers) {
