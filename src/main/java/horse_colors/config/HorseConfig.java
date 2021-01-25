@@ -91,7 +91,8 @@ public class HorseConfig
                     .defineInRange("yearLength", 4.0, 2/24000., 10000);
 
             grayGradually = builder
-                    .comment("If enabled, gray hores will be born colored and their fur will gradually turn white.")
+                    .comment("If enabled, gray horses will be born colored and their fur will gradually turn white.",
+                    "Otherwise, all gray horses will render as if they were about 6-8 years old.")
                     .define("grayGradually", true);
 
             growGradually = builder
