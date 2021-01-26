@@ -704,6 +704,12 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             super.func_234177_a_(world, mate);
             return;
         }
+        // If two animals go for the same mate at the same time this function
+        // can be called twice. This check makes sure it only works the first time.
+        if (!(this.isInLove() && mate.isInLove())) {
+            return;
+        }
+
         IGeneticEntity geneticMate = (IGeneticEntity)mate;
 
         // func_241840_a = createChild
