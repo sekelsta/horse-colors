@@ -193,8 +193,7 @@ public class HorseGenome extends Genome {
         "size_subtle5",
         "size_subtle6",
         "size_subtle7",
-        "leg_stripes",   // TODO
-        "stripe_spacing" // TODO
+        "double_ovulation"
     );
 
     public static final double MINIATURE_CUTOFF = 317.5;

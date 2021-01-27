@@ -289,5 +289,10 @@ public class BaseEquine {
         GENES.put("size2", one);
         GENES.put("size3", one);
         GENES.put("size4", one);
+
+        GENES.put("double_ovulation", ImmutableList.of(
+            0.8f,   // Twins less likely
+            1.0f    // Twins more likely
+        ));
     }
 }

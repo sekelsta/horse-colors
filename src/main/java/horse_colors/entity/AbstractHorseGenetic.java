@@ -712,56 +712,82 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
 
         IGeneticEntity geneticMate = (IGeneticEntity)mate;
 
-        // func_241840_a = createChild
-        AgeableEntity ageableentity = this.func_241840_a(world, mate);
-        // If ageableentity is null, leave this and the mate in love mode to try again
-        // Note posting an event with a null child could cause crashes with other
-        // mods that do not check their input carefully, so we don't do that
-        if (ageableentity == null) {
-            return;
-        }
-        final BabyEntitySpawnEvent event = new BabyEntitySpawnEvent(this, mate, ageableentity);
-        final boolean cancelled = MinecraftForge.EVENT_BUS.post(event);
-        ageableentity = event.getChild();
-        if (cancelled) {
-            //Reset the "inLove" state for the animals
-            this.setGrowingAge(this.getRebreedTicks());
-            mate.setGrowingAge(geneticMate.getRebreedTicks());
-            this.resetInLove();
-            mate.resetInLove();
-            return;
-        }
-        // Don't spawn a null entity
-        if (ageableentity == null) {
+        // Call this on the female's side, if possible
+        if (this.isMale() && !geneticMate.isMale()) {
+            mate.func_234177_a_(world, this);
             return;
         }
 
-        if (HorseConfig.isPregnancyEnabled()) {
-            if (this.setPregnantWith(ageableentity, mate)) {
-                ageableentity = null;
-                // Spawn heart particles
-                this.world.setEntityState(this, (byte)18);
-            }
-        }
+        // For use later in triggering the achievement
         ServerPlayerEntity serverplayerentity = this.getLoveCause();
         if (serverplayerentity == null && mate.getLoveCause() != null) {
             serverplayerentity = mate.getLoveCause();
         }
 
-        if (serverplayerentity != null) {
-            serverplayerentity.addStat(Stats.ANIMALS_BRED);
-            CriteriaTriggers.BRED_ANIMALS.trigger(serverplayerentity, this, mate, ageableentity);
-        }
+        int numFoals = this.getRandomLitterSize();
+        List<AgeableEntity> foals = new ArrayList<>();
+        for (int i = 0; i < numFoals; ++i) {
 
+            // func_241840_a = createChild
+            AgeableEntity ageableentity = this.func_241840_a(world, mate);
+            // If ageableentity is null, leave this and the mate in love mode to try again
+            // Note posting an event with a null child could cause crashes with other
+            // mods that do not check their input carefully, so we don't do that
+            if (ageableentity == null) {
+                continue;
+            }
+            final BabyEntitySpawnEvent event = new BabyEntitySpawnEvent(this, mate, ageableentity);
+            final boolean cancelled = MinecraftForge.EVENT_BUS.post(event);
+            ageableentity = event.getChild();
+            // Don't spawn if cancelled or a null entity
+            if (cancelled || ageableentity == null) {
+                continue;
+            }
+
+            if (HorseConfig.isPregnancyEnabled()) {
+                if (this.setPregnantWith(ageableentity, mate)) {
+                    ageableentity = null;
+                }
+            }
+            // Spawn if pregnancy is not enabled
+            else {
+                spawnChild(ageableentity, world);
+            }
+            foals.add(ageableentity);
+
+            if (serverplayerentity != null) {
+                serverplayerentity.addStat(Stats.ANIMALS_BRED);
+                CriteriaTriggers.BRED_ANIMALS.trigger(serverplayerentity, this, mate, ageableentity);
+            }
+        }
+        // Reset love state
         this.setGrowingAge(this.getRebreedTicks());
         mate.setGrowingAge(geneticMate.getRebreedTicks());
         this.resetInLove();
         mate.resetInLove();
-        // Spawn if pregnancy is not enabled
-        if (ageableentity != null) {
-            spawnChild(ageableentity, world);
+
+        
+        if (foals.size() <= 0) {
+            // Spawn smoke particles to indicate failure
+            this.world.setEntityState(this, (byte)6);
+            // Only spawn XP and grant the achievement for successful births
+            return;
         }
-        // Spawn XP orbs regardless of pregnancy
+        // Make twins and triplets smaller as there is less space for them in the womb
+        float multiplier = (float)Math.pow(1./foals.size(), 1./3.);
+        for (AgeableEntity foal : foals) {
+            if (foal instanceof IGeneticEntity) {
+                IGeneticEntity gFoal = (IGeneticEntity)foal;
+                gFoal.setMotherSize(gFoal.getMotherSize() * multiplier);
+            }
+        }
+
+        if (HorseConfig.isPregnancyEnabled()) {
+            // Spawn heart particles
+            this.world.setEntityState(this, (byte)18);
+        }
+
+        // Spawn XP orbs
         if (world.getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
             int xp = this.getRNG().nextInt(7) + 1;
             world.addEntity(new ExperienceOrbEntity(world, this.getPosX(), this.getPosY(), this.getPosZ(), xp));
@@ -779,6 +805,32 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     // Helper function for createChild that creates and spawns an entity of the 
     // correct species
     abstract AbstractHorseEntity getChild(ServerWorld world, AgeableEntity otherparent);
+
+    // Returns the number of conceptions that survive pregnancy
+    // This can return different numbers when called on the same animal at
+    // different times.
+    protected int getRandomLitterSize() {
+        // Since this is Minecraft, skip twin births where one or both twins die,
+        // and make twin births much more rare
+        // If the frequency of double_ovulation is 0.2, the probability of triplets
+        // works out to within an order of magnitude of the expected 1 in 300,000.
+        double chance = 1 / 10000;
+        if (getGenome().countAlleles("double_ovulation", 1) == 1) {
+            chance = 1 / 5000;
+        }
+        else if (getGenome().isHomozygous("double_ovulation", 1)) {
+            chance = 1 / 1000;
+        }
+
+        int litterSize = 1;
+        if (getRNG().nextDouble() < chance) {
+            litterSize += 1;
+        }
+        if (getRNG().nextDouble() < chance) {
+            litterSize += 1;
+        }
+        return litterSize;
+    }
 
     public boolean isOppositeGender(AbstractHorseGenetic other) {
         if (!HorseConfig.isGenderEnabled()) {
@@ -815,11 +867,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             // is born.
             if (foal.getGenome().isEmbryonicLethal())
             {
-                // Exit love mode
-                this.resetInLove();
-                otherAnimal.resetInLove();
-                // Spawn smoke particles
-                this.world.setEntityState(this, (byte)6);
                 return null;
             }
             foal.setMotherSize(this.getGenome().getAdultScale());

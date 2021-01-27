@@ -44,5 +44,10 @@ public class BaseDonkey {
             1f,     // Non-dun, no cross
             0f      // Unused
         ));
+
+        GENES.put("double_ovulation", ImmutableList.of(
+            0.5f,   // Twins less likely
+            1.0f    // Twins more likely
+        ));
     }
 }
