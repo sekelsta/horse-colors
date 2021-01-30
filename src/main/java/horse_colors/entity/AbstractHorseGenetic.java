@@ -573,6 +573,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             }
             book.getTag().putString("species", this.getSpecies().name());
             book.getTag().putString("genes", this.getGenome().genesToString());
+            book.getTag().putUniqueId("EntityUUID", this.getUniqueID());
             if (this.hasCustomName()) {
                 book.setDisplayName(this.getCustomName());
             }

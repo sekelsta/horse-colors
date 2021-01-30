@@ -1,6 +1,7 @@
 package sekelsta.horse_colors.item;
 
 import java.util.List;
+import java.util.UUID;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
@@ -95,6 +96,7 @@ public class GeneBookItem extends Item {
      * Called to trigger the item's "innate" right click behavior. To handle when this item is used on a Block, see
      * {@link #onItemUse}.
      */
+    @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
         ItemStack itemstack = playerIn.getHeldItem(handIn);
         if (validBookTagContents(itemstack.getTag())) {
@@ -106,6 +108,33 @@ public class GeneBookItem extends Item {
         System.out.println("Gene book has invalid NBT");
         return ActionResult.resultFail(itemstack);
     }
+
+    @Override
+    public ActionResultType itemInteractionForEntity(ItemStack stack, PlayerEntity player, LivingEntity target, Hand hand) {
+        // Check that this itemstack has a UUID
+        if (!stack.getTag().hasUniqueId("EntityUUID")) {
+            return ActionResultType.PASS;
+        }
+        // Get this itemstack's entity's UUID
+        UUID entityUUID = stack.getTag().getUniqueId("EntityUUID");
+        // Null check that probably shouldn't be needed
+        if (entityUUID == null) {
+            return ActionResultType.PASS;
+        }
+        // Check that the entity matches
+        if (!(entityUUID.equals(target.getUniqueID()))) {
+            return ActionResultType.PASS;
+        }
+        // Make changes based on the entity
+        if (target.hasCustomName()) {
+            stack.setDisplayName(target.getCustomName());
+        }
+        else {
+            stack.clearCustomName();
+        }
+        return ActionResultType.func_233537_a_(player.world.isRemote);
+    } 
+
 
     @OnlyIn(Dist.CLIENT)
     public void openGeneBook(CompoundNBT nbt) {
