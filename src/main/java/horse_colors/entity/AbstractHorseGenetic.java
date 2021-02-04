@@ -905,10 +905,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         return false;
     }
 
-    public boolean shouldRecordAge() {
-        return this.getGenome().clientNeedsAge() || this.isPregnant();
-    }
-
     /**
      * Called to update the entity's position/logic.
      */
@@ -922,7 +918,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
 
         // Keep track of age
-        if (!this.world.isRemote && this.shouldRecordAge()) {
+        if (!this.world.isRemote) {
             // For children, align with growing age in case they have been fed
             if (this.growingAge < 0) {
                 this.trueAge = this.growingAge;
