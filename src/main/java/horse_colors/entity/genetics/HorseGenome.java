@@ -193,7 +193,14 @@ public class HorseGenome extends Genome {
         "size_subtle5",
         "size_subtle6",
         "size_subtle7",
-        "double_ovulation"
+        "double_ovulation",
+        "donkey_size0",
+        "donkey_size1",
+        "donkey_size2",
+        "donkey_size3",
+        "donkey_size4",
+        "donkey_size5",
+        "donkey_size6"
     );
 
     public static final double MINIATURE_CUTOFF = 317.5;
@@ -560,10 +567,18 @@ public class HorseGenome extends Genome {
     // This is a multiplier for both width and height, so adjust for that when
     // calculating weight.
     private float getGeneticScale() {
-        if (!HorseConfig.COMMON.enableSizes.get()) {
-            return 1f;
-        }
         float size = 1f;
+        // Donkeys are smaller no matter whether sizes are enabled
+        if (this.species == Species.DONKEY) {
+            size *= 0.9f;
+        } // Likewise for mules and hinnies, but less so
+        else if (this.species == Species.MULE || this.species == Species.HINNY) {
+            size *= 0.98f;
+        }
+        if (!HorseConfig.COMMON.enableSizes.get()) {
+            return size;
+        }
+
         size *= this.entity.isMale() ? 1.01f : 0.99f;
         // LCORL is based off of information from the Center for Animal Genetics
         // They list T/T warmbloods as ~159 cm, T/C warmbloods as ~164 cm, and
@@ -672,16 +687,38 @@ public class HorseGenome extends Genome {
         float smaller = Math.min(size6[0], size6[1]);
         float larger = Math.max(size6[0], size6[1]);
         size *= Math.pow(smaller, 0.4) * Math.pow(larger, 1.6);
+
+        // Donkey size genes
+        // Incomplete dominant
+        size = getSizeContribution("donkey_size0", 1, size, 1.01f);
+        size = getSizeContribution("donkey_size0", 2, size, 1.03f);
+        size = getSizeContribution("donkey_size1", 1, size, 1.02f);
+        size = getSizeContribution("donkey_size1", 2, size, 1.04f);
+        size = getSizeContribution("donkey_size2", 1, size, 1f/1.02f);
+        size = getSizeContribution("donkey_size2", 2, size, 1f/1.04f);
+        size = getSizeContribution("donkey_size3", 1, size, 1f/1.06f);
+        // Mostly recessive
+        if (this.isHomozygous("donkey_size4", 1)) {
+            size /= 1.1f;
+        }
+        else if (this.hasAllele("donkey_size4", 1)) {
+            size /= 1.02f;
+        }  
+        // Incomplete dominant 
+        size = getSizeContribution("donkey_size5", 1, size, 1.025f); 
+        // Mostly dominant
+        if (this.isHomozygous("donkey_size6", 1)) {
+            size /= 1.06f;
+        }
+        else if (this.hasAllele("donkey_size6", 1)) {
+            size /= 1.04f;
+        }
         
 
         // A little bit of randomness to size
         int r = getRandom("size") >>> 1;
         size *= 1f + 0.01f * (float)(r % 64 - 32)/32f;
 
-        // Donkeys are smaller
-        if (this.species == Species.DONKEY) {
-            size *= 0.9f;
-        }
         return size;
     }
 

@@ -21,7 +21,7 @@ minor_sizes = [[1, 1.002, 1/1.002, 1.009, 1/1.009],
          [1, 1.0025, 1/1.0025, 1.005, 1/1.005]
          ]
 
-minor_sizes += [[1, 1.001, 1/1.001, 1.002, 1/1.002, 1.003, 1/1.003, 1.004, 1/1.004]] * 8
+subtle_sizes = [[1, 1.001, 1/1.001, 1.002, 1/1.002, 1.003, 1/1.003, 1.004, 1/1.004]] * 8
 
 minor_large = [[n for n in x if n >= 1] for x in minor_sizes]
 minor_small = [[n for n in x if n <= 1] for x in minor_sizes]
@@ -30,6 +30,16 @@ major_large = [[n for n in x if n >= 1] for x in major_sizes]
 major_small = [[n for n in x if n <= 1] for x in major_sizes]
 
 sizes = major_sizes + minor_sizes
+
+major_donkey_sizes  = [[1, 1.01, 1.03], # donkey_size0
+                       [1, 1.02, 1.04], # donkey_size1
+                       [1, 1/1.02, 1/1.04], # donkey_size2
+                       [1, 1/1.06], # donkey_size3
+                       [1, 1/1.05], # Mostly recessive, donkey_size4
+                       [1, 1.025], # donkey_size5
+                       [1, 1/1.03], # Mostly dominant, donkey_size6
+                       [0.9 ** 0.5] # Not actually named since it has no variance, recessive
+                       ]
 
 def choose_random_size(sizes):
     size = 132.0

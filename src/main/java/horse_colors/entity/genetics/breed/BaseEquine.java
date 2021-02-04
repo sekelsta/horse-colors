@@ -294,5 +294,27 @@ public class BaseEquine {
             0.8f,   // Twins less likely
             1.0f    // Twins more likely
         ));
+
+        GENES.put("donkey_size0", ImmutableList.of(
+            1f
+        ));
+        GENES.put("donkey_size1", ImmutableList.of(
+            1f
+        ));
+        GENES.put("donkey_size2", ImmutableList.of(
+            1f
+        ));
+        GENES.put("donkey_size3", ImmutableList.of(
+            1f
+        ));
+        GENES.put("donkey_size4", ImmutableList.of(
+            1f
+        ));
+        GENES.put("donkey_size5", ImmutableList.of(
+            1f
+        ));
+        GENES.put("donkey_size6", ImmutableList.of(
+            1f
+        ));
     }
 }

@@ -1,6 +1,7 @@
 package sekelsta.horse_colors.entity;
 import net.minecraft.entity.passive.horse.*;
 
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -27,6 +28,9 @@ import sekelsta.horse_colors.entity.genetics.Species;
 import sekelsta.horse_colors.util.Util;
 
 public class DonkeyGeneticEntity extends AbstractHorseGenetic {
+
+    public static List<Breed> breeds = ImmutableList.of(MiniatureDonkey.breed,
+        MammothDonkey.breed);
 
     private static final ResourceLocation LOOT_TABLE = new ResourceLocation("minecraft", "entities/donkey");
 
@@ -133,5 +137,10 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
     @Override
     public Breed getDefaultBreed() {
         return DefaultDonkey.breed;
+    }
+
+    @Override
+    public int getPopulation() {
+        return 40000000;
     }
 }
