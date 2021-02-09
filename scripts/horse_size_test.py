@@ -1,72 +1,95 @@
 import random
 
+import equine_sizes
+from genetics import *
 
-major_sizes = [[1, 1, 1, 1, 1.03], # LCORL
-               [1, 1, 1, 1, 1, 1, 1, 1, 0.9], # HMGA2
-               [1, 1.03], # Imprinted, maternal
-               [1, 1.05], # Semi-dominant
-               [1, 1.002, 1.03, 1.05],
-               [1, 1/1.04], # Imprinted (paternal)
-               [1, 1/1.005, 1/1.02, 1/1.05, 1/1.06] # Larger effects recessive
-               ]
+def choose_random_size(distribution):
+    size = 132
+    for gene in distribution:
+        frequency = distribution[gene]
+        alleles = (choose_random_allele(frequency),
+                   choose_random_allele(frequency))
+        size *= equine_sizes.sizes[gene](alleles)
+    return size
 
-# All incomplete dominant
-minor_sizes = [[1, 1.002, 1/1.002, 1.009, 1/1.009],
-         [1, 1.003, 1/1.003, 1.015, 1/1.015],
-         [1, 1.001, 1/1.001, 1.012, 1/1.012],
-         [1, 1.001, 1/1.001, 1.01, 1/1.01],
-         [1, 1.002, 1/1.002, 1.008, 1/1.008],
-         [1, 1.001, 1/1.001, 1.005, 1/1.005],
-         [1, 1.0025, 1/1.0025, 1.005, 1/1.005],
-         [1, 1.0025, 1/1.0025, 1.005, 1/1.005]
-         ]
+def percentile_sizes(distribution, n, percentiles=[0.1, 0.5, 0.9]):
+    horse_sizes = []
+    for i in range(n):
+        horse_sizes += [choose_random_size(distribution)]
+    horse_sizes.sort()
+    nums = []
+    for p in percentiles:
+        nums += [horse_sizes[int(n * p)]]
+    return nums
 
-subtle_sizes = [[1, 1.001, 1/1.001, 1.002, 1/1.002, 1.003, 1/1.003, 1.004, 1/1.004]] * 8
-
-minor_large = [[n for n in x if n >= 1] for x in minor_sizes]
-minor_small = [[n for n in x if n <= 1] for x in minor_sizes]
-
-major_large = [[n for n in x if n >= 1] for x in major_sizes]
-major_small = [[n for n in x if n <= 1] for x in major_sizes]
-
-sizes = major_sizes + minor_sizes
-
-major_donkey_sizes  = [[1, 1.01, 1.03], # donkey_size0
-                       [1, 1.02, 1.04], # donkey_size1
-                       [1, 1/1.02, 1/1.04], # donkey_size2
-                       [1, 1/1.06], # donkey_size3
-                       [1, 1/1.05], # Mostly recessive, donkey_size4
-                       [1, 1.025], # donkey_size5
-                       [1, 1/1.03], # Mostly dominant, donkey_size6
-                       [0.9 ** 0.5] # Not actually named since it has no variance, recessive
-                       ]
-
-def choose_random_size(sizes):
-    size = 132.0
-    for lst in sizes:
-        num = random.choice(lst)
-        size *= num
-        num = random.choice(lst)
-        size *= num
-
+def get_size(horse):
+    '''Calculates the horse's height in cm based on its genes'''
+    size = 132
+    for gene in horse:
+        size *= equine_sizes.sizes[gene](horse[gene])
     return size
 
 
-def max_size(sizes):
-    # Assume longer legs increase height at scale=1 from 132 cm to 137 cm
-    size = 137.0
-    for lst in sizes:
-        num = max(lst)
-        size *= num * num
+def breed_towards(distribution, population_size, num_children, done, select,
+                  max_generations=200):
+    '''A generalized function for selective breeding.
+        done - a function that takes a population (list of animals) and
+        returns true if it satisfies the goal of the breeding
+        select - a function that takes a group of animals and returns one to
+        keep for the next generation.
+    This implementation always ensures each horse in the previous generation
+    has at least one child in the next generation.'''
+    # Set up a breeding herd
+    generations = 0;
+    pops = []
+    for i in range(population_size):
+        pops += [generate_animal(distribution)]
+    while generations < max_generations and not done(pops) :
+        generations += 1;
+        next_pops = []
+        for horse in pops:
+            foals = []
+            for i in range(num_children):
+                foals += [get_child(horse, random.choice(pops))]
+            next_pops += [select(foals)]
+        pops = next_pops
+    print('Generations: ' + str(generations))
+    return get_distribution(pops)
 
-    return size
+def within_size_range(min_height, max_height, p=0.05):
+    '''Returns a function that takes a population and returns true if
+    at least 1-p of the population are a bove min_height and 1-p are below
+    max_height'''
+    def done(herd):
+        herd.sort(key=get_size)
+        if get_size(herd[int(len(herd) * p)]) < min_height:
+            return False
+        if get_size(herd[int(len(herd) * (1-p))]) > max_height:
+            return False
+        return True
+    return done
 
+def select_size_range(min_height, max_height):
+    '''First, attempts to randomly choose a horse within the given size range.
+    If there is none, it picks the horse closest to the geometric center of
+    the range.'''
+    def select(herd):
+        ok = []
+        for h in herd:
+            size = get_size(h)
+            if (size >= min_height and size <= max_height):
+                ok += [h]
+        if ok:
+            return random.choice(ok)
+        # Geometric average
+        avg = min_height ** 0.5 * max_height ** 0.5
+        def distance_from_average(h):
+            if avg <= 0:
+                return size - avg
+            if size <= 0:
+                return float('inf')
+            return max(size / avg, avg / size)
+        return min(herd, key=distance_from_average)
+        
 
-def min_size(sizes):
-    # Assume shorter legs decrease height at scale=1 from 132 cm to 117 cm
-    size = 117.0
-    for lst in sizes:
-        num = min(lst)
-        size *= num * num
-
-    return size
+    return select
