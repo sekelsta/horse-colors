@@ -369,33 +369,13 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
 
     public void copyAbstractHorse(AbstractHorseEntity horse)
     {
-        this.randomize(this.getRandomBreed());
-        // Copy location
-        this.setLocationAndAngles(horse.getPosX(), horse.getPosY(), 
-            horse.getPosZ(), horse.rotationYaw, horse.rotationPitch);
-        // Set tamed
-        this.setHorseTamed(horse.isTame());
-        // We don't know the player, so don't call setTamedBy
-        // Set temper, in case it isn't tamed
-        this.setTemper(horse.getTemper());
-        // Do not transfer isRearing, isBreeding, or isEatingHaystack.
-        // Set age
-        this.setGrowingAge(horse.getGrowingAge());
-        this.trueAge = horse.getGrowingAge();
-        // Transfer inventory (horseChest)
-        Inventory inv = ObfuscationReflectionHelper.getPrivateValue(AbstractHorseEntity.class, horse, "field_110296_bG");
-        this.horseChest.setInventorySlotContents(0, inv.getStackInSlot(0));
-        this.horseChest.setInventorySlotContents(1, inv.getStackInSlot(1));
-        // Copy over speed, health, and jump
-        double maxHealth = horse.getAttribute(Attributes.MAX_HEALTH).getBaseValue();
-        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(maxHealth);
-
-        double jumpStrength = horse.getAttribute(Attributes.HORSE_JUMP_STRENGTH).getBaseValue();
-        this.getAttribute(Attributes.HORSE_JUMP_STRENGTH).setBaseValue(jumpStrength);
-
-        double movementSpeed = horse.getAttribute(Attributes.MOVEMENT_SPEED).getBaseValue();
-        this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(movementSpeed);
-
+        // Copy NBT data (initialize from horse's NBT)
+        CompoundNBT vanilla = horse.writeWithoutTypeId(new CompoundNBT());
+        // Don't try to read Minecraft's variant as legacy gene data
+        if (vanilla.contains("Variant")) {
+            vanilla.remove("Variant");
+        }
+        this.read(vanilla);
         this.useGeneticAttributes();
     }
 
