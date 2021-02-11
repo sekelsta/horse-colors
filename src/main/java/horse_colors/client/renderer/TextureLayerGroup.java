@@ -9,6 +9,7 @@ import sekelsta.horse_colors.util.Color;
 
 public class TextureLayerGroup extends TextureLayer {
     public List<TextureLayer> layers;
+    boolean isColored = false;
     
     public TextureLayerGroup() {
         this.layers = new ArrayList<>();
@@ -45,10 +46,27 @@ public class TextureLayerGroup extends TextureLayer {
         }
 
         this.colorLayer(baseimage);
-        // Set white to avoid a double multiply
-        this.color = new Color();
+        // Mark colored to avoid a double multiply
+        this.isColored = true;
 
         return baseimage;
+    }
+
+    // Override to use the isColored field
+    @Override
+    public void combineLayers(NativeImage base, NativeImage image) {
+        if (this.isColored) {
+            // Temporarily set the color to white to avoid multiplying, but
+            // also set it back at the end so that reloading textures does not
+            // turn all layergroups white.
+            Color temp = this.color;
+            this.color = new Color();
+            super.combineLayers(base, image);
+            this.color = temp;
+        }
+        else {
+            super.combineLayers(base, image);
+        }
     }
 
     // Return a string unique for all the layers in the group
