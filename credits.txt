@@ -15,5 +15,6 @@ horse/leopard/lplp_features.png
 
 Thanks to KevinBevin and Thea2176 for the Danish translation da_dk.json
 Thanks to Robbie2345 for the Dutch translation nl_nl.json
+Thanks to Endless for the Polish translation pl_pl.json
 
 Gray themed gender icons in gui/horse.png by mokiyoki of Genetic Animals, used with permission
