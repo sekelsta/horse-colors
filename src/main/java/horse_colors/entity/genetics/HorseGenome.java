@@ -856,12 +856,34 @@ public class HorseGenome extends Genome {
         }
     }
 
+    private String judgeStatRaw12(int val) {
+        if (val <= 1) {
+            return "worst";
+        }
+        else if (val <= 4) {
+            return "bad";
+        }
+        else if (val <= 7) {
+            return "avg";
+        }
+        else if (val <= 10) {
+            return "good";
+        }
+        else {
+            return "best";
+        }
+    }
+
     public String judgeStat(int val, String loc) {
         return Util.translate(loc + judgeStatRaw(val));
     }
 
     public String judgeStat(String name, int min, int max) {
         return Util.translate("stats." + judgeStatRaw(sumGenes(name, min, max)));
+    }
+
+    private String judgeStat12(String name, int min, int max) {
+        return Util.translate("stats." + judgeStatRaw12(sumGenes(name, min, max)));
     }
 
     private void listGenes(ArrayList<String> list, List<String> genelist) {
@@ -887,11 +909,12 @@ public class HorseGenome extends Genome {
         List<List<String>> contents = new ArrayList<List<String>>();
         List<String> physical = new ArrayList<String>();
         physical.add(Util.translate("book.physical"));
-        String health = Util.translate("stats.health") + "\n";
+        String health = Util.translate("stats.health");
+        health += "\n";
         health += "  " + Util.translate("stats.health1") + ": " + judgeStat("health", 0, 4) + "\n";
         health += "  " + Util.translate("stats.health2") + ": " + judgeStat("health", 4, 8) + "\n";
-        health += "  " + Util.translate("stats.health3") + ": " + judgeStat("health", 8, 12) + "\n";
-        health += "  " + Util.translate("stats.immune") + ": " + judgeStat((int)getImmuneHealth(), "stats.immune.");
+        health += "  " + Util.translate("stats.health3") + ": " + judgeStat("health", 8, 12) + "\n  ";
+        health += Util.translate("stats.immune") + ": " + judgeStat((int)getImmuneHealth(), "stats.immune.");
         if (HorseConfig.COMMON.enableSizes.get()) {
             health += "\n" + Util.translate("stats.health_size_note");
         }
@@ -916,19 +939,38 @@ public class HorseGenome extends Genome {
             }
         }
         physical.add(health);
-        String athletics = Util.translate("stats.athletics") + "\n";
-        athletics += "  " + Util.translate("stats.athletics1") + ": " + judgeStat("athletics", 0, 4) + "\n";
-        athletics += "  " + Util.translate("stats.athletics2") + ": " + judgeStat("athletics", 4, 8);
+        String athletics = "";
+        if (this.species == Species.DONKEY) {
+            athletics += "\n" + Util.translate("stats.athletics1") 
+                        + ": " + judgeStat("athletics", 0, 8);
+        }
+        else {
+            athletics += Util.translate("stats.athletics") + "\n";
+            athletics += "  " + Util.translate("stats.athletics1") + ": " + judgeStat("athletics", 0, 4) + "\n";
+            athletics += "  " + Util.translate("stats.athletics2") + ": " + judgeStat("athletics", 4, 8);
+        }
         physical.add(athletics);
-        String speed = Util.translate("stats.speed") + "\n";
-        speed += "  " + Util.translate("stats.speed1") + ": " + judgeStat("speed", 0, 4) + "\n";
-        speed += "  " + Util.translate("stats.speed2") + ": " + judgeStat("speed", 4, 8) + "\n";
-        speed += "  " + Util.translate("stats.speed3") + ": " + judgeStat("speed", 8, 12);
+        String speed = Util.translate("stats.speed");
+        if (this.species == Species.DONKEY) {
+            speed += ": " + judgeStat12("speed", 0, 12);
+        }
+        else {
+            speed += "\n";
+            speed += "  " + Util.translate("stats.speed1") + ": " + judgeStat("speed", 0, 4) + "\n";
+            speed += "  " + Util.translate("stats.speed2") + ": " + judgeStat("speed", 4, 8) + "\n";
+            speed += "  " + Util.translate("stats.speed3") + ": " + judgeStat("speed", 8, 12);
+        }
         physical.add(speed);
-        String jump = Util.translate("stats.jump") + "\n";
-        jump += "  " + Util.translate("stats.jump1") + ": " + judgeStat("jump", 0, 4) + "\n";
-        jump += "  " + Util.translate("stats.jump2") + ": " + judgeStat("jump", 4, 8) + "\n";
-        jump += "  " + Util.translate("stats.jump3") + ": " + judgeStat("jump", 8, 12);
+        String jump = Util.translate("stats.jump");
+        if (this.species == Species.DONKEY) {
+            jump += ": " + judgeStat12("jump", 0, 12);
+        }
+        else {
+            jump += "\n";
+            jump += "  " + Util.translate("stats.jump1") + ": " + judgeStat("jump", 0, 4) + "\n";
+            jump += "  " + Util.translate("stats.jump2") + ": " + judgeStat("jump", 4, 8) + "\n";
+            jump += "  " + Util.translate("stats.jump3") + ": " + judgeStat("jump", 8, 12);
+        }
         physical.add(jump);
         physical.add(healthEffects);
         if (HorseConfig.GENETICS.useGeneticStats.get() 
@@ -949,8 +991,8 @@ public class HorseGenome extends Genome {
         sizes.add(Util.translate("book.genetic_size"));
         listGenes(sizes, ImmutableList.of("LCORL", "HMGA2"));
         sizes.add(""); // Blank line
+        // A note saying many other genes also affect size
         sizes.add(Util.translate("book.size_disclaimer"));
-        // TODO: add a note that unknown genes and envorinmental factors may affect size
         if (HorseConfig.GENETICS.bookShowsGenes.get()) {
             contents.add(genetic);
         }

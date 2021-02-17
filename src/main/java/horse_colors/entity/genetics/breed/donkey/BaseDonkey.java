@@ -81,5 +81,25 @@ public class BaseDonkey {
             0.9f,
             1.0f
         ));
+
+        // Make the max speed and jump of donkeys lower than that of horses
+        ImmutableList<Float> one = ImmutableList.of(1f);
+        for (int i = 0; i < 12; i += 2) {
+            GENES.put("speed" + i, one);
+            GENES.put("jump" + i, one);
+        }
+        for (int i = 0; i < 8; i += 2) {
+            GENES.put("athletics" + i, one);
+        }
+        // Make the max heaalth of donkeys higher on average without changing
+        // the possible range
+        ImmutableList<Float> good = ImmutableList.of(4f/11f, 1f);
+        for (int i = 0; i < 12; ++i) {
+            GENES.put("health" + i, good);
+        }
+        // Now change the range a little, and make hoof health higher
+        GENES.put("health8", ImmutableList.of(0f, 1f));
+        // The overall effect moves average donkey health to 16, in a range
+        // of 2-24
     }
 }
