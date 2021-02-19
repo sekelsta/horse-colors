@@ -200,7 +200,8 @@ public class HorseGenome extends Genome {
         "donkey_size3",
         "donkey_size4",
         "donkey_size5",
-        "donkey_size6"
+        "donkey_size6",
+        "color" // TYR, albino donkeys
     );
 
     public static final double MINIATURE_CUTOFF = 317.5;
@@ -403,6 +404,10 @@ public class HorseGenome extends Genome {
     public boolean hasERURiskFactor() {
         return this.getAllele("mhc1", 0) % 4 == 3 
                 && this.getAllele("mhc1", 1) % 4 == 3;
+    }
+
+    public boolean isAlbino() {
+        return this.isHomozygous("color", 1);
     }
 
     public int getSootyLevel() {

@@ -3,6 +3,7 @@ package sekelsta.horse_colors.util;
 // Has normalized values for red, green, blue, and alpha
 public class Color {
     public static final Color BLACK = new Color(0, 0, 0);
+    public static final Color WHITE = new Color(1f, 1f, 1f);
 
 
     public float a;

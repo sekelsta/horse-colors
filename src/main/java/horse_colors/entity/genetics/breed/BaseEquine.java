@@ -316,5 +316,8 @@ public class BaseEquine {
         GENES.put("donkey_size6", ImmutableList.of(
             1f
         ));
+
+        // Non-albino
+        GENES.put("color", ImmutableList.of(1f));
     }
 }

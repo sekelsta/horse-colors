@@ -22,5 +22,9 @@ public class DefaultDonkey {
             0.9f,   // Non ivory
             1f      // Ivory
         ));
+        GENES.put("color", ImmutableList.of(
+            0.995f,   // Full color
+            1f      // Albino
+        ));
     }
 }

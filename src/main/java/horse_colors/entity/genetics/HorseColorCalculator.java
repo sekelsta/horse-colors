@@ -42,6 +42,10 @@ public class HorseColorCalculator
         // 6, 0.1 looks liver chestnutish
         float concentration = 5f * getRandomShadeModifier(horse);
         float white = 0.08f;
+        // Set albino donkeys to white
+        if (horse.isAlbino()) {
+            return new Pigment(Color.WHITE, 0, 0);
+        }
 
         if (horse.isDoubleCream() || horse.isHomozygous("ivory", HorseAlleles.IVORY)) {
             concentration *= 0.05f;
@@ -139,6 +143,11 @@ public class HorseColorCalculator
     public static Pigment blackFurPigment(HorseGenome horse) {
         float concentration = 15f * getRandomShadeModifier(horse);
         float white = 0.02f;
+        // Set albino donkeys to white
+        if (horse.isAlbino()) {
+            return new Pigment(Color.WHITE, 0, 0);
+        }
+
         if (horse.isDoubleCream() || horse.isHomozygous("ivory", HorseAlleles.IVORY)) {
             concentration *= 0.027f;
         }
@@ -276,7 +285,11 @@ public class HorseColorCalculator
     }
 
     public static void colorSkin(HorseGenome horse, TextureLayer layer) {
-        if (horse.isCreamPearl() || horse.hasAllele("cameo", HorseAlleles.CAMEO)) {
+        if (horse.isAlbino()) {
+            // Pure white
+            layer.color = new Color(Color.WHITE);
+        }
+        else if (horse.isCreamPearl() || horse.hasAllele("cameo", HorseAlleles.CAMEO)) {
             // Light skin
             layer.color = new Pigment(EUMELANIN, 5f, 0.2f).toColor();
         }
