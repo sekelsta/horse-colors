@@ -209,14 +209,14 @@ public class DefaultHorse {
             1f      // Larger
         ));
         GENES.put("size2", ImmutableList.of(
-            0.6f,   // Normal
-            1f      // Larger
-        ));
-        GENES.put("size3", ImmutableList.of(
             0.4f,   // Normal
             0.7f,   // Slightly larger
             0.85f,  // Larger
             1f      // Largest
+        ));
+        GENES.put("size3", ImmutableList.of(
+            0.6f,   // Normal
+            1f      // Larger
         ));
         GENES.put("size4", ImmutableList.of(
             0.4f,   // Normal
@@ -224,22 +224,6 @@ public class DefaultHorse {
             0.8f,   // Small
             0.9f,   // Smaller
             1f      // Smallest
-        ));
-        GENES.put("size5", ImmutableList.of(
-            0.8f,   // Normal
-            1f      // Smaller
-        ));
-        GENES.put("size6", ImmutableList.of(
-            0.4f,   // Normal
-            0.7f,   // Slightly smaller
-            0.8f,   // Small
-            0.9f,   // Smaller
-            1f      // Smallest
-        ));
-        GENES.put("size7", ImmutableList.of(
-            0.4f,   // Normal
-            0.8f,   // Larger
-            1f      // Smaller
         ));
 
         GENES.put("rabicano", ImmutableList.of(

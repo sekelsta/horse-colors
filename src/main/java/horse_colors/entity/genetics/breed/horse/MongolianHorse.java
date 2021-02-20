@@ -69,14 +69,14 @@ public class MongolianHorse {
             1f      // Larger
         ));
         GENES.put("size2", ImmutableList.of(
-            0.8f,   // Normal
-            1f      // Larger
-        ));
-        GENES.put("size3", ImmutableList.of(
             0.5f,   // Normal
             0.8f,   // Slightly larger
             0.9f,   // Larger
             1f      // Largest
+        ));
+        GENES.put("size3", ImmutableList.of(
+            0.8f,   // Normal
+            1f      // Larger
         ));
         GENES.put("size4", ImmutableList.of(
             0.5f,   // Normal
@@ -84,22 +84,6 @@ public class MongolianHorse {
             0.9f,   // Small
             0.95f,  // Smaller
             1f      // Smallest
-        ));
-        GENES.put("size5", ImmutableList.of(
-            0.9f,   // Normal
-            1f      // Smaller
-        ));
-        GENES.put("size6", ImmutableList.of(
-            0.5f,   // Normal
-            0.8f,   // Slightly smaller
-            0.9f,   // Small
-            0.95f,  // Smaller
-            1f      // Smallest
-        ));
-        GENES.put("size7", ImmutableList.of(
-            0.6f,   // Normal
-            0.8f,   // Larger
-            1f      // Smaller
         ));
     }
 
