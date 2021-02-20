@@ -71,9 +71,9 @@ public class ModEntities {
     @SubscribeEvent
     public static void registerEntities(final RegistryEvent.Register<EntityType<?>> event) {
         event.getRegistry().registerAll(
-                HORSE_GENETIC,
+                HORSE_GENETIC/*,
                 DONKEY_GENETIC,
-                MULE_GENETIC
+                MULE_GENETIC*/
         );
     }
 
@@ -81,8 +81,8 @@ public class ModEntities {
     public static void registerSpawnEggs(RegistryEvent.Register<Item> event) {
 
         event.getRegistry().register(HORSE_SPAWN_EGG);
-        event.getRegistry().register(DONKEY_SPAWN_EGG);
-        event.getRegistry().register(MULE_SPAWN_EGG);
+        //event.getRegistry().register(DONKEY_SPAWN_EGG);
+        //event.getRegistry().register(MULE_SPAWN_EGG);
     }
 
     @OnlyIn(Dist.CLIENT)
