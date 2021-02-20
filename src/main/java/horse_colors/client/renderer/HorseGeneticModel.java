@@ -110,7 +110,7 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         this.backLeftShin.setRotationPoint(0.0F, 7.0F, 0.0F);
         this.backLeftLeg.addChild(backLeftShin);
         this.backLeftHoof = new ModelRenderer(this, 78, 51);
-        this.backLeftHoof.addBox(-2.5F, 5.1F, -1.5F, 4, 3, 4, scaleFactor);
+        this.backLeftHoof.addBox(-2.5F, 5.0F, -1.5F, 4, 3, 4, scaleFactor);
         this.backLeftShin.addChild(this.backLeftHoof);
 
         this.backRightLeg = new ModelRenderer(this, 96, 29);
@@ -121,29 +121,29 @@ public class HorseGeneticModel<T extends AbstractHorseEntity> extends AgeableMod
         this.backRightShin.setRotationPoint(0.0F, 7.0F, 0.0F);
         this.backRightLeg.addChild(this.backRightShin);
         this.backRightHoof = new ModelRenderer(this, 96, 51);
-        this.backRightHoof.addBox(-1.5F, 5.1F, -1.5F, 4, 3, 4, scaleFactor);
+        this.backRightHoof.addBox(-1.5F, 5.0F, -1.5F, 4, 3, 4, scaleFactor);
         this.backRightShin.addChild(this.backRightHoof);
 
         this.frontLeftLeg = new ModelRenderer(this, 44, 29);
-        this.frontLeftLeg.addBox(-1.9F, -1.0F, -2.1F, 3, 8, 4, scaleFactor);
+        this.frontLeftLeg.addBox(-1.9F, -1.0F, -1.0F, 3, 8, 4, scaleFactor);
         this.frontLeftLeg.setRotationPoint(4.0F, 9.0F, -8.0F);
         this.frontLeftShin = new ModelRenderer(this, 44, 41);
-        this.frontLeftShin.addBox(-1.9F, 0.0F, -1.6F, 3, 5, 3, scaleFactor);
+        this.frontLeftShin.addBox(-1.9F, 0.0F, -0.5F, 3, 5, 3, scaleFactor);
         this.frontLeftShin.setRotationPoint(0.0F, 7.0F, 0.0F);
         this.frontLeftLeg.addChild(this.frontLeftShin);
         this.frontLeftHoof = new ModelRenderer(this, 44, 51);
-        this.frontLeftHoof.addBox(-2.4F, 5.1F, -2.1F, 4, 3, 4, scaleFactor);
+        this.frontLeftHoof.addBox(-2.4F, 5.0F, -1.0F, 4, 3, 4, scaleFactor);
         this.frontLeftShin.addChild(this.frontLeftHoof);
 
         this.frontRightLeg = new ModelRenderer(this, 60, 29);
-        this.frontRightLeg.addBox(-1.1F, -1.0F, -2.1F, 3, 8, 4, scaleFactor);
+        this.frontRightLeg.addBox(-1.1F, -1.0F, -1.0F, 3, 8, 4, scaleFactor);
         this.frontRightLeg.setRotationPoint(-4.0F, 9.0F, -8.0F);
         this.frontRightShin = new ModelRenderer(this, 60, 41);
-        this.frontRightShin.addBox(-1.1F, 0.0F, -1.6F, 3, 5, 3, scaleFactor);
+        this.frontRightShin.addBox(-1.1F, 0.0F, -0.5F, 3, 5, 3, scaleFactor);
         this.frontRightShin.setRotationPoint(0.0F, 7.0F, 0.0F);
         this.frontRightLeg.addChild(this.frontRightShin);
         this.frontRightHoof = new ModelRenderer(this, 60, 51);
-        this.frontRightHoof.addBox(-1.6F, 5.1F, -2.1F, 4, 3, 4, scaleFactor);
+        this.frontRightHoof.addBox(-1.6F, 5.0F, -1.0F, 4, 3, 4, scaleFactor);
         this.frontRightShin.addChild(this.frontRightHoof);
 
         this.head = new ModelRenderer(this, 0, 0);
