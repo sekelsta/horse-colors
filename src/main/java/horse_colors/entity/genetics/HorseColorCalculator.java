@@ -582,6 +582,7 @@ public class HorseColorCalculator
         textureLayers.add(HorseColorCalculator.getNose(horse));
         textureLayers.add(HorseColorCalculator.getHooves(horse));
 
+        // Add roan
         if (horse.hasAllele("KIT", HorseAlleles.KIT_ROAN)) {
             TextureLayer roan = new TextureLayer();
             roan.name = HorseColorCalculator.fixPath("roan/roan");
@@ -589,6 +590,13 @@ public class HorseColorCalculator
             float a = (50 - (r % 16) - (r / 16 % 16)) / 50f;
             roan.color.a *= a;
             textureLayers.add(roan);
+        }
+
+        // Add rabicano
+        if (horse.hasAllele("rabicano", 1)) {
+            TextureLayer rabicano = new TextureLayer();
+            rabicano.name = fixPath("roan/rabicano");
+            textureLayers.add(rabicano);
         }
 
         HorsePatternCalculator.addFaceMarkings(horse, textureLayers);

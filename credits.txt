@@ -13,6 +13,8 @@ horse/leopard/leopard_marble.png
 horse/leopard/lp_features.png
 horse/leopard/lplp_features.png
 
+Thanks to RosaNera for the rabicano texture
+
 Thanks to KevinBevin and Thea2176 for the Danish translation da_dk.json
 Thanks to Robbie2345 for the Dutch translation nl_nl.json
 Thanks to Endless for the Polish translation pl_pl.json

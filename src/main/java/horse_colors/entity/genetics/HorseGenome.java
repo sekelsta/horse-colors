@@ -201,7 +201,8 @@ public class HorseGenome extends Genome {
         "donkey_size4",
         "donkey_size5",
         "donkey_size6",
-        "color" // TYR, albino donkeys
+        "color", // TYR, albino donkeys
+        "rabicano"
     );
 
     public static final double MINIATURE_CUTOFF = 317.5;

@@ -241,6 +241,11 @@ public class DefaultHorse {
             0.8f,   // Larger
             1f      // Smaller
         ));
+
+        GENES.put("rabicano", ImmutableList.of(
+            0.99f,  // No rabicano
+            1f      // Rabicano
+        ));
     }
 
     public static void init() {}

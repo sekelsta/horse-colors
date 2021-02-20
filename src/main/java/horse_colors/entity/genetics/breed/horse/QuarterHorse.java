@@ -126,6 +126,12 @@ public class QuarterHorse {
             1f      // Mealy
         ));
 
+        // Rabicano exists but is rare
+        GENES.put("rabicano", ImmutableList.of(
+            0.995f, // No rabicano
+            1f      // Rabicano
+        ));
+
     }
 
     public static void init() {}

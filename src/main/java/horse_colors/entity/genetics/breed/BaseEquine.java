@@ -318,6 +318,9 @@ public class BaseEquine {
         ));
 
         // Non-albino
-        GENES.put("color", ImmutableList.of(1f));
+        GENES.put("color", one);
+
+        // No rabicano
+        GENES.put("rabicano", one);
     }
 }
