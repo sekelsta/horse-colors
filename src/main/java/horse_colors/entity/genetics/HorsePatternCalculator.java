@@ -272,6 +272,10 @@ public class HorsePatternCalculator {
             {
                 layer.name = HorseColorCalculator.fixPath(folder + "medicine_hat");
             }
+            else if (horse.hasAllele("KIT", HorseAlleles.KIT_SABINO1))
+            {
+                layer.name = HorseColorCalculator.fixPath(folder + "sabino_tobiano");
+            }
             else if (horse.hasAllele("frame", HorseAlleles.FRAME))
             {
                 layer.name =  HorseColorCalculator.fixPath(folder + "war_shield");
@@ -281,17 +285,30 @@ public class HorsePatternCalculator {
                 layer.name = HorseColorCalculator.fixPath(folder + "tobiano");
             }
         }
+        else if (horse.hasAllele("KIT", HorseAlleles.KIT_SABINO1))
+        {
+            if (horse.isHomozygous("MITF", HorseAlleles.MITF_SW1)) {
+                layer.name = HorseColorCalculator.fixPath(folder + "sabino_splash");
+            }
+            else if (horse.hasAllele("frame", HorseAlleles.FRAME)) {
+                layer.name = HorseColorCalculator.fixPath(folder + "frame_sabino");
+            }
+            else {
+                layer.name = HorseColorCalculator.fixPath(folder + "sabino");
+            }
+        }
         else if (horse.hasAllele("frame", HorseAlleles.FRAME))
         {
-            layer.name = HorseColorCalculator.fixPath(folder + "frame");
+            if (horse.isHomozygous("MITF", HorseAlleles.MITF_SW1)) {
+                layer.name = HorseColorCalculator.fixPath(folder + "frame_splash");
+            }
+            else {
+                layer.name = HorseColorCalculator.fixPath(folder + "frame");
+            }
         }
         else if (horse.isHomozygous("MITF", HorseAlleles.MITF_SW1))
         {
             layer.name = HorseColorCalculator.fixPath(folder + "splash");
-        }
-        else if (horse.hasAllele("KIT", HorseAlleles.KIT_SABINO1))
-        {
-            layer.name = HorseColorCalculator.fixPath(folder + "sabino");
         }
         // Use the layer
         if (layer.name != null && !layer.name.equals("")) {

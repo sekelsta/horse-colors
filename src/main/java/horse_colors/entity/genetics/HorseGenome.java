@@ -381,8 +381,8 @@ public class HorseGenome extends Genome {
             || this.isHomozygous("KIT", HorseAlleles.KIT_SABINO1)
             || (this.hasAllele("KIT", HorseAlleles.KIT_SABINO1)
                 && (this.hasAllele("frame", HorseAlleles.FRAME)
-                    || this.isHomozygous("MITF", HorseAlleles.MITF_SW1))
-                && this.isTobiano());
+                    || this.isTobiano())
+                && this.isHomozygous("MITF", HorseAlleles.MITF_SW1));
     }
 
     public boolean showsLegMarkings() {
