@@ -280,6 +280,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
 
         // Set any genes that were specified in a human-readable format
         readExtraGenes(compound);
+        this.useGeneticAttributes();
 
         // updateHorseSlots
         this.func_230275_fc_();
