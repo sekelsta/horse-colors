@@ -184,9 +184,9 @@ public class HorseColorCalculator
         return blackFurPigment(horse).toColor();
     }
 
-    public static TextureLayer getBlackBody(HorseGenome horse) {
+    public static void addBlackBody(HorseGenome horse, TextureLayerGroup layers) {
         if (horse.isChestnut()) {
-            return null;
+            return;
         }
         TextureLayer layer = new TextureLayer();
         layer.description = "black body";
@@ -199,11 +199,17 @@ public class HorseColorCalculator
             layer.name = fixPath("brown");
         }
         else {
-            return getSooty(horse);
+            layers.add(getSooty(horse));
+            if (horse.species == Species.DONKEY) {
+                layer.name = fixPath("donkey_bay");
+            }
+            else {
+                return;
+            }
         }
         layer.color = blackBodyColor(horse);
         setGrayConcentration(horse, layer);
-        return layer;
+        layers.add(layer);
     }
 
     public static float getRandomShadeModifier(HorseGenome horse) {
@@ -450,13 +456,13 @@ public class HorseColorCalculator
         // Add dorsal stripe for dun primitive markings
         if (horse.hasStripe()) {
             TextureLayer stripe = new TextureLayer();
-            if (horse.hasAllele("cross", 1)) {
-                stripe.name = fixPath("dun/cross");
-            }
-            else {
-                stripe.name = fixPath("dun/dorsal");
-            }
+            stripe.name = fixPath("dun/dorsal");
             points.add(stripe);
+            if (horse.hasAllele("cross", 1)) {
+                TextureLayer cross = new TextureLayer();
+                cross.name = fixPath("dun/cross");
+                points.add(cross);
+            }
         }
         // Add black mane, tail, and legs for bay or bay dun horses and 
         // undiluted mane, tail, and legs for red duns or grullos
@@ -464,6 +470,9 @@ public class HorseColorCalculator
             TextureLayer legs = new TextureLayer();
             String name = "bay";
             if (horse.hasAllele("reduced_points", 1)) {
+                name = "wild_bay";
+            }
+            if (horse.species == Species.DONKEY) {
                 name = "wild_bay";
             }
             legs.name = fixPath(name);
@@ -569,11 +578,11 @@ public class HorseColorCalculator
     @OnlyIn(Dist.CLIENT)
     public static TextureLayerGroup getTexturePaths(HorseGenome horse) {
         List<TextureLayer> textureLayers = new ArrayList<TextureLayer>();
+        TextureLayerGroup layerGroup = new TextureLayerGroup(textureLayers);
         TextureLayer red = HorseColorCalculator.getRedBody(horse);
         textureLayers.add(red);
         addMealy(horse, textureLayers);
-        TextureLayer black = HorseColorCalculator.getBlackBody(horse);
-        textureLayers.add(black);
+        addBlackBody(horse, layerGroup);
         HorseColorCalculator.addDun(horse, textureLayers);
         addPoints(horse, textureLayers);
         HorseColorCalculator.addRedManeTail(horse, textureLayers);
@@ -623,6 +632,6 @@ public class HorseColorCalculator
         TextureLayer common = new TextureLayer();
         common.name = HorseColorCalculator.fixPath("common");
         textureLayers.add(common);
-        return new TextureLayerGroup(textureLayers);
+        return layerGroup;
     }
 }
