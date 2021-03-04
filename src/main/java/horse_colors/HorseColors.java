@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 import sekelsta.horse_colors.client.HorseGui;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.ModEntities;
+import sekelsta.horse_colors.entity.genetics.breed.BreedManager;
 import sekelsta.horse_colors.client.ClientEventHandler;
 import sekelsta.horse_colors.item.ModItems;
 import sekelsta.horse_colors.network.HorseColorsPacketHandler;
@@ -43,6 +44,7 @@ public class HorseColors
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, HorseConfig.spec);
         HorseColorsPacketHandler.registerPackets();
+        MinecraftForge.EVENT_BUS.addListener(BreedManager::addReloadListener);
     }
 
     private void clientSetup(final FMLClientSetupEvent event)

@@ -63,11 +63,9 @@ public class HorseAlleles
     public static final int KIT_MARKINGS4 = 5;
     public static final int KIT_MARKINGS5 = 6;
     public static final int KIT_W20 = 7;
-    // In case I add rabbicano, which I'd probably put on KIT
-    // unless the actual location is found
-    public static final int KIT_RESERVED_RABICANO = 8;
+    public static final int KIT_UNUSED = 8;
     public static final int KIT_FLASHY_WHITE = 9;
-    public static final int KIT_UNUSED = 10;
+    public static final int KIT_UNUSED1 = 10;
     public static final int KIT_TOBIANO = 11;
     public static final int KIT_SABINO1 = 12;
     public static final int KIT_TOBIANO_W20 = 13;

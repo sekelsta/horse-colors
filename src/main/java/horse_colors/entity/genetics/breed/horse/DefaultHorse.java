@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.entity.genetics.breed.*;
 
 // This allows for all variations found in horses
@@ -14,6 +15,7 @@ public class DefaultHorse {
     static {
         MongolianHorse.init();
         breed = new Breed(MongolianHorse.breed);
+        breed.merge(Breed.load("horse_default_size"), 1f);
         Map<String, List<Float>> GENES = breed.genes;
 
         GENES.put("extension", ImmutableList.of(
@@ -198,32 +200,6 @@ public class DefaultHorse {
         GENES.put("mushroom", ImmutableList.of(
             0.995f,     // Wild type
             1f          // Mushroom
-        ));
-
-        GENES.put("size0", ImmutableList.of(
-            0.6f,   // Normal
-            1f      // Larger
-        ));
-        GENES.put("size1", ImmutableList.of(
-            0.6f,   // Normal
-            1f      // Larger
-        ));
-        GENES.put("size2", ImmutableList.of(
-            0.4f,   // Normal
-            0.7f,   // Slightly larger
-            0.85f,  // Larger
-            1f      // Largest
-        ));
-        GENES.put("size3", ImmutableList.of(
-            0.6f,   // Normal
-            1f      // Larger
-        ));
-        GENES.put("size4", ImmutableList.of(
-            0.4f,   // Normal
-            0.6f,   // Slightly smaller
-            0.8f,   // Small
-            0.9f,   // Smaller
-            1f      // Smallest
         ));
 
         GENES.put("rabicano", ImmutableList.of(

@@ -90,6 +90,12 @@ def select_size_range(min_height, max_height):
                 return float('inf')
             return max(size / avg, avg / size)
         return min(herd, key=distance_from_average)
-        
-
     return select
+
+# Base distribution for Mongolian horses to help them get lots of
+# the alleles marked as wild type
+mongolian = equine_sizes.horse_distribution.copy()
+mongolian.update({'LCORL': [1.0], 'HMGA2': [1.0], 'size0': [0.8, 1.0],
+             'size1': [0.848, 1.0], 'size2': [0.5, 0.8, 0.9, 1.0],
+             'size3': [0.8, 1.0],
+             'size4': [0.5375, 0.7625, 0.9305, 0.973, 1.0]})

@@ -724,7 +724,6 @@ public class HorseGenome extends Genome {
         // A little bit of randomness to size
         int r = getRandom("size") >>> 1;
         size *= 1f + 0.01f * (float)(r % 64 - 32)/32f;
-
         return size;
     }
 

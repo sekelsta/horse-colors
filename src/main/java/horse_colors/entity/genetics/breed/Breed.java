@@ -1,7 +1,9 @@
 package sekelsta.horse_colors.entity.genetics.breed;
 
+import sekelsta.horse_colors.HorseColors;
 import com.google.common.collect.ImmutableList;
 import java.util.*;
+import net.minecraft.util.ResourceLocation;
 
 public class Breed {
     // The breed's internal name
@@ -28,16 +30,19 @@ public class Breed {
         for (String key : breed.genes.keySet()) {
             geneKeys.add(key);
         }
+        // If either breed has no data for a certain gene, use the frequency
+        // from the breed that does have data.
         for (String s : geneKeys) {
-            List<Float> l1 = ImmutableList.of(1f);
-            if (this.genes.containsKey(s)) {
-                l1 = this.genes.get(s);
-            }
-            List<Float> l2 = ImmutableList.of(1f);
             if (breed.genes.containsKey(s)) {
-                l2 = breed.genes.get(s);
+                List<Float> other = breed.genes.get(s);
+                if (!this.genes.containsKey(s)) {
+                    this.genes.put(s, other);
+                }
+                else {
+                    List<Float> l = this.genes.get(s);
+                    this.genes.put(s, mergeList(l, other, weight));
+                }
             }
-            this.genes.put(s, mergeList(l1, l2, weight));
         }
     }
 
@@ -56,5 +61,9 @@ public class Breed {
             output.add(baseNum * (1 - weight) + otherNum * weight);
         }
         return output;
+    }
+
+    public static Breed load(String name) {
+        return BreedManager.getBreed(new ResourceLocation(HorseColors.MODID, name));
     }
 }

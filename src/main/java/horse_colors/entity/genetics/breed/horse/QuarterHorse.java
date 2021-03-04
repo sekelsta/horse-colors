@@ -14,6 +14,7 @@ public class QuarterHorse {
         // Source for population:
         // https://academic.oup.com/jhered/article/105/2/148/790903
         breed.population = 2640000;
+        breed.merge(Breed.load("quarter_horse_size"), 1f);
 
         Map<String, List<Float>> GENES = breed.genes;
 
@@ -128,7 +129,7 @@ public class QuarterHorse {
 
         // Rabicano exists but is rare
         GENES.put("rabicano", ImmutableList.of(
-            0.995f, // No rabicano
+            0.999f, // No rabicano
             1f      // Rabicano
         ));
 
