@@ -572,7 +572,7 @@ public class HorseGenome extends Genome {
     // Genetic-based size, which unlike age-based size should affect the hitbox
     // This is a multiplier for both width and height, so adjust for that when
     // calculating weight.
-    private float getGeneticScale() {
+    public float getGeneticScale() {
         float size = 1f;
         // Donkeys are smaller no matter whether sizes are enabled
         if (this.species == Species.DONKEY) {
@@ -647,9 +647,11 @@ public class HorseGenome extends Genome {
         // More small effect genes
         for (int i = 0; i < 8; ++i) {
             for (int n = 1; n < 5; ++n) {
-                float x = 1f + 0.001f * n;
-                size = getSizeContribution("size_subtle" + i, 1, size, x);
-                size = getSizeContribution("size_subtle" + i, 1, size, 1f/x);
+                float scale = 1f + 0.001f * n;
+                int large = 2 * n - 1;
+                int small = 2 * n;
+                size = getSizeContribution("size_subtle" + i, large, size, scale);
+                size = getSizeContribution("size_subtle" + i, small, size, 1f/scale);
             }
         }
 
@@ -674,24 +676,24 @@ public class HorseGenome extends Genome {
             size /= 1.08;
         }
         // Larger effects (smaller horse) semi-recessive
-        float[] size6 = {1f, 1f};
+        float[] size4 = {1f, 1f};
         for (int n = 0; n < 2; ++n) {
             switch(getAllele("size4", n)) {
                 case 1:
-                    size6[n] = 1/1.005f;
+                    size4[n] = 1/1.005f;
                     break;
                 case 2:
-                    size6[n] = 1/1.02f;
+                    size4[n] = 1/1.02f;
                     break;
                 case 3:
-                    size6[n] = 1/1.05f;
+                    size4[n] = 1/1.05f;
                     break;
                 case 4:
-                    size6[n] = 1/1.06f;
+                    size4[n] = 1/1.06f;
             }
         }
-        float smaller = Math.min(size6[0], size6[1]);
-        float larger = Math.max(size6[0], size6[1]);
+        float smaller = Math.min(size4[0], size4[1]);
+        float larger = Math.max(size4[0], size4[1]);
         size *= Math.pow(smaller, 0.4) * Math.pow(larger, 1.6);
 
         // Donkey size genes

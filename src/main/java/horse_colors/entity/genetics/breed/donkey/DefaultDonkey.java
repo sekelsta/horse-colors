@@ -12,6 +12,7 @@ public class DefaultDonkey {
     public static Breed breed = new Breed(BaseDonkey.breed);
 
     static {
+        breed.merge(Breed.load("donkey_default_size"), 1f);
         Map<String, List<Float>> GENES = breed.genes;
 
         GENES.put("cameo", ImmutableList.of(

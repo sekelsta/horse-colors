@@ -197,9 +197,24 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     public void readAdditional(CompoundNBT compound)
     {
         super.readAdditional(compound);
-        // Use a breed for a base if given one
-        if (compound.contains("Breed")) {
+        // Set genes if they exist
+        if (compound.contains("Genes")) {
+            this.setGeneData(compound.getString("Genes"));
+        }
+        // Otherwise, use a breed for a base if given one
+        else if (compound.contains("Breed")) {
             this.randomize(getBreed(compound.getString("Breed")));
+        }
+        else {
+            // If we haven't been given color data, we should randomize
+            // anything not specified
+            if (!compound.contains("Variant")
+                    && !compound.contains("Variant2")
+                    && !compound.contains("Variant3")
+                    && !compound.contains("Variant4")) {
+                randomize(getRandomBreed());
+            }
+            readLegacyAdditional(compound);
         }
 
         // Replace saddle reading functionality from AbstractHorseEntity with
@@ -211,21 +226,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             }
         }
 
-        if (compound.contains("Genes")) {
-            this.setGeneData(compound.getString("Genes"));
-        }
-        else {
-            // If we haven't been given color data, we should randomize
-            // anything not specified
-            if (!compound.contains("Variant")
-                    && !compound.contains("Variant2")
-                    && !compound.contains("Variant3")
-                    && !compound.contains("Variant4")
-                    && !compound.contains("Breed")) {
-                randomize(getRandomBreed());
-            }
-            readLegacyAdditional(compound);
-        }
         this.setSeed(compound.getInt("Random"));
         this.trueAge = compound.getInt("true_age");
         if (compound.contains("gender")) {
@@ -339,15 +339,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             map.put("mhc1", compound.getInt("MHC1"));
             map.put("mhc2", compound.getInt("MHC2"));
         }
-        else {
-            map.put("mhc1", this.rand.nextInt());
-            map.put("mhc2", this.rand.nextInt());
-        }
         if (compound.contains("Immune")) {
             map.put("immune", compound.getInt("Immune"));
-        }
-        else {
-            map.put("immune", this.rand.nextInt());
         }
         this.genes.setLegacyGenes(map);
     }
@@ -1168,7 +1161,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.setGrowingAge(Math.min(0, this.trueAge));
         this.useGeneticAttributes();
         // Assume mother was the same size
-        this.setMotherSize(this.getGenome().getAdultScale());
+        this.setMotherSize(this.getGenome().getGeneticScale());
+        // Size depends on mother size so call again to stabilize somewhat
+        this.setMotherSize(this.getGenome().getGeneticScale());
     }
 
     private void randomizeAttributes() {

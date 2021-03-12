@@ -189,14 +189,6 @@ public class DefaultHorse {
             15f / 16f,  // Less pattern
             1f          // More pattern
         ));
-        GENES.put("LCORL", ImmutableList.of(
-            15f / 16f,  // Normal size
-            1f          // Large, found in warmbloods
-        ));
-        GENES.put("HMGA2", ImmutableList.of(
-            15f / 16f,  // Normal size
-            1f          // Small, found in small ponies
-        ));
         GENES.put("mushroom", ImmutableList.of(
             0.995f,     // Wild type
             1f          // Mushroom

@@ -66,4 +66,28 @@ public class Breed {
     public static Breed load(String name) {
         return BreedManager.getBreed(new ResourceLocation(HorseColors.MODID, name));
     }
+
+    // Print in a format that can be parsed as a python dictionary
+    public void print() {
+        String p = "{";
+        boolean first_gene = true;
+        for (String gene : this.genes.keySet()) {
+            if (!first_gene) {
+                p += ", ";
+            }
+            first_gene = false;
+            p += "'" + gene + "': [";
+            boolean first_float = true;
+            for (float f : this.genes.get(gene)) {
+                if (!first_float) {
+                    p += ", ";
+                }
+                first_float = false;
+                p += f;
+            }
+            p += "]";
+        }
+        p += "}";
+        System.out.println(p);
+    }
 }

@@ -12,7 +12,7 @@ def choose_random_size(distribution):
         size *= equine_sizes.sizes[gene](alleles)
     return size
 
-def percentile_sizes(distribution, n, percentiles=[0.1, 0.5, 0.9]):
+def percentile_sizes(distribution, n=1000, percentiles=[0.1, 0.5, 0.9]):
     horse_sizes = []
     for i in range(n):
         horse_sizes += [choose_random_size(distribution)]
@@ -22,11 +22,14 @@ def percentile_sizes(distribution, n, percentiles=[0.1, 0.5, 0.9]):
         nums += [horse_sizes[int(n * p)]]
     return nums
 
-def get_size(horse):
+def get_size(horse, print_warnings=True):
     '''Calculates the horse's height in cm based on its genes'''
     size = 132
     for gene in horse:
-        size *= equine_sizes.sizes[gene](horse[gene])
+        if gene in equine_sizes.sizes:
+            size *= equine_sizes.sizes[gene](horse[gene])
+        elif print_warnings:
+            print(gene + " not a recognized size gene")
     return size
 
 
@@ -84,6 +87,7 @@ def select_size_range(min_height, max_height):
         # Geometric average
         avg = min_height ** 0.5 * max_height ** 0.5
         def distance_from_average(h):
+            size = get_size(h)
             if avg <= 0:
                 return size - avg
             if size <= 0:
