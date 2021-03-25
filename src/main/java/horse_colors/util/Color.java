@@ -46,6 +46,11 @@ public class Color {
         return (int)(a * 255);
     }
 
+    // Returns a float between 0 and 1
+    public float getValue() {
+        return Math.max(Math.max(r, g), b);
+    }
+
     public String toHexString() {
         return String.format("%02X%02X%02X%02X", this.getIntRed(), 
             this.getIntGreen(), this.getIntBlue(), this.getIntAlpha());

@@ -22,6 +22,7 @@ public class HorseColorCalculator
     private static final Color MUSHROOM = new Color(0xde, 0xcf, 0xbc);
     private static final Color SHELL_HOOF = new Color(0xff, 0xe5, 0xb8);
     private static final Color PINK_SKIN = new Color(0xff, 0xd6, 0xb6);
+    private static final Color BLUE_EYES = new Color(0xc1, 0xda, 0xf8);
 
     public static String fixPath(String inStr) {
         if (inStr == null || inStr.contains(".png")) {
@@ -140,26 +141,26 @@ public class HorseColorCalculator
         return layer;
     }
 
-    public static Pigment blackFurPigment(HorseGenome horse) {
+    // The starting color of black pigment, for skin, eyes, and fur.
+    public static Pigment blackBasePigment(HorseGenome horse) {
         float concentration = 15f * getRandomShadeModifier(horse);
-        float white = 0.02f;
+        float white = 0f;
         // Set albino donkeys to white
         if (horse.isAlbino()) {
             return new Pigment(Color.WHITE, 0, 0);
         }
 
         if (horse.isDoubleCream() || horse.isHomozygous("ivory", HorseAlleles.IVORY)) {
-            concentration *= 0.027f;
+            concentration *= 0.03f;
         }
         else if (horse.isCreamPearl()) {
-            concentration *= 0.033f;
+            concentration *= 0.036f;
         }
         else if (horse.hasCream()) {
             concentration *= 0.7f;
         }
         else if (horse.isPearl()) {
             concentration *= 0.33f;
-            white += 0.18f;
         }
 
         if (horse.hasAllele("cameo", HorseAlleles.CAMEO)) {
@@ -168,7 +169,7 @@ public class HorseColorCalculator
         }
 
         if (horse.hasAllele("silver", HorseAlleles.SILVER)) {
-            concentration *= 0.53f;
+            concentration *= 0.7f;
         }
 
         if (horse.isHomozygous("dense", 1)) {
@@ -178,6 +179,20 @@ public class HorseColorCalculator
  
         white = Math.max(white, 0);
         return new Pigment(EUMELANIN, concentration, white);
+    }
+
+    public static Pigment blackFurPigment(HorseGenome horse) {
+        Pigment pigment = blackBasePigment(horse);
+        pigment.white += 0.02f;
+        // Silver dapple has more effect on the fur than on the eyes and skin
+        if (horse.hasAllele("silver", HorseAlleles.SILVER)) {
+            pigment.concentration *= 0.75f;
+        }
+        // This is for pearl's reflective effect
+        if (horse.isPearl()) {
+            pigment.white += 0.18f;
+        }
+        return pigment;
     }
 
     public static Color blackBodyColor(HorseGenome horse) {
@@ -311,6 +326,14 @@ public class HorseColorCalculator
         layer.color.multiply(PINK_SKIN);
     }
 
+    public static float blueEyeShade(HorseGenome horse) {
+        int shade = 0;
+        shade += 3 * horse.countAlleles("blue_eye_shade1", 1);
+        shade += 2 * (2 - horse.countAlleles("blue_eye_shade2", 1));
+        shade += 1 * (2 - horse.countAlleles("blue_eye_shade3", 1));
+        return 0.34f + (2.56f / 12f) * shade;
+    }
+
     public static void colorGray(HorseGenome horse, TextureLayer layer) {
         // Show skin very faintly through the white hairs
         colorSkin(horse, layer);
@@ -331,6 +354,25 @@ public class HorseColorCalculator
         layer.color.addWhite(0.4f);
         // Multiply by the shell color of hooves
         layer.color.multiply(SHELL_HOOF);
+        return layer;
+    }
+
+    public static TextureLayer getEyes(HorseGenome horse) {
+        TextureLayer layer = new TextureLayer();
+        layer.name = fixPath("iris");
+        // Blue background color
+        Color blue = new Pigment(BLUE_EYES, blueEyeShade(horse), 0f).toColor();
+        if (horse.isHomozygous("MITF", HorseAlleles.MITF_SW1)) {
+            // Unpigmented blue eyes
+            layer.color = blue;
+        }
+        else {
+            // Pigmented eyes
+            Pigment pigment = blackBasePigment(horse);
+            pigment.concentration *= 0.8f;
+            layer.color = pigment.toColor();
+            layer.color.multiply(blue);
+        }
         return layer;
     }
 
@@ -617,6 +659,8 @@ public class HorseColorCalculator
 
         HorsePatternCalculator.addPinto(horse, textureLayers);
         HorsePatternCalculator.addLeopard(horse, textureLayers);
+
+        textureLayers.add(HorseColorCalculator.getEyes(horse));
 
         TextureLayer highlights = new TextureLayer();
         highlights.name = HorseColorCalculator.fixPath("base");

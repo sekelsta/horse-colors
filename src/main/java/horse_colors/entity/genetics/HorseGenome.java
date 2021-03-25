@@ -166,7 +166,10 @@ public class HorseGenome extends Genome {
         "donkey_size5",
         "donkey_size6",
         "color", // TYR, albino donkeys
-        "rabicano"
+        "rabicano",
+        "blue_eye_shade1",      // 0 pale, 1 deep
+        "blue_eye_shade2",      // 0 deep, 1 pale
+        "blue_eye_shade3"       // 0 deep, 1 pale
     );
 
     public static final double MINIATURE_CUTOFF = 317.5;
