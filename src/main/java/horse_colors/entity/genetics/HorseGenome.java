@@ -573,7 +573,7 @@ public class HorseGenome extends Genome {
     // This is a multiplier for both width and height, so adjust for that when
     // calculating weight.
     public float getGeneticScale() {
-        float size = 1f;
+        float size = 5f;
         // Donkeys are smaller no matter whether sizes are enabled
         if (this.species == Species.DONKEY) {
             size *= 0.9f;
