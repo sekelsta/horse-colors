@@ -1,4 +1,4 @@
-package sekelsta.horse_colors.entity.genetics.breed;
+package sekelsta.horse_colors.breed;
 
 import com.google.common.collect.ImmutableList;
 import java.util.*;

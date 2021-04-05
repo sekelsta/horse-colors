@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Random;
 
 import net.minecraft.entity.AgeableEntity;
+import sekelsta.horse_colors.breed.Breed;
 import sekelsta.horse_colors.config.HorseConfig;
-import sekelsta.horse_colors.entity.genetics.breed.Breed;
 
 public interface IGeneticEntity {
     Genome getGenome();

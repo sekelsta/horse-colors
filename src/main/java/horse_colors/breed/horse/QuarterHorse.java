@@ -1,20 +1,20 @@
-package sekelsta.horse_colors.entity.genetics.breed.horse;
+package sekelsta.horse_colors.breed.horse;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Map;
 
-import sekelsta.horse_colors.entity.genetics.breed.*;
+import sekelsta.horse_colors.breed.Breed;
 
 public class QuarterHorse {
-    public static Breed breed = new Breed(MongolianHorse.breed);
+    public static Breed breed = new Breed(Breed.load("quarter_horse_size"));
 
     static {
         breed.name = "quarter_horse";
         // Source for population:
         // https://academic.oup.com/jhered/article/105/2/148/790903
         breed.population = 2640000;
-        breed.merge(Breed.load("quarter_horse_size"), 1f);
+        breed.parent = MongolianHorse.breed;
 
         Map<String, List<Float>> GENES = breed.genes;
 

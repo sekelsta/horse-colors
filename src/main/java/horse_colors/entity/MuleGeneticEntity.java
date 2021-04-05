@@ -22,10 +22,10 @@ import net.minecraft.world.IServerWorld;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.World;
 
+import sekelsta.horse_colors.breed.Breed;
+import sekelsta.horse_colors.breed.donkey.*;
+import sekelsta.horse_colors.breed.horse.*;
 import sekelsta.horse_colors.config.HorseConfig;
-import sekelsta.horse_colors.entity.genetics.breed.*;
-import sekelsta.horse_colors.entity.genetics.breed.donkey.*;
-import sekelsta.horse_colors.entity.genetics.breed.horse.*;
 import sekelsta.horse_colors.entity.genetics.HorseGenome;
 import sekelsta.horse_colors.entity.genetics.Species;
 import sekelsta.horse_colors.HorseColors;

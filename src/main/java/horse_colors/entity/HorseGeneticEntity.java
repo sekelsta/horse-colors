@@ -33,16 +33,17 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.World;
 
+import sekelsta.horse_colors.breed.Breed;
+import sekelsta.horse_colors.breed.horse.*;
 import sekelsta.horse_colors.config.HorseConfig;
-import sekelsta.horse_colors.entity.genetics.breed.*;
-import sekelsta.horse_colors.entity.genetics.breed.horse.*;
 import sekelsta.horse_colors.entity.genetics.Species;
 import sekelsta.horse_colors.util.Util;
 
 public class HorseGeneticEntity extends AbstractHorseGenetic
 {
     public static List<Breed> breeds = ImmutableList.of(Appaloosa.breed, 
-        Hucul.breed, MongolianHorse.breed, QuarterHorse.breed, Friesian.breed);
+        Hucul.breed, MongolianHorse.breed, QuarterHorse.breed, Friesian.breed, 
+        ClevelandBay.breed);
 
     private static final UUID ARMOR_MODIFIER_UUID = UUID.fromString("556E1665-8B10-40C8-8F9D-CF9B1667F295");
 

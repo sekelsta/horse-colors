@@ -1,11 +1,11 @@
-package sekelsta.horse_colors.entity.genetics.breed.horse;
+package sekelsta.horse_colors.breed.horse;
 
 import com.google.common.collect.ImmutableList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import sekelsta.horse_colors.entity.genetics.breed.*;
+import sekelsta.horse_colors.breed.Breed;
 
 public class Appaloosa {
     public static Breed breed = new Breed(QuarterHorse.breed);

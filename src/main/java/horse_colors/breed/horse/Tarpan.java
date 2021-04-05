@@ -1,10 +1,10 @@
-package sekelsta.horse_colors.entity.genetics.breed.horse;
+package sekelsta.horse_colors.breed.horse;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Map;
 
-import sekelsta.horse_colors.entity.genetics.breed.*;
+import sekelsta.horse_colors.breed.Breed;
 
 // I'm taking a broad view of "tarpan" here, so these are all the 
 // pre-domestic horses more closely related to domestic horses than to takhis.
@@ -106,6 +106,4 @@ public class Tarpan {
             1f          // More pattern
         ));
     }
-
-    public static void init() {}
 }

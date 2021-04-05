@@ -65,10 +65,10 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
+import sekelsta.horse_colors.breed.*;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.ai.*;
 import sekelsta.horse_colors.entity.genetics.*;
-import sekelsta.horse_colors.entity.genetics.breed.*;
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.item.ModItems;
 import sekelsta.horse_colors.item.GeneBookItem;

@@ -1,10 +1,10 @@
-package sekelsta.horse_colors.entity.genetics.breed.horse;
+package sekelsta.horse_colors.breed.horse;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Map;
 
-import sekelsta.horse_colors.entity.genetics.breed.*;
+import sekelsta.horse_colors.breed.Breed;
 
 // The hucul is a very old breed, thought to have arisen from crosses between
 // tarpans and Mongolian horses.
@@ -26,11 +26,10 @@ import sekelsta.horse_colors.entity.genetics.breed.*;
 // In images some Hucul horses have a soft shoulder stripe or blurred
 // zebra-like markings.
 public class Hucul {
-    public static Breed breed;
+    public static Breed breed = new Breed();
 
     static {
-        MongolianHorse.init();
-        breed = new Breed(MongolianHorse.breed);
+        breed.parent = MongolianHorse.breed;
         // There may also have been contributions from Norikers, Arabians, 
         // and Turkish horses
         breed.name = "hucul";
@@ -105,6 +104,4 @@ public class Hucul {
         // A source mentioned leg stripes, but looking at pictures of the actual ponies
         // I don't see them being more common than in other breeds
     }
-
-    public static void init() {}
 }

@@ -1,20 +1,18 @@
-package sekelsta.horse_colors.entity.genetics.breed.horse;
+package sekelsta.horse_colors.breed.horse;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Map;
 
-import sekelsta.horse_colors.entity.genetics.breed.*;
+import sekelsta.horse_colors.breed.Breed;
 
 public class MongolianHorse {
-    public static Breed breed;
+    public static Breed breed = new Breed(Breed.load("mongolian_horse_size"));
 
     static {
-        Tarpan.init();
-        breed = new Breed(Tarpan.breed);
+        breed.parent = Tarpan.breed;
         breed.name = "mongolian_horse";
         breed.population = 3000000;
-        breed.merge(Breed.load("mongolian_horse_size"), 1f);
         Map<String, List<Float>> GENES = breed.genes;
 
         GENES.put("extension", ImmutableList.of(
@@ -61,6 +59,4 @@ public class MongolianHorse {
             1f      // More white
         ));
     }
-
-    public static void init() {}
 }

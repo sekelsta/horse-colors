@@ -14,10 +14,10 @@ import net.minecraftforge.common.MinecraftForge;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import sekelsta.horse_colors.breed.BreedManager;
 import sekelsta.horse_colors.client.HorseGui;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.ModEntities;
-import sekelsta.horse_colors.entity.genetics.breed.BreedManager;
 import sekelsta.horse_colors.client.ClientEventHandler;
 import sekelsta.horse_colors.item.ModItems;
 import sekelsta.horse_colors.network.HorseColorsPacketHandler;

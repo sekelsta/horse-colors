@@ -7,60 +7,24 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import sekelsta.horse_colors.HorseColors;
+import sekelsta.horse_colors.breed.Breed;
 import sekelsta.horse_colors.client.renderer.TextureLayer;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.*;
-import sekelsta.horse_colors.entity.genetics.breed.Breed;
 import sekelsta.horse_colors.util.RandomSupplier;
 import sekelsta.horse_colors.util.Util;
 
 public class HorseGenome extends Genome {
-
-    /* Extension is the gene that determines whether black pigment can extend
-    into the hair, or only reach the skin. 0 is red, 1 can have black. */
-
-    /* Agouti controls where black hairs are placed. 0 is for black, 1 for seal 
-    brown, 2 for bay, and, if I ever draw the pictures, 3 for wild bay. They're
-    in order of least dominant to most. */
-
-    /* Dun dilutes pigment (by restricting it to a certain part of each hair 
-    shaft) and also adds primative markings such as a dorsal stripe. It's
-    dominant, so dun (wildtype) is 11 or 10, non-dun1 (with dorsal stripe) is
-    01, and non-dun2 (without dorsal stripe) is 00. ND1 and ND2 are
-    codominate: a horse with both will have a fainter dorsal stripe. */
-
-    /* Gray causes rapid graying with age. Here, it will simply mean the
-    horse is gray. It is epistatic to every color except white. Gray is 
-    dominant, so 0 is for non-gray, and 1 is for gray. */
-
-    /* Cream makes red pigment a lot lighter and also dilutes black a 
-    little. It's incomplete dominant, so here 0 is wildtype and 1 is cream. */
-
-    /* Silver makes black manes and tails silvery, while lightening a black
-    body color to a more chocolatey one, sometimes with dapples. Silver
-    is dominant, so 0 for wildtype, 1 for silver. */
-
-    /* Liver recessively makes chestnut darker. 0 for liver, 1 for non-liver. */
-
-    /* Either flaxen gene makes the mane lighter; both in combination
-    make the mane almost white. They're both recessive, so 0 for flaxen,
-    1 for non-flaxen. */
-
-    /* Sooty makes a horse darker, sometimes smoothly or sometimes in a 
-    dapple pattern. */
-
-    /* Mealy turns some red hairs to white, generally on the belly or
-    undersides. It's a polygenetic trait. */
     public static final ImmutableList<String> genes = ImmutableList.of(
-        "extension", 
-        "agouti", 
-        "dun", 
-        "gray", 
-        "cream", 
-        "liver", 
-        "flaxen1", 
+        "extension",    // 0 for e (red), 1 for E (can have black)
+        "agouti",       // 0 for black, 1 for seal brown, 4 for bay
+        "dun",          // 0 for nd2, 1 for nd1, 2 for dun, 3 for donkeys
+        "gray",         // 0 for g (non-gray), 1 for G (gray)
+        "cream",        // 0 for wildtype, 1 for snowdrop, 2 for pearl, 3 for cream, 4 for lighter shade
+        "liver",        // 0 for liver, 1 for non-liver
+        "flaxen1",      // 0 for flaxen, 1 for non-flaxen
         "flaxen2", 
-        "dapple", 
+        "dapple",       // 0 for non-dappled, 1 for dappled
         "sooty1", 
         "sooty2", 
         "sooty3", 
@@ -807,27 +771,25 @@ public class HorseGenome extends Genome {
         return distribution.size() - 1;
     }
 
-    protected void randomizeGenes(Map<String, List<Float>> map) {
+    protected void randomizeGenes(Breed breed) {
         for (String gene : genes) {
-            if (map.containsKey(gene)) {
-                List<Float> distribution = map.get(gene);
-                int allele0 = chooseRandomAllele(distribution);
-                int allele1 = chooseRandomAllele(distribution);
-                setAllele(gene, 0, allele0);
-                setAllele(gene, 1, allele1);
-            }
-            else {
+            if (!breed.contains(gene)) {
                 HorseColors.logger.debug(gene + " is not in the given map");
-                setAllele(gene, 0, 0);
-                setAllele(gene, 1, 0);
             }
+            // If it doesn't contain the gene, it will return a sensible
+            // default value
+            List<Float> distribution = breed.get(gene);
+            int allele0 = chooseRandomAllele(distribution);
+            int allele1 = chooseRandomAllele(distribution);
+            setAllele(gene, 0, allele0);
+            setAllele(gene, 1, allele1);
         }
     }
 
     /* Make the horse have random genetics. */
     public void randomize(Breed breed)
     {
-        randomizeGenes(breed.genes);
+        randomizeGenes(breed);
 
         // Replace lethal white overos with heterozygotes
         if (isHomozygous("frame", HorseAlleles.FRAME))

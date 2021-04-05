@@ -1,21 +1,19 @@
-package sekelsta.horse_colors.entity.genetics.breed.horse;
+package sekelsta.horse_colors.breed.horse;
 
 import com.google.common.collect.ImmutableList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import sekelsta.horse_colors.breed.Breed;
 import sekelsta.horse_colors.HorseColors;
-import sekelsta.horse_colors.entity.genetics.breed.*;
 
 // This allows for all variations found in horses
 public class DefaultHorse {
-    public static Breed breed;
+    public static Breed breed = new Breed(Breed.load("horse_default_size"));
 
     static {
-        MongolianHorse.init();
-        breed = new Breed(MongolianHorse.breed);
-        breed.merge(Breed.load("horse_default_size"), 1f);
+        breed.parent = MongolianHorse.breed;
         Map<String, List<Float>> GENES = breed.genes;
 
         GENES.put("extension", ImmutableList.of(
@@ -199,6 +197,4 @@ public class DefaultHorse {
             1f      // Rabicano
         ));
     }
-
-    public static void init() {}
 }

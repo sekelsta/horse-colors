@@ -1,4 +1,4 @@
-package sekelsta.horse_colors.entity.genetics.breed;
+package sekelsta.horse_colors.breed;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -61,13 +61,16 @@ public class BreedManager extends JsonReloadListener {
         throws ClassCastException, IllegalStateException
     {
         Breed breed = new Breed();
-        for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
-            JsonArray jarray = entry.getValue().getAsJsonArray();
-            ArrayList<Float> frequencies = new ArrayList<>();
-            for (int i = 0; i < jarray.size(); ++i) {
-                frequencies.add(jarray.get(i).getAsFloat());
+        if (json.has("genes")) {
+            JsonObject genesJson = (JsonObject)json.get("genes");
+            for (Map.Entry<String, JsonElement> entry : genesJson.entrySet()) {
+                JsonArray jarray = entry.getValue().getAsJsonArray();
+                ArrayList<Float> frequencies = new ArrayList<>();
+                for (int i = 0; i < jarray.size(); ++i) {
+                    frequencies.add(jarray.get(i).getAsFloat());
+                }
+                breed.genes.put(entry.getKey(), frequencies);
             }
-            breed.genes.put(entry.getKey(), frequencies);
         }
         return breed;
     }

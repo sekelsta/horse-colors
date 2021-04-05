@@ -5,6 +5,7 @@ import java.util.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import sekelsta.horse_colors.breed.Breed;
 import sekelsta.horse_colors.client.renderer.CustomLayeredTexture;
 import sekelsta.horse_colors.client.renderer.TextureLayerGroup;
 import sekelsta.horse_colors.config.HorseConfig;
@@ -198,11 +199,11 @@ public abstract class Genome {
     // Replace the given allele with a random one.
     // It may be the same as before.
     public void mutateAllele(String gene, int n) {
-        Map<String, List<Float>> map = entity.getDefaultBreed().genes;
-        if (!map.containsKey(gene)) {
+        Breed breed = entity.getDefaultBreed();
+        if (!breed.contains(gene)) {
             return;
         }
-        List<Float> frequencies = map.get(gene);
+        List<Float> frequencies = breed.get(gene);
         List<Integer> allowedAlleles = new ArrayList<>();
         float val = 0;
         for (int i = 0; i < frequencies.size(); ++i) {
