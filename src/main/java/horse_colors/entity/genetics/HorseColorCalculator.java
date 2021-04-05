@@ -365,7 +365,12 @@ public class HorseColorCalculator
     {
         TextureLayer layer = new TextureLayer();
 
+        // Set the color before changing its alpha
+        layer.color = blackBodyColor(horse);
+        setGrayConcentration(horse, layer);
+
         int sooty_level = horse.getSootyLevel();
+        System.out.println("Sooty level: " + sooty_level);
         switch (sooty_level) {
             case 0:
                 return null;
@@ -382,11 +387,7 @@ public class HorseColorCalculator
                 layer.color.a = 1f;
         }
 
-        // TODO: replace this with something that actually looks good
-        if (horse.hasAllele("donkey_dark", 1) && !horse.isChestnut()) {
-            layer.color.a = 1f;
-        }
-
+        System.out.println("Alpha: " + layer.color.a);
         layer.name = fixPath("sooty_countershade");
         if (horse.isDappleInclined()) {
             layer.name = fixPath("sooty_dapple");
@@ -396,9 +397,7 @@ public class HorseColorCalculator
             layer.color.a *= 0.5f;
         }
 
-        layer.color = blackBodyColor(horse);
-        setGrayConcentration(horse, layer);
-
+        System.out.println("Alpha: " + layer.color.a);
         return layer;
     }
 

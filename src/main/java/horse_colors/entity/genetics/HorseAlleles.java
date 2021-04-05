@@ -46,10 +46,6 @@ public class HorseAlleles
     public static final int FLAXEN = 0;
     public static final int NONFLAXEN = 1;
 
-    // Sooty (for all sooty genes)
-    public static final int NONSOOTY = 0;
-    public static final int SOOTY = 1;
-
     // Mealy (for all mealy genes)
     public static final int NONMEALY = 0;
     public static final int MEALY = 1;

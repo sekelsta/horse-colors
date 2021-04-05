@@ -25,9 +25,9 @@ public class HorseGenome extends Genome {
         "flaxen1",      // 0 for flaxen, 1 for non-flaxen
         "flaxen2", 
         "dapple",       // 0 for non-dappled, 1 for dappled
-        "sooty1", 
-        "sooty2", 
-        "sooty3", 
+        "sooty1",       // 0 for non-sooty, 1 for sooty
+        "sooty2",       // same as above
+        "sooty3",       // 0 for sooty, 1 for non-sooty
         // I'm treating this as the agouti promoter region responsible for 
         // white bellied agouti in mice
         "light_belly",
