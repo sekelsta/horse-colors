@@ -47,11 +47,8 @@ public class Color {
     }
 
     public String toHexString() {
-        String s = Integer.toHexString(this.getIntRed());
-        s += Integer.toHexString(this.getIntGreen());
-        s += Integer.toHexString(this.getIntBlue());
-        s += Integer.toHexString(this.getIntAlpha());
-        return s;
+        return String.format("%02X%02X%02X%02X", this.getIntRed(), 
+            this.getIntGreen(), this.getIntBlue(), this.getIntAlpha());
     }
 
     // Raise red, green, and blue to the given power. Has a similar effect on
