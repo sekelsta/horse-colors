@@ -377,8 +377,14 @@ public class HorseGenome extends Genome {
 
     public int getSootyLevel() {
         // sooty1 and 2 dominant, 3 recessive
-        return 1 + getMaxAllele("sooty1") + getMaxAllele("sooty2") 
-                        - getMaxAllele("sooty3");
+        int sooty = getMaxAllele("sooty1") + getMaxAllele("sooty2");
+        sooty += 1 - getMaxAllele("sooty3");
+        if (!this.isChestnut()) {
+            // Wild bay tends to come with a clearer, lighter coat
+            sooty += 1 - 2 * getMaxAllele("reduced_points");
+            sooty = Math.max(0, sooty);
+        }
+        return sooty;
     }
 
     // Number of years to turn fully gray

@@ -370,17 +370,19 @@ public class HorseColorCalculator
         setGrayConcentration(horse, layer);
 
         int sooty_level = horse.getSootyLevel();
-        System.out.println("Sooty level: " + sooty_level);
         switch (sooty_level) {
             case 0:
                 return null;
             case 1:
-                layer.color.a = 0.4f;
+                layer.color.a = 0.2f;
                 break;
             case 2:
-                layer.color.a = 0.8f;
+                layer.color.a = 0.5f;
                 break;
             case 3:
+                layer.color.a = 0.8f;
+                break;
+            case 4:
                 layer.color.a = 1f;
                 break;
             default:
