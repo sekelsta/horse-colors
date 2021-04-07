@@ -431,7 +431,6 @@ public class HorseColorCalculator
                 layer.color.a = 1f;
         }
 
-        System.out.println("Alpha: " + layer.color.a);
         layer.name = fixPath("sooty_countershade");
         if (horse.isDappleInclined()) {
             layer.name = fixPath("sooty_dapple");
@@ -441,7 +440,6 @@ public class HorseColorCalculator
             layer.color.a *= 0.5f;
         }
 
-        System.out.println("Alpha: " + layer.color.a);
         return layer;
     }
 
