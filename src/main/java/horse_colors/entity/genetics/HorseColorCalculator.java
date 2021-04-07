@@ -154,7 +154,7 @@ public class HorseColorCalculator
             concentration *= 0.03f;
         }
         else if (horse.isCreamPearl()) {
-            concentration *= 0.036f;
+            concentration *= 0.04f;
         }
         else if (horse.hasCream()) {
             concentration *= 0.7f;
