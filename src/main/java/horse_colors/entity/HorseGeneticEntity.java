@@ -41,10 +41,6 @@ import sekelsta.horse_colors.util.Util;
 
 public class HorseGeneticEntity extends AbstractHorseGenetic
 {
-    public static List<Breed> breeds = ImmutableList.of(Appaloosa.breed, 
-        Hucul.breed, MongolianHorse.breed, QuarterHorse.breed, Friesian.breed, 
-        ClevelandBay.breed);
-
     private static final UUID ARMOR_MODIFIER_UUID = UUID.fromString("556E1665-8B10-40C8-8F9D-CF9B1667F295");
 
     private static final ResourceLocation LOOT_TABLE = new ResourceLocation("minecraft", "entities/horse");
@@ -276,6 +272,10 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
 
     @Override
     public List<Breed> getBreeds() {
-        return breeds;
+        // This must only be called serverside, because the client does not
+        // load the data packs the breeds use
+        return ImmutableList.of(Appaloosa.breed, 
+        Hucul.breed, MongolianHorse.breed, QuarterHorse.breed, Friesian.breed, 
+        ClevelandBay.breed);
     }
 }
