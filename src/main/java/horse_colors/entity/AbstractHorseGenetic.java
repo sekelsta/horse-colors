@@ -296,8 +296,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     private void readExtraGenes(CompoundNBT compound) {
         for (String gene : this.getGenome().listGenes()) {
             if (compound.contains(gene)) {
-                System.out.println(compound.get(gene).getType());
-                System.out.println(compound.getIntArray(gene).length);
                 int alleles[] = compound.getIntArray(gene);
                 getGenome().setAllele(gene, 0, alleles[0]);
                 getGenome().setAllele(gene, 1, alleles[1]);
