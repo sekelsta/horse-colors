@@ -369,7 +369,10 @@ public class HorseColorCalculator
         else {
             // Pigmented eyes
             Pigment pigment = blackBasePigment(horse);
-            pigment.concentration *= 0.8f;
+            // This adjusts the black to brown in dark horse eyes
+            pigment.concentration *= 0.5f;
+            // Eyes interact differently with light than hair does
+            pigment.white = 0;
             layer.color = pigment.toColor();
             layer.color.multiply(blue);
         }
