@@ -23,7 +23,8 @@ public class Breed {
     }
 
     public Breed(Breed copy) {
-        genes = new HashMap(copy.genes);
+        this.genes = new HashMap(copy.genes);
+        this.parent = copy.parent;
     }
 
     public boolean contains(String gene) {
@@ -49,8 +50,8 @@ public class Breed {
         return BreedManager.getBreed(new ResourceLocation(HorseColors.MODID, name));
     }
 
-    // Print in a format that can be parsed as a python dictionary
-    public void print() {
+    // Write in a format that can be parsed as a python dictionary
+    public String getMapString() {
         String p = "{";
         boolean first_gene = true;
         for (String gene : this.genes.keySet()) {
@@ -70,6 +71,16 @@ public class Breed {
             p += "]";
         }
         p += "}";
-        System.out.println(p);
+        return p;
+    }
+
+    public String toString() {
+        String s = "Breed: " + this.name + "\nPopulation: " + this.population
+            + "\nGenes:\n" + this.getMapString() + "\nParent: ";
+        if (parent == null) {
+            return s + "null\n";
+        }
+        String p = parent.toString();
+        return s + "\n" + p.replace("\n", "\n    ");
     }
 }

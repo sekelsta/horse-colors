@@ -132,7 +132,6 @@ public class QuarterHorse {
             0.999f, // No rabicano
             1f      // Rabicano
         ));
-
     }
 
     public static void init() {}
