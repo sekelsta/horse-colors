@@ -20,5 +20,7 @@ Thanks to KevinBevin and Thea2176 for the Danish translation da_dk.json
 Thanks to Robbie2345 for the Dutch translation nl_nl.json
 Thanks to Endless for the Polish translation pl_pl.json
 Thanks to Regenherz and Hufflepp for the German translation de_de.json
+Thanks to 16N1C0 for the Spanish translation es_es.json
+Thanks to shoji_sl for the Brazilian Potuguese translation pt_br.json
 
 Gray themed gender icons in gui/horse.png by mokiyoki of Genetic Animals, used with permission
