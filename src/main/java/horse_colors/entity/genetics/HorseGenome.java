@@ -897,6 +897,10 @@ public class HorseGenome extends Genome {
             health += "\n" + Util.translate("stats.health_size_note");
         }
         String healthEffects = "";
+        // Overo lethal white syndrome is not affected by the configuration
+        if (this.isLethalWhite()) {
+            healthEffects += "\n" + Util.translate("stats.health.lethal_white");
+        }
         if (HorseConfig.GENETICS.enableHealthEffects.get()) {
             if (getDeafHealthLoss() > 0.5f) {
                 healthEffects += "\n" + Util.translate("stats.health.deaf");

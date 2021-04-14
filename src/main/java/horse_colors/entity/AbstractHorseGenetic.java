@@ -932,13 +932,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             && this.getGenome().isLethalWhite()
             && this.ticksExisted > 80)
         {
-            if (!this.isPotionActive(Effects.POISON))
+            if (!this.isPotionActive(Effects.WITHER))
             {
-                this.addPotionEffect(new EffectInstance(Effects.POISON, 100, 3));
-            }
-            if (this.getHealth() < 2)
-            {
-                this.addPotionEffect(new EffectInstance(Effects.INSTANT_DAMAGE, 1, 3));
+                this.addPotionEffect(new EffectInstance(Effects.WITHER, 100, 3));
             }
         }
     }
