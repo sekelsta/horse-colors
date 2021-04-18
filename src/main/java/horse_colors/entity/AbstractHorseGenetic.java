@@ -103,6 +103,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.setSeed(this.rand.nextInt());
         this.setMale(this.rand.nextBoolean());
         this.dataManager.set(PREGNANT_SINCE, -1);
+        // Trying to do this in writeAdditional would be too late, as the
+        // persistent data is already written from Entity.write before that is
+        // called (at least in Minecraft 1.16.3)
+        this.getPersistentData().putInt("HorseGeneticsVersion", HORSE_GENETICS_VERSION);
     }
 
     public HorseGenome getGenome() {
@@ -172,9 +176,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     public void writeAdditional(CompoundNBT compound)
     {
         super.writeAdditional(compound);
-        // Mark what version the data was written in
-        this.getPersistentData().putInt("HorseGeneticsVersion", HORSE_GENETICS_VERSION);
         compound.putString("Genes", this.getGeneData());
+
         compound.putInt("Random", this.getSeed());
         compound.putInt("true_age", trueAge);
         compound.putBoolean("gender", this.isMale());
@@ -278,6 +281,11 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
         setMotherSize(motherSize);
 
+        // Ensure the true age matches the age
+        if (this.trueAge < 0 != this.growingAge < 0) {
+            this.trueAge = this.growingAge;
+        }
+
         // Set any genes that were specified in a human-readable format
         readExtraGenes(compound);
         this.useGeneticAttributes();
@@ -291,6 +299,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 this.initFromVillageSpawn();
             }
         }
+
+        // Again, this needs to be done before writeAdditional is called
+        this.getPersistentData().putInt("HorseGeneticsVersion", HORSE_GENETICS_VERSION);
     }
 
     private void readExtraGenes(CompoundNBT compound) {
