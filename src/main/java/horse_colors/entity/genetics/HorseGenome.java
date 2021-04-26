@@ -432,7 +432,7 @@ public class HorseGenome extends Genome {
     }
 
     public float getImmuneHealth() {
-        float scale = 8f;
+        float scale = 7f;
         // Sum of heterozygosity of the 16 immune diversity genes
         int diffs = 0;
         for (int i = 0; i < 8; ++i) {
@@ -451,7 +451,7 @@ public class HorseGenome extends Genome {
         if (heterozygosity > 1f) {
             heterozygosity = 0.25f * (heterozygosity - 1) + 1;
         }
-        return scale * heterozygosity;
+        return Math.min(scale, scale * heterozygosity);
     }
 
     public float getGrayHealthLoss() {
@@ -521,7 +521,7 @@ public class HorseGenome extends Genome {
             // On the small end, compare to cows which have 10 health.
             // On the large end, compare to players which have 20 - by the time
             // a horse is big enough to have 40 health, it can carry two players.
-            maxHealth *= Math.min(this.getAdultScale(), 1.5f);
+            maxHealth *= Math.min(this.getAdultScale() / 1.1f, 1.5f);
         }
         maxHealth += this.getBaseHealth();
         // Horse always have at least 4 health
@@ -555,7 +555,8 @@ public class HorseGenome extends Genome {
             size *= 0.98f;
         }
         if (!HorseConfig.COMMON.enableSizes.get()) {
-            return size;
+            // Standard size is around 14.2, 14.3 hands high
+            return size * 1.1f;
         }
 
         size *= this.entity.isMale() ? 1.01f : 0.99f;
