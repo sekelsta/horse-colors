@@ -104,10 +104,10 @@ public class Spawns {
 
     public static void changeVillageAnimals() {
         // Force the static block to run
-        PlainsVillagePools.init();
+        PlainsVillagePools.bootstrap();
         HorseColors.logger.debug("Modifying village animal spawns");
         ResourceLocation animalsLoc = new ResourceLocation("village/common/animals");
-        java.util.Optional<JigsawPattern> animalsOpt = WorldGenRegistries.JIGSAW_POOL.getOptional(animalsLoc);
+        java.util.Optional<JigsawPattern> animalsOpt = WorldGenRegistries.TEMPLATE_POOL.getOptional(animalsLoc);
         if (!animalsOpt.isPresent()) {
             System.err.println("Trying to overwrite village spawns too soon");
             return;
@@ -123,11 +123,11 @@ public class Spawns {
         // Add my own pieces
         List<Pair<Function<JigsawPattern.PlacementBehaviour, ? extends JigsawPiece>, Integer>> customPieces = new ArrayList<>();
         String modloc = HorseColors.MODID + ":";
-        customPieces.add(new Pair<>(JigsawPiece.func_242849_a(modloc + "village/common/animals/horses_1"), 1));
-        customPieces.add(new Pair<>(JigsawPiece.func_242849_a(modloc + "village/common/animals/horses_2"), 1));
-        customPieces.add(new Pair<>(JigsawPiece.func_242849_a(modloc + "village/common/animals/horses_3"), 1));
-        customPieces.add(new Pair<>(JigsawPiece.func_242849_a(modloc + "village/common/animals/horses_4"), 1));
-        customPieces.add(new Pair<>(JigsawPiece.func_242849_a(modloc + "village/common/animals/horses_5"), 1));
+        customPieces.add(new Pair<>(JigsawPiece.legacy(modloc + "village/common/animals/horses_1"), 1));
+        customPieces.add(new Pair<>(JigsawPiece.legacy(modloc + "village/common/animals/horses_2"), 1));
+        customPieces.add(new Pair<>(JigsawPiece.legacy(modloc + "village/common/animals/horses_3"), 1));
+        customPieces.add(new Pair<>(JigsawPiece.legacy(modloc + "village/common/animals/horses_4"), 1));
+        customPieces.add(new Pair<>(JigsawPiece.legacy(modloc + "village/common/animals/horses_5"), 1));
         // Transform from function to jigsaw piece
         JigsawPattern.PlacementBehaviour placementBehaviour = JigsawPattern.PlacementBehaviour.RIGID;
         for(Pair<Function<JigsawPattern.PlacementBehaviour, ? extends JigsawPiece>, Integer> pair : customPieces) {
@@ -135,7 +135,7 @@ public class Spawns {
             keeperList.add(new Pair<>(jigsawPiece, pair.getSecond()));
         }
         // 1.16 moved jigsawManager.REGISTRY to JigsawPatternRegistry
-        JigsawPatternRegistry.func_244094_a(new JigsawPattern(animalsLoc, new ResourceLocation("empty"), keeperList));
+        JigsawPatternRegistry.register(new JigsawPattern(animalsLoc, new ResourceLocation("empty"), keeperList));
         // I don't touch sheep so I can leave "village/common/sheep" alone
         // Likewise for "village/common/cats"
         // Also ignore the cows, pigs, and sheep in "village/common/butcher_animals"

@@ -25,15 +25,15 @@ public class ModItems {
 
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
-        geneBookItem = new GeneBookItem((new Item.Properties()).maxStackSize(1));
+        geneBookItem = new GeneBookItem((new Item.Properties()).stacksTo(1));
         geneBookItem.setRegistryName("gene_book");
         ForgeRegistries.ITEMS.register(geneBookItem);
 
-        genderChangeItem = new GenderChangeItem((new Item.Properties()).maxStackSize(64).group(CreativeTab.instance));
+        genderChangeItem = new GenderChangeItem((new Item.Properties()).stacksTo(64).tab(CreativeTab.instance));
         genderChangeItem.setRegistryName("gender_change_item");
         ForgeRegistries.ITEMS.register(genderChangeItem);
 
-        netheriteHorseArmor = new CompatibleHorseArmor(13, "netherite", (new Item.Properties()).maxStackSize(1).group(CreativeTab.instance).isImmuneToFire());
+        netheriteHorseArmor = new CompatibleHorseArmor(13, "netherite", (new Item.Properties()).stacksTo(1).tab(CreativeTab.instance).fireResistant());
         netheriteHorseArmor.setRegistryName("netherite_horse_armor");
         ForgeRegistries.ITEMS.register(netheriteHorseArmor);
         registerDispenserBehaviour();
@@ -44,22 +44,22 @@ public class ModItems {
             /**
              * Dispense the specified stack, play the dispense sound and spawn particles.
              */
-            protected ItemStack dispenseStack(IBlockSource source, ItemStack stack) {
-                BlockPos blockpos = source.getBlockPos().offset(source.getBlockState().get(DispenserBlock.FACING));
+            protected ItemStack execute(IBlockSource source, ItemStack stack) {
+                BlockPos blockpos = source.getPos().relative(source.getBlockState().getValue(DispenserBlock.FACING));
 
-                for(AbstractHorseEntity abstracthorseentity : source.getWorld().getEntitiesWithinAABB(AbstractHorseEntity.class, new AxisAlignedBB(blockpos), (horse) -> {
-                    return horse.isAlive() && horse.func_230276_fq_();
+                for(AbstractHorseEntity abstracthorseentity : source.getLevel().getEntitiesOfClass(AbstractHorseEntity.class, new AxisAlignedBB(blockpos), (horse) -> {
+                    return horse.isAlive() && horse.canWearArmor();
                 })) {
-                    if (abstracthorseentity.isArmor(stack) && !abstracthorseentity.func_230277_fr_() && abstracthorseentity.isTame()) {
-                        abstracthorseentity.replaceItemInInventory(401, stack.split(1));
-                        this.setSuccessful(true);
+                    if (abstracthorseentity.isArmor(stack) && !abstracthorseentity.isWearingArmor() && abstracthorseentity.isTamed()) {
+                        abstracthorseentity.setSlot(401, stack.split(1));
+                        this.setSuccess(true);
                         return stack;
                     }
                 }
 
-                return super.dispenseStack(source, stack);
+                return super.execute(source, stack);
             }
         };
-        DispenserBlock.registerDispenseBehavior(netheriteHorseArmor, dispenseHorseArmor);
+        DispenserBlock.registerBehavior(netheriteHorseArmor, dispenseHorseArmor);
     }
 }

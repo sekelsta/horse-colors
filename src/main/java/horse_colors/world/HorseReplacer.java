@@ -20,7 +20,7 @@ public class HorseReplacer {
     {
         // We don't want to replace subclasses of horses
         if (event.getEntity().getClass() == HorseEntity.class
-            && !event.getWorld().isRemote
+            && !event.getWorld().isClientSide
             && HorseConfig.SPAWN.convertVanillaHorses.get())
         {
             HorseEntity horse = (HorseEntity)event.getEntity();
@@ -31,11 +31,11 @@ public class HorseReplacer {
                 // Normally this is done by calling world.addEntity, which
                 // makes sure to load the chunk first. However calling that
                 // from chunk loading creates a deadlock. Minecraft's chunk 
-                // loading code calls ServerWorld.addEntityIfNotDuplicate
+                // loading code calls ServerWorld.loadFromChunk
                 // instead, which assumes the chunk is already loaded.
                 World world = event.getWorld();
                 if (world instanceof ServerWorld) {
-                    ((ServerWorld)world).addEntityIfNotDuplicate(newHorse);
+                    ((ServerWorld)world).loadFromChunk(newHorse);
                 }
                 // Don't convert the same horse twice
                 horse.getPersistentData().putBoolean("converted", true);

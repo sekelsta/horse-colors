@@ -38,13 +38,13 @@ public class HorseArmorLayer extends LayerRenderer<AbstractHorseGenetic, HorseGe
             return;
         }
         HorseGeneticEntity horse = (HorseGeneticEntity)entityIn;
-        ItemStack itemstack = horse.getHorseArmor();
+        ItemStack itemstack = horse.getArmor();
         Item armor = itemstack.getItem();
         ResourceLocation textureLocation = HorseArmorer.getTexture(armor);
         if (textureLocation != null) {
-            this.getEntityModel().copyModelAttributesTo(this.horseModel);
-            this.horseModel.setLivingAnimations(horse, p_225628_5_, p_225628_6_, p_225628_7_);
-            this.horseModel.setRotationAngles(horse, p_225628_5_, p_225628_6_, p_225628_8_, p_225628_9_, p_225628_10_);
+            this.getParentModel().copyPropertiesTo(this.horseModel);
+            this.horseModel.prepareMobModel(horse, p_225628_5_, p_225628_6_, p_225628_7_);
+            this.horseModel.setupAnim(horse, p_225628_5_, p_225628_6_, p_225628_8_, p_225628_9_, p_225628_10_);
             float r;
             float g;
             float b;
@@ -70,13 +70,13 @@ public class HorseArmorLayer extends LayerRenderer<AbstractHorseGenetic, HorseGe
             }
 
             IVertexBuilder ivertexbuilder;
-            if (itemstack.hasEffect()) {
-                ivertexbuilder = VertexBuilderUtils.newDelegate(renderTypeBuffer.getBuffer(RenderType.getArmorEntityGlint()), renderTypeBuffer.getBuffer(RenderType.getArmorCutoutNoCull(textureLocation)));
+            if (itemstack.hasFoil()) {
+                ivertexbuilder = VertexBuilderUtils.create(renderTypeBuffer.getBuffer(RenderType.armorEntityGlint()), renderTypeBuffer.getBuffer(RenderType.armorCutoutNoCull(textureLocation)));
             }
             else {
-                ivertexbuilder = renderTypeBuffer.getBuffer(RenderType.getEntityCutoutNoCull(textureLocation));
+                ivertexbuilder = renderTypeBuffer.getBuffer(RenderType.entityCutoutNoCull(textureLocation));
             }
-            this.horseModel.render(matrixStack, ivertexbuilder, p_225628_3_, OverlayTexture.NO_OVERLAY, r, g, b, 1.0F);
+            this.horseModel.renderToBuffer(matrixStack, ivertexbuilder, p_225628_3_, OverlayTexture.NO_OVERLAY, r, g, b, 1.0F);
         }
     }
 

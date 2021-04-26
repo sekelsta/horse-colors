@@ -57,7 +57,7 @@ public class GeneBookScreen extends Screen {
     private final boolean pageTurnSounds = true;
 
     public GeneBookScreen(Genome genomeIn) {
-        super(NarratorChatListener.EMPTY);
+        super(NarratorChatListener.NO_TITLE);
         this.genome = genomeIn;
     }
 
@@ -66,7 +66,7 @@ public class GeneBookScreen extends Screen {
         // Render the book picture in the back
         this.renderBackground(matrixStack);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bindTexture(new ResourceLocation(HorseColors.MODID + ":textures/gui/book.png"));
+        this.minecraft.getTextureManager().bind(new ResourceLocation(HorseColors.MODID + ":textures/gui/book.png"));
         int x = (this.width - bookWidth) / 2;
         int y = 2;
         //x = 0;
@@ -89,27 +89,26 @@ public class GeneBookScreen extends Screen {
     private List<IReorderingProcessor> cachePageLines(int page) {
         ITextProperties itextproperties;
         if (page < 0 || page >= this.getPageCount()) {
-            itextproperties = ITextProperties.field_240651_c_;
+            itextproperties = ITextProperties.EMPTY;
         }
         else {
             String pagetext = this.getPageText(page);
-            itextproperties = ITextProperties.func_240652_a_(pagetext);
+            itextproperties = ITextProperties.of(pagetext);
         }
-        return this.font.trimStringToWidth(itextproperties, lineWrapWidth);
+        return this.font.split(itextproperties, lineWrapWidth);
     }
 
     private void renderPage(MatrixStack matrixStack, int pagenum, List<IReorderingProcessor> cachedPageLines, int x) {
-        String pageindicator = I18n.format("book.pageIndicator", pagenum + 1, this.getPageCount());
+        String pageindicator = I18n.get("book.pageIndicator", pagenum + 1, this.getPageCount());
 
         String pagetext = this.getPageText(pagenum);
         int j1 = this.getTextWidth(pageindicator);
-        this.font.drawString(matrixStack, pageindicator, (float)(x - j1 + pageWidth), 18.0F, 0);
+        this.font.draw(matrixStack, pageindicator, (float)(x - j1 + pageWidth), 18.0F, 0);
 
         int lines = Math.min(linesPerPage, cachedPageLines.size());
         for(int i = 0; i < lines; ++i) {
             IReorderingProcessor text = cachedPageLines.get(i);
-            this.font.func_238422_b_(matrixStack, text, (float)x, (float)(32 + i * 9), 0);
-            //this.font.drawString(matrixStack, text.getString(), (float)x, (float)(32 + i * 9), 0);
+            this.font.draw(matrixStack, text, (float)x, (float)(32 + i * 9), 0);
         }
     }
 
@@ -122,9 +121,9 @@ public class GeneBookScreen extends Screen {
             int lines = 0;
             for (int ln = 0; ln < contents.get(ch).size(); ++ln) {
                 String text = contents.get(ch).get(ln);
-                ITextProperties itextproperties = ITextProperties.func_240652_a_(text);
+                ITextProperties itextproperties = ITextProperties.of(text);
                 // Get the number of lines for this block of text
-                int wrapped = this.font.getCharacterManager().func_238362_b_(itextproperties, lineWrapWidth, Style.EMPTY).size();
+                int wrapped = this.font.getSplitter().splitLines(itextproperties, lineWrapWidth, Style.EMPTY).size();
                 if (lines + wrapped > linesPerPage && lines > 0) {
                     pages.add(s);
                     s = "";
@@ -141,7 +140,7 @@ public class GeneBookScreen extends Screen {
 
    protected void addDoneButton() {
       this.addButton(new Button(this.width / 2 - 100, 196, 200, 20, DialogTexts.GUI_DONE, (param) -> {
-         this.minecraft.displayGuiScreen((Screen)null);
+         this.minecraft.setScreen((Screen)null);
       }));
    }
 
@@ -196,6 +195,6 @@ public class GeneBookScreen extends Screen {
     }
 
     private int getTextWidth(String text) {
-        return this.font.getStringWidth(this.font.getBidiFlag() ? this.font.bidiReorder(text) : text);
+        return this.font.width(this.font.isBidirectional() ? this.font.bidirectionalShaping(text) : text);
     }
 }

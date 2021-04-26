@@ -50,113 +50,112 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         super(entityType, worldIn);
     }
 
-    public void writeAdditional(CompoundNBT compound) {
-        super.writeAdditional(compound);
-        if (!this.horseChest.getStackInSlot(1).isEmpty()) {
-            compound.put("ArmorItem", this.horseChest.getStackInSlot(1).write(new CompoundNBT()));
+    public void addAdditionalSaveData(CompoundNBT compound) {
+        super.addAdditionalSaveData(compound);
+        if (!this.inventory.getItem(1).isEmpty()) {
+            compound.put("ArmorItem", this.inventory.getItem(1).save(new CompoundNBT()));
         }
     }
 
    /**
     * Helper method to read subclass entity data from NBT.
     */
-    public void readAdditional(CompoundNBT compound) {
-        super.readAdditional(compound);
+    public void readAdditionalSaveData(CompoundNBT compound) {
+        super.readAdditionalSaveData(compound);
         if (compound.contains("ArmorItem", 10)) {
-            ItemStack itemstack = ItemStack.read(compound.getCompound("ArmorItem"));
+            ItemStack itemstack = ItemStack.of(compound.getCompound("ArmorItem"));
             if (!itemstack.isEmpty() && this.isArmor(itemstack)) {
-                this.horseChest.setInventorySlotContents(1, itemstack);
+                this.inventory.setItem(1, itemstack);
             }
         }
-        this.func_230275_fc_();
+        this.updateContainerEquipment();
     }
 
-    public ItemStack getHorseArmor() {
-        return this.getItemStackFromSlot(EquipmentSlotType.CHEST);
+    public ItemStack getArmor() {
+        return this.getItemBySlot(EquipmentSlotType.CHEST);
     }
 
-    private void setHorseArmor(ItemStack itemstack) {
-        this.setItemStackToSlot(EquipmentSlotType.CHEST, itemstack);
+    private void setArmor(ItemStack itemstack) {
+        this.setItemSlot(EquipmentSlotType.CHEST, itemstack);
         this.setDropChance(EquipmentSlotType.CHEST, 0.0F);
     }
    /**
     * Updates the items in the saddle and armor slots of the horse's inventory.
     */
     @Override
-    // func_230275_fc_ = updateHorseSlots
-    protected void func_230275_fc_() {
-        if (!this.world.isRemote()) {
-            super.func_230275_fc_();
-            this.setHorseArmorStack(this.horseChest.getStackInSlot(1));
+    protected void updateContainerEquipment() {
+        if (!this.level.isClientSide()) {
+            super.updateContainerEquipment();
+            this.setArmorStack(this.inventory.getItem(1));
             this.setDropChance(EquipmentSlotType.CHEST, 0.0F);
         }
     }
 
-    private void setHorseArmorStack(ItemStack itemstack) {
+    private void setArmorStack(ItemStack itemstack) {
         // this.func_213805_k(itemStack);
-        this.setHorseArmor(itemstack);
-        if (!this.world.isRemote) {
+        this.setArmor(itemstack);
+        if (!this.level.isClientSide) {
             this.getAttribute(Attributes.ARMOR).removeModifier(ARMOR_MODIFIER_UUID);
             // Do not use this.isArmor(itemstack)) because that can return true for things which
             // can't be cast to HorseArmorItem
             if (itemstack.getItem() instanceof HorseArmorItem) {
-                int i = ((HorseArmorItem)itemstack.getItem()).getArmorValue();
+                int i = ((HorseArmorItem)itemstack.getItem()).getProtection();
                 if (i != 0) {
-                    this.getAttribute(Attributes.ARMOR).applyNonPersistentModifier((new AttributeModifier(ARMOR_MODIFIER_UUID, "Horse armor bonus", (double)i, AttributeModifier.Operation.ADDITION)));
+                    this.getAttribute(Attributes.ARMOR).addTransientModifier((new AttributeModifier(ARMOR_MODIFIER_UUID, "Horse armor bonus", (double)i, AttributeModifier.Operation.ADDITION)));
                 }
             }
         }
     }
 
    /**
-    * Called by InventoryBasic.onInventoryChanged() on a array that is never filled.
+    * Called by InventoryBasic.containerChanged() on a array that is never filled.
     */
-    public void onInventoryChanged(IInventory invBasic) {
-        ItemStack itemstack = this.getHorseArmor();
-        super.onInventoryChanged(invBasic);
-        ItemStack itemstack1 = this.getHorseArmor();
-        if (this.ticksExisted > 20 && this.isArmor(itemstack1) && itemstack != itemstack1) {
-            this.playSound(SoundEvents.ENTITY_HORSE_ARMOR, 0.5F, 1.0F);
+    public void containerChanged(IInventory invBasic) {
+        ItemStack itemstack = this.getArmor();
+        super.containerChanged(invBasic);
+        ItemStack itemstack1 = this.getArmor();
+        if (this.tickCount > 20 && this.isArmor(itemstack1) && itemstack != itemstack1) {
+            this.playSound(SoundEvents.HORSE_ARMOR, 0.5F, 1.0F);
         }
     }
 
     @Override
-    public ResourceLocation getLootTable() {
+    public ResourceLocation getDefaultLootTable() {
         return this.LOOT_TABLE;
     }
 
     protected void playGallopSound(SoundType p_190680_1_) {
         super.playGallopSound(p_190680_1_);
-        if (this.rand.nextInt(10) == 0) {
-            this.playSound(SoundEvents.ENTITY_HORSE_BREATHE, p_190680_1_.getVolume() * 0.6F, p_190680_1_.getPitch());
+        if (this.random.nextInt(10) == 0) {
+            this.playSound(SoundEvents.HORSE_BREATHE, p_190680_1_.getVolume() * 0.6F, p_190680_1_.getPitch());
         }
     }
 
     @Override
     public void tick() {
         super.tick();
-        ItemStack stack = this.horseChest.getStackInSlot(1);
-        if (isArmor(stack)) stack.onHorseArmorTick(world, this);
+        ItemStack stack = this.inventory.getItem(1);
+        if (isArmor(stack)) stack.onHorseArmorTick(this.level, this);
     }
 
     protected SoundEvent getAmbientSound() {
         super.getAmbientSound();
-        return SoundEvents.ENTITY_HORSE_AMBIENT;
+        return SoundEvents.HORSE_AMBIENT;
     }
 
     protected SoundEvent getDeathSound() {
         super.getDeathSound();
-        return SoundEvents.ENTITY_HORSE_DEATH;
+        return SoundEvents.HORSE_DEATH;
     }
 
     protected SoundEvent getHurtSound(DamageSource damageSourceIn) {
         super.getHurtSound(damageSourceIn);
-        return SoundEvents.ENTITY_HORSE_HURT;
+        return SoundEvents.HORSE_HURT;
     }
 
     protected SoundEvent getAngrySound() {
         super.getAngrySound();
-        return SoundEvents.ENTITY_HORSE_ANGRY;
+        return SoundEvents.HORSE_ANGRY;
     }
 
     @Override
@@ -187,7 +186,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
      * Returns true if the mob is currently able to mate with the specified mob.
      */
     @Override
-    public boolean canMateWith(AnimalEntity otherAnimal)
+    public boolean canMate(AnimalEntity otherAnimal)
     {
         if (otherAnimal == this)
         {
@@ -203,7 +202,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
                 || otherAnimal instanceof DonkeyEntity 
                 || otherAnimal instanceof HorseEntity)
         {
-            return this.canMate() && Util.horseCanMate((AbstractHorseEntity)otherAnimal);
+            return this.canParent() && Util.horseCanMate((AbstractHorseEntity)otherAnimal);
         }
         else
         {
@@ -220,10 +219,10 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
             AbstractHorseGenetic child = null;
             AbstractHorseGenetic other = (AbstractHorseGenetic)ageable;
             if (ageable instanceof HorseGeneticEntity) {
-                child = ModEntities.HORSE_GENETIC.create(this.world);
+                child = ModEntities.HORSE_GENETIC.create(this.level);
             }
             else if (ageable instanceof DonkeyGeneticEntity) {
-                child = ModEntities.MULE_GENETIC.create(this.world);
+                child = ModEntities.MULE_GENETIC.create(this.level);
                 if (HorseConfig.BREEDING.enableGenders.get()
                         && this.isMale() && !((DonkeyGeneticEntity)ageable).isMale()) {
                     ((MuleGeneticEntity)child).setSpecies(Species.HINNY);
@@ -234,7 +233,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         else if (ageable instanceof HorseEntity) {
             // Breed the vanilla horse to itself
             // func_241840_a = createChild
-            AgeableEntity child = ageable.func_241840_a(world, ageable);
+            AgeableEntity child = ageable.getBreedOffspring(world, ageable);
             if (child instanceof AbstractHorseEntity) {
                 return (AbstractHorseEntity)child;
             }
@@ -242,14 +241,13 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
             return null;
         }
         else if (ageable instanceof DonkeyEntity) {
-            return EntityType.MULE.create(this.world);
+            return EntityType.MULE.create(this.level);
         }
         return null;
     }
 
     @Override
-    // func_230276_fq_ = wearsArmor
-    public boolean func_230276_fq_() {
+    public boolean canWearArmor() {
         return true;
     }
 
@@ -277,5 +275,15 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         return ImmutableList.of(Appaloosa.breed, 
         Hucul.breed, MongolianHorse.breed, QuarterHorse.breed, Friesian.breed, 
         ClevelandBay.breed);
+    }
+
+    // Set stats for vanilla-like breeding
+    @Override
+    protected void randomizeAttributes() {
+        super.randomizeAttributes();
+        if (!HorseConfig.GENETICS.useGeneticStats.get()) {
+            this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(this.generateRandomSpeed());
+            this.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(this.generateRandomJumpStrength());
+        }
     }
 }

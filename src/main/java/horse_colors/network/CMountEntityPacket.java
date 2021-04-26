@@ -28,7 +28,7 @@ public class CMountEntityPacket {
     }
 
     public CMountEntityPacket(Entity entity) {
-        this(entity.getEntityId());
+        this(entity.getId());
     }
 
     public void encode(PacketBuffer buffer) {
@@ -52,18 +52,18 @@ public class CMountEntityPacket {
         if (!(mount instanceof IGeneticEntity)) {
             AxisAlignedBB riderBox = rider.getBoundingBox();
             AxisAlignedBB mountBox = mount.getBoundingBox();
-            if (riderBox.getAverageEdgeLength() * 2 > mountBox.getAverageEdgeLength()) {
+            if (riderBox.getSize() * 2 > mountBox.getSize()) {
                 return false;
             }
-            double riderSize = riderBox.getXSize() * riderBox.getYSize() * riderBox.getZSize();
+            double riderSize = riderBox.getXsize() * riderBox.getYsize() * riderBox.getZsize();
             if (rider instanceof AnimalEntity) {
                 riderSize *= 2;
             }
-            if (rider instanceof AgeableEntity && ((AgeableEntity)rider).isChild()) {
+            if (rider instanceof AgeableEntity && ((AgeableEntity)rider).isBaby()) {
                 riderSize *= 2;
             }
             if (riderSize * 2 > 
-                    mountBox.getXSize() * mountBox.getYSize() * mountBox.getZSize()) {
+                    mountBox.getXsize() * mountBox.getYsize() * mountBox.getZsize()) {
                 return false;
             }
         }
@@ -76,7 +76,7 @@ public class CMountEntityPacket {
     // afterwards.
     private void handleMain(Context context) {
         ServerPlayerEntity sender = context.getSender();
-        Entity target = sender.world.getEntityByID(this.entityId);
+        Entity target = sender.level.getEntity(this.entityId);
         boolean extra = HorseConfig.COMMON.mountingTweaks.get() > 1;
         if (target == null) {
             HorseColors.logger.warn("Could not find entity with id " + this.entityId + " requested by " 
@@ -84,7 +84,7 @@ public class CMountEntityPacket {
             return;
         }
         // Cannot use this to move hostile mobs
-        if (!target.getType().getClassification().getPeacefulCreature()) {
+        if (!target.getType().getCategory().isFriendly()) {
             return;
         }
         // Cannot control other players
@@ -93,7 +93,7 @@ public class CMountEntityPacket {
         }
         // If mounted and the creature fits, mount it behind you
         if (sender.isPassenger()) {
-            Entity mount = sender.getRidingEntity();
+            Entity mount = sender.getVehicle();
             if (mount instanceof IGeneticEntity || extra) {
                 if (tryMounting(target, mount)) {
                     return;
@@ -101,9 +101,9 @@ public class CMountEntityPacket {
             }
         }
         // Otherwise try to mount it on an entity leashed to you
-        List<MobEntity> entities = sender.world.getEntitiesWithinAABB(
+        List<MobEntity> entities = sender.level.getEntitiesOfClass(
             MobEntity.class, 
-            sender.getBoundingBox().grow(9, 4, 9),
+            sender.getBoundingBox().inflate(9, 4, 9),
             (entity) -> {
                 return entity != target 
                     && entity.getLeashHolder() == sender
@@ -128,7 +128,7 @@ public class CMountEntityPacket {
                     && target.getControllingPassenger() == sender) {
                 return;
             }
-            target.removePassengers();
+            target.ejectPassengers();
         }
     }
 

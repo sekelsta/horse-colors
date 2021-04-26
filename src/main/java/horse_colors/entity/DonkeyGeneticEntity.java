@@ -39,23 +39,23 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
     }
 
     @Override
-    public ResourceLocation getLootTable() {
+    public ResourceLocation getDefaultLootTable() {
         return this.LOOT_TABLE;
     }
 
     protected SoundEvent getAmbientSound() {
         super.getAmbientSound();
-        return SoundEvents.ENTITY_DONKEY_AMBIENT;
+        return SoundEvents.DONKEY_AMBIENT;
     }
 
     protected SoundEvent getDeathSound() {
         super.getDeathSound();
-        return SoundEvents.ENTITY_DONKEY_DEATH;
+        return SoundEvents.DONKEY_DEATH;
     }
 
     protected SoundEvent getHurtSound(DamageSource damageSourceIn) {
         super.getHurtSound(damageSourceIn);
-        return SoundEvents.ENTITY_DONKEY_HURT;
+        return SoundEvents.DONKEY_HURT;
     }
 
     @Override
@@ -82,7 +82,7 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
     * Returns true if the mob is currently able to mate with the specified mob.
     */
     @Override
-    public boolean canMateWith(AnimalEntity otherAnimal) {
+    public boolean canMate(AnimalEntity otherAnimal) {
         if (otherAnimal == this)
         {
             return false;
@@ -97,7 +97,7 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
                 || otherAnimal instanceof DonkeyEntity 
                 || otherAnimal instanceof HorseEntity)
         {
-            return this.canMate() && Util.horseCanMate((AbstractHorseEntity)otherAnimal);
+            return this.canParent() && Util.horseCanMate((AbstractHorseEntity)otherAnimal);
         }
         else
         {
@@ -114,22 +114,22 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
             AbstractHorseGenetic child = null;
             AbstractHorseGenetic other = (AbstractHorseGenetic)ageable;
             if (ageable instanceof HorseGeneticEntity) {
-                child = ModEntities.MULE_GENETIC.create(this.world);
+                child = ModEntities.MULE_GENETIC.create(this.level);
                 if (HorseConfig.BREEDING.enableGenders.get()
                         && !this.isMale() && ((HorseGeneticEntity)ageable).isMale()) {
                     ((MuleGeneticEntity)child).setSpecies(Species.HINNY);
                 }
             }
             else if (ageable instanceof DonkeyGeneticEntity) {
-                child = ModEntities.DONKEY_GENETIC.create(this.world);
+                child = ModEntities.DONKEY_GENETIC.create(this.level);
             }
             return child;
         }
         else if (ageable instanceof HorseEntity) {
-            return EntityType.MULE.create(this.world);
+            return EntityType.MULE.create(this.level);
         }
         else if (ageable instanceof DonkeyEntity) {
-            return EntityType.DONKEY.create(this.world);
+            return EntityType.DONKEY.create(this.level);
         }
         return null;
     }

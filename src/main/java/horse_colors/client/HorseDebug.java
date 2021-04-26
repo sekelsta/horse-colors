@@ -38,20 +38,20 @@ public class HorseDebug {
     }
 
     public static boolean showBasicDebug(PlayerEntity player) {
-        ItemStack itemStack = player.getHeldItemOffhand();
+        ItemStack itemStack = player.getOffhandItem();
         if (itemStack != null && itemStack.getItem() == Items.STICK) {
             return true;
         }
-        ItemStack inHand = player.getHeldItemMainhand();
+        ItemStack inHand = player.getMainHandItem();
         return inHand != null && inHand.getItem() == Items.STICK;
     }
 
     public static boolean showGeneDebug(PlayerEntity player) {
-        ItemStack itemStack = player.getHeldItemOffhand();
+        ItemStack itemStack = player.getOffhandItem();
         if (itemStack != null && itemStack.getItem() == Items.DEBUG_STICK) {
             return true;
         }
-        ItemStack inHand = player.getHeldItemMainhand();
+        ItemStack inHand = player.getMainHandItem();
         return inHand != null && inHand.getItem() == Items.DEBUG_STICK;
     }
 
@@ -80,7 +80,7 @@ public class HorseDebug {
         }
 
         // Check if we're looking at a horse
-        RayTraceResult mouseOver = Minecraft.getInstance().objectMouseOver;
+        RayTraceResult mouseOver = Minecraft.getInstance().hitResult;
         if (mouseOver != null
             && mouseOver instanceof EntityRayTraceResult
             && ((EntityRayTraceResult)mouseOver).getEntity() != null
@@ -90,7 +90,7 @@ public class HorseDebug {
             // If so, print information about it to the debug screen
             IGeneticEntity entity = (IGeneticEntity)((EntityRayTraceResult)mouseOver).getEntity();
             if (showBasicDebug(player) && entity instanceof AgeableEntity) {
-                event.getLeft().add("Growing age: " + ((AgeableEntity)entity).getGrowingAge());
+                event.getLeft().add("Growing age: " + ((AgeableEntity)entity).getAge());
             }
             if (showBasicDebug(player) && entity instanceof AbstractHorseGenetic) {
                 event.getLeft().add("Display age: " + ((AbstractHorseGenetic)entity).getDisplayAge());

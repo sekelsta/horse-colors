@@ -9,10 +9,10 @@ public class Util {
     public static boolean horseCanMate(AbstractHorseEntity horse) {
         // This is the same as calling other.canMate() but doesn't require
         // reflection
-        return !horse.isBeingRidden() && !horse.isPassenger() && horse.isTame() && !horse.isChild() && horse.getHealth() >= horse.getMaxHealth() && horse.isInLove();
+        return !horse.isVehicle() && !horse.isPassenger() && horse.isTamed() && !horse.isBaby() && horse.getHealth() >= horse.getMaxHealth() && horse.isInLove();
     }
 
     public static String translate(String in) {
-        return new TranslationTextComponent(HorseColors.MODID + "." + in).getStringTruncated(10000);
+        return new TranslationTextComponent(HorseColors.MODID + "." + in).getString(10000);
     }
 }

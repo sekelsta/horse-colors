@@ -41,14 +41,14 @@ public class ContainerEventHandler {
         // This isn't getting called on dedicated servers, even though it is getting called on the server thread of an integrated client
         Slot saddleSlot = new Slot(horse.getHorseChest(), 0, 8, 18) {
             public boolean isItemValid(ItemStack stack) {
-                return horse.isSaddle(stack) && !this.getHasStack() && horse.func_230264_L__();
+                return horse.isSaddle(stack) && !this.hasItem() && horse.isSaddleable();
             }
 
             @OnlyIn(Dist.CLIENT)
             public boolean isEnabled() {
-                return horse.func_230264_L__();
+                return horse.isSaddleable();
             }
         };
-        container.inventorySlots.set(0, saddleSlot);
+        container.slots.set(0, saddleSlot);
     }
 }

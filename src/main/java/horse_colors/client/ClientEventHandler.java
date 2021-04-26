@@ -19,7 +19,7 @@ public class ClientEventHandler {
             return;
         }
         // Check if holding control / sprint key
-        if (Minecraft.getInstance().gameSettings.keyBindSprint.isKeyDown()) {
+        if (Minecraft.getInstance().options.keySprint.isDown()) {
             CMountEntityPacket packet = new CMountEntityPacket(event.getTarget());
             HorseColorsPacketHandler.CHANNEL.sendToServer(packet);
         }

@@ -39,30 +39,28 @@ public class HorseGui extends HorseInventoryScreen {
     * Draws the background layer of this container (behind the items).
     */
     @Override
-    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bindTexture(TEXTURE_LOCATION);
-        int i = (this.width - this.xSize) / 2;
-        int j = (this.height - this.ySize) / 2;
-        this.blit(matrixStack, i, j, 0, 0, this.xSize, this.ySize);
+        this.minecraft.getTextureManager().bind(TEXTURE_LOCATION);
+        int i = (this.width - this.imageWidth) / 2;
+        int j = (this.height - this.imageHeight) / 2;
+        this.blit(matrixStack, i, j, 0, 0, this.imageWidth, this.imageHeight);
         if (this.horseGenetic instanceof AbstractChestedHorseEntity) {
             AbstractChestedHorseEntity abstractchestedhorseentity = (AbstractChestedHorseEntity)this.horseGenetic;
             if (abstractchestedhorseentity.hasChest()) {
-                this.blit(matrixStack, i + 79, j + 17, 0, this.ySize, abstractchestedhorseentity.getInventoryColumns() * 18, 54);
+                this.blit(matrixStack, i + 79, j + 17, 0, this.imageHeight, abstractchestedhorseentity.getInventoryColumns() * 18, 54);
             }
         }
 
-        // func_230264_L__() = canBeSaddled()
-        if (this.horseGenetic.func_230264_L__()) {
-            this.blit(matrixStack, i + 7, j + 35 - 18, 18, this.ySize + 54, 18, 18);
+        if (this.horseGenetic.isSaddleable()) {
+            this.blit(matrixStack, i + 7, j + 35 - 18, 18, this.imageHeight + 54, 18, 18);
         }
 
-        // func_230276_fq_() = wearsArmor()
-        if (this.horseGenetic.func_230276_fq_()) {
+        if (this.horseGenetic.canWearArmor()) {
             // If it were a llama would draw the carpet like this
-            // this.blit(i + 7, j + 35, 36, this.ySize + 54, 18, 18);
+            // this.blit(i + 7, j + 35, 36, this.imageHeight + 54, 18, 18);
             // But it's not, so draw the armor slot
-            this.blit(matrixStack, i + 7, j + 35, 0, this.ySize + 54, 18, 18);
+            this.blit(matrixStack, i + 7, j + 35, 0, this.imageHeight + 54, 18, 18);
         }
 
         if (HorseConfig.isGenderEnabled()) {
@@ -101,13 +99,13 @@ public class HorseGui extends HorseInventoryScreen {
             }
         }
 
-        InventoryScreen.drawEntityOnScreen(i + 51, j + 60, 17, (float)(i + 51) - mouseX, (float)(j + 75 - 50) - mouseY, this.horseGenetic);
+        InventoryScreen.renderEntityInInventory(i + 51, j + 60, 17, (float)(i + 51) - mouseX, (float)(j + 75 - 50) - mouseY, this.horseGenetic);
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int x, int y) {
-        super.drawGuiContainerForegroundLayer(matrixStack, x, y);
-        if (!HorseConfig.COMMON.enableSizes.get() || horseGenetic.isChild()) {
+    protected void renderLabels(MatrixStack matrixStack, int x, int y) {
+        super.renderLabels(matrixStack, x, y);
+        if (!HorseConfig.COMMON.enableSizes.get() || horseGenetic.isBaby()) {
             // Avoid showing an inaccurate height for foals
             return;
         }
@@ -119,18 +117,18 @@ public class HorseGui extends HorseInventoryScreen {
         String translationKey = HorseColors.MODID + ".gui.height";
         ITextComponent heightText = new TranslationTextComponent(
                                         translationKey, hands, point, cm);
-        String heightString = heightText.getStringTruncated(1000);
+        String heightString = heightText.getString(1000);
         int yy = 20;
         for (String line : heightString.split("\n")) {
             // matrix stack, text, x, y, color
-            this.font.func_243248_b(matrixStack, new StringTextComponent(line), 82, yy, 0x404040);
+            this.font.draw(matrixStack, new StringTextComponent(line), 82, yy, 0x404040);
             yy += 9;
         }
         if (horseGenetic.getGenome().isMiniature()) {
-            this.font.func_243248_b(matrixStack, new TranslationTextComponent(HorseColors.MODID + ".gui.miniature"), 82, yy, 0x404040);
+            this.font.draw(matrixStack, new TranslationTextComponent(HorseColors.MODID + ".gui.miniature"), 82, yy, 0x404040);
         }
         else if (horseGenetic.getGenome().isLarge()) {
-            this.font.func_243248_b(matrixStack, new TranslationTextComponent(HorseColors.MODID + ".gui.large"), 82, yy, 0x404040);
+            this.font.draw(matrixStack, new TranslationTextComponent(HorseColors.MODID + ".gui.large"), 82, yy, 0x404040);
         }
     }
 
@@ -158,8 +156,8 @@ public class HorseGui extends HorseInventoryScreen {
                     System.err.println(e);
                 }
 
-                ContainerEventHandler.replaceSaddleSlot(horseGenetic, screen.getContainer());
-                event.setGui(new HorseGui(screen.getContainer(), inventory, horseGenetic));
+                ContainerEventHandler.replaceSaddleSlot(horseGenetic, screen.getMenu());
+                event.setGui(new HorseGui(screen.getMenu(), inventory, horseGenetic));
             }
         }
     }

@@ -30,17 +30,17 @@ public class GenderChangeItem extends Item {
     }
 
     @Override
-    public ActionResultType itemInteractionForEntity(ItemStack stack, PlayerEntity player, LivingEntity target, Hand hand) {
+    public ActionResultType interactLivingEntity(ItemStack stack, PlayerEntity player, LivingEntity target, Hand hand) {
         if (target instanceof IGeneticEntity) {
             IGeneticEntity g = (IGeneticEntity)target;
             g.setMale(!g.isMale());
             if (player != null) {
-                target.world.playSound((PlayerEntity)null, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ENTITY_SPLASH_POTION_THROW, SoundCategory.PLAYERS, 0.5F, 0.4F / (random.nextFloat() * 0.4F + 0.8F));
+                target.level.playSound((PlayerEntity)null, player.getX(), player.getY(), player.getZ(), SoundEvents.SPLASH_POTION_THROW, SoundCategory.PLAYERS, 0.5F, 0.4F / (random.nextFloat() * 0.4F + 0.8F));
             }
-            if (player == null || !player.abilities.isCreativeMode) {
+            if (player == null || !player.abilities.instabuild) {
                 stack.shrink(1);
             }
-            return ActionResultType.func_233537_a_(player.world.isRemote);
+            return ActionResultType.sidedSuccess(player.level.isClientSide);
         }
         return ActionResultType.PASS;
     } 
@@ -53,7 +53,7 @@ public class GenderChangeItem extends Item {
     * the glint for enchanted items. Of course, that is unnecessary if the overwritten version always returns true.
     */
     @Override
-    public boolean hasEffect(ItemStack stack) {
+    public boolean isFoil(ItemStack stack) {
         return true;
     }
 
@@ -64,7 +64,7 @@ public class GenderChangeItem extends Item {
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
         if (!HorseConfig.isGenderEnabled()) {
             String translation = HorseColors.MODID + ".gender_change_item.gender_disabled_warning";
-            tooltip.add(new TranslationTextComponent(translation).mergeStyle(TextFormatting.GRAY));
+            tooltip.add(new TranslationTextComponent(translation).withStyle(TextFormatting.GRAY));
         }
     }
 

@@ -19,11 +19,11 @@ import sekelsta.horse_colors.entity.genetics.HorseColorCalculator;
 @OnlyIn(Dist.CLIENT)
 public class HorseGeneticRenderer extends MobRenderer<AbstractHorseGenetic, HorseGeneticModel<AbstractHorseGenetic>>
 {
-    protected void preRenderCallback(AbstractHorseGenetic horse, MatrixStack matrixStackIn, float partialTickTime) {
+    protected void scale(AbstractHorseGenetic horse, MatrixStack matrixStackIn, float partialTickTime) {
         float scale = horse.getProportionalAgeScale();
         matrixStackIn.scale(scale, scale, scale);
-        this.shadowSize = 0.75F * scale;
-        super.preRenderCallback(horse, matrixStackIn, partialTickTime);
+        this.shadowRadius = 0.75F * scale;
+        super.scale(horse, matrixStackIn, partialTickTime);
     }
 
     private static final Map<String, ResourceLocation> LAYERED_LOCATION_CACHE = Maps.newHashMap();
@@ -38,7 +38,7 @@ public class HorseGeneticRenderer extends MobRenderer<AbstractHorseGenetic, Hors
      * Returns the location of an entity's texture. Doesn't seem to be called unless you call EntityRenderer.bindEntityTexture.
      */
     @Override
-    public ResourceLocation getEntityTexture(AbstractHorseGenetic entity)
+    public ResourceLocation getTextureLocation(AbstractHorseGenetic entity)
     {
         if (entity instanceof IGeneticEntity) {
             String s = ((IGeneticEntity)entity).getGenome().getTexture();
@@ -47,7 +47,7 @@ public class HorseGeneticRenderer extends MobRenderer<AbstractHorseGenetic, Hors
             if (resourcelocation == null)
             {
                 resourcelocation = new ResourceLocation(s);
-                Minecraft.getInstance().getTextureManager().loadTexture(
+                Minecraft.getInstance().getTextureManager().register(
                     resourcelocation, 
                     new CustomLayeredTexture(((IGeneticEntity)entity).getGenome().getTexturePaths())
                 );

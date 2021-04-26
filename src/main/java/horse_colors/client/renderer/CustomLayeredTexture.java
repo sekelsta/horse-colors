@@ -19,8 +19,8 @@ public class CustomLayeredTexture extends Texture {
         }
     }
 
-
-    public void loadTexture(IResourceManager manager) throws IOException {
+    @Override
+    public void load(IResourceManager manager) throws IOException {
         NativeImage image = layerGroup.getLayer(manager);
 
         if (!RenderSystem.isOnRenderThreadOrInit()) {
@@ -33,8 +33,8 @@ public class CustomLayeredTexture extends Texture {
    }
 
    private void loadImage(NativeImage imageIn) {
-      TextureUtil.prepareImage(this.getGlTextureId(), imageIn.getWidth(), imageIn.getHeight());
-      imageIn.uploadTextureSub(0, 0, 0, true);
+      TextureUtil.prepareImage(this.getId(), imageIn.getWidth(), imageIn.getHeight());
+      imageIn.upload(0, 0, 0, true);
    }
 
 

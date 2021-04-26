@@ -65,7 +65,7 @@ public class FakeGeneticEntity implements IGeneticEntity {
     }
 
     @Override
-    public int getAge() {
+    public int getTrueAge() {
         return 0;
     }
 

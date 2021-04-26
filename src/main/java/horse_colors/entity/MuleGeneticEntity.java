@@ -31,7 +31,7 @@ import sekelsta.horse_colors.entity.genetics.Species;
 import sekelsta.horse_colors.HorseColors;
 
 public class MuleGeneticEntity extends AbstractHorseGenetic {
-    protected static final DataParameter<Integer> SPECIES = EntityDataManager.<Integer>createKey(MuleGeneticEntity.class, DataSerializers.VARINT);
+    protected static final DataParameter<Integer> SPECIES = EntityDataManager.<Integer>defineId(MuleGeneticEntity.class, DataSerializers.INT);
 
     private static final ResourceLocation LOOT_TABLE = new ResourceLocation("minecraft", "entities/mule");
 
@@ -40,27 +40,27 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
     }
 
     @Override
-    protected void registerData()
+    protected void defineSynchedData()
     {
-        super.registerData();
-        this.dataManager.register(SPECIES, Species.MULE.ordinal());
+        super.defineSynchedData();
+        this.entityData.define(SPECIES, Species.MULE.ordinal());
     }
 
-    public void writeAdditional(CompoundNBT compound) {
-        super.writeAdditional(compound);
+    public void addAdditionalSaveData(CompoundNBT compound) {
+        super.addAdditionalSaveData(compound);
         compound.putString("Species", this.getSpecies().toString());
     }
 
    /**
     * Helper method to read subclass entity data from NBT.
     */
-    public void readAdditional(CompoundNBT compound) {
-        super.readAdditional(compound);
+    public void readAdditionalSaveData(CompoundNBT compound) {
+        super.readAdditionalSaveData(compound);
         this.setSpecies(Species.valueOf(compound.getString("Species")));
     }
 
     @Override
-    public ResourceLocation getLootTable() {
+    public ResourceLocation getDefaultLootTable() {
         return this.LOOT_TABLE;
     }
 
@@ -80,16 +80,16 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
     }
 
     public void setSpecies(Species species) {
-        this.dataManager.set(SPECIES, species.ordinal());
+        this.entityData.set(SPECIES, species.ordinal());
     }
 
     @Override
     public Species getSpecies() {
-        return Species.values()[this.dataManager.get(SPECIES).intValue()];
+        return Species.values()[this.entityData.get(SPECIES).intValue()];
     }
 
     @Override
-    protected boolean canMate() {
+    protected boolean canParent() {
         return false;
     }
 
@@ -97,37 +97,37 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
     // Helper function for createChild that creates and spawns an entity of the 
     // correct species
     public AbstractHorseEntity getChild(ServerWorld world, AgeableEntity ageable) {
-        MuleGeneticEntity child = ModEntities.MULE_GENETIC.create(this.world);
+        MuleGeneticEntity child = ModEntities.MULE_GENETIC.create(this.level);
         return child;
     }
 
     protected SoundEvent getAmbientSound() {
         super.getAmbientSound();
-        return SoundEvents.ENTITY_MULE_AMBIENT;
+        return SoundEvents.MULE_AMBIENT;
     }
 
     protected SoundEvent getDeathSound() {
         super.getDeathSound();
-        return SoundEvents.ENTITY_MULE_DEATH;
+        return SoundEvents.MULE_DEATH;
     }
 
     protected SoundEvent getHurtSound(DamageSource damageSourceIn) {
         super.getHurtSound(damageSourceIn);
-        return SoundEvents.ENTITY_MULE_HURT;
+        return SoundEvents.MULE_HURT;
     }
 
     protected void playChestEquipSound() {
-        this.playSound(SoundEvents.ENTITY_MULE_CHEST, 1.0F, (this.rand.nextFloat() - this.rand.nextFloat()) * 0.2F + 1.0F);
+        this.playSound(SoundEvents.MULE_CHEST, 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
     }
 
     @Override
-    protected ITextComponent getProfessionName() {
-        if (!this.isChild() && !HorseConfig.BREEDING.enableGenders.get()
+    protected ITextComponent getTypeName() {
+        if (!this.isBaby() && !HorseConfig.BREEDING.enableGenders.get()
             && this.getSpecies() == Species.HINNY) {
             String s = "entity." + HorseColors.MODID + ".hinny";
             return new TranslationTextComponent(s);
         }
-        return super.getProfessionName();
+        return super.getTypeName();
     }
 
     /**
@@ -136,9 +136,9 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
      */
     @Nullable
     @Override
-    public ILivingEntityData onInitialSpawn(IServerWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag)
+    public ILivingEntityData finalizeSpawn(IServerWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag)
     {
-        spawnDataIn = super.onInitialSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
+        spawnDataIn = super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
         HorseGenome horse = new HorseGenome(Species.HORSE);
         horse.randomize(DefaultHorse.breed);
         HorseGenome donkey = new HorseGenome(Species.DONKEY);

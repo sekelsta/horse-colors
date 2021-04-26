@@ -24,11 +24,11 @@ public class CompatibleHorseArmor extends HorseArmorItem {
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public ResourceLocation getArmorTexture() {
+    public ResourceLocation getTexture() {
         if (ModList.get().isLoaded("familiarhorses")) {
             return getAlternateTexture();
         }
-        return super.getArmorTexture();
+        return super.getTexture();
     }
 
     @OnlyIn(Dist.CLIENT)

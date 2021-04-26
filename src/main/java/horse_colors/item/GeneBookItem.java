@@ -75,18 +75,18 @@ public class GeneBookItem extends Item {
                 String translation = null;
                 switch (species) {
                     case HORSE:
-                        translation = ModEntities.HORSE_GENETIC.getTranslationKey();
+                        translation = ModEntities.HORSE_GENETIC.getDescriptionId();
                         break;
                     case DONKEY:
-                        translation = ModEntities.DONKEY_GENETIC.getTranslationKey();
+                        translation = ModEntities.DONKEY_GENETIC.getDescriptionId();
                         break;
                     case MULE:
-                        translation = ModEntities.MULE_GENETIC.getTranslationKey();
+                        translation = ModEntities.MULE_GENETIC.getDescriptionId();
                         break;
                 }
                 if (translation != null) {
                     // Compare to the author name on written books
-                    tooltip.add(new TranslationTextComponent(translation).mergeStyle(TextFormatting.GRAY));
+                    tooltip.add(new TranslationTextComponent(translation).withStyle(TextFormatting.GRAY));
                 }
             }
         }
@@ -97,42 +97,42 @@ public class GeneBookItem extends Item {
      * {@link #onItemUse}.
      */
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        ItemStack itemstack = playerIn.getHeldItem(handIn);
+    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn) {
+        ItemStack itemstack = playerIn.getItemInHand(handIn);
         if (validBookTagContents(itemstack.getTag())) {
-            if (worldIn.isRemote()) {
+            if (worldIn.isClientSide()) {
                 openGeneBook(itemstack.getTag());
             }
-            return ActionResult.resultSuccess(itemstack);
+            return ActionResult.success(itemstack);
         }
         System.out.println("Gene book has invalid NBT");
-        return ActionResult.resultFail(itemstack);
+        return ActionResult.fail(itemstack);
     }
 
     @Override
-    public ActionResultType itemInteractionForEntity(ItemStack stack, PlayerEntity player, LivingEntity target, Hand hand) {
+    public ActionResultType interactLivingEntity(ItemStack stack, PlayerEntity player, LivingEntity target, Hand hand) {
         // Check that this itemstack has a UUID
-        if (!stack.getTag().hasUniqueId("EntityUUID")) {
+        if (!stack.getTag().hasUUID("EntityUUID")) {
             return ActionResultType.PASS;
         }
         // Get this itemstack's entity's UUID
-        UUID entityUUID = stack.getTag().getUniqueId("EntityUUID");
+        UUID entityUUID = stack.getTag().getUUID("EntityUUID");
         // Null check that probably shouldn't be needed
         if (entityUUID == null) {
             return ActionResultType.PASS;
         }
         // Check that the entity matches
-        if (!(entityUUID.equals(target.getUniqueID()))) {
+        if (!(entityUUID.equals(target.getUUID()))) {
             return ActionResultType.PASS;
         }
         // Make changes based on the entity
         if (target.hasCustomName()) {
-            stack.setDisplayName(target.getCustomName());
+            stack.setHoverName(target.getCustomName());
         }
         else {
-            stack.clearCustomName();
+            stack.resetHoverName();
         }
-        return ActionResultType.func_233537_a_(player.world.isRemote);
+        return ActionResultType.sidedSuccess(player.level.isClientSide);
     } 
 
 
@@ -141,6 +141,6 @@ public class GeneBookItem extends Item {
         Minecraft mc = Minecraft.getInstance();
         Genome genome = new HorseGenome(getSpecies(nbt));
         genome.genesFromString(nbt.getString("genes"));
-        mc.displayGuiScreen(new GeneBookScreen(genome));
+        mc.setScreen(new GeneBookScreen(genome));
     }
 }

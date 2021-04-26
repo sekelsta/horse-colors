@@ -25,10 +25,10 @@ public interface IGeneticEntity {
     int getRebreedTicks();
 
     int getBirthAge();
-    int getAge();
+    int getTrueAge();
 
     default float getFractionGrown() {
-        int age = getAge();
+        int age = getTrueAge();
         if (age < 0) {
             if (HorseConfig.GROWTH.growGradually.get()) {
                 int minAge = getBirthAge();

@@ -17,12 +17,12 @@ public class RandomWalkGroundTie extends WaterAvoidingRandomWalkingGoal {
     }
 
     @Override
-    public boolean shouldExecute() {
-        if (this.creature instanceof AbstractHorseEntity && HorseConfig.COMMON.enableGroundTie.get()) {
-            if (((AbstractHorseEntity)creature).isHorseSaddled()) {
+    public boolean canUse() {
+        if (this.mob instanceof AbstractHorseEntity && HorseConfig.COMMON.enableGroundTie.get()) {
+            if (((AbstractHorseEntity)this.mob).isSaddled()) {
                 return false;
             }
         }
-        return super.shouldExecute();
+        return super.canUse();
     }
 }

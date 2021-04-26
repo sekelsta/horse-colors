@@ -15,11 +15,6 @@ import sekelsta.horse_colors.item.CompatibleHorseArmor;
 
 public class HorseArmorer
 {
-    private static ResourceLocation getVanillaLocation(HorseArmorItem armor)
-    {
-        return armor.getArmorTexture();
-    }
-
     @OnlyIn(Dist.CLIENT)
     public static ResourceLocation getTexture(Item armor)
     {
@@ -27,7 +22,7 @@ public class HorseArmorer
             return ((CompatibleHorseArmor)armor).getAlternateTexture();
         }
         if (armor instanceof HorseArmorItem) {
-            ResourceLocation vanilla = getVanillaLocation((HorseArmorItem)armor);
+            ResourceLocation vanilla = ((HorseArmorItem)armor).getTexture();
             // Only use my own version of textures in the minecraft namespace
             if (vanilla != null && vanilla.getNamespace().equals("minecraft")) {
                 return new ResourceLocation(HorseColors.MODID, vanilla.getPath());
