@@ -196,5 +196,10 @@ public class DefaultHorse {
             0.99f,  // No rabicano
             1f      // Rabicano
         ));
+
+        GENES.put("champagne", ImmutableList.of(
+            0.99f,  // No champange
+            1f      // Champagne
+        ));
     }
 }

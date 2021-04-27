@@ -37,7 +37,7 @@ public class HorseColorCalculator
         }
     }
 
-    public static Pigment redFurPigment(HorseGenome horse) {
+    private static Pigment redFurPigment(HorseGenome horse) {
         // 5, 0.2 looks haflingerish
         // 5, 0.1 looks medium chestnut
         // 6, 0.1 looks liver chestnutish
@@ -76,6 +76,15 @@ public class HorseColorCalculator
             white += 0.04f;
         }
 
+        if (horse.isHomozygous("champagne", HorseAlleles.CHAMPAGNE)) {
+            concentration *= 0.15f;
+            white += 0.2;
+        }
+        else if (horse.hasAllele("champagne", HorseAlleles.CHAMPAGNE)) {
+            concentration *= 0.5f;
+            white += 0.1;
+        }
+
         if (horse.hasAllele("cameo", HorseAlleles.CAMEO)) {
             concentration *= 0.3f;
             white += 0.25f;
@@ -106,7 +115,7 @@ public class HorseColorCalculator
         return new Pigment(color, concentration, white);
     }
 
-    public static Color redBodyColor(HorseGenome horse) {
+    private static Color redBodyColor(HorseGenome horse) {
         Color color = redFurPigment(horse).toColor();
         // Treat liver like it leaks some eumelanin into the coat
         int liv = horse.countAlleles("liver", HorseAlleles.LIVER);
@@ -133,7 +142,7 @@ public class HorseColorCalculator
         return color;
     }
 
-    public static TextureLayer getRedBody(HorseGenome horse) {
+    private static TextureLayer getRedBody(HorseGenome horse) {
         TextureLayer layer = new TextureLayer();
         layer.name = fixPath("base");
         layer.color = redBodyColor(horse);
@@ -142,7 +151,7 @@ public class HorseColorCalculator
     }
 
     // The starting color of black pigment, for skin, eyes, and fur.
-    public static Pigment blackBasePigment(HorseGenome horse) {
+    private static Pigment blackBasePigment(HorseGenome horse) {
         float concentration = 15f * getRandomShadeModifier(horse);
         float white = 0f;
         // Set albino donkeys to white
@@ -161,11 +170,21 @@ public class HorseColorCalculator
         }
         else if (horse.isPearl()) {
             concentration *= 0.33f;
+            white += 0.09f;
+        }
+
+        if (horse.isHomozygous("champagne", HorseAlleles.CHAMPAGNE)) {
+            concentration *= 0.125f;
+            white += 0.15;
+        }
+        else if (horse.hasAllele("champagne", HorseAlleles.CHAMPAGNE)) {
+            concentration *= 0.2f;
+            white += 0.1;
         }
 
         if (horse.hasAllele("cameo", HorseAlleles.CAMEO)) {
             concentration *= 0.27f;
-            white += 0.2f;
+            white += 0.1f;
         }
 
         if (horse.hasAllele("silver", HorseAlleles.SILVER)) {
@@ -181,8 +200,9 @@ public class HorseColorCalculator
         return new Pigment(EUMELANIN, concentration, white);
     }
 
-    public static Pigment blackFurPigment(HorseGenome horse) {
+    private static Pigment blackFurPigment(HorseGenome horse) {
         Pigment pigment = blackBasePigment(horse);
+        pigment.white *= 2f;
         pigment.white += 0.02f;
         // Silver dapple has more effect on the fur than on the eyes and skin
         if (horse.hasAllele("silver", HorseAlleles.SILVER)) {
@@ -190,16 +210,16 @@ public class HorseColorCalculator
         }
         // This is for pearl's reflective effect
         if (horse.isPearl()) {
-            pigment.white += 0.18f;
+            //pigment.white += 0.18f;
         }
         return pigment;
     }
 
-    public static Color blackBodyColor(HorseGenome horse) {
+    private static Color blackBodyColor(HorseGenome horse) {
         return blackFurPigment(horse).toColor();
     }
 
-    public static void addBlackBody(HorseGenome horse, TextureLayerGroup layers) {
+    private static void addBlackBody(HorseGenome horse, TextureLayerGroup layers) {
         if (horse.isChestnut()) {
             return;
         }
@@ -227,20 +247,21 @@ public class HorseColorCalculator
         layers.add(layer);
     }
 
-    public static float getRandomShadeModifier(HorseGenome horse) {
+    private static float getRandomShadeModifier(HorseGenome horse) {
         int r = horse.getRandom("shade") >>> 1;
         // Number ranging from -8 to 8
         int x = r % 8 + r / 8 % 8 - 8;
         return 1f + x / 100f;
     }
 
-    public static void addRedManeTail(HorseGenome horse, List<TextureLayer> layers) {
+    private static void addRedManeTail(HorseGenome horse, List<TextureLayer> layers) {
         final float PALOMINO_POWER = 0.2f;
         if (!horse.isChestnut()) {
             return;
         }
 
-        if (horse.hasAllele("cream", HorseAlleles.CREAM)) {
+        if (horse.hasAllele("cream", HorseAlleles.CREAM)
+                || horse.hasAllele("champagne", HorseAlleles.CHAMPAGNE)) {
             TextureLayer palomino_mane = new TextureLayer();
             palomino_mane.description = "palomino mane";
             palomino_mane.name = fixPath("manetail");
@@ -265,6 +286,9 @@ public class HorseColorCalculator
         if (horse.hasAllele("cream", HorseAlleles.CREAM)) {
             power *= PALOMINO_POWER;
         }
+        if (horse.hasAllele("champagne", HorseAlleles.CHAMPAGNE)) {
+            power *= 0.2f;
+        }
         float white = 0f;
         if (horse.isHomozygous("flaxen1", HorseAlleles.FLAXEN)) {
             power *= 0.5f;
@@ -288,7 +312,7 @@ public class HorseColorCalculator
         layers.add(flaxen);
     }
 
-    public static TextureLayer getBlackManeTail(HorseGenome horse) {
+    private static TextureLayer getBlackManeTail(HorseGenome horse) {
         if (horse.isChestnut()) {
             return null;
         }
@@ -305,28 +329,17 @@ public class HorseColorCalculator
         return layer;
     }
 
-    public static void colorSkin(HorseGenome horse, TextureLayer layer) {
-        if (horse.isAlbino()) {
-            // Pure white
-            layer.color = new Color(Color.WHITE);
-        }
-        else if (horse.isCreamPearl() || horse.hasAllele("cameo", HorseAlleles.CAMEO)) {
-            // Light skin
-            layer.color = new Pigment(EUMELANIN, 5f, 0.2f).toColor();
-        }
-        else if (horse.isDoubleCream() || horse.isHomozygous("ivory", HorseAlleles.IVORY)) {
-            // Very light skin
-            layer.color = new Pigment(EUMELANIN, 0.1f, 0.1f).toColor();
-        }
-        else {
-            // Black skin
-            layer.color = new Pigment(EUMELANIN, 18f, 0.1f).toColor();
-        }
+    // Used for hoof and nose color of most horses. Champagne horses use 
+    // blackBasePigment directly
+    private static void colorSkin(HorseGenome horse, TextureLayer layer) {
+        Pigment pigment = blackBasePigment(horse);
+        pigment.concentration *= 1.2f;
+        layer.color = pigment.toColor();
         // Multiply by pink
         layer.color.multiply(PINK_SKIN);
     }
 
-    public static float blueEyeShade(HorseGenome horse) {
+    private static float blueEyeShade(HorseGenome horse) {
         int shade = 0;
         shade += 3 * horse.countAlleles("blue_eye_shade1", 1);
         shade += 2 * (2 - horse.countAlleles("blue_eye_shade2", 1));
@@ -334,20 +347,44 @@ public class HorseColorCalculator
         return 0.34f + (2.56f / 12f) * shade;
     }
 
-    public static void colorGray(HorseGenome horse, TextureLayer layer) {
+    private static void colorGray(HorseGenome horse, TextureLayer layer) {
         // Show skin very faintly through the white hairs
         colorSkin(horse, layer);
         layer.color.addWhite(0.99f);
     }
 
-    public static TextureLayer getNose(HorseGenome horse) {
-        TextureLayer layer = new TextureLayer();
-        layer.name = fixPath("nose");
-        colorSkin(horse, layer);
-        return layer;
+    private static void addNose(HorseGenome horse, TextureLayerGroup layerGroup) {
+        TextureLayer noseBase = new TextureLayer();
+        noseBase.name = fixPath("nose");
+        // For champagne horses, make the main nose texture pink and add darker
+        // freckles
+        if (horse.hasAllele("champagne", HorseAlleles.CHAMPAGNE)) {
+            Pigment frecklePigment = blackBasePigment(horse);
+            TextureLayer freckles = new TextureLayer();
+            freckles.name = fixPath("freckles");
+            freckles.type = TextureLayer.Type.NO_ALPHA;
+            frecklePigment.concentration *= 3f;
+            freckles.color = frecklePigment.toColor();
+            freckles.color.multiply(PINK_SKIN);
+
+            Pigment black = blackBasePigment(horse);
+            black.concentration *= 0.2f;
+            black.white *= 0.1f;
+            noseBase.color = black.toColor();
+            noseBase.color.multiply(PINK_SKIN);
+
+            TextureLayerGroup group = new TextureLayerGroup();
+            group.add(noseBase);
+            group.add(freckles);
+            layerGroup.add(group);
+        }
+        else {
+            colorSkin(horse, noseBase);
+            layerGroup.add(noseBase);
+        }
     }
 
-    public static TextureLayer getHooves(HorseGenome horse) {
+    private static TextureLayer getHooves(HorseGenome horse) {
         TextureLayer layer = new TextureLayer();
         layer.name = fixPath("hooves");
         colorSkin(horse, layer);
@@ -357,7 +394,7 @@ public class HorseColorCalculator
         return layer;
     }
 
-    public static TextureLayer getEyes(HorseGenome horse) {
+    private static TextureLayer getEyes(HorseGenome horse) {
         TextureLayer layer = new TextureLayer();
         layer.name = fixPath("iris");
         // Blue background color
@@ -369,14 +406,24 @@ public class HorseColorCalculator
         else {
             // Pigmented eyes
             Pigment pigment = blackBasePigment(horse);
-            pigment.concentration *= 0.8f;
+            // Champagne lightens the fur more than the eyes
+            if (horse.hasAllele("champagne", HorseAlleles.CHAMPAGNE)) {
+                pigment.concentration *= 2f;
+            }
+            // Pearl too
+            if (horse.hasAllele("cream", HorseAlleles.PEARL)) {
+                pigment.concentration *= 2f;
+            }
+
+            pigment.concentration *= 0.5f;
+            pigment.white *= 0.2f;
             layer.color = pigment.toColor();
             layer.color.multiply(blue);
         }
         return layer;
     }
 
-    public static void addDun(HorseGenome horse, List<TextureLayer> layers) {
+    private static void addDun(HorseGenome horse, List<TextureLayer> layers) {
         if (!horse.hasStripe()) {
             return;
         }
@@ -403,7 +450,7 @@ public class HorseColorCalculator
         layers.add(layer);
     }
 
-    public static TextureLayer getSooty(HorseGenome horse)
+    private static TextureLayer getSooty(HorseGenome horse)
     {
         TextureLayer layer = new TextureLayer();
 
@@ -443,7 +490,7 @@ public class HorseColorCalculator
         return layer;
     }
 
-    public static void addMealy(HorseGenome horse, List<TextureLayer> textureLayers)
+    private static void addMealy(HorseGenome horse, List<TextureLayer> textureLayers)
     {
         // Agouti black hides mealy
         if (!horse.isMealy()) {
@@ -492,7 +539,7 @@ public class HorseColorCalculator
         }
     }
 
-    public static void addPoints(HorseGenome horse, List<TextureLayer> layers) {
+    private static void addPoints(HorseGenome horse, List<TextureLayer> layers) {
         TextureLayerGroup points = new TextureLayerGroup();
         // Add dorsal stripe for dun primitive markings
         if (horse.hasStripe()) {
@@ -527,11 +574,18 @@ public class HorseColorCalculator
         // is a red dun or bay/black based
         if (horse.isChestnut()) {
             points.color = redBodyColor(horse);
+            points.color.power(1.1f);
         }
         else {
-            points.color = blackBodyColor(horse);
+            Pigment pigment = blackFurPigment(horse);
+            // Adjust champagnes to have darker points
+            if (horse.hasAllele("champagne", HorseAlleles.CHAMPAGNE)) {
+                pigment.concentration *= 1.2f;
+                pigment.white *= 0.5;
+            }
+            points.color = pigment.toColor();
+            points.color.power(1.2f);
         }
-        points.color.power(1.1f);
         // Ignore this for horses that don't need it
         if (points.layers.size() > 0) {
             layers.add(points);
@@ -539,7 +593,7 @@ public class HorseColorCalculator
         setGrayConcentration(horse, points);
     }
 
-    public static void addGray(HorseGenome horse, List<TextureLayer> layers) {
+    private static void addGray(HorseGenome horse, List<TextureLayer> layers) {
         if (!horse.isGray()) {
             return;
         }
@@ -575,7 +629,7 @@ public class HorseColorCalculator
     }
 
     // num_stages does not count the starting and ending stages
-    public static int grayStage(HorseGenome horse, float rate, int num_stages, float delay) {
+    private static int grayStage(HorseGenome horse, float rate, int num_stages, float delay) {
         final int YEAR_TICKS = (int)(HorseConfig.GROWTH.yearLength.get() * 24000);
         final int MAX_AGE = HorseConfig.GROWTH.getMaxAge();
         int age = horse.getAge() + 24000;
@@ -595,13 +649,13 @@ public class HorseColorCalculator
         return (int)(gray_age * num_stages);
     }
 
-    public static float grayConcentration(HorseGenome horse, float rate) {
+    private static float grayConcentration(HorseGenome horse, float rate) {
         int stage = grayStage(horse, rate, 50, 0f);
         double val = 1.1 + Math.pow(1.06, stage) * stage / 50. * stage / 50.;
         return (float)val;
     }
 
-    public static void setGrayConcentration(HorseGenome horse, TextureLayer layer) {
+    private static void setGrayConcentration(HorseGenome horse, TextureLayer layer) {
         if (horse.isGray()) {
             // Darken by increasing concentration
             float concentration = grayConcentration(horse, horse.getGrayRate());
@@ -629,7 +683,7 @@ public class HorseColorCalculator
         HorseColorCalculator.addRedManeTail(horse, textureLayers);
         textureLayers.add(HorseColorCalculator.getBlackManeTail(horse));
         HorseColorCalculator.addGray(horse, textureLayers);
-        textureLayers.add(HorseColorCalculator.getNose(horse));
+        addNose(horse, layerGroup);
         textureLayers.add(HorseColorCalculator.getHooves(horse));
 
         // Add roan

@@ -51,7 +51,7 @@ public class HorseGenome extends Genome {
         "gray_mane2",
         "rufous",
         "dense",
-        "champagne", // TODO
+        "champagne",
         "cameo",
         "ivory",
         "donkey_dark",
@@ -962,7 +962,7 @@ public class HorseGenome extends Genome {
         }
 
         List<String> colorgenelist = ImmutableList.of("extension", "agouti", "dun", 
-            "gray", "cream", "silver", "KIT", "frame", "MITF", "leopard", "PATN1", 
+            "gray", "cream", "silver", "champagne", "KIT", "frame", "MITF", "leopard", "PATN1", 
             "mushroom");
         if (this.species == Species.DONKEY) {
             colorgenelist = ImmutableList.of("extension", "agouti", "KIT");
