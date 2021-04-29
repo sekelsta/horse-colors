@@ -398,10 +398,10 @@ public class HorseColorCalculator
         TextureLayer layer = new TextureLayer();
         layer.name = fixPath("iris");
         // Blue background color
-        Color blue = new Pigment(BLUE_EYES, blueEyeShade(horse), 0f).toColor();
+        Pigment blue = new Pigment(BLUE_EYES, blueEyeShade(horse), 0f);
         if (horse.isHomozygous("MITF", HorseAlleles.MITF_SW1)) {
             // Unpigmented blue eyes
-            layer.color = blue;
+            layer.color = blue.toColor();
         }
         else {
             // Pigmented eyes
@@ -415,10 +415,21 @@ public class HorseColorCalculator
                 pigment.concentration *= 2f;
             }
 
+            if (horse.isHomozygous("tiger_eye", HorseAlleles.TIGER_EYE)) {
+                pigment.concentration *= 0.25f;
+                // Cream and tiger eye appear to interact in the mare 
+                // Plantera Dorada
+                if (horse.hasAllele("cream", HorseAlleles.CREAM)) {
+                    pigment.concentration *= 0.2f;
+                }
+            }
+
             pigment.concentration *= 0.5f;
             pigment.white *= 0.2f;
+            // Adjust so pigmented eyes have less blue to them
+            blue.concentration = Math.max(0f, blue.concentration - 0.5f * pigment.concentration);
             layer.color = pigment.toColor();
-            layer.color.multiply(blue);
+            layer.color.multiply(blue.toColor());
         }
         return layer;
     }

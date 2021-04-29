@@ -169,7 +169,8 @@ public class HorseGenome extends Genome {
         "rabicano",
         "blue_eye_shade1",      // 0 pale, 1 deep
         "blue_eye_shade2",      // 0 deep, 1 pale
-        "blue_eye_shade3"       // 0 deep, 1 pale
+        "blue_eye_shade3",      // 0 deep, 1 pale
+        "tiger_eye"
     );
 
     public static final double MINIATURE_CUTOFF = 317.5;
@@ -963,24 +964,25 @@ public class HorseGenome extends Genome {
 
         List<String> colorgenelist = ImmutableList.of("extension", "agouti", "dun", 
             "gray", "cream", "silver", "champagne", "KIT", "frame", "MITF", "leopard", "PATN1", 
-            "mushroom");
+            "mushroom", "tiger_eye");
         if (this.species == Species.DONKEY) {
             colorgenelist = ImmutableList.of("extension", "agouti", "KIT");
         }
-        ArrayList<String> genetic = new ArrayList<>();
-        genetic.add(Util.translate("book.genetic_color"));
-        listGenes(genetic, colorgenelist);
-        ArrayList<String> sizes = new ArrayList<>();
-        sizes.add(Util.translate("book.genetic_size"));
-        listGenes(sizes, ImmutableList.of("LCORL", "HMGA2"));
-        sizes.add(""); // Blank line
-        // A note saying many other genes also affect size
-        sizes.add(Util.translate("book.size_disclaimer"));
+        ArrayList<String> test_results = new ArrayList<>();
         if (HorseConfig.GENETICS.bookShowsGenes.get()) {
-            contents.add(genetic);
+            test_results.add(Util.translate("book.genetic_color"));
+            listGenes(test_results, colorgenelist);
+            if (HorseConfig.COMMON.enableSizes.get() && this.species != Species.DONKEY) {
+                test_results.add(""); // Blank line
+                test_results.add(Util.translate("book.genetic_size"));
+                listGenes(test_results, ImmutableList.of("LCORL", "HMGA2"));
+                test_results.add(""); // Blank line
+                // A note saying many other genes also affect size
+                test_results.add(Util.translate("book.size_disclaimer"));
+            }
         }
-        if (HorseConfig.COMMON.enableSizes.get() && this.species != Species.DONKEY) {
-            contents.add(sizes);
+        if (!test_results.isEmpty()) {
+            contents.add(test_results);
         }
         return contents;
     }

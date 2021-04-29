@@ -201,5 +201,10 @@ public class DefaultHorse {
             0.99f,  // No champange
             1f      // Champagne
         ));
+
+        GENES.put("tiger_eye", ImmutableList.of(
+            0.98f,  // Wildtype
+            1f      // Tiger eye
+        ));
     }
 }

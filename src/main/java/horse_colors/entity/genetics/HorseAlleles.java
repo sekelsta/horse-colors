@@ -94,6 +94,9 @@ public class HorseAlleles
     public static final int NONCHAMPAGNE = 0;
     public static final int CHAMPAGNE = 1;
 
+    // Tiger eye
+    public static final int TIGER_EYE = 1;
+
     // Cameo (donkey)
     public static final int NONCAMEO = 0;
     public static final int CAMEO = 1;
