@@ -408,7 +408,7 @@ public class HorseColorCalculator
             Pigment pigment = blackBasePigment(horse);
             // Champagne lightens the fur more than the eyes
             if (horse.hasAllele("champagne", HorseAlleles.CHAMPAGNE)) {
-                pigment.concentration *= 2f;
+                pigment.concentration *= 1.5f;
             }
             // Pearl too
             if (horse.hasAllele("cream", HorseAlleles.PEARL)) {
@@ -423,7 +423,8 @@ public class HorseColorCalculator
                     pigment.concentration *= 0.2f;
                 }
                 else {
-                    blue.concentration *= 0.5f;
+                    // To make eyes more orange/yellow
+                    blue.concentration *= 0.25f;
                 }
             }
             // Minor shade genes
