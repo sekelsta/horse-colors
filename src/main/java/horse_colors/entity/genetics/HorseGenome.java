@@ -170,7 +170,10 @@ public class HorseGenome extends Genome {
         "blue_eye_shade1",      // 0 pale, 1 deep
         "blue_eye_shade2",      // 0 deep, 1 pale
         "blue_eye_shade3",      // 0 deep, 1 pale
-        "tiger_eye"
+        "tiger_eye",
+        "brown_eye_shade1",     // 0 deep, 1 pale recessive
+        "brown_eye_shade2",     // 0 deep, 1 pale
+        "brown_eye_shade3"      // 0 pale, 1 deep
     );
 
     public static final double MINIATURE_CUTOFF = 317.5;

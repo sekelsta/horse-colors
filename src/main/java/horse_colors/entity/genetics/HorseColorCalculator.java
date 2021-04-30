@@ -414,7 +414,7 @@ public class HorseColorCalculator
             if (horse.hasAllele("cream", HorseAlleles.PEARL)) {
                 pigment.concentration *= 2f;
             }
-
+            // Tiger eye
             if (horse.isHomozygous("tiger_eye", HorseAlleles.TIGER_EYE)) {
                 pigment.concentration *= 0.25f;
                 // Cream and tiger eye appear to interact in the mare 
@@ -422,6 +422,19 @@ public class HorseColorCalculator
                 if (horse.hasAllele("cream", HorseAlleles.CREAM)) {
                     pigment.concentration *= 0.2f;
                 }
+                else {
+                    blue.concentration *= 0.5f;
+                }
+            }
+            // Minor shade genes
+            if (horse.isHomozygous("brown_eye_shade1", 1)) {
+                pigment.concentration *= 0.8f;
+            }
+            for (int i = 0; i < horse.countAlleles("brown_eye_shade2", 1); ++i) {
+                pigment.concentration *= 0.9f;
+            }
+            if (horse.isHomozygous("brown_eye_shade3", 1)) {
+                pigment.concentration *= 1.1f;
             }
 
             pigment.concentration *= 0.5f;

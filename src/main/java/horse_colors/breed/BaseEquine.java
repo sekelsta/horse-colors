@@ -337,9 +337,25 @@ public class BaseEquine {
             0.7f,   // Darker blue eyes
             1f      // Lighter blue eyes
         ));
+
         GENES.put("tiger_eye", ImmutableList.of(
             1f,     // Wildtype
             1f      // Tiger eye
+        ));
+
+        GENES.put("brown_eye_shade1", ImmutableList.of(
+            0.6f,   // Darker brown eyes
+            1f      // Lighter brown eyes
+        ));
+
+        GENES.put("brown_eye_shade2", ImmutableList.of(
+            0.6f,   // Darker brown eyes
+            1f      // Lighter brown eyes
+        ));
+
+        GENES.put("brown_eye_shade3", ImmutableList.of(
+            0.6f,   // Darker brown eyes
+            1f      // Lighter brown eyes
         ));
     }
 }
