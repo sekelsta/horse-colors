@@ -1,10 +1,13 @@
 package sekelsta.horse_colors.client.renderer;
 
-import net.minecraft.client.renderer.texture.*;
-import net.minecraft.resources.IResourceManager;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+
+import net.minecraft.client.renderer.texture.*;
+import net.minecraft.resources.IResourceManager;
+
 import sekelsta.horse_colors.util.Color;
 
 public class TextureLayerGroup extends TextureLayer {
@@ -77,7 +80,8 @@ public class TextureLayerGroup extends TextureLayer {
                 s += this.layers.get(i).getUniqueName();
             }
         }
-        return s.toLowerCase();
+        // Specify English to avoid Turkish locale bug
+        return s.toLowerCase(Locale.ENGLISH);
     }
 
     public List<String> getDebugStrings() {

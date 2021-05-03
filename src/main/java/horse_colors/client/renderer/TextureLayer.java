@@ -1,6 +1,7 @@
 package sekelsta.horse_colors.client.renderer;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import net.minecraft.client.renderer.texture.*;
 import net.minecraft.resources.IResource;
@@ -302,7 +303,8 @@ public class TextureLayer {
             s += "-" + this.color.toHexString();
         }
         s += "_";
-        return s.toLowerCase();
+        // Specify English to avoid Turkish locale bug
+        return s.toLowerCase(Locale.ENGLISH);
     }
 
     public void blendPixel(NativeImage image, int x, int y, int color) {
