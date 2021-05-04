@@ -40,7 +40,8 @@ public class ContainerEventHandler {
     public static void replaceSaddleSlot(AbstractHorseGenetic horse, Container container) {
         // This isn't getting called on dedicated servers, even though it is getting called on the server thread of an integrated client
         Slot saddleSlot = new Slot(horse.getHorseChest(), 0, 8, 18) {
-            public boolean isItemValid(ItemStack stack) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
                 return horse.isSaddle(stack) && !this.hasItem() && horse.isSaddleable();
             }
 

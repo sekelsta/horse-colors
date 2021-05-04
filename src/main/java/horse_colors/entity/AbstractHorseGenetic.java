@@ -876,11 +876,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     public void tick()
     {
         super.tick();
-        if (this.level.isClientSide && this.entityData.isDirty()) {
-            this.entityData.clearDirty();
-            this.getGenome().resetTexture();
-        }
-
         // Keep track of age
         if (!this.level.isClientSide) {
             // For children, align with growing age in case they have been fed
@@ -920,8 +915,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
 
         // Overo lethal white syndrome
-        if ((!this.level.isClientSide || true)
-            && this.getGenome().isLethalWhite()
+        if (this.getGenome().isLethalWhite()
             && this.tickCount > 80)
         {
             if (!this.hasEffect(Effects.WITHER))
