@@ -33,29 +33,29 @@ public class ModEntities {
     public static final int horseEggSecondary = 0x110E0D;
     static
     {
-            // Default tracker is fine, or could use .tracker(64, 2, false)
-            final ResourceLocation horseRegistryName = new ResourceLocation(HorseColors.MODID, "horse_felinoid");
-            // Vanilla size in 1.12 was 1.3964844F, 1.6F
-            // Size numbers are width, height
-            HORSE_GENETIC = EntityType.Builder.of(HorseGeneticEntity::new, EntityClassification.CREATURE).sized(1.2F, 1.6F).build(horseRegistryName.toString());
-            HORSE_GENETIC.setRegistryName(horseRegistryName);
+        // Default tracker is fine, or could use .tracker(64, 2, false)
+        final ResourceLocation horseRegistryName = new ResourceLocation(HorseColors.MODID, "horse_felinoid");
+        // Vanilla size in 1.12 was 1.3964844F, 1.6F
+        // Size numbers are width, height
+        HORSE_GENETIC = EntityType.Builder.of(HorseGeneticEntity::new, EntityClassification.CREATURE).sized(1.2F, 1.6F).build(horseRegistryName.toString());
+        HORSE_GENETIC.setRegistryName(horseRegistryName);
 
-            final ResourceLocation donkeyRegistryName = new ResourceLocation(HorseColors.MODID, "donkey");
-            DONKEY_GENETIC = EntityType.Builder.of(DonkeyGeneticEntity::new, EntityClassification.CREATURE).sized(1.2F, 1.6F).build(donkeyRegistryName.toString());
-            DONKEY_GENETIC.setRegistryName(donkeyRegistryName);
+        final ResourceLocation donkeyRegistryName = new ResourceLocation(HorseColors.MODID, "donkey");
+        DONKEY_GENETIC = EntityType.Builder.of(DonkeyGeneticEntity::new, EntityClassification.CREATURE).sized(1.2F, 1.6F).build(donkeyRegistryName.toString());
+        DONKEY_GENETIC.setRegistryName(donkeyRegistryName);
 
-            final ResourceLocation muleRegistryName = new ResourceLocation(HorseColors.MODID, "mule");
-            MULE_GENETIC = EntityType.Builder.of(MuleGeneticEntity::new, EntityClassification.CREATURE).sized(1.2F, 1.6F).build(muleRegistryName.toString());
-            MULE_GENETIC.setRegistryName(muleRegistryName);
+        final ResourceLocation muleRegistryName = new ResourceLocation(HorseColors.MODID, "mule");
+        MULE_GENETIC = EntityType.Builder.of(MuleGeneticEntity::new, EntityClassification.CREATURE).sized(1.2F, 1.6F).build(muleRegistryName.toString());
+        MULE_GENETIC.setRegistryName(muleRegistryName);
 
-            HORSE_SPAWN_EGG = new SpawnEggItem(HORSE_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).tab(CreativeTab.instance));
-            HORSE_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "horse_spawn_egg"));
+        HORSE_SPAWN_EGG = new SpawnEggItem(HORSE_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).tab(CreativeTab.instance));
+        HORSE_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "horse_spawn_egg"));
 
-            DONKEY_SPAWN_EGG = new SpawnEggItem(DONKEY_GENETIC, 0x726457, 0xcdc0b5, (new Item.Properties()).tab(CreativeTab.instance));
-            DONKEY_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "donkey_spawn_egg"));
+        DONKEY_SPAWN_EGG = new SpawnEggItem(DONKEY_GENETIC, 0x726457, 0xcdc0b5, (new Item.Properties()).tab(CreativeTab.instance));
+        DONKEY_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "donkey_spawn_egg"));
 
-            MULE_SPAWN_EGG = new SpawnEggItem(MULE_GENETIC, 0x4b3a30, 0xcdb9a8, (new Item.Properties()).tab(CreativeTab.instance));
-            MULE_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "mule_spawn_egg"));
+        MULE_SPAWN_EGG = new SpawnEggItem(MULE_GENETIC, 0x4b3a30, 0xcdb9a8, (new Item.Properties()).tab(CreativeTab.instance));
+        MULE_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "mule_spawn_egg"));
     }
 
     private static void registerAttributes() {
