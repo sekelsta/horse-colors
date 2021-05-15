@@ -15,166 +15,170 @@ import sekelsta.horse_colors.util.RandomSupplier;
 import sekelsta.horse_colors.util.Util;
 
 public class HorseGenome extends Genome {
-    public static final ImmutableList<String> genes = ImmutableList.of(
-        "extension",    // 0 for e (red), 1 for E (can have black)
-        "agouti",       // 0 for black, 1 for seal brown, 4 for bay
-        "dun",          // 0 for nd2, 1 for nd1, 2 for dun, 3 for donkeys
-        "gray",         // 0 for g (non-gray), 1 for G (gray)
-        "cream",        // 0 for wildtype, 1 for snowdrop, 2 for pearl, 3 for cream, 4 for lighter shade
-        "liver",        // 0 for liver, 1 for non-liver
-        "flaxen1",      // 0 for flaxen, 1 for non-flaxen
-        "flaxen2", 
-        "dapple",       // 0 for non-dappled, 1 for dappled
-        "sooty1",       // 0 for non-sooty, 1 for sooty
-        "sooty2",       // same as above
-        "sooty3",       // 0 for sooty, 1 for non-sooty
+    // The improved readability from snake case is worth breaking the enum
+    // convention of all caps for genes
+    // This also makes the difference between the gene KIT and the word kit more
+    // apparent.
+    public enum Gene {
+        extension,    // 0 for e (red), 1 for E (can have black)
+        agouti,       // 0 for black, 1 for seal brown, 4 for bay
+        dun,          // 0 for nd2, 1 for nd1, 2 for dun, 3 for donkeys
+        gray,         // 0 for g (non-gray), 1 for G (gray)
+        cream,        // 0 for wildtype, 1 for snowdrop, 2 for pearl, 3 for cream, 4 for lighter shade
+        liver,        // 0 for liver, 1 for non-liver
+        flaxen1,      // 0 for flaxen, 1 for non-flaxen
+        flaxen2,
+        dapple,       // 0 for non-dappled, 1 for dappled
+        sooty1,       // 0 for non-sooty, 1 for sooty
+        sooty2,       // same as above
+        sooty3,       // 0 for sooty, 1 for non-sooty
         // I'm treating this as the agouti promoter region responsible for 
         // white bellied agouti in mice
-        "light_belly",
-        "mealy1", 
-        "mealy2", 
-        "KIT", 
-        "MITF", 
-        "leopard",
-        "PATN1", 
-        "PATN2", 
-        "PATN3", 
-        "gray_suppression",
-        "slow_gray1", 
-        "slow_gray2", 
-        "slow_gray3",
-        "white_star",
-        "white_forelegs",
-        "white_hindlegs",
-        "gray_melanoma",
-        "gray_mane1",
-        "gray_mane2",
-        "rufous",
-        "dense",
-        "champagne",
-        "cameo",
-        "ivory",
-        "donkey_dark",
-        "cross",
-        "reduced_points",
-        "light_legs",
-        "less_light_legs",
-        "donkey_dun",
-        "flaxen_boost",
-        "light_dun",
-        "marble",
-        "leopard_suppression",
-        "leopard_suppression2",
-        "PATN_boost1",
-        "PATN_boost2",
-        "PAX3", 
-        "white_suppression", 
-        "frame", 
-        "silver", 
-        "dark_red",
-        "liver_boost",
-        "LCORL",
-        "HMGA2",
-        "mushroom",
-        "speed0",
-        "speed1",
-        "speed2",
-        "speed3",
-        "speed4",
-        "speed5",
-        "speed6",
-        "speed7",
-        "speed8",
-        "speed9",
-        "speed10",
-        "speed11",
-        "athletics0",
-        "athletics1",
-        "athletics2",
-        "athletics3",
-        "athletics4",
-        "athletics5",
-        "athletics6",
-        "athletics7",
-        "jump0",
-        "jump1",
-        "jump2",
-        "jump3",
-        "jump4",
-        "jump5",
-        "jump6",
-        "jump7",
-        "jump8",
-        "jump9",
-        "jump10",
-        "jump11",
-        "health0",
-        "health1",
-        "health2",
-        "health3",
-        "health4",
-        "health5",
-        "health6",
-        "health7",
-        "health8",
-        "health9",
-        "health10",
-        "health11",
-        "immune0",
-        "immune1",
-        "immune2",
-        "immune3",
-        "immune4",
-        "immune5",
-        "immune6",
-        "immune7",
-        "mhc0",
-        "mhc1",
-        "mhc2",
-        "mhc3",
-        "mhc4",
-        "mhc5",
-        "mhc6",
-        "mhc7",
-        "size_minor0",
-        "size_minor1",
-        "size_minor2",
-        "size_minor3",
-        "size_minor4",
-        "size_minor5",
-        "size_minor6",
-        "size_minor7",
-        "size0",
-        "size1",
-        "size2",
-        "size3",
-        "size4",
-        "size_subtle0",
-        "size_subtle1",
-        "size_subtle2",
-        "size_subtle3",
-        "size_subtle4",
-        "size_subtle5",
-        "size_subtle6",
-        "size_subtle7",
-        "double_ovulation",
-        "donkey_size0",
-        "donkey_size1",
-        "donkey_size2",
-        "donkey_size3",
-        "donkey_size4",
-        "donkey_size5",
-        "donkey_size6",
-        "color", // TYR, albino donkeys
-        "rabicano",
-        "blue_eye_shade1",      // 0 pale, 1 deep
-        "blue_eye_shade2",      // 0 deep, 1 pale
-        "blue_eye_shade3",      // 0 deep, 1 pale
-        "tiger_eye",
-        "brown_eye_shade1",     // 0 deep, 1 pale recessive
-        "brown_eye_shade2",     // 0 deep, 1 pale
-        "brown_eye_shade3"      // 0 pale, 1 deep
-    );
+        light_belly,
+        mealy1,
+        mealy2,
+        KIT,
+        MITF,
+        leopard,
+        PATN1,
+        PATN2,
+        PATN3,
+        gray_suppression,
+        slow_gray1,
+        slow_gray2,
+        slow_gray3,
+        white_star,
+        white_forelegs,
+        white_hindlegs,
+        gray_melanoma,
+        gray_mane1,
+        gray_mane2,
+        rufous,
+        dense,
+        champagne,
+        cameo,
+        ivory,
+        donkey_dark,
+        cross,
+        reduced_points,
+        light_legs,
+        less_light_legs,
+        donkey_dun,
+        flaxen_boost,
+        light_dun,
+        marble,
+        leopard_suppression,
+        leopard_suppression2,
+        PATN_boost1,
+        PATN_boost2,
+        PAX3, 
+        white_suppression, 
+        frame, 
+        silver, 
+        dark_red,
+        liver_boost,
+        LCORL,
+        HMGA2,
+        mushroom,
+        speed0,
+        speed1,
+        speed2,
+        speed3,
+        speed4,
+        speed5,
+        speed6,
+        speed7,
+        speed8,
+        speed9,
+        speed10,
+        speed11,
+        athletics0,
+        athletics1,
+        athletics2,
+        athletics3,
+        athletics4,
+        athletics5,
+        athletics6,
+        athletics7,
+        jump0,
+        jump1,
+        jump2,
+        jump3,
+        jump4,
+        jump5,
+        jump6,
+        jump7,
+        jump8,
+        jump9,
+        jump10,
+        jump11,
+        health0,
+        health1,
+        health2,
+        health3,
+        health4,
+        health5,
+        health6,
+        health7,
+        health8,
+        health9,
+        health10,
+        health11,
+        immune0,
+        immune1,
+        immune2,
+        immune3,
+        immune4,
+        immune5,
+        immune6,
+        immune7,
+        mhc0,
+        mhc1,
+        mhc2,
+        mhc3,
+        mhc4,
+        mhc5,
+        mhc6,
+        mhc7,
+        size_minor0,
+        size_minor1,
+        size_minor2,
+        size_minor3,
+        size_minor4,
+        size_minor5,
+        size_minor6,
+        size_minor7,
+        size0,
+        size1,
+        size2,
+        size3,
+        size4,
+        size_subtle0,
+        size_subtle1,
+        size_subtle2,
+        size_subtle3,
+        size_subtle4,
+        size_subtle5,
+        size_subtle6,
+        size_subtle7,
+        double_ovulation,
+        donkey_size0,
+        donkey_size1,
+        donkey_size2,
+        donkey_size3,
+        donkey_size4,
+        donkey_size5,
+        donkey_size6,
+        color,              // TYR, albino donkeys
+        rabicano,
+        blue_eye_shade1,      // 0 pale, 1 deep
+        blue_eye_shade2,      // 0 deep, 1 pale
+        blue_eye_shade3,      // 0 deep, 1 pale
+        tiger_eye,
+        brown_eye_shade1,     // 0 deep, 1 pale recessive
+        brown_eye_shade2,     // 0 deep, 1 pale
+        brown_eye_shade3      // 0 pale, 1 deep
+    }
 
     public static final double MINIATURE_CUTOFF = 317.5;
 
@@ -192,8 +196,8 @@ public class HorseGenome extends Genome {
     }
 
     @Override
-    public ImmutableList<String> listGenes() {
-        return genes;
+    public List<Enum> listGenes() {
+        return Arrays.asList(Gene.values());
     }
 
     @Override
@@ -206,22 +210,23 @@ public class HorseGenome extends Genome {
         // KIT, a heterozygous tobiano horse would have much closer linkage.
         // See https://www.mun.ca/biology/scarr/iGen3_16-08.html for a 
         // diagram of the effect an inversion has on crossover and linkage
-        linkages.add(new Genome.Linkage("extension", 0.2f));
-        linkages.add(new Genome.Linkage("KIT"));
+        linkages.add(new Genome.Linkage(Gene.extension, 0.2f));
+        linkages.add(new Genome.Linkage(Gene.KIT));
 
-        linkages.add(new Genome.Linkage("agouti", 0.0f));
-        linkages.add(new Genome.Linkage("light_belly"));
+        linkages.add(new Genome.Linkage(Gene.agouti, 0.0f));
+        linkages.add(new Genome.Linkage(Gene.light_belly));
 
         for (int i = 0; i < 7; ++i) {
-            linkages.add(new Genome.Linkage("mhc" + i, 0.2f));
+            linkages.add(new Genome.Linkage(Gene.valueOf("mhc" + i), 0.2f));
         }
-        linkages.add(new Genome.Linkage("mhc7"));
+        linkages.add(new Genome.Linkage(Gene.mhc7));
 
         return linkages;
     }
 
     /* For named genes, this returns the number of bits needed to store one allele. 
     For stats, this returns the number of genes that contribute to the stat. */
+    // Used for legacy save parsing only
     @Override
     public int getGeneSize(String gene)
     {
@@ -242,95 +247,88 @@ public class HorseGenome extends Genome {
         }
     }
 
-    @Deprecated
-    public void printGeneLocations() {
-        for (String gene : genes) {
-            System.out.println(gene + ": size=" + getGeneSize(gene) + ", pos=" + getGenePos(gene) + ", chr=" + getGeneChromosome(gene));
-        }
-    }
-
     public void printGeneData() {
         String g = entity.getGeneData();
-        String genedebug = "";
+        String gene_debug = "";
         for (int i = 0; i < g.length(); ++i) {
-            genedebug += (short)g.charAt(i) + " ";
+            gene_debug += (short)g.charAt(i) + " ";
         }
-        System.out.println(genedebug);
+        System.out.println(gene_debug);
     }
 
     public boolean isChestnut()
     {
-        return this.isHomozygous("extension", HorseAlleles.E_RED);
+        return this.isHomozygous(Gene.extension, HorseAlleles.E_RED);
     }
 
     public boolean hasCream() {
-        return this.hasAllele("cream", HorseAlleles.CREAM);
+        return this.hasAllele(Gene.cream, HorseAlleles.CREAM);
     }
 
     public boolean isPearl() {
-        return this.isHomozygous("cream", HorseAlleles.PEARL);
+        return this.isHomozygous(Gene.cream, HorseAlleles.PEARL);
     }
 
     public boolean isDoubleCream() {
-        return this.isHomozygous("cream", HorseAlleles.CREAM) 
-            || this.isHomozygous("cream", HorseAlleles.SNOWDROP)
-            || (this.hasAllele("cream", HorseAlleles.CREAM)
-                && this.hasAllele("cream", HorseAlleles.SNOWDROP));
+        return this.isHomozygous(Gene.cream, HorseAlleles.CREAM) 
+            || this.isHomozygous(Gene.cream, HorseAlleles.SNOWDROP)
+            || (this.hasAllele(Gene.cream, HorseAlleles.CREAM)
+                && this.hasAllele(Gene.cream, HorseAlleles.SNOWDROP));
     }
 
     public boolean isCreamPearl() {
-        return (this.hasAllele("cream", HorseAlleles.CREAM)
-                || this.hasAllele("cream", HorseAlleles.SNOWDROP))
-            && this.hasAllele("cream", HorseAlleles.PEARL);
+        return (this.hasAllele(Gene.cream, HorseAlleles.CREAM)
+                || this.hasAllele(Gene.cream, HorseAlleles.SNOWDROP))
+            && this.hasAllele(Gene.cream, HorseAlleles.PEARL);
     }
 
     public boolean isMushroom() {
-        return this.isHomozygous("mushroom", 1);
+        return this.isHomozygous(Gene.mushroom, 1);
     }
 
     public boolean isSilver() {
-        return this.hasAllele("silver", HorseAlleles.SILVER);
+        return this.hasAllele(Gene.silver, HorseAlleles.SILVER);
     }
 
     public boolean isGray() {
-        return this.hasAllele("gray", HorseAlleles.GRAY);
+        return this.hasAllele(Gene.gray, HorseAlleles.GRAY);
     }
 
     // Arbitrarily decide homozygous donkey nondun breaks horse dun.
     // Obviously there's no way to check this in real life except by
     // theorizing once we know more about donkey dun.
     public boolean isDun() {
-        return this.hasAllele("donkey_dun", HorseAlleles.DONKEY_DUN)
-            && (this.hasAllele("dun", HorseAlleles.DUN)
-                || this.isHomozygous("dun", HorseAlleles.DUN_OTHER));
+        return this.hasAllele(Gene.donkey_dun, HorseAlleles.DONKEY_DUN)
+            && (this.hasAllele(Gene.dun, HorseAlleles.DUN)
+                || this.isHomozygous(Gene.dun, HorseAlleles.DUN_OTHER));
     }
 
     // Whether the horse shows primitive markings such as the dorsal stripe.
     public boolean hasStripe() {
         // Some confusion here to account for "donkey dun" mules
-        if (isHomozygous("dun", HorseAlleles.NONDUN2)) {
+        if (isHomozygous(Gene.dun, HorseAlleles.NONDUN2)) {
             return false;
         }
-        if (isHomozygous("donkey_dun", HorseAlleles.DONKEY_NONDUN)) {
+        if (isHomozygous(Gene.donkey_dun, HorseAlleles.DONKEY_NONDUN)) {
             return false;
         }
-        if (hasAllele("dun", HorseAlleles.DUN)) {
+        if (hasAllele(Gene.dun, HorseAlleles.DUN)) {
             return true;
         }
-        if (hasAllele("donkey_dun", HorseAlleles.DONKEY_DUN)) {
+        if (hasAllele(Gene.donkey_dun, HorseAlleles.DONKEY_DUN)) {
             return true;
         }
-        if (hasAllele("dun", HorseAlleles.NONDUN2)) {
+        if (hasAllele(Gene.dun, HorseAlleles.NONDUN2)) {
             return false;
         }
-        return hasAllele("dun", HorseAlleles.DUN_OTHER);
+        return hasAllele(Gene.dun, HorseAlleles.DUN_OTHER);
     }
 
     public boolean isMealy() {
-        return (this.getAllele("light_belly", 0) == HorseAlleles.MEALY 
-                    && this.getAllele("agouti", 0) != HorseAlleles.A_BLACK)
-                || (this.getAllele("light_belly", 1) == HorseAlleles.MEALY 
-                    && this.getAllele("agouti", 1) != HorseAlleles.A_BLACK);
+        return (this.getAllele(Gene.light_belly, 0) == HorseAlleles.MEALY 
+                    && this.getAllele(Gene.agouti, 0) != HorseAlleles.A_BLACK)
+                || (this.getAllele(Gene.light_belly, 1) == HorseAlleles.MEALY 
+                    && this.getAllele(Gene.agouti, 1) != HorseAlleles.A_BLACK);
     }
 
     // The MC1R ("extension") gene seems to be associated with white
@@ -342,18 +340,18 @@ public class HorseGenome extends Genome {
     }
 
     public boolean isTobiano() {
-        return HorseAlleles.isTobianoAllele(getAllele("KIT", 0))
-            || HorseAlleles.isTobianoAllele(getAllele("KIT", 1));
+        return HorseAlleles.isTobianoAllele(getAllele(Gene.KIT, 0))
+            || HorseAlleles.isTobianoAllele(getAllele(Gene.KIT, 1));
     }
 
     public boolean isWhite() {
-        return this.hasAllele("KIT", HorseAlleles.KIT_DOMINANT_WHITE)
+        return this.hasAllele(Gene.KIT, HorseAlleles.KIT_DOMINANT_WHITE)
             || this.isLethalWhite()
-            || this.isHomozygous("KIT", HorseAlleles.KIT_SABINO1)
-            || (this.hasAllele("KIT", HorseAlleles.KIT_SABINO1)
-                && (this.hasAllele("frame", HorseAlleles.FRAME)
+            || this.isHomozygous(Gene.KIT, HorseAlleles.KIT_SABINO1)
+            || (this.hasAllele(Gene.KIT, HorseAlleles.KIT_SABINO1)
+                && (this.hasAllele(Gene.frame, HorseAlleles.FRAME)
                     || this.isTobiano())
-                && this.isHomozygous("MITF", HorseAlleles.MITF_SW1));
+                && this.isHomozygous(Gene.MITF, HorseAlleles.MITF_SW1));
     }
 
     public boolean showsLegMarkings() {
@@ -362,33 +360,33 @@ public class HorseGenome extends Genome {
 
     public boolean isDappleInclined() {
         // Recessive so that mules are not dappled
-        return this.isHomozygous("dapple", 1);
+        return this.isHomozygous(Gene.dapple, 1);
     }
 
     public boolean isLethalWhite() {
-        return this.isHomozygous("frame", HorseAlleles.FRAME);
+        return this.isHomozygous(Gene.frame, HorseAlleles.FRAME);
     }
 
     public boolean isEmbryonicLethal() {
-        return this.isHomozygous("KIT", HorseAlleles.KIT_DOMINANT_WHITE);
+        return this.isHomozygous(Gene.KIT, HorseAlleles.KIT_DOMINANT_WHITE);
     }
 
     public boolean hasERURiskFactor() {
-        return this.getAllele("mhc1", 0) % 4 == 3 
-                && this.getAllele("mhc1", 1) % 4 == 3;
+        return this.getAllele(Gene.mhc1, 0) % 4 == 3 
+                && this.getAllele(Gene.mhc1, 1) % 4 == 3;
     }
 
     public boolean isAlbino() {
-        return this.isHomozygous("color", 1);
+        return this.isHomozygous(Gene.color, 1);
     }
 
     public int getSootyLevel() {
         // sooty1 and 2 dominant, 3 recessive
-        int sooty = getMaxAllele("sooty1") + getMaxAllele("sooty2");
-        sooty += 1 - getMaxAllele("sooty3");
+        int sooty = getMaxAllele(Gene.sooty1) + getMaxAllele(Gene.sooty2);
+        sooty += 1 - getMaxAllele(Gene.sooty3);
         if (!this.isChestnut()) {
             // Wild bay tends to come with a clearer, lighter coat
-            sooty += 1 - 2 * getMaxAllele("reduced_points");
+            sooty += 1 - 2 * getMaxAllele(Gene.reduced_points);
             sooty = Math.max(0, sooty);
         }
         return sooty;
@@ -398,24 +396,24 @@ public class HorseGenome extends Genome {
     public float getGrayRate() {
         // Starting age should vary from around 1 to 5 years
         // Ending age from 3 to 20
-        int gray = countAlleles("gray", HorseAlleles.GRAY);
+        int gray = countAlleles(Gene.gray, HorseAlleles.GRAY);
         float rate = 3f * (3 - gray);
-        if (this.isHomozygous("slow_gray1", 1)) {
+        if (this.isHomozygous(Gene.slow_gray1, 1)) {
             rate *= 1.5f;
         }
-        else if (this.hasAllele("slow_gray1", 1)) {
+        else if (this.hasAllele(Gene.slow_gray1, 1)) {
             rate *= 1.2f;
         }
 
-        if (this.hasAllele("slow_gray2", 1)) {
+        if (this.hasAllele(Gene.slow_gray2, 1)) {
             rate *= 1.3f;
         }
 
-        if (this.isHomozygous("slow_gray3", 1)) {
+        if (this.isHomozygous(Gene.slow_gray3, 1)) {
             rate *= 1.2f;
         }
 
-        if (this.hasAllele("gray_mane1", 1)) {
+        if (this.hasAllele(Gene.gray_mane1, 1)) {
             rate *= 1.2f;
         }
         return rate;
@@ -424,11 +422,11 @@ public class HorseGenome extends Genome {
     // Number of years for the mane and tail to turn fully gray
     public float getGrayManeRate() {
         float rate = getGrayRate();
-        if (this.hasAllele("gray_mane1", 0)) {
+        if (this.hasAllele(Gene.gray_mane1, 0)) {
             rate *= 0.9f;
         }
 
-        if (this.isHomozygous("gray_mane2", 0)) {
+        if (this.isHomozygous(Gene.gray_mane2, 0)) {
             rate *= 0.9f;
         }
         // Adjust so mane grays slightly before the body finishes
@@ -440,10 +438,12 @@ public class HorseGenome extends Genome {
         // Sum of heterozygosity of the 16 immune diversity genes
         int diffs = 0;
         for (int i = 0; i < 8; ++i) {
-            if (getAllele("immune" + i, 0) != getAllele("immune" + i, 1)) {
+            Gene immune_gene = Gene.valueOf("immune" + i);
+            if (getAllele(immune_gene, 0) != getAllele(immune_gene, 1)) {
                 diffs++;
             }
-            if (getAllele("mhc" + i, 0) != getAllele("mhc" + i, 1)) {
+            Gene mhc_gene = Gene.valueOf("mhc" + i);
+            if (getAllele(mhc_gene, 0) != getAllele(mhc_gene, 1)) {
                 diffs++;
             }
         }
@@ -462,8 +462,8 @@ public class HorseGenome extends Genome {
         // Count zygosity, mitigate from protective gene
         // Agouti may also have an effect on prevalence/severity,
         // but I'm not sufficiently convinced
-        float base = countAlleles("gray", HorseAlleles.GRAY);
-        if (isHomozygous("gray_melanoma", 0)) {
+        float base = countAlleles(Gene.gray, HorseAlleles.GRAY);
+        if (isHomozygous(Gene.gray_melanoma, 0)) {
             base -= 1f;
         }
         // Horses without melanocytes in the skin should be much
@@ -475,10 +475,10 @@ public class HorseGenome extends Genome {
     }
 
     public float getSilverHealthLoss() {
-        if (isHomozygous("silver", HorseAlleles.SILVER)) {
+        if (isHomozygous(Gene.silver, HorseAlleles.SILVER)) {
             return 1f;
         }
-        else if (hasAllele("silver", HorseAlleles.SILVER)) {
+        else if (hasAllele(Gene.silver, HorseAlleles.SILVER)) {
             return 0.5f;
         }
         else {
@@ -497,7 +497,7 @@ public class HorseGenome extends Genome {
 
     public float getERUHealthLoss() {
         if (hasERURiskFactor()) {
-            return 0.5f * countAlleles("leopard", HorseAlleles.LEOPARD);
+            return 0.5f * countAlleles(Gene.leopard, HorseAlleles.LEOPARD);
         }
         return 0;
     }
@@ -514,9 +514,9 @@ public class HorseGenome extends Genome {
     public float getHealth() {
         // Default horse health ranges from 15 to 30, but ours goes from
         // 15 to 31
-        float healthStat = this.sumGenes("health", 0, 4)
-                            + this.sumGenes("health", 4, 8)
-                            + this.sumGenes("health", 8, 12)
+        float healthStat = this.sumGenes(Gene.class, "health", 0, 4)
+                            + this.sumGenes(Gene.class, "health", 4, 8)
+                            + this.sumGenes(Gene.class, "health", 8, 12)
                             + this.getImmuneHealth();
         float maxHealth = 15.0F + healthStat * 0.5F;
         if (HorseConfig.COMMON.enableSizes.get()) {
@@ -534,12 +534,13 @@ public class HorseGenome extends Genome {
 
     // A special case because it has two different alleles
     public int countW20() {
-        return countAlleles("KIT", HorseAlleles.KIT_W20) 
-                + countAlleles("KIT", HorseAlleles.KIT_TOBIANO_W20);
+        return countAlleles(Gene.KIT, HorseAlleles.KIT_W20) 
+                + countAlleles(Gene.KIT, HorseAlleles.KIT_TOBIANO_W20);
     }
 
     // Helper function for perfectly codominant size genes
-    private float getSizeContribution(String gene, int allele, float size, float coef) {
+    private float getSizeContribution(Enum gene, int allele, float coef) {
+        float size = 1f;
         for (int i = 0; i < countAlleles(gene, allele); ++i) {
             size *= coef;
         }
@@ -569,58 +570,58 @@ public class HorseGenome extends Genome {
         // C/C warmbloods as ~169 cm.
         // I've assumed the relationship is multiplicative.
         // 0 is T, 1 is C
-        size = getSizeContribution("LCORL", 1, size, 1.03f);
+        size *= getSizeContribution(Gene.LCORL, 1, 1.03f);
         // HMGA2 is based off of information from the Center for Animal Genetics
         // They list G/G ponies as 104 cm tall at the withers, G/A as 98 cm,
         // and A/A as 84 cm.
         // Again, I'm assuming the relationship is multiplicative.
         // 0 is G, 1 is A
-        if (this.isHomozygous("HMGA2", 1)) {
+        if (this.isHomozygous(Gene.HMGA2, 1)) {
             size *= 0.81f;
         }
-        else if (this.hasAllele("HMGA2", 1)) {
+        else if (this.hasAllele(Gene.HMGA2, 1)) {
             size *= 0.94f;
         }
         // Minor size variations
-        size = getSizeContribution("size_minor0", 1, size, 1.002f);
-        size = getSizeContribution("size_minor0", 2, size, 1f/1.002f);
-        size = getSizeContribution("size_minor0", 3, size, 1.009f);
-        size = getSizeContribution("size_minor0", 4, size, 1f/1.009f);
+        size *= getSizeContribution(Gene.size_minor0, 1, 1.002f);
+        size *= getSizeContribution(Gene.size_minor0, 2, 1f/1.002f);
+        size *= getSizeContribution(Gene.size_minor0, 3, 1.009f);
+        size *= getSizeContribution(Gene.size_minor0, 4, 1f/1.009f);
 
-        size = getSizeContribution("size_minor1", 1, size, 1.003f);
-        size = getSizeContribution("size_minor1", 2, size, 1f/1.003f);
-        size = getSizeContribution("size_minor1", 3, size, 1.015f);
-        size = getSizeContribution("size_minor1", 4, size, 1f/1.015f);
+        size *= getSizeContribution(Gene.size_minor1, 1, 1.003f);
+        size *= getSizeContribution(Gene.size_minor1, 2, 1f/1.003f);
+        size *= getSizeContribution(Gene.size_minor1, 3, 1.015f);
+        size *= getSizeContribution(Gene.size_minor1, 4, 1f/1.015f);
 
-        size = getSizeContribution("size_minor2", 1, size, 1.001f);
-        size = getSizeContribution("size_minor2", 2, size, 1f/1.001f);
-        size = getSizeContribution("size_minor2", 3, size, 1.012f);
-        size = getSizeContribution("size_minor2", 4, size, 1f/1.012f);
+        size *= getSizeContribution(Gene.size_minor2, 1, 1.001f);
+        size *= getSizeContribution(Gene.size_minor2, 2, 1f/1.001f);
+        size *= getSizeContribution(Gene.size_minor2, 3, 1.012f);
+        size *= getSizeContribution(Gene.size_minor2, 4, 1f/1.012f);
 
-        size = getSizeContribution("size_minor3", 1, size, 1.001f);
-        size = getSizeContribution("size_minor3", 2, size, 1f/1.001f);
-        size = getSizeContribution("size_minor3", 3, size, 1.01f);
-        size = getSizeContribution("size_minor3", 4, size, 1f/1.01f);
+        size *= getSizeContribution(Gene.size_minor3, 1, 1.001f);
+        size *= getSizeContribution(Gene.size_minor3, 2, 1f/1.001f);
+        size *= getSizeContribution(Gene.size_minor3, 3, 1.01f);
+        size *= getSizeContribution(Gene.size_minor3, 4, 1f/1.01f);
 
-        size = getSizeContribution("size_minor4", 1, size, 1.002f);
-        size = getSizeContribution("size_minor4", 2, size, 1f/1.002f);
-        size = getSizeContribution("size_minor4", 3, size, 1.008f);
-        size = getSizeContribution("size_minor4", 4, size, 1f/1.008f);
+        size *= getSizeContribution(Gene.size_minor4, 1, 1.002f);
+        size *= getSizeContribution(Gene.size_minor4, 2, 1f/1.002f);
+        size *= getSizeContribution(Gene.size_minor4, 3, 1.008f);
+        size *= getSizeContribution(Gene.size_minor4, 4, 1f/1.008f);
 
-        size = getSizeContribution("size_minor5", 1, size, 1.001f);
-        size = getSizeContribution("size_minor5", 2, size, 1f/1.001f);
-        size = getSizeContribution("size_minor5", 3, size, 1.005f);
-        size = getSizeContribution("size_minor5", 4, size, 1f/1.005f);
+        size *= getSizeContribution(Gene.size_minor5, 1, 1.001f);
+        size *= getSizeContribution(Gene.size_minor5, 2, 1f/1.001f);
+        size *= getSizeContribution(Gene.size_minor5, 3, 1.005f);
+        size *= getSizeContribution(Gene.size_minor5, 4, 1f/1.005f);
 
-        size = getSizeContribution("size_minor6", 1, size, 1.0025f);
-        size = getSizeContribution("size_minor6", 2, size, 1f/1.0025f);
-        size = getSizeContribution("size_minor6", 3, size, 1.005f);
-        size = getSizeContribution("size_minor6", 4, size, 1f/1.005f);
+        size *= getSizeContribution(Gene.size_minor6, 1, 1.0025f);
+        size *= getSizeContribution(Gene.size_minor6, 2, 1f/1.0025f);
+        size *= getSizeContribution(Gene.size_minor6, 3, 1.005f);
+        size *= getSizeContribution(Gene.size_minor6, 4, 1f/1.005f);
 
-        size = getSizeContribution("size_minor7", 1, size, 1.0025f);
-        size = getSizeContribution("size_minor7", 2, size, 1f/1.0025f);
-        size = getSizeContribution("size_minor7", 3, size, 1.005f);
-        size = getSizeContribution("size_minor7", 4, size, 1f/1.005f);
+        size *= getSizeContribution(Gene.size_minor7, 1, 1.0025f);
+        size *= getSizeContribution(Gene.size_minor7, 2, 1f/1.0025f);
+        size *= getSizeContribution(Gene.size_minor7, 3, 1.005f);
+        size *= getSizeContribution(Gene.size_minor7, 4, 1f/1.005f);
 
         // More small effect genes
         for (int i = 0; i < 8; ++i) {
@@ -628,35 +629,36 @@ public class HorseGenome extends Genome {
                 float scale = 1f + 0.001f * n;
                 int large = 2 * n - 1;
                 int small = 2 * n;
-                size = getSizeContribution("size_subtle" + i, large, size, scale);
-                size = getSizeContribution("size_subtle" + i, small, size, 1f/scale);
+                Gene gene = Gene.valueOf("size_subtle" + i);
+                size *= getSizeContribution(gene, large, scale);
+                size *= getSizeContribution(gene, small, 1f/scale);
             }
         }
 
         // Larger effect size genes
         // Imprinted gene, unmethylated copy inherited from the mother
-        if (this.getAllele("size0", 0) == 1) {
+        if (this.getAllele(Gene.size0, 0) == 1) {
             size *= 1.06f;
         }
         // Mostly dominant
-        if (this.isHomozygous("size1", 1)) {
+        if (this.isHomozygous(Gene.size1, 1)) {
             size *= 1.1f;
         }
-        else if (this.hasAllele("size1", 1)) {
+        else if (this.hasAllele(Gene.size1, 1)) {
             size *= 1.08f;
         }
         // Incomplete dominant
-        size = getSizeContribution("size2", 1, size, 1.002f);
-        size = getSizeContribution("size2", 2, size, 1.03f);
-        size = getSizeContribution("size2", 3, size, 1.05f);
+        size *= getSizeContribution(Gene.size2, 1, 1.002f);
+        size *= getSizeContribution(Gene.size2, 2, 1.03f);
+        size *= getSizeContribution(Gene.size2, 3, 1.05f);
         // Imprinted gene, unmethylated copy inherited from the father
-        if (this.getAllele("size3", 1) == 1) {
+        if (this.getAllele(Gene.size3, 1) == 1) {
             size /= 1.08;
         }
         // Larger effects (smaller horse) semi-recessive
         float[] size4 = {1f, 1f};
         for (int n = 0; n < 2; ++n) {
-            switch(getAllele("size4", n)) {
+            switch(getAllele(Gene.size4, n)) {
                 case 1:
                     size4[n] = 1/1.005f;
                     break;
@@ -676,27 +678,27 @@ public class HorseGenome extends Genome {
 
         // Donkey size genes
         // Incomplete dominant
-        size = getSizeContribution("donkey_size0", 1, size, 1.01f);
-        size = getSizeContribution("donkey_size0", 2, size, 1.03f);
-        size = getSizeContribution("donkey_size1", 1, size, 1.02f);
-        size = getSizeContribution("donkey_size1", 2, size, 1.04f);
-        size = getSizeContribution("donkey_size2", 1, size, 1f/1.02f);
-        size = getSizeContribution("donkey_size2", 2, size, 1f/1.04f);
-        size = getSizeContribution("donkey_size3", 1, size, 1f/1.06f);
+        size *= getSizeContribution(Gene.donkey_size0, 1, 1.01f);
+        size *= getSizeContribution(Gene.donkey_size0, 2, 1.03f);
+        size *= getSizeContribution(Gene.donkey_size1, 1, 1.02f);
+        size *= getSizeContribution(Gene.donkey_size1, 2, 1.04f);
+        size *= getSizeContribution(Gene.donkey_size2, 1, 1f/1.02f);
+        size *= getSizeContribution(Gene.donkey_size2, 2, 1f/1.04f);
+        size *= getSizeContribution(Gene.donkey_size3, 1, 1f/1.06f);
         // Mostly recessive
-        if (this.isHomozygous("donkey_size4", 1)) {
+        if (this.isHomozygous(Gene.donkey_size4, 1)) {
             size /= 1.1f;
         }
-        else if (this.hasAllele("donkey_size4", 1)) {
+        else if (this.hasAllele(Gene.donkey_size4, 1)) {
             size /= 1.02f;
         }  
         // Incomplete dominant 
-        size = getSizeContribution("donkey_size5", 1, size, 1.025f); 
+        size *= getSizeContribution(Gene.donkey_size5, 1, 1.025f); 
         // Mostly dominant
-        if (this.isHomozygous("donkey_size6", 1)) {
+        if (this.isHomozygous(Gene.donkey_size6, 1)) {
             size /= 1.06f;
         }
-        else if (this.hasAllele("donkey_size6", 1)) {
+        else if (this.hasAllele(Gene.donkey_size6, 1)) {
             size /= 1.04f;
         }
         
@@ -786,13 +788,13 @@ public class HorseGenome extends Genome {
     }
 
     protected void randomizeGenes(Breed breed) {
-        for (String gene : genes) {
-            if (!breed.contains(gene)) {
-                HorseColors.logger.debug(gene + " is not in the given map");
+        for (Enum gene : listGenes()) {
+            if (!breed.contains(gene.toString())) {
+                HorseColors.logger.debug(gene.toString() + " is not in the given map");
             }
             // If it doesn't contain the gene, it will return a sensible
             // default value
-            List<Float> distribution = breed.get(gene);
+            List<Float> distribution = breed.get(gene.toString());
             int allele0 = chooseRandomAllele(distribution);
             int allele1 = chooseRandomAllele(distribution);
             setAllele(gene, 0, allele0);
@@ -806,15 +808,15 @@ public class HorseGenome extends Genome {
         randomizeGenes(breed);
 
         // Replace lethal white overos with heterozygotes
-        if (isHomozygous("frame", HorseAlleles.FRAME))
+        if (isHomozygous(Gene.frame, HorseAlleles.FRAME))
         {
-            setAllele("frame", 0, 0);
+            setAllele(Gene.frame, 0, 0);
         }
 
         // Homozygote dominant whites will be replaced with heterozygotes
-        if (isHomozygous("KIT", HorseAlleles.KIT_DOMINANT_WHITE))
+        if (isHomozygous(Gene.KIT, HorseAlleles.KIT_DOMINANT_WHITE))
         {
-            setAllele("KIT", 0, 0);
+            setAllele(Gene.KIT, 0, 0);
         }
 
         entity.setSeed(this.entity.getRand().nextInt());
@@ -862,25 +864,25 @@ public class HorseGenome extends Genome {
     }
 
     public String judgeStat(String name, int min, int max) {
-        return Util.translate("stats." + judgeStatRaw(sumGenes(name, min, max)));
+        return Util.translate("stats." + judgeStatRaw(sumGenes(Gene.class, name, min, max)));
     }
 
     private String judgeStat12(String name, int min, int max) {
-        return Util.translate("stats." + judgeStatRaw12(sumGenes(name, min, max)));
+        return Util.translate("stats." + judgeStatRaw12(sumGenes(Gene.class, name, min, max)));
     }
 
-    private void listGenes(ArrayList<String> list, List<String> genelist) {
-        for (String gene : genelist) {
-            if (gene.equals("KIT") && this.species != Species.DONKEY) {
+    private void listGenes(ArrayList<String> list, List<Gene> genelist) {
+        for (Gene gene : genelist) {
+            if (gene == Gene.KIT && this.species != Species.DONKEY) {
                 String tobianoLocation = "genes.tobiano";
                 String tobi = Util.translate(tobianoLocation + ".name") + ": ";
-                String a1 = HorseAlleles.isTobianoAllele(getAllele("KIT", 0))? "Tobiano" : "Wildtype";
-                String a2 = HorseAlleles.isTobianoAllele(getAllele("KIT", 1))? "Tobiano" : "Wildtype";
+                String a1 = HorseAlleles.isTobianoAllele(getAllele(Gene.KIT, 0))? "Tobiano" : "Wildtype";
+                String a2 = HorseAlleles.isTobianoAllele(getAllele(Gene.KIT, 1))? "Tobiano" : "Wildtype";
                 tobi += Util.translate(tobianoLocation + ".allele" + a1) + "/";
                 tobi += Util.translate(tobianoLocation + ".allele" + a2);
                 list.add(tobi);
             }
-            String translationLocation = "genes." + gene;
+            String translationLocation = "genes." + gene.toString();
             String s = Util.translate(translationLocation + ".name") + ": ";
             s += Util.translate(translationLocation + ".allele" + getAllele(gene, 0)) + "/";
             s += Util.translate(translationLocation + ".allele" + getAllele(gene, 1));
@@ -921,7 +923,7 @@ public class HorseGenome extends Genome {
             if ((int)h2 != (int)(h2 + getERUHealthLoss())) {
                 healthEffects += "\n" + Util.translate("stats.health.ERU");
             }
-            if (isHomozygous("leopard", HorseAlleles.LEOPARD)) {
+            if (isHomozygous(Gene.leopard, HorseAlleles.LEOPARD)) {
                 healthEffects += "\n" + Util.translate("stats.health.CSNB");
             }
         }
@@ -965,11 +967,12 @@ public class HorseGenome extends Genome {
             contents.add(physical);
         }
 
-        List<String> colorgenelist = ImmutableList.of("extension", "agouti", "dun", 
-            "gray", "cream", "silver", "champagne", "KIT", "frame", "MITF", "leopard", "PATN1", 
-            "mushroom", "tiger_eye");
+        List<Gene> colorgenelist = ImmutableList.of(Gene.extension, 
+            Gene.agouti, Gene.dun, Gene.gray, Gene.cream, Gene.silver, 
+            Gene.champagne, Gene.KIT, Gene.frame, Gene.MITF, Gene.leopard, 
+            Gene.PATN1, Gene.mushroom, Gene.tiger_eye);
         if (this.species == Species.DONKEY) {
-            colorgenelist = ImmutableList.of("extension", "agouti", "KIT");
+            colorgenelist = ImmutableList.of(Gene.extension, Gene.agouti, Gene.KIT);
         }
         ArrayList<String> test_results = new ArrayList<>();
         if (HorseConfig.GENETICS.bookShowsGenes.get()) {
@@ -978,7 +981,7 @@ public class HorseGenome extends Genome {
             if (HorseConfig.COMMON.enableSizes.get() && this.species != Species.DONKEY) {
                 test_results.add(""); // Blank line
                 test_results.add(Util.translate("book.genetic_size"));
-                listGenes(test_results, ImmutableList.of("LCORL", "HMGA2"));
+                listGenes(test_results, ImmutableList.of(Gene.LCORL, Gene.HMGA2));
                 test_results.add(""); // Blank line
                 // A note saying many other genes also affect size
                 test_results.add(Util.translate("book.size_disclaimer"));
@@ -1052,9 +1055,10 @@ public class HorseGenome extends Genome {
 
     private void setGenericGenes(String name, int len, int val) {
         for (int i = 0; i < len; ++i) {
-            setAllele(name + i, 0, val & 1);
+            Gene gene = Gene.valueOf(name + i);
+            setAllele(gene, 0, val & 1);
             val = val >>> 1;
-            setAllele(name + i, 1, val & 1);
+            setAllele(gene, 1, val & 1);
             val = val >>> 1;
         }
     }
@@ -1062,24 +1066,24 @@ public class HorseGenome extends Genome {
     // Convert from the format used by version 1.4 and earlier
     public void setLegacyGenes(Map<String, Integer> map) {
         // Convert the named genes
-        for (String gene : listGenes()) {
+        for (Enum gene : listGenes()) {
             // Stop at the end of the "named genes." The others followed a 
             // different format.
-            if (gene.equals("speed0")) {
+            if (gene == Gene.speed0) {
                 break;
             }
             // Skip genes that don't have data specified
-            if (!map.containsKey(getGeneChromosome(gene))) {
+            if (!map.containsKey(getGeneChromosome(gene.toString()))) {
                 continue;
             }
             // Use legacy access method and updated setter
-            int allele0 = getAlleleOld(gene, 0, map);
-            int allele1 = getAlleleOld(gene, 1, map);
-            if (gene.equals("extension")) {
+            int allele0 = getAlleleOld(gene.toString(), 0, map);
+            int allele1 = getAlleleOld(gene.toString(), 1, map);
+            if (gene == Gene.extension) {
                 allele0 = allele0 >= 4? 1 : 0;
                 allele1 = allele1 >= 4? 1 : 0;
             }
-            else if (gene.equals("agouti")) {
+            else if (gene == Gene.agouti) {
                 allele0 = Math.min(4, allele0);
                 allele1 = Math.min(4, allele1);
             }
@@ -1126,10 +1130,10 @@ public class HorseGenome extends Genome {
             for (int i = 0; i < 8; ++i) {
                 for (int n = 0; n < 2; ++n) {
                     // 3 == 0b11
-                    setAllele("immune" + i, n, immune & 3);
+                    setAllele(Gene.valueOf("immune" + i), n, immune & 3);
                     immune = immune >>> 2;
                     // 15 == 0b1111
-                    setAllele("mhc" + i, n, (int)(mhc & 15));
+                    setAllele(Gene.valueOf("mhc" + i), n, (int)(mhc & 15));
                     mhc = mhc >>> 4;
                 }
             }
@@ -1140,7 +1144,7 @@ public class HorseGenome extends Genome {
         // Randomly set minor size genes
         for (int n = 0; n < 2; ++n) {
             for (int i = 0; i < 8; ++i) {
-                setAllele("size_minor" + i, n, (randgenes.nextInt() >>> 1) % 5);
+                setAllele(Gene.valueOf("size_minor" + i), n, (randgenes.nextInt() >>> 1) % 5);
             }  
         }
     }
@@ -1152,20 +1156,21 @@ public class HorseGenome extends Genome {
         for (String chr : chromosomes) {
             map.put(chr, 0);
         }
+        List<Enum> genes = listGenes();
         int i = 0;
         for (i = 0; i < genes.size(); ++i) {
-            String gene = genes.get(i);
-            if ("speed0".equals(gene)) {
+            Enum gene = genes.get(i);
+            if ("speed0".equals(gene.toString())) {
                 break;
             }
-            setAlleleOld(gene, 0, getAllele(gene, 0), map);
-            setAlleleOld(gene, 1, getAllele(gene, 1), map);
+            setAlleleOld(gene.toString(), 0, getAllele(gene, 0), map);
+            setAlleleOld(gene.toString(), 1, getAllele(gene, 1), map);
         }
         List<String> stats = ImmutableList.of("speed", "jump", "health");
         for (String stat : stats) {
             int chr = 0;
             for (int s = 0; s < 16; ++s) {
-                String statGene = genes.get(i + s);
+                Enum statGene = genes.get(i + s);
                 int allele0 = getAllele(statGene, 0) & 1;
                 int allele1 = getAllele(statGene, 1) & 1;
                 chr = chr | (allele0 << (2 * s)) | (allele1 << (2 * s + 1));

@@ -57,8 +57,8 @@ public class HorseDebug {
 
     public static ArrayList<String> debugGenes(Genome genome) {
         ArrayList<String> list = new ArrayList<String>();
-        for (String gene : genome.listGenes()) {
-            String s = gene + ": ";
+        for (Enum gene : genome.listGenes()) {
+            String s = gene.toString() + ": ";
             s += genome.getAllele(gene, 0) + ", ";
             s += genome.getAllele(gene, 1);
             list.add(s);

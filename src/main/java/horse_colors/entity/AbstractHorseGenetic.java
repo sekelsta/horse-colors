@@ -69,6 +69,7 @@ import sekelsta.horse_colors.breed.*;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.ai.*;
 import sekelsta.horse_colors.entity.genetics.*;
+import sekelsta.horse_colors.entity.genetics.HorseGenome.Gene;
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.item.ModItems;
 import sekelsta.horse_colors.item.GeneBookItem;
@@ -299,9 +300,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     }
 
     private void readExtraGenes(CompoundNBT compound) {
-        for (String gene : this.getGenome().listGenes()) {
-            if (compound.contains(gene)) {
-                int alleles[] = compound.getIntArray(gene);
+        for (Enum gene : this.getGenome().listGenes()) {
+            if (compound.contains(gene.toString())) {
+                int alleles[] = compound.getIntArray(gene.toString());
                 getGenome().setAllele(gene, 0, alleles[0]);
                 getGenome().setAllele(gene, 1, alleles[1]);
             }
@@ -643,18 +644,18 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         {
             HorseGenome genes = this.getGenome();
             float maxHealth = this.getGenome().getHealth();
-            float athletics = genes.sumGenes("athletics", 0, 4) / 2f
-                                + genes.sumGenes("athletics", 4, 8) / 2f;
+            float athletics = genes.sumGenes(Gene.class, "athletics", 0, 4) / 2f
+                                + genes.sumGenes(Gene.class, "athletics", 4, 8) / 2f;
             // Vanilla horse speed ranges from 0.1125 to 0.3375, as does ours
-            float speedStat = genes.sumGenes("speed", 0, 4)
-                                + genes.sumGenes("speed", 4, 8)
-                                + genes.sumGenes("speed", 8, 12)
+            float speedStat = genes.sumGenes(Gene.class, "speed", 0, 4)
+                                + genes.sumGenes(Gene.class, "speed", 4, 8)
+                                + genes.sumGenes(Gene.class, "speed", 8, 12)
                                 + athletics;
             double movementSpeed = 0.1125D + speedStat * (0.225D / 32.0D);
             // Vanilla horse jump strength ranges from 0.4 to 1.0, as does ours
-            float jumpStat = genes.sumGenes("jump", 0, 4)
-                                + genes.sumGenes("jump", 4, 8)
-                                + genes.sumGenes("jump", 8, 12)
+            float jumpStat = genes.sumGenes(Gene.class, "jump", 0, 4)
+                                + genes.sumGenes(Gene.class, "jump", 4, 8)
+                                + genes.sumGenes(Gene.class, "jump", 8, 12)
                                 + athletics;
             double jumpStrength = 0.4D + jumpStat * (0.6D / 32.0D);
 
@@ -781,10 +782,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         // If the frequency of double_ovulation is 0.2, the probability of triplets
         // works out to within an order of magnitude of the expected 1 in 300,000.
         double chance = 1 / 10000;
-        if (getGenome().countAlleles("double_ovulation", 1) == 1) {
+        if (getGenome().countAlleles(Gene.double_ovulation, 1) == 1) {
             chance = 1 / 5000;
         }
-        else if (getGenome().isHomozygous("double_ovulation", 1)) {
+        else if (getGenome().isHomozygous(Gene.double_ovulation, 1)) {
             chance = 1 / 1000;
         }
 
@@ -931,7 +932,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             this.entityData.set(PREGNANT_SINCE, 0);
         }
 
-        if (this.getGenome().isHomozygous("leopard", HorseAlleles.LEOPARD) && !this.level.isClientSide()) {
+        if (this.getGenome().isHomozygous(Gene.leopard, HorseAlleles.LEOPARD) && !this.level.isClientSide()) {
             ModifiableAttributeInstance speedAttribute = this.getAttribute(Attributes.MOVEMENT_SPEED);
             ModifiableAttributeInstance jumpAttribute = this.getAttribute(Attributes.JUMP_STRENGTH);
             float brightness = this.getBrightness();

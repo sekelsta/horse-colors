@@ -4,6 +4,7 @@ import java.util.*;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.client.renderer.TextureLayer;
 import sekelsta.horse_colors.client.renderer.TextureLayerGroup;
+import sekelsta.horse_colors.entity.genetics.HorseGenome.Gene;
 
 public class HorsePatternCalculator {
 
@@ -21,30 +22,30 @@ public class HorsePatternCalculator {
     // This will be used only until the new face markings are done
     public static int getPreviousFaceWhiteLevel(HorseGenome horse) {
         int white = -2;
-        if (horse.hasAllele("white_suppression", 1))
+        if (horse.hasAllele(Gene.white_suppression, 1))
         {
             white -= 4;
         }
 
-        white += horse.countAlleles("KIT", HorseAlleles.KIT_WHITE_BOOST);
-        white += horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS1);
-        white += 2 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS2);
-        white += 2 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS3);
-        white += 3 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS4);
-        white += 3 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS5);
+        white += horse.countAlleles(Gene.KIT, HorseAlleles.KIT_WHITE_BOOST);
+        white += horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS1);
+        white += 2 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS2);
+        white += 2 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS3);
+        white += 3 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS4);
+        white += 3 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS5);
         white += 3 * horse.countW20();;
-        white += 4 * horse.countAlleles("KIT", HorseAlleles.KIT_FLASHY_WHITE);
+        white += 4 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_FLASHY_WHITE);
 
-        white += 6 * horse.countAlleles("MITF", HorseAlleles.MITF_SW1);
-        white += 9 * horse.countAlleles("MITF", HorseAlleles.MITF_SW3);
-        white += 8 * horse.countAlleles("MITF", HorseAlleles.MITF_SW5);
+        white += 6 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW1);
+        white += 9 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW3);
+        white += 8 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW5);
 
-        white += 7 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW2);
-        white += 8 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW4);
+        white += 7 * horse.countAlleles(Gene.PAX3, HorseAlleles.PAX3_SW2);
+        white += 8 * horse.countAlleles(Gene.PAX3, HorseAlleles.PAX3_SW4);
 
-        white += 3 * horse.countAlleles("white_star", 1);
-        white += horse.countAlleles("white_forelegs", 1);
-        white += horse.countAlleles("white_hindlegs", 1);
+        white += 3 * horse.countAlleles(Gene.white_star, 1);
+        white += horse.countAlleles(Gene.white_forelegs, 1);
+        white += horse.countAlleles(Gene.white_hindlegs, 1);
 
         if (horse.hasMC1RWhiteBoost()) {
             white += 2;
@@ -268,15 +269,15 @@ public class HorsePatternCalculator {
         {
             // Splashed white and tobiano can combine to make most of the horse white
             // See Pacific Pintos, Pacific Cloud Nine
-            if (horse.isHomozygous("MITF", HorseAlleles.MITF_SW1))
+            if (horse.isHomozygous(Gene.MITF, HorseAlleles.MITF_SW1))
             {
                 layer.name = HorseColorCalculator.fixPath(folder + "medicine_hat");
             }
-            else if (horse.hasAllele("KIT", HorseAlleles.KIT_SABINO1))
+            else if (horse.hasAllele(Gene.KIT, HorseAlleles.KIT_SABINO1))
             {
                 layer.name = HorseColorCalculator.fixPath(folder + "sabino_tobiano");
             }
-            else if (horse.hasAllele("frame", HorseAlleles.FRAME))
+            else if (horse.hasAllele(Gene.frame, HorseAlleles.FRAME))
             {
                 layer.name =  HorseColorCalculator.fixPath(folder + "war_shield");
             }
@@ -285,28 +286,28 @@ public class HorsePatternCalculator {
                 layer.name = HorseColorCalculator.fixPath(folder + "tobiano");
             }
         }
-        else if (horse.hasAllele("KIT", HorseAlleles.KIT_SABINO1))
+        else if (horse.hasAllele(Gene.KIT, HorseAlleles.KIT_SABINO1))
         {
-            if (horse.isHomozygous("MITF", HorseAlleles.MITF_SW1)) {
+            if (horse.isHomozygous(Gene.MITF, HorseAlleles.MITF_SW1)) {
                 layer.name = HorseColorCalculator.fixPath(folder + "sabino_splash");
             }
-            else if (horse.hasAllele("frame", HorseAlleles.FRAME)) {
+            else if (horse.hasAllele(Gene.frame, HorseAlleles.FRAME)) {
                 layer.name = HorseColorCalculator.fixPath(folder + "frame_sabino");
             }
             else {
                 layer.name = HorseColorCalculator.fixPath(folder + "sabino");
             }
         }
-        else if (horse.hasAllele("frame", HorseAlleles.FRAME))
+        else if (horse.hasAllele(Gene.frame, HorseAlleles.FRAME))
         {
-            if (horse.isHomozygous("MITF", HorseAlleles.MITF_SW1)) {
+            if (horse.isHomozygous(Gene.MITF, HorseAlleles.MITF_SW1)) {
                 layer.name = HorseColorCalculator.fixPath(folder + "frame_splash");
             }
             else {
                 layer.name = HorseColorCalculator.fixPath(folder + "frame");
             }
         }
-        else if (horse.isHomozygous("MITF", HorseAlleles.MITF_SW1))
+        else if (horse.isHomozygous(Gene.MITF, HorseAlleles.MITF_SW1))
         {
             layer.name = HorseColorCalculator.fixPath(folder + "splash");
         }
@@ -318,20 +319,20 @@ public class HorsePatternCalculator {
 
     public static void addLeopard(HorseGenome horse, List<TextureLayer> textureLayers)
     {
-        if (!horse.hasAllele("leopard", HorseAlleles.LEOPARD)) {
+        if (!horse.hasAllele(Gene.leopard, HorseAlleles.LEOPARD)) {
             return;
         }
         TextureLayer hooves = new TextureLayer();
-        if (horse.isHomozygous("leopard", HorseAlleles.LEOPARD)) {
+        if (horse.isHomozygous(Gene.leopard, HorseAlleles.LEOPARD)) {
             hooves.name = HorseColorCalculator.fixPath("leopard/lplp_features");
         }
         else {
             hooves.name = HorseColorCalculator.fixPath("leopard/lp_features");
         }
         textureLayers.add(hooves);
-        int patn = 7 * horse.countAlleles("PATN1", HorseAlleles.PATN);
-        patn += 2 * horse.countAlleles("PATN2", HorseAlleles.PATN);
-        patn += horse.countAlleles("PATN3", HorseAlleles.PATN);
+        int patn = 7 * horse.countAlleles(Gene.PATN1, HorseAlleles.PATN);
+        patn += 2 * horse.countAlleles(Gene.PATN2, HorseAlleles.PATN);
+        patn += horse.countAlleles(Gene.PATN3, HorseAlleles.PATN);
         TextureLayer spread = new TextureLayer();
         if (patn == 0)
         {
@@ -351,14 +352,14 @@ public class HorsePatternCalculator {
             }
         }
         TextureLayer spots = new TextureLayer();
-        if (horse.isHomozygous("leopard", HorseAlleles.LEOPARD))
+        if (horse.isHomozygous(Gene.leopard, HorseAlleles.LEOPARD))
         {
             spots.name = HorseColorCalculator.fixPath("leopard/fewspot");
         }
-        else if (horse.hasAllele("white_suppression", 1)) {
+        else if (horse.hasAllele(Gene.white_suppression, 1)) {
             spots.name = HorseColorCalculator.fixPath("leopard/leopard_large");
         }
-        else if (horse.hasAllele("marble", 1)) {
+        else if (horse.hasAllele(Gene.marble, 1)) {
             spots.name = HorseColorCalculator.fixPath("leopard/leopard_marble");
         }
         else
@@ -395,9 +396,9 @@ public class HorsePatternCalculator {
         // Any gene with more than 4 alleles that affect white levels should
         // usually be incomplete dominant so it is easier to calculate
         public WhiteBoost(HorseGenome horse) {
-            foreleg = 2 * horse.countAlleles("white_forelegs", 1);
-            hindleg = 2 * horse.countAlleles("white_hindlegs", 1);
-            forehead += horse.countAlleles("white_star", 1);
+            foreleg = 2 * horse.countAlleles(Gene.white_forelegs, 1);
+            hindleg = 2 * horse.countAlleles(Gene.white_hindlegs, 1);
+            forehead += horse.countAlleles(Gene.white_star, 1);
             setOldLegWhite(horse);
 
             if (horse.hasMC1RWhiteBoost()) {
@@ -412,26 +413,26 @@ public class HorsePatternCalculator {
         }
 
         private void setGeneralWhite(HorseGenome horse) {
-            if (horse.hasAllele("white_suppression", 1))
+            if (horse.hasAllele(Gene.white_suppression, 1))
             {
                 general -= 4;
             }
-            general += horse.countAlleles("KIT", HorseAlleles.KIT_WHITE_BOOST);
-            general += horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS1);
-            general += 2 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS2);
-            general += 2 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS3);
-            general += 3 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS4);
-            general += 3 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS5);
+            general += horse.countAlleles(Gene.KIT, HorseAlleles.KIT_WHITE_BOOST);
+            general += horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS1);
+            general += 2 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS2);
+            general += 2 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS3);
+            general += 3 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS4);
+            general += 3 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS5);
             general += 3 * horse.countW20();;
-            general += 4 * horse.countAlleles("KIT", HorseAlleles.KIT_FLASHY_WHITE);
+            general += 4 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_FLASHY_WHITE);
 
-            general += 2 * horse.countAlleles("MITF", HorseAlleles.MITF_SW1);
-            general += 6 * horse.countAlleles("MITF", HorseAlleles.MITF_SW3);
-            general += 2 * horse.countAlleles("MITF", HorseAlleles.MITF_SW5);
+            general += 2 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW1);
+            general += 6 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW3);
+            general += 2 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW5);
 
-            general += 2 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW2);
-            general += 3 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW4);
-            if (horse.hasAllele("white_star", 1)) {
+            general += 2 * horse.countAlleles(Gene.PAX3, HorseAlleles.PAX3_SW2);
+            general += 3 * horse.countAlleles(Gene.PAX3, HorseAlleles.PAX3_SW4);
+            if (horse.hasAllele(Gene.white_star, 1)) {
                 general += 1;
             }
         }
@@ -439,15 +440,15 @@ public class HorsePatternCalculator {
         public static int getOldFaceWhiteLevel(HorseGenome horse) {
             int white = -2;
 
-            white += 6 * horse.countAlleles("MITF", HorseAlleles.MITF_SW1);
-            white += 9 * horse.countAlleles("MITF", HorseAlleles.MITF_SW3);
-            white += 8 * horse.countAlleles("MITF", HorseAlleles.MITF_SW5);
+            white += 6 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW1);
+            white += 9 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW3);
+            white += 8 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW5);
 
-            white += 7 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW2);
-            white += 8 * horse.countAlleles("PAX3", HorseAlleles.PAX3_SW4);
+            white += 7 * horse.countAlleles(Gene.PAX3, HorseAlleles.PAX3_SW2);
+            white += 8 * horse.countAlleles(Gene.PAX3, HorseAlleles.PAX3_SW4);
 
-            white += horse.countAlleles("white_forelegs", 1);
-            white += horse.countAlleles("white_hindlegs", 1);
+            white += horse.countAlleles(Gene.white_forelegs, 1);
+            white += horse.countAlleles(Gene.white_hindlegs, 1);
 
             if (horse.hasMC1RWhiteBoost()) {
                 white += 2;
@@ -458,27 +459,27 @@ public class HorsePatternCalculator {
         private void setOldLegWhite(HorseGenome horse) {
             int white = -3;
 
-            white += 1 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS1);
-            white += 1 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS2);
-            white += 2 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS3);
-            white += 2 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS4);
-            white += 3 * horse.countAlleles("KIT", HorseAlleles.KIT_MARKINGS5);
+            white += 1 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS1);
+            white += 1 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS2);
+            white += 2 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS3);
+            white += 2 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS4);
+            white += 3 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS5);
             white += 4 * horse.countW20();
-            white += 4 * horse.countAlleles("KIT", HorseAlleles.KIT_FLASHY_WHITE);
+            white += 4 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_FLASHY_WHITE);
             this.leg = white;
         }
 
         public void setBlanketWhite(HorseGenome horse) {
-            if (horse.hasAllele("leopard_suppression", 1)) {
-                blanket -= 1 + horse.countAlleles("PATN1", HorseAlleles.PATN);
+            if (horse.hasAllele(Gene.leopard_suppression, 1)) {
+                blanket -= 1 + horse.countAlleles(Gene.PATN1, HorseAlleles.PATN);
             }
-            if (horse.isHomozygous("leopard_suppression2", 1)) {
+            if (horse.isHomozygous(Gene.leopard_suppression2, 1)) {
                 blanket -= 1;
             }
-            if (horse.hasAllele("PATN_boost1", 1)) {
+            if (horse.hasAllele(Gene.PATN_boost1, 1)) {
                 blanket += 1;
             }
-            if (horse.isHomozygous("PATN_boost2", 1)) {
+            if (horse.isHomozygous(Gene.PATN_boost2, 1)) {
                 blanket += 1;
             }
         }

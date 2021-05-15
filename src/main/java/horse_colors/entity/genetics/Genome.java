@@ -13,10 +13,10 @@ import sekelsta.horse_colors.util.RandomSupplier;
 
 public abstract class Genome {
     public final Species species;
-    public abstract List<String> listGenes();
+    public abstract List<Enum> listGenes();
     public List<Linkage> listLinkages() {
         ArrayList linkages = new ArrayList<Genome.Linkage>();
-        for (String gene : listGenes()) {
+        for (Enum gene : listGenes()) {
             linkages.add(new Genome.Linkage(gene));
         }
         return linkages;
@@ -104,23 +104,23 @@ public abstract class Genome {
     }
 
     @Deprecated
-    private int getPos(String name, List<String> genes)
+    private int getPos(String name, List<Enum> genes)
     {
         int i = 0;
-        for (String gene : genes)
+        for (Enum gene : genes)
         {
-            int next = (i + (2 * getGeneSize(gene)));
+            int next = (i + (2 * getGeneSize(gene.toString())));
             // Special case to keep each gene completely on the same int
             if (next / 32 != i / 32 && next % 32 != 0)
             {
                 i = (i / 32 + 1) * 32;
             }
 
-            if (gene == name)
+            if (gene.toString().equals(name))
             {
                 return i;
             }
-            i += (2 * getGeneSize(gene));
+            i += (2 * getGeneSize(gene.toString()));
         }
 
         // Return statement needed to compile
@@ -128,10 +128,11 @@ public abstract class Genome {
         return -1;
     }
 
+    @Deprecated
     public int getGeneIndex(String name) {
         int n = 0;
-        for (String gene : listGenes()) {
-            if (gene.equals(name)) {
+        for (Enum gene : listGenes()) {
+            if (gene.toString().equals(name)) {
                 return n;
             }
             ++n;
@@ -176,17 +177,17 @@ public abstract class Genome {
         setNamedGene(name, (other << ((1 - n) * size)) | (v << (n * size)), map);
     }
 
-    public int getAllele(String name, int n) {
+    public int getAllele(Enum gene, int n) {
         // Each gene has two alleles, so double the index
-        int index = 2 * getGeneIndex(name) + n;
+        int index = 2 * gene.ordinal() + n;
         if (index >= entity.getGeneData().length()) {
             return 0;
         }
         return (int)entity.getGeneData().charAt(index);
     }
 
-    public void setAllele(String name, int n, int v) {
-        int index = 2 * getGeneIndex(name) + n;
+    public void setAllele(Enum gene, int n, int v) {
+        int index = 2 * gene.ordinal() + n;
         StringBuffer buffer = new StringBuffer(entity.getGeneData());
         // Append null characters until it is long enough
         if (buffer.length() <= index) {
@@ -198,12 +199,12 @@ public abstract class Genome {
 
     // Replace the given allele with a random one.
     // It may be the same as before.
-    public void mutateAllele(String gene, int n) {
+    public void mutateAllele(Enum gene, int n) {
         Breed breed = entity.getDefaultBreed();
-        if (!breed.contains(gene)) {
+        if (!breed.contains(gene.toString())) {
             return;
         }
-        List<Float> frequencies = breed.get(gene);
+        List<Float> frequencies = breed.get(gene.toString());
         List<Integer> allowedAlleles = new ArrayList<>();
         float val = 0;
         for (int i = 0; i < frequencies.size(); ++i) {
@@ -221,7 +222,7 @@ public abstract class Genome {
     }
 
     // Will mutate with p probability
-    public void mutateAlleleChance(String gene, int n, double p) {
+    public void mutateAlleleChance(Enum gene, int n, double p) {
         if (this.rand.nextDouble() < p) {
             mutateAllele(gene, n);
         }
@@ -229,7 +230,7 @@ public abstract class Genome {
 
     public void mutate() {
         double p = HorseConfig.GENETICS.mutationChance.get();
-        for (String gene : listGenes()) {
+        for (Enum gene : listGenes()) {
             int a = getAllele(gene, 0);
             int b = getAllele(gene, 1);
             mutateAlleleChance(gene, 0, p);
@@ -239,31 +240,32 @@ public abstract class Genome {
 
     // Add together allele values for a set of genes named according to
     // name + n, where min <= n < max
-    public int sumGenes(String name, int min, int max) {
+    public int sumGenes(Class enumType, String name, int min, int max) {
         int sum = 0;
         for (int i = min; i < max; ++i) {
-            sum += getAllele(name + i, 0);
-            sum += getAllele(name + i, 1);
+            Enum e = Enum.valueOf(enumType, name + i);
+            sum += getAllele(e, 0);
+            sum += getAllele(e, 1);
         }
         return sum;
     }
 
-    public boolean hasAllele(String name, int allele)
+    public boolean hasAllele(Enum gene, int allele)
     {
-        return getAllele(name, 0) == allele || getAllele(name, 1) == allele;
+        return getAllele(gene, 0) == allele || getAllele(gene, 1) == allele;
     }
 
-    public int getMaxAllele(String name)
+    public int getMaxAllele(Enum gene)
     {
-        return Math.max(getAllele(name, 0), getAllele(name, 1));
+        return Math.max(getAllele(gene, 0), getAllele(gene, 1));
     }
 
-    public boolean isHomozygous(String name, int allele)
+    public boolean isHomozygous(Enum gene, int allele)
     {
-        return  getAllele(name, 0) == allele && getAllele(name, 1) == allele;
+        return  getAllele(gene, 0) == allele && getAllele(gene, 1) == allele;
     }
 
-    public int countAlleles(String gene, int allele) {
+    public int countAlleles(Enum gene, int allele) {
         int count = 0;
         if (getAllele(gene, 0) == allele) {
             count++;
@@ -299,13 +301,13 @@ public abstract class Genome {
     // Chromosomal linkage for storing in a list
     // p is the probability there are an odd number of crossovers between this gene and the next
     public static class Linkage {
-        public String gene;
+        public Enum gene;
         public float p;
-        public Linkage(String gene, float p) {
+        public Linkage(Enum gene, float p) {
             this.gene = gene;
             this.p = p;
         }
-        public Linkage(String gene) {
+        public Linkage(Enum gene) {
             this.gene = gene;
             this.p = 0.5f;
         }

@@ -9,6 +9,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.client.renderer.TextureLayer;
 import sekelsta.horse_colors.client.renderer.TextureLayerGroup;
+import sekelsta.horse_colors.entity.genetics.HorseGenome.Gene;
 import sekelsta.horse_colors.util.Color;
 import sekelsta.horse_colors.util.Pigment;
 
@@ -48,7 +49,7 @@ public class HorseColorCalculator
             return new Pigment(Color.WHITE, 0, 0);
         }
 
-        if (horse.isDoubleCream() || horse.isHomozygous("ivory", HorseAlleles.IVORY)) {
+        if (horse.isDoubleCream() || horse.isHomozygous(Gene.ivory, HorseAlleles.IVORY)) {
             concentration *= 0.05f;
             white += 0.4f;
         }
@@ -58,7 +59,7 @@ public class HorseColorCalculator
         else if (horse.hasCream()) {
             concentration *= 0.6f;
             white += 0.15f;
-            if (horse.hasAllele("cream", HorseAlleles.MATP_MINOR)) {
+            if (horse.hasAllele(Gene.cream, HorseAlleles.MATP_MINOR)) {
                 concentration *= 0.6f;
                 white += 0.04;
             }
@@ -66,39 +67,39 @@ public class HorseColorCalculator
         else if (horse.isPearl()) {
             concentration *= 0.6f;
             white += 0.15f;
-            if (horse.hasAllele("cream", HorseAlleles.MATP_MINOR)) {
+            if (horse.hasAllele(Gene.cream, HorseAlleles.MATP_MINOR)) {
                 concentration *= 0.9f;
                 white += 0.04f;
             }
         }
-        else if (horse.isHomozygous("cream", HorseAlleles.MATP_MINOR)) {
+        else if (horse.isHomozygous(Gene.cream, HorseAlleles.MATP_MINOR)) {
             concentration *= 0.9f;
             white += 0.04f;
         }
 
-        if (horse.isHomozygous("champagne", HorseAlleles.CHAMPAGNE)) {
+        if (horse.isHomozygous(Gene.champagne, HorseAlleles.CHAMPAGNE)) {
             concentration *= 0.15f;
             white += 0.2;
         }
-        else if (horse.hasAllele("champagne", HorseAlleles.CHAMPAGNE)) {
+        else if (horse.hasAllele(Gene.champagne, HorseAlleles.CHAMPAGNE)) {
             concentration *= 0.5f;
             white += 0.1;
         }
 
-        if (horse.hasAllele("cameo", HorseAlleles.CAMEO)) {
+        if (horse.hasAllele(Gene.cameo, HorseAlleles.CAMEO)) {
             concentration *= 0.3f;
             white += 0.25f;
         }
 
-        if (horse.hasAllele("rufous", 1)) {
+        if (horse.hasAllele(Gene.rufous, 1)) {
             concentration *= 1.1f;
         }
 
-        if (horse.isHomozygous("dark_red", 1)) {
+        if (horse.isHomozygous(Gene.dark_red, 1)) {
             concentration *= 1.2f;
         }
 
-        if (horse.isHomozygous("dense", 1)) {
+        if (horse.isHomozygous(Gene.dense, 1)) {
             concentration *= 1.1f;
             white -= 0.03f;
         }
@@ -118,7 +119,7 @@ public class HorseColorCalculator
     private static Color redBodyColor(HorseGenome horse) {
         Color color = redFurPigment(horse).toColor();
         // Treat liver like it leaks some eumelanin into the coat
-        int liv = horse.countAlleles("liver", HorseAlleles.LIVER);
+        int liv = horse.countAlleles(Gene.liver, HorseAlleles.LIVER);
         if (liv > 0) {
             Color dark = blackBodyColor(horse);
             dark.addWhite(0.02f);
@@ -128,7 +129,7 @@ public class HorseColorCalculator
             int r = horse.getRandom("liver_darkness") >>> 1;
             float r1 = (r % 64) / 64f;
             float r2 = (r / 64 % 64) / 64f;
-            if (horse.hasAllele("liver_boost", 1)) {
+            if (horse.hasAllele(Gene.liver_boost, 1)) {
                 r1 = (float)Math.pow(r1, 0.5);
             }
             if (liv == 1) {
@@ -159,7 +160,7 @@ public class HorseColorCalculator
             return new Pigment(Color.WHITE, 0, 0);
         }
 
-        if (horse.isDoubleCream() || horse.isHomozygous("ivory", HorseAlleles.IVORY)) {
+        if (horse.isDoubleCream() || horse.isHomozygous(Gene.ivory, HorseAlleles.IVORY)) {
             concentration *= 0.03f;
         }
         else if (horse.isCreamPearl()) {
@@ -173,25 +174,25 @@ public class HorseColorCalculator
             white += 0.09f;
         }
 
-        if (horse.isHomozygous("champagne", HorseAlleles.CHAMPAGNE)) {
+        if (horse.isHomozygous(Gene.champagne, HorseAlleles.CHAMPAGNE)) {
             concentration *= 0.125f;
             white += 0.15;
         }
-        else if (horse.hasAllele("champagne", HorseAlleles.CHAMPAGNE)) {
+        else if (horse.hasAllele(Gene.champagne, HorseAlleles.CHAMPAGNE)) {
             concentration *= 0.2f;
             white += 0.1;
         }
 
-        if (horse.hasAllele("cameo", HorseAlleles.CAMEO)) {
+        if (horse.hasAllele(Gene.cameo, HorseAlleles.CAMEO)) {
             concentration *= 0.27f;
             white += 0.1f;
         }
 
-        if (horse.hasAllele("silver", HorseAlleles.SILVER)) {
+        if (horse.hasAllele(Gene.silver, HorseAlleles.SILVER)) {
             concentration *= 0.7f;
         }
 
-        if (horse.isHomozygous("dense", 1)) {
+        if (horse.isHomozygous(Gene.dense, 1)) {
             concentration *= 1.1f;
             white -= 0.01f;
         }
@@ -205,7 +206,7 @@ public class HorseColorCalculator
         pigment.white *= 2f;
         pigment.white += 0.02f;
         // Silver dapple has more effect on the fur than on the eyes and skin
-        if (horse.hasAllele("silver", HorseAlleles.SILVER)) {
+        if (horse.hasAllele(Gene.silver, HorseAlleles.SILVER)) {
             pigment.concentration *= 0.75f;
         }
         // This is for pearl's reflective effect
@@ -226,11 +227,11 @@ public class HorseColorCalculator
         TextureLayer layer = new TextureLayer();
         layer.description = "black body";
 
-        if (horse.getMaxAllele("agouti") == HorseAlleles.A_BLACK) {
+        if (horse.getMaxAllele(Gene.agouti) == HorseAlleles.A_BLACK) {
             layer.name = fixPath("base");
         }
-        else if (horse.getMaxAllele("agouti") == HorseAlleles.A_SEAL
-                || horse.getMaxAllele("agouti") == HorseAlleles.A_BROWN) {
+        else if (horse.getMaxAllele(Gene.agouti) == HorseAlleles.A_SEAL
+                || horse.getMaxAllele(Gene.agouti) == HorseAlleles.A_BROWN) {
             layer.name = fixPath("brown");
         }
         else {
@@ -260,8 +261,8 @@ public class HorseColorCalculator
             return;
         }
 
-        if (horse.hasAllele("cream", HorseAlleles.CREAM)
-                || horse.hasAllele("champagne", HorseAlleles.CHAMPAGNE)) {
+        if (horse.hasAllele(Gene.cream, HorseAlleles.CREAM)
+                || horse.hasAllele(Gene.champagne, HorseAlleles.CHAMPAGNE)) {
             TextureLayer palomino_mane = new TextureLayer();
             palomino_mane.description = "palomino mane";
             palomino_mane.name = fixPath("manetail");
@@ -271,8 +272,8 @@ public class HorseColorCalculator
             layers.add(palomino_mane);
         }
 
-        if (!horse.isHomozygous("flaxen1", HorseAlleles.FLAXEN)
-                && !horse.isHomozygous("flaxen2", HorseAlleles.FLAXEN)
+        if (!horse.isHomozygous(Gene.flaxen1, HorseAlleles.FLAXEN)
+                && !horse.isHomozygous(Gene.flaxen2, HorseAlleles.FLAXEN)
                 && !horse.isMushroom()) {
             // No flaxen, nothing to do
             return;
@@ -283,22 +284,22 @@ public class HorseColorCalculator
         flaxen.description = "flaxen";
         flaxen.color = redBodyColor(horse);
         float power = 1f;
-        if (horse.hasAllele("cream", HorseAlleles.CREAM)) {
+        if (horse.hasAllele(Gene.cream, HorseAlleles.CREAM)) {
             power *= PALOMINO_POWER;
         }
-        if (horse.hasAllele("champagne", HorseAlleles.CHAMPAGNE)) {
+        if (horse.hasAllele(Gene.champagne, HorseAlleles.CHAMPAGNE)) {
             power *= 0.2f;
         }
         float white = 0f;
-        if (horse.isHomozygous("flaxen1", HorseAlleles.FLAXEN)) {
+        if (horse.isHomozygous(Gene.flaxen1, HorseAlleles.FLAXEN)) {
             power *= 0.5f;
             white += 0.2f;
         }
-        if (horse.isHomozygous("flaxen2", HorseAlleles.FLAXEN)) {
+        if (horse.isHomozygous(Gene.flaxen2, HorseAlleles.FLAXEN)) {
             power *= 0.8f;
             white += 0.1f;
         }
-        if (horse.hasAllele("flaxen_boost", 1)) {
+        if (horse.hasAllele(Gene.flaxen_boost, 1)) {
             Math.pow(power, 1.5);
             white *= 1.5;
         }
@@ -316,7 +317,7 @@ public class HorseColorCalculator
         if (horse.isChestnut()) {
             return null;
         }
-        if (!horse.hasAllele("silver", HorseAlleles.SILVER)) {
+        if (!horse.hasAllele(Gene.silver, HorseAlleles.SILVER)) {
             return null;
         }
         TextureLayer layer = new TextureLayer();
@@ -341,9 +342,9 @@ public class HorseColorCalculator
 
     private static float blueEyeShade(HorseGenome horse) {
         int shade = 0;
-        shade += 3 * horse.countAlleles("blue_eye_shade1", 1);
-        shade += 2 * (2 - horse.countAlleles("blue_eye_shade2", 1));
-        shade += 1 * (2 - horse.countAlleles("blue_eye_shade3", 1));
+        shade += 3 * horse.countAlleles(Gene.blue_eye_shade1, 1);
+        shade += 2 * (2 - horse.countAlleles(Gene.blue_eye_shade2, 1));
+        shade += 1 * (2 - horse.countAlleles(Gene.blue_eye_shade3, 1));
         return 0.34f + (2.56f / 12f) * shade;
     }
 
@@ -358,7 +359,7 @@ public class HorseColorCalculator
         noseBase.name = fixPath("nose");
         // For champagne horses, make the main nose texture pink and add darker
         // freckles
-        if (horse.hasAllele("champagne", HorseAlleles.CHAMPAGNE)) {
+        if (horse.hasAllele(Gene.champagne, HorseAlleles.CHAMPAGNE)) {
             Pigment frecklePigment = blackBasePigment(horse);
             TextureLayer freckles = new TextureLayer();
             freckles.name = fixPath("freckles");
@@ -399,7 +400,7 @@ public class HorseColorCalculator
         layer.name = fixPath("iris");
         // Blue background color
         Pigment blue = new Pigment(BLUE_EYES, blueEyeShade(horse), 0f);
-        if (horse.isHomozygous("MITF", HorseAlleles.MITF_SW1)) {
+        if (horse.isHomozygous(Gene.MITF, HorseAlleles.MITF_SW1)) {
             // Unpigmented blue eyes
             layer.color = blue.toColor();
         }
@@ -407,19 +408,19 @@ public class HorseColorCalculator
             // Pigmented eyes
             Pigment pigment = blackBasePigment(horse);
             // Champagne lightens the fur more than the eyes
-            if (horse.hasAllele("champagne", HorseAlleles.CHAMPAGNE)) {
+            if (horse.hasAllele(Gene.champagne, HorseAlleles.CHAMPAGNE)) {
                 pigment.concentration *= 1.5f;
             }
             // Pearl too
-            if (horse.hasAllele("cream", HorseAlleles.PEARL)) {
+            if (horse.hasAllele(Gene.cream, HorseAlleles.PEARL)) {
                 pigment.concentration *= 2f;
             }
             // Tiger eye
-            if (horse.isHomozygous("tiger_eye", HorseAlleles.TIGER_EYE)) {
+            if (horse.isHomozygous(Gene.tiger_eye, HorseAlleles.TIGER_EYE)) {
                 pigment.concentration *= 0.25f;
                 // Cream and tiger eye appear to interact in the mare 
                 // Plantera Dorada
-                if (horse.hasAllele("cream", HorseAlleles.CREAM)) {
+                if (horse.hasAllele(Gene.cream, HorseAlleles.CREAM)) {
                     pigment.concentration *= 0.2f;
                 }
                 else {
@@ -428,13 +429,13 @@ public class HorseColorCalculator
                 }
             }
             // Minor shade genes
-            if (horse.isHomozygous("brown_eye_shade1", 1)) {
+            if (horse.isHomozygous(Gene.brown_eye_shade1, 1)) {
                 pigment.concentration *= 0.8f;
             }
-            for (int i = 0; i < horse.countAlleles("brown_eye_shade2", 1); ++i) {
+            for (int i = 0; i < horse.countAlleles(Gene.brown_eye_shade2, 1); ++i) {
                 pigment.concentration *= 0.9f;
             }
-            if (horse.isHomozygous("brown_eye_shade3", 1)) {
+            if (horse.isHomozygous(Gene.brown_eye_shade3, 1)) {
                 pigment.concentration *= 1.1f;
             }
 
@@ -458,7 +459,7 @@ public class HorseColorCalculator
         if (!horse.isDun()) {
             white.color.a *= 0.1f;
         }
-        if (horse.isHomozygous("light_dun", 1)) {
+        if (horse.isHomozygous(Gene.light_dun, 1)) {
             white.color.a *= 2f;
         }
         white.type = TextureLayer.Type.SHADE;
@@ -525,23 +526,23 @@ public class HorseColorCalculator
         TextureLayer light_belly = new TextureLayer();
         int spread = 1;
         int color = 0;
-        if (horse.hasAllele("mealy1", HorseAlleles.MEALY)) {
+        if (horse.hasAllele(Gene.mealy1, HorseAlleles.MEALY)) {
             spread += 2;
         }
-        if (horse.hasAllele("mealy2", HorseAlleles.MEALY)) {
+        if (horse.hasAllele(Gene.mealy2, HorseAlleles.MEALY)) {
             color += 1;
         }
-        if (horse.isHomozygous("flaxen2", 0)) {
+        if (horse.isHomozygous(Gene.flaxen2, 0)) {
             spread += 1;
         }
         
         String prefix = "";
         TextureLayer other = null;
-        if (horse.isHomozygous("light_legs", 1)) {
+        if (horse.isHomozygous(Gene.light_legs, 1)) {
             // Use version with darker legs
             prefix = "l";
         }
-        else if (horse.hasAllele("less_light_legs", 0)) {
+        else if (horse.hasAllele(Gene.less_light_legs, 0)) {
             // Set light_belly texture to leave the legs dark and be one 
             // shade darker as a whole, and add a thin layer with light legs
             prefix = "l";
@@ -571,7 +572,7 @@ public class HorseColorCalculator
             TextureLayer stripe = new TextureLayer();
             stripe.name = fixPath("dun/dorsal");
             points.add(stripe);
-            if (horse.hasAllele("cross", 1)) {
+            if (horse.hasAllele(Gene.cross, 1)) {
                 TextureLayer cross = new TextureLayer();
                 cross.name = fixPath("dun/cross");
                 points.add(cross);
@@ -582,7 +583,7 @@ public class HorseColorCalculator
         if (horse.hasStripe() || !horse.isChestnut()) {
             TextureLayer legs = new TextureLayer();
             String name = "bay";
-            if (horse.hasAllele("reduced_points", 1)) {
+            if (horse.hasAllele(Gene.reduced_points, 1)) {
                 name = "wild_bay";
             }
             if (horse.species == Species.DONKEY) {
@@ -604,7 +605,7 @@ public class HorseColorCalculator
         else {
             Pigment pigment = blackFurPigment(horse);
             // Adjust champagnes to have darker points
-            if (horse.hasAllele("champagne", HorseAlleles.CHAMPAGNE)) {
+            if (horse.hasAllele(Gene.champagne, HorseAlleles.CHAMPAGNE)) {
                 pigment.concentration *= 1.2f;
                 pigment.white *= 0.5;
             }
@@ -712,7 +713,7 @@ public class HorseColorCalculator
         textureLayers.add(HorseColorCalculator.getHooves(horse));
 
         // Add roan
-        if (horse.hasAllele("KIT", HorseAlleles.KIT_ROAN)) {
+        if (horse.hasAllele(Gene.KIT, HorseAlleles.KIT_ROAN)) {
             TextureLayer roan = new TextureLayer();
             roan.name = HorseColorCalculator.fixPath("roan/roan");
             int r = horse.getRandom("roan_density") >>> 1;
@@ -722,7 +723,7 @@ public class HorseColorCalculator
         }
 
         // Add rabicano
-        if (horse.hasAllele("rabicano", 1)) {
+        if (horse.hasAllele(Gene.rabicano, 1)) {
             TextureLayer rabicano = new TextureLayer();
             rabicano.name = fixPath("roan/rabicano");
             textureLayers.add(rabicano);
