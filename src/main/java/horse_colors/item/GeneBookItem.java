@@ -23,6 +23,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.client.GeneBookScreen;
 import sekelsta.horse_colors.entity.*;
 import sekelsta.horse_colors.entity.genetics.Genome;
@@ -105,12 +106,17 @@ public class GeneBookItem extends Item {
             }
             return ActionResult.success(itemstack);
         }
-        System.out.println("Gene book has invalid NBT");
+        HorseColors.logger.error("Gene book has invalid NBT");
         return ActionResult.fail(itemstack);
     }
 
     @Override
     public ActionResultType interactLivingEntity(ItemStack stack, PlayerEntity player, LivingEntity target, Hand hand) {
+        if (stack.getTag() == null) {
+            // Most likely someone summoned this item by command without data
+            HorseColors.logger.error("Gene book has no NBT data");
+            return ActionResultType.FAIL;
+        }
         // Check that this itemstack has a UUID
         if (!stack.getTag().hasUUID("EntityUUID")) {
             return ActionResultType.PASS;
