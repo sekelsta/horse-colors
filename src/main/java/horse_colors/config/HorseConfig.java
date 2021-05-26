@@ -187,7 +187,7 @@ public class HorseConfig
                     .comment("The chance for each allele to mutate. The recommended range",
                              "is between 0.0001 and 0.01.",
                               "To disable mutations, set this value to 0.")
-                    .defineInRange("mutationChance", 0.0005, 0.0, 1.0);
+                    .defineInRange("mutationChance", 0.0001, 0.0, 1.0);
 
             bookShowsGenes = builder
                     .comment("Enable or disable genetic testing.")
