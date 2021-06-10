@@ -27,8 +27,7 @@ import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.client.GeneBookScreen;
 import sekelsta.horse_colors.entity.*;
 import sekelsta.horse_colors.entity.genetics.Genome;
-import sekelsta.horse_colors.entity.genetics.HorseGenome;
-import sekelsta.horse_colors.entity.genetics.IGeneticEntity;
+import sekelsta.horse_colors.entity.genetics.EquineGenome;
 import sekelsta.horse_colors.entity.genetics.Species;
 
 public class GeneBookItem extends Item {
@@ -145,7 +144,7 @@ public class GeneBookItem extends Item {
     @OnlyIn(Dist.CLIENT)
     public void openGeneBook(CompoundNBT nbt) {
         Minecraft mc = Minecraft.getInstance();
-        Genome genome = new HorseGenome(getSpecies(nbt));
+        Genome genome = new EquineGenome(getSpecies(nbt));
         genome.genesFromString(nbt.getString("genes"));
         mc.setScreen(new GeneBookScreen(genome));
     }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import sekelsta.horse_colors.breed.Breed;
+import sekelsta.horse_colors.entity.genetics.EquineGenome.Gene;
 
 public class Friesian {
     public static Breed breed = new Breed(MongolianHorse.breed);
@@ -18,61 +19,61 @@ public class Friesian {
         // 13-18 August, 2006 pp.08-03
         breed.name = "friesian";
         breed.population = 80000;
-        Map<String, List<Float>> GENES = breed.genes;
+        Map<Gene, List<Float>> GENES = breed.genes;
 
         // Friesians can, rarely, have chestnut foals
-        GENES.put("extension", ImmutableList.of(
+        GENES.put(Gene.extension, ImmutableList.of(
             0.01f,  // Red
             1f      // Black
         ));
         // But otherwise they are black
-        GENES.put("agouti", ImmutableList.of(
+        GENES.put(Gene.agouti, ImmutableList.of(
             1f      // Black
         ));
-        GENES.put("gray", ImmutableList.of(
+        GENES.put(Gene.gray, ImmutableList.of(
             1f      // Non-gray
         ));
-        GENES.put("dun", ImmutableList.of(
+        GENES.put(Gene.dun, ImmutableList.of(
             1f      // Non-dun 2
         ));
-        GENES.put("silver", ImmutableList.of(
+        GENES.put(Gene.silver, ImmutableList.of(
             1f      // Non-silver
         ));
-        GENES.put("cream", ImmutableList.of(
+        GENES.put(Gene.cream, ImmutableList.of(
             0.9f,   // Non-cream
             0f,     // Snowdrop
             0f,     // Pearl
             0f,     // Cream
             1f      // MAPT minor
         ));
-        GENES.put("champagne", ImmutableList.of(
+        GENES.put(Gene.champagne, ImmutableList.of(
             1f     // Non-champagne
         ));
         // White markings rare
-        GENES.put("KIT", ImmutableList.of(
+        GENES.put(Gene.KIT, ImmutableList.of(
             0.9f,   // Wildtype
             0.99f,  // White boost
             1f      // Markings1
         ));
-        GENES.put("frame", ImmutableList.of(
+        GENES.put(Gene.frame, ImmutableList.of(
             0f      // Non-frame
         ));
-        GENES.put("MITF", ImmutableList.of(
+        GENES.put(Gene.MITF, ImmutableList.of(
             0f,     // SW1
             0f,     // SW3
             0f,     // SW5
             1.0f    // Wildtype
         ));
-        GENES.put("PAX3", ImmutableList.of(
+        GENES.put(Gene.PAX3, ImmutableList.of(
             1f      // Wildtype
         ));
-        GENES.put("leopard", ImmutableList.of(
+        GENES.put(Gene.leopard, ImmutableList.of(
             1f      // Non-leopard
         ));
 
         // Friesians are pretty big. They probably don't have the small allele
         // at HMGA2.
-        GENES.put("HMGA2", ImmutableList.of(
+        GENES.put(Gene.HMGA2, ImmutableList.of(
             1f      // Normal size
         ));
 

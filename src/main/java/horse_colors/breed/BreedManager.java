@@ -5,9 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import net.minecraft.client.resources.JsonReloadListener;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
@@ -15,11 +13,12 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.AddReloadListenerEvent;
 
 import sekelsta.horse_colors.HorseColors;
+import sekelsta.horse_colors.entity.genetics.EquineGenome.Gene;
 
 public class BreedManager extends JsonReloadListener {
     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
 
-    private static Map<ResourceLocation, Breed> breeds;
+    private static Map<ResourceLocation, Breed<Gene>> breeds;
 
     private static BreedManager instance = new BreedManager();
 
@@ -28,7 +27,7 @@ public class BreedManager extends JsonReloadListener {
     }
 
     protected void apply(Map<ResourceLocation, JsonElement> mapIn, IResourceManager resourceManagerIn, IProfiler profilerIn) {
-        breeds = new HashMap();
+        breeds = new HashMap<>();
         for(ResourceLocation key : mapIn.keySet()) {
             // Forge uses names starting with _ for metadata
             if (key.getPath().startsWith("_")) {
@@ -37,7 +36,7 @@ public class BreedManager extends JsonReloadListener {
             try {
                 // Possible IllegalStateException will be caught
                 JsonObject json = mapIn.get(key).getAsJsonObject();
-                Breed b = deserializeBreed(json);
+                Breed<Gene> b = deserializeBreed(json);
                 if (b != null) {
                     breeds.put(key, b);
                 }
@@ -57,10 +56,10 @@ public class BreedManager extends JsonReloadListener {
         event.addListener(instance);
     }
 
-    private static Breed deserializeBreed(JsonObject json) 
+    private static Breed<Gene> deserializeBreed(JsonObject json) 
         throws ClassCastException, IllegalStateException
     {
-        Breed breed = new Breed();
+        Breed<Gene> breed = new Breed<>(Gene.class);
         if (json.has("genes")) {
             JsonObject genesJson = (JsonObject)json.get("genes");
             for (Map.Entry<String, JsonElement> entry : genesJson.entrySet()) {
@@ -69,13 +68,13 @@ public class BreedManager extends JsonReloadListener {
                 for (int i = 0; i < jarray.size(); ++i) {
                     frequencies.add(jarray.get(i).getAsFloat());
                 }
-                breed.genes.put(entry.getKey(), frequencies);
+                breed.genes.put(Gene.valueOf(entry.getKey()), frequencies);
             }
         }
         return breed;
     }
 
-    public static Breed getBreed(ResourceLocation name) {
+    public static Breed<Gene> getBreed(ResourceLocation name) {
         return breeds.get(name);
     }
 }

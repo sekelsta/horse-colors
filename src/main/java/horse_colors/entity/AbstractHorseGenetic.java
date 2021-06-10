@@ -69,14 +69,14 @@ import sekelsta.horse_colors.breed.*;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.ai.*;
 import sekelsta.horse_colors.entity.genetics.*;
-import sekelsta.horse_colors.entity.genetics.HorseGenome.Gene;
+import sekelsta.horse_colors.entity.genetics.EquineGenome.Gene;
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.item.ModItems;
 import sekelsta.horse_colors.item.GeneBookItem;
 import sekelsta.horse_colors.util.Util;
 
 public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity implements IGeneticEntity {
-    protected HorseGenome genes = new HorseGenome(this.getSpecies(), this);
+    protected EquineGenome genes = new EquineGenome(this.getSpecies(), this);
     protected static final DataParameter<String> GENES = EntityDataManager.<String>defineId(AbstractHorseGenetic.class, DataSerializers.STRING);
 
     protected static final DataParameter<Integer> HORSE_RANDOM = EntityDataManager.<Integer>defineId(AbstractHorseGenetic.class, DataSerializers.INT);
@@ -110,7 +110,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.getPersistentData().putInt("HorseGeneticsVersion", HORSE_GENETICS_VERSION);
     }
 
-    public HorseGenome getGenome() {
+    public EquineGenome getGenome() {
         return genes;
     }
 
@@ -264,7 +264,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                             break;
                     }
                     if (child != null) {
-                        HorseGenome genome = new HorseGenome(child.getSpecies(), child);
+                        EquineGenome genome = new EquineGenome(child.getSpecies(), child);
                         genome.genesFromString(childNBT.getString("genes"));
                         this.unbornChildren.add(child);
                     }
@@ -524,7 +524,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         // The player's hitbox is 0.6 * 0.6 * 1.8, so this will almost exactly allow
         // them to ride any horse heavier than the miniature cutoff
         return riderweight + weight < 0.648001 
-            * this.getGenome().getGeneticWeightKg() / HorseGenome.MINIATURE_CUTOFF;
+            * this.getGenome().getGeneticWeightKg() / EquineGenome.MINIATURE_CUTOFF;
     }
 
     public Inventory getHorseChest() {
@@ -642,7 +642,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     {
         if (HorseConfig.GENETICS.useGeneticStats.get())
         {
-            HorseGenome genes = this.getGenome();
+            EquineGenome genes = this.getGenome();
             float maxHealth = this.getGenome().getHealth();
             float athletics = genes.sumGenes(Gene.class, "athletics", 0, 4) / 2f
                                 + genes.sumGenes(Gene.class, "athletics", 4, 8) / 2f;

@@ -14,7 +14,7 @@ import sekelsta.horse_colors.entity.*;
 import sekelsta.horse_colors.util.RandomSupplier;
 import sekelsta.horse_colors.util.Util;
 
-public class HorseGenome extends Genome {
+public class EquineGenome extends Genome {
     // The improved readability from snake case is worth breaking the enum
     // convention of all caps for genes
     // This also makes the difference between the gene KIT and the word kit more
@@ -185,13 +185,13 @@ public class HorseGenome extends Genome {
     // For converting to and from the save format used in horse_colors-1.4.x and earlier
     private static final ImmutableList<String> chromosomes = ImmutableList.of("0", "1", "2", "3", "speed", "jump", "health", "mhc1", "mhc2", "immune", "random", "4");
 
-    public HorseGenome(Species species, IGeneticEntity entityIn) {
+    public EquineGenome(Species species, IGeneticEntity entityIn) {
         super(species, entityIn, new RandomSupplier(ImmutableList.of("leg_white",
                 "face_white", "star_choice", "roan_density", "liver_darkness", 
                 "shade", "size")));
     }
 
-    public HorseGenome(Species species) {
+    public EquineGenome(Species species) {
         this(species, new FakeGeneticEntity());
     }
 
@@ -789,12 +789,12 @@ public class HorseGenome extends Genome {
 
     protected void randomizeGenes(Breed breed) {
         for (Enum gene : listGenes()) {
-            if (!breed.contains(gene.toString())) {
+            if (!breed.contains(gene)) {
                 HorseColors.logger.debug(gene.toString() + " is not in the given map");
             }
             // If it doesn't contain the gene, it will return a sensible
             // default value
-            List<Float> distribution = breed.get(gene.toString());
+            List<Float> distribution = breed.get(gene);
             int allele0 = chooseRandomAllele(distribution);
             int allele1 = chooseRandomAllele(distribution);
             setAllele(gene, 0, allele0);

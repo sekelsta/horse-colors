@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import sekelsta.horse_colors.breed.Breed;
+import sekelsta.horse_colors.entity.genetics.EquineGenome.Gene;
 
 public class Appaloosa {
     public static Breed breed = new Breed(QuarterHorse.breed);
@@ -24,30 +25,30 @@ public class Appaloosa {
         // number.
         breed.population = 300000;
 
-        Map<String, List<Float>> GENES = breed.genes;
-        GENES.put("leopard", ImmutableList.of(
+        Map<Gene, List<Float>> GENES = breed.genes;
+        GENES.put(Gene.leopard, ImmutableList.of(
             0.5f,     // Non-leopard
             1f        // Leopard
         ));
-        GENES.put("PATN1", ImmutableList.of(
+        GENES.put(Gene.PATN1, ImmutableList.of(
             0.5f,  // Non-PATN
             1f          // PATN
         ));
-        GENES.put("PATN2", ImmutableList.of(
+        GENES.put(Gene.PATN2, ImmutableList.of(
             0.5f,  // Non-PATN
             1f          // PATN
         ));
-        GENES.put("PATN3", ImmutableList.of(
+        GENES.put(Gene.PATN3, ImmutableList.of(
             0.5f,  // Non-PATN
             1f          // PATN
         ));
         // No numbers for this but it does seem like black and bay are more
         // common and chestnut less common in appaloosas than in Quarter horses
-        GENES.put("extension", ImmutableList.of(
+        GENES.put(Gene.extension, ImmutableList.of(
             0.7f,   // Red
             1f      // Black
         ));
-        GENES.put("agouti", ImmutableList.of(
+        GENES.put(Gene.agouti, ImmutableList.of(
             0.5f,      // Black
             0.7f,       // Seal
             0.5f,       // Seal unused
@@ -55,13 +56,13 @@ public class Appaloosa {
             1f          // Bay
         ));
         // Gray is discouraged
-        GENES.put("gray", ImmutableList.of(
+        GENES.put(Gene.gray, ImmutableList.of(
             0.996f,     // Non-gray
             1f          // Gray
         ));
 
         // Source: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4608717/
-        GENES.put("HMGA2", ImmutableList.of(
+        GENES.put(Gene.HMGA2, ImmutableList.of(
             1f,     // Normal size
             0f      // Small
         ));

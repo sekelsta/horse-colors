@@ -4,11 +4,11 @@ import java.util.*;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.client.renderer.TextureLayer;
 import sekelsta.horse_colors.client.renderer.TextureLayerGroup;
-import sekelsta.horse_colors.entity.genetics.HorseGenome.Gene;
+import sekelsta.horse_colors.entity.genetics.EquineGenome.Gene;
 
 public class HorsePatternCalculator {
 
-    public static boolean hasPigmentInEars(HorseGenome horse) {
+    public static boolean hasPigmentInEars(EquineGenome horse) {
         // Use the old value until the new system is done.
         return getPreviousFaceWhiteLevel(horse) <= 18;/*
         WhiteBoost whiteBoost = new WhiteBoost(horse);
@@ -20,7 +20,7 @@ public class HorsePatternCalculator {
     }
 
     // This will be used only until the new face markings are done
-    public static int getPreviousFaceWhiteLevel(HorseGenome horse) {
+    public static int getPreviousFaceWhiteLevel(EquineGenome horse) {
         int white = -2;
         if (horse.hasAllele(Gene.white_suppression, 1))
         {
@@ -54,7 +54,7 @@ public class HorsePatternCalculator {
     }
 
     // This will be used only until the new face markings are done
-    public static TextureLayer getPreviousFaceMarking(HorseGenome horse)
+    public static TextureLayer getPreviousFaceMarking(EquineGenome horse)
     {
         int white = getPreviousFaceWhiteLevel(horse);
         // Turn a signed integer into unsigned, also drop a few bits 
@@ -93,7 +93,7 @@ public class HorsePatternCalculator {
         return layer;
     }
 
-    public static void addFaceMarkings(HorseGenome horse, List<TextureLayer> textureLayers)
+    public static void addFaceMarkings(EquineGenome horse, List<TextureLayer> textureLayers)
     {
         TextureLayer face = getPreviousFaceMarking(horse);
         if (face != null && face.name != null) {
@@ -209,7 +209,7 @@ public class HorsePatternCalculator {
         return layer;*/
     }
 
-    public static void addLegMarkings(HorseGenome horse, List<TextureLayer> textureLayers)
+    public static void addLegMarkings(EquineGenome horse, List<TextureLayer> textureLayers)
     {
         WhiteBoost whiteBoost = new WhiteBoost(horse);
 
@@ -253,7 +253,7 @@ public class HorsePatternCalculator {
         }
     }
 
-    public static void addPinto(HorseGenome horse, List<TextureLayer> textureLayers)
+    public static void addPinto(EquineGenome horse, List<TextureLayer> textureLayers)
     {
         TextureLayer layer = new TextureLayer();
         if (horse.isWhite())
@@ -317,7 +317,7 @@ public class HorsePatternCalculator {
         }
     }
 
-    public static void addLeopard(HorseGenome horse, List<TextureLayer> textureLayers)
+    public static void addLeopard(EquineGenome horse, List<TextureLayer> textureLayers)
     {
         if (!horse.hasAllele(Gene.leopard, HorseAlleles.LEOPARD)) {
             return;
@@ -395,7 +395,7 @@ public class HorsePatternCalculator {
 
         // Any gene with more than 4 alleles that affect white levels should
         // usually be incomplete dominant so it is easier to calculate
-        public WhiteBoost(HorseGenome horse) {
+        public WhiteBoost(EquineGenome horse) {
             foreleg = 2 * horse.countAlleles(Gene.white_forelegs, 1);
             hindleg = 2 * horse.countAlleles(Gene.white_hindlegs, 1);
             forehead += horse.countAlleles(Gene.white_star, 1);
@@ -412,7 +412,7 @@ public class HorsePatternCalculator {
             face = getOldFaceWhiteLevel(horse);
         }
 
-        private void setGeneralWhite(HorseGenome horse) {
+        private void setGeneralWhite(EquineGenome horse) {
             if (horse.hasAllele(Gene.white_suppression, 1))
             {
                 general -= 4;
@@ -437,7 +437,7 @@ public class HorsePatternCalculator {
             }
         }
 
-        public static int getOldFaceWhiteLevel(HorseGenome horse) {
+        public static int getOldFaceWhiteLevel(EquineGenome horse) {
             int white = -2;
 
             white += 6 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW1);
@@ -456,7 +456,7 @@ public class HorsePatternCalculator {
             return white;
         }
 
-        private void setOldLegWhite(HorseGenome horse) {
+        private void setOldLegWhite(EquineGenome horse) {
             int white = -3;
 
             white += 1 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS1);
@@ -469,7 +469,7 @@ public class HorsePatternCalculator {
             this.leg = white;
         }
 
-        public void setBlanketWhite(HorseGenome horse) {
+        public void setBlanketWhite(EquineGenome horse) {
             if (horse.hasAllele(Gene.leopard_suppression, 1)) {
                 blanket -= 1 + horse.countAlleles(Gene.PATN1, HorseAlleles.PATN);
             }

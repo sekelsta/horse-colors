@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import sekelsta.horse_colors.breed.Breed;
+import sekelsta.horse_colors.entity.genetics.EquineGenome.Gene;
 
 // The hucul is a very old breed, thought to have arisen from crosses between
 // tarpans and Mongolian horses.
@@ -26,7 +27,7 @@ import sekelsta.horse_colors.breed.Breed;
 // In images some Hucul horses have a soft shoulder stripe or blurred
 // zebra-like markings.
 public class Hucul {
-    public static Breed breed = new Breed();
+    public static Breed breed = new Breed(Gene.class);
 
     static {
         breed.parent = MongolianHorse.breed;
@@ -34,26 +35,26 @@ public class Hucul {
         // and Turkish horses
         breed.name = "hucul";
         breed.population = 4000;
-        Map<String, List<Float>> GENES = breed.genes;
+        Map<Gene, List<Float>> GENES = breed.genes;
 
-        GENES.put("extension", ImmutableList.of(
+        GENES.put(Gene.extension, ImmutableList.of(
             0.115f, // Red
             1.0f    // Black
         ));
-        GENES.put("agouti", ImmutableList.of(
+        GENES.put(Gene.agouti, ImmutableList.of(
             0.521f,       // Black
             0.6f,       // Seal
             0.6f,       // Seal unused
             0.6f,       // Bay unused
             1f          // Bay
         ));
-        GENES.put("dun", ImmutableList.of(
+        GENES.put(Gene.dun, ImmutableList.of(
             0.7f,       // Non-dun 2
             0.878f,     // Non-dun 1
             1f,         // Dun
             0f          // Dun unused
         ));
-        GENES.put("KIT", ImmutableList.of(
+        GENES.put(Gene.KIT, ImmutableList.of(
             0.929f, // Wildtype
             0f,     // White boost
             0f,     // Markings1
@@ -72,32 +73,32 @@ public class Hucul {
             1.0f    // Dominant white
         ));
         // Included for historic reasons
-        GENES.put("gray", ImmutableList.of(
+        GENES.put(Gene.gray, ImmutableList.of(
             0.997f,     // Non-gray
             1f          // Gray
         ));
         // Cream was bred out
-        GENES.put("cream", ImmutableList.of(
+        GENES.put(Gene.cream, ImmutableList.of(
             1f,     // Non-cream
             1f,     // Snowdrop
             1f,     // Pearl
             1f      // Cream
         ));
         // Presumably leopard was bred out
-        GENES.put("leopard", ImmutableList.of(
+        GENES.put(Gene.leopard, ImmutableList.of(
             1f,     // Non-leopard
             1f      // Leopard
         ));
         // Remove mealy
-        GENES.put("light_belly", ImmutableList.of(
+        GENES.put(Gene.light_belly, ImmutableList.of(
             1f,     // Non-mealy
             1f      // Mealy
         ));
-        GENES.put("mealy1", ImmutableList.of(
+        GENES.put(Gene.mealy1, ImmutableList.of(
             0.75f,  // Non-mealy
             1f      // Mealy
         ));
-        GENES.put("mealy2", ImmutableList.of(
+        GENES.put(Gene.mealy2, ImmutableList.of(
             0.75f,  // Non-mealy
             1f      // Mealy
         ));

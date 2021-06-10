@@ -5,9 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import sekelsta.horse_colors.breed.Breed;
+import sekelsta.horse_colors.entity.genetics.EquineGenome.Gene;
 
 public class QuarterHorse {
-    public static Breed breed = new Breed(Breed.load("quarter_horse_size"));
+    public static Breed<Gene> breed = new Breed<>(Breed.load("quarter_horse_size"));
 
     static {
         breed.name = "quarter_horse";
@@ -16,11 +17,11 @@ public class QuarterHorse {
         breed.population = 2640000;
         breed.parent = MongolianHorse.breed;
 
-        Map<String, List<Float>> GENES = breed.genes;
+        Map<Gene, List<Float>> GENES = breed.genes;
 
         // Source: https://onlinelibrary.wiley.com/doi/full/10.1111/jvim.15403#jvim15403-tbl-0002
         // Also: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4608717/
-        GENES.put("HMGA2", ImmutableList.of(
+        GENES.put(Gene.HMGA2, ImmutableList.of(
             1f,     // Wild type (G)
             1f      // Smaller ponies (A)
         ));
@@ -30,13 +31,13 @@ public class QuarterHorse {
         // https://web.archive.org/web/20200131035535/http://grullablue.com/colors/qhcolors.htm
         // From that, 7.06% of quarter horses are registered as gray which
         // works out to a gray allele frequency of 0.036
-        GENES.put("gray", ImmutableList.of(
+        GENES.put(Gene.gray, ImmutableList.of(
             0.964f,     // Non-gray
             1f          // Gray
         ));
         // All chestnut/sorrel based colors divided bu all non-gray makes 0.55%,
         // for an e allele frequency of 0.74
-        GENES.put("extension", ImmutableList.of(
+        GENES.put(Gene.extension, ImmutableList.of(
             0.74f,  // Red
             1f      // Black
         ));
@@ -46,7 +47,7 @@ public class QuarterHorse {
         // Note smoky black is not a registration option
         // Arbitrarily picking 1/200 frequency for pearl
         // No snowdrop
-        GENES.put("cream", ImmutableList.of(
+        GENES.put(Gene.cream, ImmutableList.of(
             0.817f, // Non-cream
             0.817f,     // Snowdrop
             0.822f,     // Pearl
@@ -55,7 +56,7 @@ public class QuarterHorse {
         ));
         // Dun allele frequency works out to about 0.042
         // Taking a guess on nd1 frequency
-        GENES.put("dun", ImmutableList.of(
+        GENES.put(Gene.dun, ImmutableList.of(
             0.94f,  // Non-dun 2
             0.958f, // Non-dun 1
             1f,     // Dun
@@ -64,7 +65,7 @@ public class QuarterHorse {
         // Roan frequency works out to about 0.05.
         // Not covered in the registration, there is still a very small chance
         // of sabino 1 (as well as frame overo and leopard complex)
-        GENES.put("KIT", ImmutableList.of(
+        GENES.put(Gene.KIT, ImmutableList.of(
             0.65f,  // Wildtype
             0.70f,  // White boost
             0.74f,  // Markings1
@@ -89,7 +90,7 @@ public class QuarterHorse {
         // 70% bay works out to a frequency of just under 0.48, but I'll
         // assume brown contains both seal brown and dark bay, and leave it
         // at 0.5.
-        GENES.put("agouti", ImmutableList.of(
+        GENES.put(Gene.agouti, ImmutableList.of(
             0.36f,      // Black
             0.5f,       // Seal
             0.5f,       // Seal unused
@@ -97,19 +98,19 @@ public class QuarterHorse {
             1f          // Bay
         ));
         // Occasionally quarter horses turn out to have frame overo
-        GENES.put("frame", ImmutableList.of(
+        GENES.put(Gene.frame, ImmutableList.of(
             0.996f, // Non-frame
             1f      // Frame
         ));
         // Occasionally quarter horses turn out to have leopard complex
-        GENES.put("leopard", ImmutableList.of(
+        GENES.put(Gene.leopard, ImmutableList.of(
             0.996f,    // Non-leopard
             1f          // Leopard
         ));
         // SW1 can be found in quarter horses
         // Source: https://www.animalgenetics.us/Equine/Coat_Color/Splash.asp
         // (Also crop-outs)
-        GENES.put("MITF", ImmutableList.of(
+        GENES.put(Gene.MITF, ImmutableList.of(
             0.01f,  // SW1
             0.01f,  // SW3
             0.0f,   // SW5
@@ -117,18 +118,18 @@ public class QuarterHorse {
         ));
         // Silver is rare
         // See https://vgl.ucdavis.edu/test/silver
-        GENES.put("silver", ImmutableList.of(
+        GENES.put(Gene.silver, ImmutableList.of(
             0.995f, // Non-silver
             1.0f    // Silver
         ));
         // Don't know if mealy is just rare or doesn't exist
-        GENES.put("light_belly", ImmutableList.of(
+        GENES.put(Gene.light_belly, ImmutableList.of(
             1f,     // Non-mealy
             1f      // Mealy
         ));
 
         // Rabicano exists but is rare
-        GENES.put("rabicano", ImmutableList.of(
+        GENES.put(Gene.rabicano, ImmutableList.of(
             0.999f, // No rabicano
             1f      // Rabicano
         ));

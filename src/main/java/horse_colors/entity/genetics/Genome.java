@@ -201,10 +201,10 @@ public abstract class Genome {
     // It may be the same as before.
     public void mutateAllele(Enum gene, int n) {
         Breed breed = entity.getDefaultBreed();
-        if (!breed.contains(gene.toString())) {
+        if (!breed.contains(gene)) {
             return;
         }
-        List<Float> frequencies = breed.get(gene.toString());
+        List<Float> frequencies = breed.get(gene);
         List<Integer> allowedAlleles = new ArrayList<>();
         float val = 0;
         for (int i = 0; i < frequencies.size(); ++i) {

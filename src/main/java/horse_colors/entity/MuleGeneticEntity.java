@@ -26,7 +26,7 @@ import sekelsta.horse_colors.breed.Breed;
 import sekelsta.horse_colors.breed.donkey.*;
 import sekelsta.horse_colors.breed.horse.*;
 import sekelsta.horse_colors.config.HorseConfig;
-import sekelsta.horse_colors.entity.genetics.HorseGenome;
+import sekelsta.horse_colors.entity.genetics.EquineGenome;
 import sekelsta.horse_colors.entity.genetics.Species;
 import sekelsta.horse_colors.HorseColors;
 
@@ -139,9 +139,9 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
     public ILivingEntityData finalizeSpawn(IServerWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag)
     {
         spawnDataIn = super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
-        HorseGenome horse = new HorseGenome(Species.HORSE);
+        EquineGenome horse = new EquineGenome(Species.HORSE);
         horse.randomize(DefaultHorse.breed);
-        HorseGenome donkey = new HorseGenome(Species.DONKEY);
+        EquineGenome donkey = new EquineGenome(Species.DONKEY);
         donkey.randomize(DefaultDonkey.breed);
         this.genes.inheritGenes(horse, donkey);
         this.useGeneticAttributes();
