@@ -230,8 +230,9 @@ public class HorseColorCalculator
         if (horse.getMaxAllele(Gene.agouti) == HorseAlleles.A_BLACK) {
             layer.name = fixPath("base");
         }
-        else if (horse.getMaxAllele(Gene.agouti) == HorseAlleles.A_SEAL
-                || horse.getMaxAllele(Gene.agouti) == HorseAlleles.A_BROWN) {
+        else if ((horse.getMaxAllele(Gene.agouti) == HorseAlleles.A_SEAL
+                || horse.getMaxAllele(Gene.agouti) == HorseAlleles.A_BROWN)
+                && !horse.hasAllele(Gene.reduced_points, 1)) {
             layer.name = fixPath("brown");
         }
         else {
