@@ -1,1 +1,1 @@
-Everything in src/main/resources/assets is licensed under CC-BY 4.0. Everything else is licensed unde GPL 3. See COPYING.
+Everything in src/main/resources/assets is licensed under CC-BY 4.0 or later. Everything else is licensed under LGPL 3 or later.
