@@ -18,9 +18,7 @@ import sekelsta.horse_colors.breed.BreedManager;
 import sekelsta.horse_colors.client.HorseGui;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.ModEntities;
-import sekelsta.horse_colors.client.ClientEventHandler;
 import sekelsta.horse_colors.item.ModItems;
-import sekelsta.horse_colors.network.HorseColorsPacketHandler;
 import sekelsta.horse_colors.world.HorseReplacer;
 import sekelsta.horse_colors.world.Spawns;
 
@@ -43,14 +41,12 @@ public class HorseColors
         MinecraftForge.EVENT_BUS.register(HorseReplacer.class);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, HorseConfig.spec);
-        HorseColorsPacketHandler.registerPackets();
         MinecraftForge.EVENT_BUS.addListener(BreedManager::addReloadListener);
     }
 
     private void clientSetup(final FMLClientSetupEvent event)
     {
         MinecraftForge.EVENT_BUS.addListener(HorseGui::replaceGui);
-        MinecraftForge.EVENT_BUS.addListener(ClientEventHandler::handleInteract);
         ModEntities.registerRenders();
     }
 }

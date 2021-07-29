@@ -485,46 +485,18 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.setAge(isBaby ? this.getBirthAge() : 0);
     }
 
-    private double getRiderWeight(Entity rider) {
-        double weight = rider.getBoundingBox().getXsize()
-                            * rider.getBoundingBox().getYsize()
-                            * rider.getBoundingBox().getZsize();
-        if (rider instanceof AnimalEntity) {
-            weight *= 2;
-        }
-        // Adjust to avoid baby villagers being interpreted as weighing 19 pounds
-        if (rider instanceof AgeableEntity
-                && ((AgeableEntity)rider).isBaby()) {
-            weight *= 2;
-        }
-        return weight;
-    }
-
     @Override
     protected boolean canAddPassenger(Entity passenger) {
-        // Riders must be peaceful
-        if (!passenger.getType().getCategory().isFriendly()) {
-            return false;
-        }
-        // Ignore the size stuff if its disabled
-        if (!HorseConfig.COMMON.enableSizes.get()) {
-            return super.canAddPassenger(passenger);
-        }
-        // Max two riders
-        if (this.getPassengers().size() >= 2) {
-            return false;
-        }
-        // Calculate size of current passengers
-        double riderweight = 0;
-        for (Entity rider : this.getPassengers()) {
-            riderweight += getRiderWeight(rider);
-        }
-        // Calculate size of mounting entity
-        double weight = getRiderWeight(passenger);
-        // The player's hitbox is 0.6 * 0.6 * 1.8, so this will almost exactly allow
-        // them to ride any horse heavier than the miniature cutoff
-        return riderweight + weight < 0.648001 
-            * this.getGenome().getGeneticWeightKg() / EquineGenome.MINIATURE_CUTOFF;
+        return this.getPassengers().size() < 2;
+    }
+
+    // This should err on the side of too exclusive, while canAddPassenger
+    // should err towards more inclusive. Other mods can bypass this by simply
+    // instructing the entity to mount the horse.
+    private boolean canFitRider(PlayerEntity rider) {
+        return canAddPassenger(rider) 
+            && !this.getGenome().isMiniature()
+            && (this.getGenome().isLarge() || this.getPassengers().size() < 1);
     }
 
     public Inventory getHorseChest() {
@@ -630,7 +602,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             }
         }
 
-        if (!this.isBaby() && canAddPassenger(player)) {
+        if (!this.isBaby() && canFitRider(player)) {
             this.doPlayerRide(player);
             return ActionResultType.sidedSuccess(this.level.isClientSide);
         }
