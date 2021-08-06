@@ -55,11 +55,11 @@ public class Spawns {
 
         // Add to the spawn list according to biome type
         List<Spawners> spawns = event.getSpawns().getSpawner(EntityClassification.CREATURE);
-        if (event.getCategory() == Biome.Category.PLAINS) {
+        if (event.getCategory() == Biome.Category.PLAINS && horsePlainsWeight > 0) {
             spawns.add(horsePlainsSpawner);
             spawns.add(donkeySpawner);
         }
-        else if (event.getCategory() == Biome.Category.SAVANNA) {
+        else if (event.getCategory() == Biome.Category.SAVANNA && horseSavannaWeight > 0) {
             spawns.add(horseSavannaSpawner);
             spawns.add(donkeySpawner);
         }
