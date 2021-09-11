@@ -6,16 +6,16 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.*;
-import net.minecraft.client.resources.JsonReloadListener;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.event.AddReloadListenerEvent;
 
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.entity.genetics.EquineGenome.Gene;
 
-public class BreedManager extends JsonReloadListener {
+public class BreedManager extends SimpleJsonResourceReloadListener {
     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
 
     private static Map<ResourceLocation, Breed<Gene>> breeds;
@@ -26,7 +26,7 @@ public class BreedManager extends JsonReloadListener {
         super(GSON, "breeds");
     }
 
-    protected void apply(Map<ResourceLocation, JsonElement> mapIn, IResourceManager resourceManagerIn, IProfiler profilerIn) {
+    protected void apply(Map<ResourceLocation, JsonElement> mapIn, ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
         breeds = new HashMap<>();
         for(ResourceLocation key : mapIn.keySet()) {
             // Forge uses names starting with _ for metadata

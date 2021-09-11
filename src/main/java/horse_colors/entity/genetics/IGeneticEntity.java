@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Random;
 
-import net.minecraft.entity.AgeableEntity;
+import net.minecraft.world.entity.AgeableMob;
 import sekelsta.horse_colors.breed.Breed;
 import sekelsta.horse_colors.config.HorseConfig;
 
@@ -43,7 +43,7 @@ public interface IGeneticEntity {
     // Return true if successful, false otherwise
     // Reasons for returning false could be if the animal is male or the mate is female
     // (This prevents spawn eggs from starting a pregnancy.)
-    boolean setPregnantWith(AgeableEntity child, AgeableEntity otherParent);
+    boolean setPregnantWith(AgeableMob child, AgeableMob otherParent);
 
     default Breed getDefaultBreed() {
         return new Breed();

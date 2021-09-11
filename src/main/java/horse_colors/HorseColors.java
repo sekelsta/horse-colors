@@ -1,7 +1,5 @@
 package sekelsta.horse_colors;
 
-import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
@@ -47,6 +45,5 @@ public class HorseColors
     private void clientSetup(final FMLClientSetupEvent event)
     {
         MinecraftForge.EVENT_BUS.addListener(HorseGui::replaceGui);
-        ModEntities.registerRenders();
     }
 }

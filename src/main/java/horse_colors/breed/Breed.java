@@ -3,7 +3,7 @@ package sekelsta.horse_colors.breed;
 import sekelsta.horse_colors.HorseColors;
 import com.google.common.collect.ImmutableList;
 import java.util.*;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class Breed<T extends Enum<T>> {
     // The breed's internal name

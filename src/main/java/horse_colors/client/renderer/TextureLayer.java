@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.util.Locale;
 
 import net.minecraft.client.renderer.texture.*;
-import net.minecraft.resources.IResource;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sekelsta.horse_colors.util.Color;
+
+import com.mojang.blaze3d.platform.NativeImage;
 
 public class TextureLayer {
     protected static final Logger LOGGER = LogManager.getLogger();
@@ -36,12 +38,12 @@ public class TextureLayer {
         ROOT
     }
 
-    public NativeImage getLayer(IResourceManager manager) {
+    public NativeImage getLayer(ResourceManager manager) {
         if (this.name == null) {
             LOGGER.error("Attempting to load unspecified texture (name is null): " + this.toString());
             return null;
         }
-        try (IResource iresource = manager.getResource(new ResourceLocation(this.name))) {
+        try (Resource iresource = manager.getResource(new ResourceLocation(this.name))) {
             NativeImage image = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(this.name), manager);
             return image;
         } catch (IOException ioexception) {

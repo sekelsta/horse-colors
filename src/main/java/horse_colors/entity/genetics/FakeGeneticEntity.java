@@ -1,7 +1,7 @@
 package sekelsta.horse_colors.entity.genetics;
 
 import java.util.HashMap;
-import net.minecraft.entity.AgeableEntity;
+import net.minecraft.world.entity.AgeableMob;
 
 public class FakeGeneticEntity implements IGeneticEntity {
     private Genome genome; 
@@ -70,7 +70,7 @@ public class FakeGeneticEntity implements IGeneticEntity {
     }
 
     @Override
-    public boolean setPregnantWith(AgeableEntity child, AgeableEntity otherParent) {
+    public boolean setPregnantWith(AgeableMob child, AgeableMob otherParent) {
         return false;
     }
 

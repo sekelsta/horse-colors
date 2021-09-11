@@ -4,36 +4,39 @@ import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 import sekelsta.horse_colors.entity.HorseGeneticEntity;
 import sekelsta.horse_colors.util.HorseArmorer;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import com.mojang.blaze3d.vertex.VertexBuilderUtils;
-import net.minecraft.block.CarpetBlock;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexMultiConsumer;
+import net.minecraft.world.level.block.WoolCarpetBlock;
+import net.minecraft.client.model.geom.EntityModelSet;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.IEntityRenderer;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.entity.passive.horse.*;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.DyeableHorseArmorItem;
-import net.minecraft.item.HorseArmorItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.DyeableHorseArmorItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraft.client.renderer.entity.layers.LayerRenderer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+
+import sekelsta.horse_colors.HorseColors;
 
 @OnlyIn(Dist.CLIENT)
-public class HorseArmorLayer extends LayerRenderer<AbstractHorseGenetic, HorseGeneticModel<AbstractHorseGenetic>> {
-    private final HorseGeneticModel<AbstractHorseGenetic> horseModel = new HorseGeneticModel<>(0.1F);
+public class HorseArmorLayer extends RenderLayer<AbstractHorseGenetic, HorseGeneticModel<AbstractHorseGenetic>> {
+    public static final ModelLayerLocation HORSE_ARMOR_LAYER = new ModelLayerLocation(new ResourceLocation(HorseColors.MODID, "horse_armor"), "horse_armor");
+    private final HorseGeneticModel<AbstractHorseGenetic> horseModel;
 
-    public HorseArmorLayer(IEntityRenderer<AbstractHorseGenetic, HorseGeneticModel<AbstractHorseGenetic>> model) {
-       super(model);
+    public HorseArmorLayer(RenderLayerParent<AbstractHorseGenetic, HorseGeneticModel<AbstractHorseGenetic>> model, EntityModelSet modelSet) {
+        super(model);
+        this.horseModel = new HorseGeneticModel<>(modelSet.bakeLayer(HORSE_ARMOR_LAYER));
     }
 
     @Override
-    // Render function
-    public void render(MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int p_225628_3_, AbstractHorseGenetic entityIn, float p_225628_5_, float p_225628_6_, float p_225628_7_, float p_225628_8_, float p_225628_9_, float p_225628_10_) {
+    public void render(PoseStack matrixStack, MultiBufferSource renderTypeBuffer, int p_225628_3_, AbstractHorseGenetic entityIn, float f1, float f2, float f3, float f4, float f5, float f6) {
         if (!(entityIn instanceof HorseGeneticEntity)) {
             return;
         }
@@ -43,35 +46,30 @@ public class HorseArmorLayer extends LayerRenderer<AbstractHorseGenetic, HorseGe
         ResourceLocation textureLocation = HorseArmorer.getTexture(armor);
         if (textureLocation != null) {
             this.getParentModel().copyPropertiesTo(this.horseModel);
-            this.horseModel.prepareMobModel(horse, p_225628_5_, p_225628_6_, p_225628_7_);
-            this.horseModel.setupAnim(horse, p_225628_5_, p_225628_6_, p_225628_8_, p_225628_9_, p_225628_10_);
-            float r;
-            float g;
-            float b;
-            int color = 0xffffff;
+            this.horseModel.prepareMobModel(horse, f1, f2, f3);
+            this.horseModel.setupAnim(horse, f1, f2, f4, f5, f6);
+            float r = 1.0F;
+            float g = 1.0F;
+            float b = 1.0F;
             if (armor instanceof DyeableHorseArmorItem) {
-                color = ((DyeableHorseArmorItem)armor).getColor(itemstack);
-            } 
-            else if (armor instanceof BlockItem) {
-                BlockItem blockItem = (BlockItem)armor;
-                if (blockItem.getBlock() instanceof CarpetBlock) {
-                    color = ((CarpetBlock)(blockItem.getBlock())).getColor().getColorValue();
-                }
-            }
-            if (color != 0xffffff) {
+                int color = ((DyeableHorseArmorItem)armor).getColor(itemstack);
                 r = (float)(color >> 16 & 255) / 255.0F;
                 g = (float)(color >> 8 & 255) / 255.0F;
                 b = (float)(color & 255) / 255.0F;
             }
-            else {
-               r = 1.0F;
-               g = 1.0F;
-               b = 1.0F;
+            else if (armor instanceof BlockItem) {
+                BlockItem blockItem = (BlockItem)armor;
+                if (blockItem.getBlock() instanceof WoolCarpetBlock) {
+                    float[] colors = ((WoolCarpetBlock)(blockItem.getBlock())).getColor().getTextureDiffuseColors();
+                    r = colors[0];
+                    g = colors[1];
+                    b = colors[2];
+                }
             }
 
-            IVertexBuilder ivertexbuilder;
+            VertexConsumer ivertexbuilder;
             if (itemstack.hasFoil()) {
-                ivertexbuilder = VertexBuilderUtils.create(renderTypeBuffer.getBuffer(RenderType.armorEntityGlint()), renderTypeBuffer.getBuffer(RenderType.armorCutoutNoCull(textureLocation)));
+                ivertexbuilder = VertexMultiConsumer.create(renderTypeBuffer.getBuffer(RenderType.armorEntityGlint()), renderTypeBuffer.getBuffer(RenderType.armorCutoutNoCull(textureLocation)));
             }
             else {
                 ivertexbuilder = renderTypeBuffer.getBuffer(RenderType.entityCutoutNoCull(textureLocation));

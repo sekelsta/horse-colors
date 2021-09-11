@@ -1,4 +1,5 @@
 package sekelsta.horse_colors.entity;
+import net.minecraft.world.entity.animal.horse.*;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -6,32 +7,26 @@ import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
-import net.minecraft.block.CarpetBlock;
-import net.minecraft.block.SoundType;
-import net.minecraft.entity.AgeableEntity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.passive.AnimalEntity;
-import net.minecraft.entity.passive.horse.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.HorseArmorItem;
-import net.minecraft.item.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.SpawnEggItem;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.world.level.block.WoolCarpetBlock;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.HorseArmorItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 
 import sekelsta.horse_colors.breed.Breed;
 import sekelsta.horse_colors.breed.horse.*;
@@ -45,22 +40,22 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
 
     private static final ResourceLocation LOOT_TABLE = new ResourceLocation("minecraft", "entities/horse");
 
-    public HorseGeneticEntity(EntityType<? extends HorseGeneticEntity> entityType, World worldIn)
+    public HorseGeneticEntity(EntityType<? extends HorseGeneticEntity> entityType, Level worldIn)
     {
         super(entityType, worldIn);
     }
 
-    public void addAdditionalSaveData(CompoundNBT compound) {
+    public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         if (!this.inventory.getItem(1).isEmpty()) {
-            compound.put("ArmorItem", this.inventory.getItem(1).save(new CompoundNBT()));
+            compound.put("ArmorItem", this.inventory.getItem(1).save(new CompoundTag()));
         }
     }
 
    /**
     * Helper method to read subclass entity data from NBT.
     */
-    public void readAdditionalSaveData(CompoundNBT compound) {
+    public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         if (compound.contains("ArmorItem", 10)) {
             ItemStack itemstack = ItemStack.of(compound.getCompound("ArmorItem"));
@@ -72,12 +67,12 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     }
 
     public ItemStack getArmor() {
-        return this.getItemBySlot(EquipmentSlotType.CHEST);
+        return this.getItemBySlot(EquipmentSlot.CHEST);
     }
 
     private void setArmor(ItemStack itemstack) {
-        this.setItemSlot(EquipmentSlotType.CHEST, itemstack);
-        this.setDropChance(EquipmentSlotType.CHEST, 0.0F);
+        this.setItemSlot(EquipmentSlot.CHEST, itemstack);
+        this.setDropChance(EquipmentSlot.CHEST, 0.0F);
     }
    /**
     * Updates the items in the saddle and armor slots of the horse's inventory.
@@ -87,7 +82,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         if (!this.level.isClientSide()) {
             super.updateContainerEquipment();
             this.setArmorStack(this.inventory.getItem(1));
-            this.setDropChance(EquipmentSlotType.CHEST, 0.0F);
+            this.setDropChance(EquipmentSlot.CHEST, 0.0F);
         }
     }
 
@@ -110,7 +105,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
    /**
     * Called by InventoryBasic.containerChanged() on a array that is never filled.
     */
-    public void containerChanged(IInventory invBasic) {
+    public void containerChanged(Container invBasic) {
         ItemStack itemstack = this.getArmor();
         super.containerChanged(invBasic);
         ItemStack itemstack1 = this.getArmor();
@@ -186,7 +181,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
      * Returns true if the mob is currently able to mate with the specified mob.
      */
     @Override
-    public boolean canMate(AnimalEntity otherAnimal)
+    public boolean canMate(Animal otherAnimal)
     {
         if (otherAnimal == this)
         {
@@ -199,10 +194,10 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         }
         if (otherAnimal instanceof DonkeyGeneticEntity 
                 || otherAnimal instanceof HorseGeneticEntity
-                || otherAnimal instanceof DonkeyEntity 
-                || otherAnimal instanceof HorseEntity)
+                || otherAnimal instanceof Donkey 
+                || otherAnimal instanceof Horse)
         {
-            return this.canParent() && Util.horseCanMate((AbstractHorseEntity)otherAnimal);
+            return this.canParent() && Util.horseCanMate((AbstractHorse)otherAnimal);
         }
         else
         {
@@ -213,7 +208,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     // Helper function for createChild that creates and spawns an entity of the 
     // correct species
     @Override
-    public AbstractHorseEntity getChild(ServerWorld world, AgeableEntity ageable)
+    public AbstractHorse getChild(ServerLevel world, AgeableMob ageable)
     {
         if (ageable instanceof AbstractHorseGenetic) {
             AbstractHorseGenetic child = null;
@@ -230,17 +225,17 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
             }  
             return child;
         }
-        else if (ageable instanceof HorseEntity) {
+        else if (ageable instanceof Horse) {
             // Breed the vanilla horse to itself
             // func_241840_a = createChild
-            AgeableEntity child = ageable.getBreedOffspring(world, ageable);
-            if (child instanceof AbstractHorseEntity) {
-                return (AbstractHorseEntity)child;
+            AgeableMob child = ageable.getBreedOffspring(world, ageable);
+            if (child instanceof AbstractHorse) {
+                return (AbstractHorse)child;
             }
             // else
             return null;
         }
-        else if (ageable instanceof DonkeyEntity) {
+        else if (ageable instanceof Donkey) {
             return EntityType.MULE.create(this.level);
         }
         return null;
@@ -255,7 +250,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     public boolean isArmor(ItemStack stack) {
         return stack.getItem() instanceof HorseArmorItem
                 || (stack.getItem() instanceof BlockItem
-                    && ((BlockItem)stack.getItem()).getBlock() instanceof CarpetBlock);
+                    && ((BlockItem)stack.getItem()).getBlock() instanceof WoolCarpetBlock);
     }
 
     @Override

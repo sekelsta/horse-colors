@@ -1,26 +1,26 @@
 package sekelsta.horse_colors.entity;
-import net.minecraft.entity.passive.horse.*;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.AgeableEntity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ILivingEntityData;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.IServerWorld;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.World;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.Level;
 
 import sekelsta.horse_colors.breed.Breed;
 import sekelsta.horse_colors.breed.donkey.*;
@@ -31,11 +31,11 @@ import sekelsta.horse_colors.entity.genetics.Species;
 import sekelsta.horse_colors.HorseColors;
 
 public class MuleGeneticEntity extends AbstractHorseGenetic {
-    protected static final DataParameter<Integer> SPECIES = EntityDataManager.<Integer>defineId(MuleGeneticEntity.class, DataSerializers.INT);
+    protected static final EntityDataAccessor<Integer> SPECIES = SynchedEntityData.<Integer>defineId(MuleGeneticEntity.class, EntityDataSerializers.INT);
 
     private static final ResourceLocation LOOT_TABLE = new ResourceLocation("minecraft", "entities/mule");
 
-    public MuleGeneticEntity(EntityType<? extends MuleGeneticEntity> entity, World world) {
+    public MuleGeneticEntity(EntityType<? extends MuleGeneticEntity> entity, Level world) {
         super(entity, world);
     }
 
@@ -46,7 +46,7 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
         this.entityData.define(SPECIES, Species.MULE.ordinal());
     }
 
-    public void addAdditionalSaveData(CompoundNBT compound) {
+    public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putString("Species", this.getSpecies().toString());
     }
@@ -54,7 +54,7 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
    /**
     * Helper method to read subclass entity data from NBT.
     */
-    public void readAdditionalSaveData(CompoundNBT compound) {
+    public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.setSpecies(Species.valueOf(compound.getString("Species")));
     }
@@ -96,7 +96,7 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
     @Override
     // Helper function for createChild that creates and spawns an entity of the 
     // correct species
-    public AbstractHorseEntity getChild(ServerWorld world, AgeableEntity ageable) {
+    public AbstractHorse getChild(ServerLevel world, AgeableMob ageable) {
         MuleGeneticEntity child = ModEntities.MULE_GENETIC.create(this.level);
         return child;
     }
@@ -121,11 +121,11 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
     }
 
     @Override
-    protected ITextComponent getTypeName() {
+    protected Component getTypeName() {
         if (!this.isBaby() && !HorseConfig.BREEDING.enableGenders.get()
             && this.getSpecies() == Species.HINNY) {
             String s = "entity." + HorseColors.MODID + ".hinny";
-            return new TranslationTextComponent(s);
+            return new TranslatableComponent(s);
         }
         return super.getTypeName();
     }
@@ -136,7 +136,7 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
      */
     @Nullable
     @Override
-    public ILivingEntityData finalizeSpawn(IServerWorld worldIn, DifficultyInstance difficultyIn, SpawnReason reason, @Nullable ILivingEntityData spawnDataIn, @Nullable CompoundNBT dataTag)
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor worldIn, DifficultyInstance difficultyIn, MobSpawnType reason, @Nullable SpawnGroupData spawnDataIn, @Nullable CompoundTag dataTag)
     {
         spawnDataIn = super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
         EquineGenome horse = new EquineGenome(Species.HORSE);

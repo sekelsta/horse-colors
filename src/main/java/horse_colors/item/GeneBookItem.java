@@ -5,21 +5,20 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.StringUtils;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.util.StringUtil;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -35,7 +34,7 @@ public class GeneBookItem extends Item {
         super(properties);
     }
 
-    public static boolean validBookTagContents(CompoundNBT nbt) {
+    public static boolean validBookTagContents(CompoundTag nbt) {
         if (nbt == null) {
             return false;
         }
@@ -55,9 +54,9 @@ public class GeneBookItem extends Item {
         return true;
     }
 
-    public static Species getSpecies(CompoundNBT compoundnbt) {
+    public static Species getSpecies(CompoundTag compoundnbt) {
         String s = compoundnbt.getString("species");
-        if (!StringUtils.isNullOrEmpty(s)) {
+        if (!StringUtil.isNullOrEmpty(s)) {
             return Species.valueOf(s);
         }
         return null;
@@ -67,9 +66,9 @@ public class GeneBookItem extends Item {
      * allows items to add custom lines of information to the mouseover description
      */
     @OnlyIn(Dist.CLIENT)
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+    public void addInformation(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         if (stack.hasTag()) {
-            CompoundNBT compoundnbt = stack.getTag();
+            CompoundTag compoundnbt = stack.getTag();
             Species species = getSpecies(compoundnbt);
             if (species != null) {
                 String translation = null;
@@ -86,7 +85,7 @@ public class GeneBookItem extends Item {
                 }
                 if (translation != null) {
                     // Compare to the author name on written books
-                    tooltip.add(new TranslationTextComponent(translation).withStyle(TextFormatting.GRAY));
+                    tooltip.add(new TranslatableComponent(translation).withStyle(ChatFormatting.GRAY));
                 }
             }
         }
@@ -97,38 +96,38 @@ public class GeneBookItem extends Item {
      * {@link #onItemUse}.
      */
     @Override
-    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn) {
+    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
         ItemStack itemstack = playerIn.getItemInHand(handIn);
         if (validBookTagContents(itemstack.getTag())) {
             if (worldIn.isClientSide()) {
                 openGeneBook(itemstack.getTag());
             }
-            return ActionResult.success(itemstack);
+            return InteractionResultHolder.success(itemstack);
         }
         HorseColors.logger.error("Gene book has invalid NBT");
-        return ActionResult.fail(itemstack);
+        return InteractionResultHolder.fail(itemstack);
     }
 
     @Override
-    public ActionResultType interactLivingEntity(ItemStack stack, PlayerEntity player, LivingEntity target, Hand hand) {
+    public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
         if (stack.getTag() == null) {
             // Most likely someone summoned this item by command without data
             HorseColors.logger.error("Gene book has no NBT data");
-            return ActionResultType.FAIL;
+            return InteractionResult.FAIL;
         }
         // Check that this itemstack has a UUID
         if (!stack.getTag().hasUUID("EntityUUID")) {
-            return ActionResultType.PASS;
+            return InteractionResult.PASS;
         }
         // Get this itemstack's entity's UUID
         UUID entityUUID = stack.getTag().getUUID("EntityUUID");
         // Null check that probably shouldn't be needed
         if (entityUUID == null) {
-            return ActionResultType.PASS;
+            return InteractionResult.PASS;
         }
         // Check that the entity matches
         if (!(entityUUID.equals(target.getUUID()))) {
-            return ActionResultType.PASS;
+            return InteractionResult.PASS;
         }
         // Make changes based on the entity
         if (target.hasCustomName()) {
@@ -137,12 +136,12 @@ public class GeneBookItem extends Item {
         else {
             stack.resetHoverName();
         }
-        return ActionResultType.sidedSuccess(player.level.isClientSide);
+        return InteractionResult.sidedSuccess(player.level.isClientSide);
     } 
 
 
     @OnlyIn(Dist.CLIENT)
-    public void openGeneBook(CompoundNBT nbt) {
+    public void openGeneBook(CompoundTag nbt) {
         Minecraft mc = Minecraft.getInstance();
         Genome genome = new EquineGenome(getSpecies(nbt));
         genome.genesFromString(nbt.getString("genes"));

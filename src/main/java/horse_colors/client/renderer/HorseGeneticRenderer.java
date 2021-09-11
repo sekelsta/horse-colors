@@ -1,16 +1,17 @@
 package sekelsta.horse_colors.client.renderer;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.entity.passive.horse.*;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 import sekelsta.horse_colors.entity.genetics.IGeneticEntity;
 import sekelsta.horse_colors.entity.genetics.HorseColorCalculator;
@@ -19,19 +20,21 @@ import sekelsta.horse_colors.entity.genetics.HorseColorCalculator;
 @OnlyIn(Dist.CLIENT)
 public class HorseGeneticRenderer extends MobRenderer<AbstractHorseGenetic, HorseGeneticModel<AbstractHorseGenetic>>
 {
-    protected void scale(AbstractHorseGenetic horse, MatrixStack matrixStackIn, float partialTickTime) {
+    private static final Map<String, ResourceLocation> LAYERED_LOCATION_CACHE = Maps.newHashMap();
+    public static final ModelLayerLocation EQUINE_LAYER = new ModelLayerLocation(new ResourceLocation(HorseColors.MODID, "equine"), "equine");
+
+    public HorseGeneticRenderer(EntityRendererProvider.Context renderManager)
+    {
+        super(renderManager, new HorseGeneticModel<AbstractHorseGenetic>(renderManager.bakeLayer(EQUINE_LAYER)), 0.75F);
+        this.addLayer(new HorseArmorLayer(this, renderManager.getModelSet()));
+    }
+
+    @Override
+    protected void scale(AbstractHorseGenetic horse, PoseStack matrixStackIn, float partialTickTime) {
         float scale = horse.getProportionalAgeScale();
         matrixStackIn.scale(scale, scale, scale);
         this.shadowRadius = 0.75F * scale;
         super.scale(horse, matrixStackIn, partialTickTime);
-    }
-
-    private static final Map<String, ResourceLocation> LAYERED_LOCATION_CACHE = Maps.newHashMap();
-
-    public HorseGeneticRenderer(EntityRendererManager renderManager)
-    {
-        super(renderManager, new HorseGeneticModel<AbstractHorseGenetic>(0.0F), 0.75F);
-        this.addLayer(new HorseArmorLayer(this));
     }
 
     /**

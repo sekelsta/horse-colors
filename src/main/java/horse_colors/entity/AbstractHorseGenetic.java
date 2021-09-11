@@ -11,59 +11,51 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.AgeableEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ILivingEntityData;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.item.ExperienceOrbEntity;
-import net.minecraft.entity.monster.MonsterEntity;
-import net.minecraft.entity.passive.AnimalEntity;
-import net.minecraft.entity.passive.horse.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.BookItem;
-import net.minecraft.item.HorseArmorItem;
-import net.minecraft.item.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.SpawnEggItem;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.SlotAccess;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.IServerWorld;
-import net.minecraft.world.World;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import sekelsta.horse_colors.breed.*;
 import sekelsta.horse_colors.config.HorseConfig;
@@ -75,15 +67,24 @@ import sekelsta.horse_colors.item.ModItems;
 import sekelsta.horse_colors.item.GeneBookItem;
 import sekelsta.horse_colors.util.Util;
 
-public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity implements IGeneticEntity {
-    protected EquineGenome genes = new EquineGenome(this.getSpecies(), this);
-    protected static final DataParameter<String> GENES = EntityDataManager.<String>defineId(AbstractHorseGenetic.class, DataSerializers.STRING);
+import net.minecraft.world.entity.ai.goal.BreedGoal;
+import net.minecraft.world.entity.ai.goal.FollowParentGoal;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.PanicGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.RunAroundLikeCrazyGoal;
+import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
 
-    protected static final DataParameter<Integer> HORSE_RANDOM = EntityDataManager.<Integer>defineId(AbstractHorseGenetic.class, DataSerializers.INT);
-    protected static final DataParameter<Integer> DISPLAY_AGE = EntityDataManager.<Integer>defineId(AbstractHorseGenetic.class, DataSerializers.INT);
-    protected static final DataParameter<Boolean> GENDER = EntityDataManager.<Boolean>defineId(AbstractHorseGenetic.class, DataSerializers.BOOLEAN);
-    protected static final DataParameter<Integer> PREGNANT_SINCE = EntityDataManager.<Integer>defineId(AbstractHorseGenetic.class, DataSerializers.INT);
-    protected static final DataParameter<Float> MOTHER_SIZE = EntityDataManager.<Float>defineId(AbstractHorseGenetic.class, DataSerializers.FLOAT);
+public abstract class AbstractHorseGenetic extends AbstractChestedHorse implements IGeneticEntity {
+    protected EquineGenome genes = new EquineGenome(this.getSpecies(), this);
+    protected static final EntityDataAccessor<String> GENES = SynchedEntityData.<String>defineId(AbstractHorseGenetic.class, EntityDataSerializers.STRING);
+
+    protected static final EntityDataAccessor<Integer> HORSE_RANDOM = SynchedEntityData.<Integer>defineId(AbstractHorseGenetic.class, EntityDataSerializers.INT);
+    protected static final EntityDataAccessor<Integer> DISPLAY_AGE = SynchedEntityData.<Integer>defineId(AbstractHorseGenetic.class, EntityDataSerializers.INT);
+    protected static final EntityDataAccessor<Boolean> GENDER = SynchedEntityData.<Boolean>defineId(AbstractHorseGenetic.class, EntityDataSerializers.BOOLEAN);
+    protected static final EntityDataAccessor<Integer> PREGNANT_SINCE = SynchedEntityData.<Integer>defineId(AbstractHorseGenetic.class, EntityDataSerializers.INT);
+    protected static final EntityDataAccessor<Float> MOTHER_SIZE = SynchedEntityData.<Float>defineId(AbstractHorseGenetic.class, EntityDataSerializers.FLOAT);
     protected int trueAge;
 
     protected static final UUID CSNB_SPEED_UUID = UUID.fromString("84ca527a-5c70-4336-a737-ae3f6d40ef45");
@@ -95,10 +96,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
 
     protected List<AbstractHorseGenetic> unbornChildren = new ArrayList<>();
 
-    // field_110282_bM = standAnim0
-    private Field rearingAmountField = ObfuscationReflectionHelper.findField(AbstractHorseEntity.class, "field_110282_bM");
+    // f_30514_ = standAnimO
+    private Field rearingAmountField = ObfuscationReflectionHelper.findField(AbstractHorse.class, "f_30514_");
 
-    public AbstractHorseGenetic(EntityType<? extends AbstractHorseGenetic> entityType, World worldIn)
+    public AbstractHorseGenetic(EntityType<? extends AbstractHorseGenetic> entityType, Level worldIn)
     {
         super(entityType, worldIn);
         this.setSeed(this.random.nextInt());
@@ -143,13 +144,13 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.goalSelector.addGoal(1, new PanicGoal(this, 1.2D));
         this.goalSelector.addGoal(1, new RunAroundLikeCrazyGoal(this, 1.2D));
         if (HorseConfig.COMMON.spookyHorses.get()) {
-            this.goalSelector.addGoal(1, new SpookGoal(this, MonsterEntity.class, 8.0F, 1.5, 1.5));
+            this.goalSelector.addGoal(1, new SpookGoal(this, Monster.class, 8.0F, 1.5, 1.5));
         }
-        this.goalSelector.addGoal(2, new BreedGoal(this, 1.0D, AbstractHorseEntity.class));
+        this.goalSelector.addGoal(2, new BreedGoal(this, 1.0D, AbstractHorse.class));
         this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.0D));
         this.goalSelector.addGoal(6, new RandomWalkGroundTie(this, 0.7D));
-        this.goalSelector.addGoal(7, new LookAtGoal(this, PlayerEntity.class, 6.0F));
-        this.goalSelector.addGoal(8, new LookRandomlyGoal(this));
+        this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 6.0F));
+        this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
         this.addBehaviourGoals();
     }
 
@@ -169,22 +170,22 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
      * (abstract) Protected helper method to write subclass entity data to NBT.
      */
     @Override
-    public void addAdditionalSaveData(CompoundNBT compound)
+    public void addAdditionalSaveData(CompoundTag compound)
     {
         super.addAdditionalSaveData(compound);
         writeGeneticData(compound);
     }
 
-    private void writeGeneticData(CompoundNBT compound) {
+    private void writeGeneticData(CompoundTag compound) {
         compound.putString("Genes", this.getGenome().getBase64());
         compound.putInt("Random", this.getSeed());
         compound.putInt("true_age", this.trueAge);
         compound.putBoolean("gender", this.isMale());
         compound.putInt("pregnant_since", this.getPregnancyStart());
         if (this.unbornChildren != null) {
-            ListNBT unbornChildrenTag = new ListNBT();
+            ListTag unbornChildrenTag = new ListTag();
             for (AbstractHorseGenetic child : this.unbornChildren) {
-                CompoundNBT childNBT = new CompoundNBT();
+                CompoundTag childNBT = new CompoundTag();
                 childNBT.putString("species", child.getSpecies().toString());
                 childNBT.putString("genes", child.getGenome().genesToString());
                 unbornChildrenTag.add(childNBT);
@@ -195,7 +196,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundNBT compound)
+    public void readAdditionalSaveData(CompoundTag compound)
     {
         super.readAdditionalSaveData(compound);
         // Get save format version
@@ -231,7 +232,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     // A helper function for reading the data either from the main entity
     // tag in save format versions 2 and under, or for reading it from its own tag
     // in versions 3+
-    private void readGeneticData(CompoundNBT compound, int version) {
+    private void readGeneticData(CompoundTag compound, int version) {
         // Set genes if they exist
         if (compound.contains("Genes")) {
             if (version < 3) {
@@ -282,15 +283,15 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
         this.entityData.set(PREGNANT_SINCE, pregnantSince);
         if (compound.contains("unborn_children")) {
-            INBT nbt = compound.get("unborn_children");
-            if (nbt instanceof ListNBT) {
-                ListNBT childListTag = (ListNBT)nbt;
+            Tag nbt = compound.get("unborn_children");
+            if (nbt instanceof ListTag) {
+                ListTag childListTag = (ListTag)nbt;
                 for (int i = 0; i < childListTag.size(); ++i) {
-                    INBT cnbt = childListTag.get(i);
-                    if (!(cnbt instanceof CompoundNBT)) {
+                    Tag cnbt = childListTag.get(i);
+                    if (!(cnbt instanceof CompoundTag)) {
                         continue;
                     }
-                    CompoundNBT childNBT = (CompoundNBT)cnbt;
+                    CompoundTag childNBT = (CompoundTag)cnbt;
                     Species species = Species.valueOf(childNBT.getString("species"));
                     AbstractHorseGenetic child = null;
                     switch(species) {
@@ -322,7 +323,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         setMotherSize(motherSize);
     }
 
-    private void readExtraGenes(CompoundNBT compound) {
+    private void readExtraGenes(CompoundTag compound) {
         for (Enum gene : this.getGenome().listGenes()) {
             if (compound.contains(gene.toString())) {
                 int alleles[] = compound.getIntArray(gene.toString());
@@ -332,7 +333,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
     }
 
-    public void readLegacyAdditional(CompoundNBT compound) {
+    public void readLegacyAdditional(CompoundTag compound) {
         Map<String, Integer> map = new HashMap<>();
         if (compound.contains("Variant")) {
             map.put("0", compound.getInt("Variant"));
@@ -372,10 +373,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         this.genes.setLegacyGenes(map);
     }
 
-    public void copyAbstractHorse(AbstractHorseEntity horse)
+    public void copyAbstractHorse(AbstractHorse horse)
     {
         // Copy NBT data (initialize from horse's NBT)
-        CompoundNBT vanilla = horse.saveWithoutId(new CompoundNBT());
+        CompoundTag vanilla = horse.saveWithoutId(new CompoundTag());
         // Don't try to read Minecraft's variant as legacy gene data
         if (vanilla.contains("Variant")) {
             vanilla.remove("Variant");
@@ -417,7 +418,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     }
 
     @Override
-    public void onSyncedDataUpdated(DataParameter<?> key) {
+    public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         if (GENES.equals(key)) {
             this.getGenome().resetTexture();
             this.useGeneticAttributes();
@@ -500,25 +501,25 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     // This should err on the side of too exclusive, while canAddPassenger
     // should err towards more inclusive. Other mods can bypass this by simply
     // instructing the entity to mount the horse.
-    private boolean canFitRider(PlayerEntity rider) {
+    private boolean canFitRider(Player rider) {
         return canAddPassenger(rider) 
             && !this.getGenome().isMiniature()
             && (this.getGenome().isLarge() || this.getPassengers().size() < 1);
     }
 
-    public Inventory getHorseChest() {
+    public SimpleContainer getHorseChest() {
         return this.inventory;
     }
 
-    private boolean itemInteract(PlayerEntity player, ItemStack itemstack, Hand hand) {
+    private boolean itemInteract(Player player, ItemStack itemstack, InteractionHand hand) {
         // Enter genetic test results
         if (itemstack.getItem() == Items.BOOK
                 && (HorseConfig.GENETICS.bookShowsGenes.get()
                     || HorseConfig.GENETICS.bookShowsTraits.get())
-                && (this.isTamed() || player.abilities.instabuild)) {
+                && (this.isTamed() || player.getAbilities().instabuild)) {
             ItemStack book = new ItemStack(ModItems.geneBookItem);
             if (book.getTag() == null) {
-                book.setTag(new CompoundNBT());
+                book.setTag(new CompoundTag());
             }
             book.getTag().putString("species", this.getSpecies().name());
             book.getTag().putString("genes", this.getGenome().genesToString());
@@ -529,7 +530,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             if (!player.addItem(book)) {
                 this.spawnAtLocation(book);
             }
-            if (!player.abilities.instabuild) {
+            if (!player.getAbilities().instabuild) {
                 itemstack.shrink(1);
             }
             return true;
@@ -544,7 +545,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 && this.canEquipChest()) {
             this.setChest(true);
             this.playChestEquipsSound();
-            if (!player.abilities.instabuild) {
+            if (!player.getAbilities().instabuild) {
                 itemstack.shrink(1);
             }
 
@@ -582,12 +583,12 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     }
 
     @Override
-    public ActionResultType mobInteract(PlayerEntity player, Hand hand) {
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
         if (!this.isBaby()) {
             if (this.isTamed() && player.isSecondaryUseActive()) {
                 this.openInventory(player);
-                return ActionResultType.sidedSuccess(this.level.isClientSide);
+                return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
         }
 
@@ -599,19 +600,19 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
                 return this.fedFood(player, itemstack);
             }
             // See if the item interacts with us
-            ActionResultType actionresulttype = itemstack.interactLivingEntity(player, this, hand);
+            InteractionResult actionresulttype = itemstack.interactLivingEntity(player, this, hand);
             if (actionresulttype.consumesAction()) {
                 return actionresulttype;
             }
             // See if we interact with the item
             if (itemInteract(player, itemstack, hand)) {
-                return ActionResultType.sidedSuccess(this.level.isClientSide);
+                return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
         }
 
         if (!this.isBaby() && canFitRider(player)) {
             this.doPlayerRide(player);
-            return ActionResultType.sidedSuccess(this.level.isClientSide);
+            return InteractionResult.sidedSuccess(this.level.isClientSide);
         }
         // else
         return super.mobInteract(player, hand);
@@ -645,7 +646,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     }
 
     @Override
-    public void spawnChildFromBreeding(ServerWorld world, AnimalEntity mate) {
+    public void spawnChildFromBreeding(ServerLevel world, Animal mate) {
         // If vanilla mate, handle the vanilla way
         if (!(mate instanceof IGeneticEntity)) {
             super.spawnChildFromBreeding(world, mate);
@@ -666,16 +667,16 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
 
         // For use later in triggering the achievement
-        ServerPlayerEntity serverplayerentity = this.getLoveCause();
+        ServerPlayer serverplayerentity = this.getLoveCause();
         if (serverplayerentity == null && mate.getLoveCause() != null) {
             serverplayerentity = mate.getLoveCause();
         }
 
         int numFoals = this.getRandomLitterSize();
-        List<AgeableEntity> foals = new ArrayList<>();
+        List<AgeableMob> foals = new ArrayList<>();
         for (int i = 0; i < numFoals; ++i) {
 
-            AgeableEntity ageableentity = this.getBreedOffspring(world, mate);
+            AgeableMob ageableentity = this.getBreedOffspring(world, mate);
             // If ageableentity is null, leave this and the mate in love mode to try again
             // Note posting an event with a null child could cause crashes with other
             // mods that do not check their input carefully, so we don't do that
@@ -721,7 +722,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
         // Make twins and triplets smaller as there is less space for them in the womb
         float multiplier = (float)Math.pow(1./foals.size(), 1./3.);
-        for (AgeableEntity foal : foals) {
+        for (AgeableMob foal : foals) {
             if (foal instanceof IGeneticEntity) {
                 IGeneticEntity gFoal = (IGeneticEntity)foal;
                 gFoal.setMotherSize(gFoal.getMotherSize() * multiplier);
@@ -736,11 +737,11 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         // Spawn XP orbs
         if (world.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
             int xp = this.getRandom().nextInt(7) + 1;
-            world.addFreshEntity(new ExperienceOrbEntity(world, this.getX(), this.getY(), this.getZ(), xp));
+            world.addFreshEntity(new ExperienceOrb(world, this.getX(), this.getY(), this.getZ(), xp));
         }
     }
 
-    private void spawnChild(AgeableEntity child, ServerWorld world) {
+    private void spawnChild(AgeableMob child, ServerLevel world) {
         child.setBaby(true);
         child.moveTo(this.getX(), this.getY(), this.getZ(), 0.0F, 0.0F);
         world.addFreshEntity(child);
@@ -750,7 +751,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
 
     // Helper function for createChild that creates and spawns an entity of the 
     // correct species
-    abstract AbstractHorseEntity getChild(ServerWorld world, AgeableEntity otherparent);
+    abstract AbstractHorse getChild(ServerLevel world, AgeableMob otherparent);
 
     // Returns the number of conceptions that survive pregnancy
     // This can return different numbers when called on the same animal at
@@ -786,19 +787,19 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     }
 
     @Override
-    public AgeableEntity getBreedOffspring(ServerWorld world, AgeableEntity ageable)
+    public AgeableMob getBreedOffspring(ServerLevel world, AgeableMob ageable)
     {
-        if (!(ageable instanceof AnimalEntity)) {
+        if (!(ageable instanceof Animal)) {
             return null;
         }
-        AnimalEntity otherAnimal = (AnimalEntity)ageable;
+        Animal otherAnimal = (Animal)ageable;
         // Have the female create the child if possible
         if (this.isMale() 
                 && ageable instanceof AbstractHorseGenetic
                 && !((AbstractHorseGenetic)ageable).isMale()) {
             return ageable.getBreedOffspring(world, this);
         }
-        AbstractHorseEntity child = this.getChild(world, ageable);
+        AbstractHorse child = this.getChild(world, ageable);
         if (child != null) {
             this.setOffspringAttributes(ageable, child);
         }
@@ -823,7 +824,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     }
 
     @Override
-    public boolean setPregnantWith(AgeableEntity child, AgeableEntity otherParent) {
+    public boolean setPregnantWith(AgeableMob child, AgeableMob otherParent) {
         if (otherParent instanceof IGeneticEntity) {
             IGeneticEntity otherGenetic = (IGeneticEntity)otherParent;
             if (this.isMale() == otherGenetic.isMale()) {
@@ -885,8 +886,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             int currentLength = this.trueAge - this.getPregnancyStart();
             if (currentLength >= totalLength) {
                 for (AbstractHorseGenetic child : unbornChildren) {
-                    if (this.level instanceof ServerWorld) {
-                        this.spawnChild(child, (ServerWorld)this.level);
+                    if (this.level instanceof ServerLevel) {
+                        this.spawnChild(child, (ServerLevel)this.level);
                     }
                 }
                 this.unbornChildren = new ArrayList<>();
@@ -898,9 +899,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         if (this.getGenome().isLethalWhite()
             && this.tickCount > 80)
         {
-            if (!this.hasEffect(Effects.WITHER))
+            if (!this.hasEffect(MobEffects.WITHER))
             {
-                this.addEffect(new EffectInstance(Effects.WITHER, 100, 3));
+                this.addEffect(new MobEffectInstance(MobEffects.WITHER, 100, 3));
             }
         }
     }
@@ -912,8 +913,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
 
         if (this.getGenome().isHomozygous(Gene.leopard, HorseAlleles.LEOPARD) && !this.level.isClientSide()) {
-            ModifiableAttributeInstance speedAttribute = this.getAttribute(Attributes.MOVEMENT_SPEED);
-            ModifiableAttributeInstance jumpAttribute = this.getAttribute(Attributes.JUMP_STRENGTH);
+            AttributeInstance speedAttribute = this.getAttribute(Attributes.MOVEMENT_SPEED);
+            AttributeInstance jumpAttribute = this.getAttribute(Attributes.JUMP_STRENGTH);
             float brightness = this.getBrightness();
             if (brightness > 0.5f) {
                 if (speedAttribute.getModifier(CSNB_SPEED_UUID) != null) {
@@ -949,8 +950,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     @Override
     public boolean canBeControlledByRider() {
         return this.getControllingPassenger() instanceof LivingEntity
-            && !(this.getControllingPassenger() instanceof AnimalEntity)
-            && (this.getControllingPassenger() instanceof PlayerEntity 
+            && !(this.getControllingPassenger() instanceof Animal)
+            && (this.getControllingPassenger() instanceof Player 
                 || !this.isLeashed());
     }
 
@@ -979,7 +980,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
 
         double yOffset = this.getPassengersRidingOffset() + passenger.getMyRidingOffset();
         // Compensate for saddle for players
-        if (passenger instanceof PlayerEntity && this.isSaddled()) {
+        if (passenger instanceof Player && this.isSaddled()) {
             yOffset += 0.04 * this.getGenome().getAdultScale();
         }
         float standAnim0 = 0;
@@ -991,12 +992,12 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
         if (standAnim0 > 0.0F) {
             float xLoc = this.getBbWidth() + xzOffset;
-            float facingX = MathHelper.sin(this.yBodyRot * ((float)Math.PI / 180F));
-            float facingZ = MathHelper.cos(this.yBodyRot * ((float)Math.PI / 180F));
+            float facingX = Mth.sin(this.yBodyRot * ((float)Math.PI / 180F));
+            float facingZ = Mth.cos(this.yBodyRot * ((float)Math.PI / 180F));
             // A rearing amount of 1 corresponds to 45 degrees up
             float rearAngle = standAnim0 * (float)Math.PI / 4F;
-            float rearXZ = -1f * (1F - MathHelper.cos(rearAngle)) * xLoc;
-            float rearY = MathHelper.sin(rearAngle) * xLoc / 2F;
+            float rearXZ = -1f * (1F - Mth.cos(rearAngle)) * xLoc;
+            float rearY = Mth.sin(rearAngle) * xLoc / 2F;
             xzOffset += rearXZ;
             yOffset += rearY;
             if (passenger instanceof LivingEntity) {
@@ -1007,40 +1008,40 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
 
         // Here boats use this.yRot, but we use this.yBodyRot,
         // because this.yRot doesn't change when the unsaddled horse moves around
-        Vector3d vector3d = new Vector3d((double)xzOffset, 0.0D, 0.0D);
+        Vec3 vector3d = new Vec3((double)xzOffset, 0.0D, 0.0D);
         vector3d = vector3d.yRot(-this.yBodyRot * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
         passenger.setPos(this.getX() + vector3d.x, this.getY() + yOffset, this.getZ() + vector3d.z);
         this.applyYaw(passenger);
-        if (passenger instanceof AnimalEntity && this.getPassengers().size() > 1) {
+        if (passenger instanceof Animal && this.getPassengers().size() > 1) {
             int degrees = passenger.getId() % 2 == 0 ? 90 : 270;
-            passenger.setYBodyRot(((AnimalEntity)passenger).yBodyRot + (float)degrees);
+            passenger.setYBodyRot(((Animal)passenger).yBodyRot + (float)degrees);
             passenger.setYHeadRot(passenger.getYHeadRot() + (float)degrees);
         }
     }
 
     private void applyYaw(Entity entity) {
-        if (!(entity instanceof PlayerEntity)) {
+        if (!(entity instanceof Player)) {
             entity.setYBodyRot(this.yBodyRot);
-            entity.yRot = this.yBodyRot;
+            entity.setYRot(this.yBodyRot);
             entity.setYHeadRot(this.yBodyRot);
         }
     }
 
     @Override
-    protected ITextComponent getTypeName() {
+    protected Component getTypeName() {
         String species = this.getSpecies().toString().toLowerCase();
         String s = "entity." + HorseColors.MODID + "." + species + ".";
         if (this.isBaby()) {
             // Foal
             if (!HorseConfig.BREEDING.enableGenders.get()) {
-                return new TranslationTextComponent(s + "foal");
+                return new TranslatableComponent(s + "foal");
             }
             // Colt
             if (this.isMale()) {
-                return new TranslationTextComponent(s + "colt");
+                return new TranslatableComponent(s + "colt");
             }
             // Filly
-            return new TranslationTextComponent(s + "filly");
+            return new TranslatableComponent(s + "filly");
         }
 
         // Horse
@@ -1049,14 +1050,14 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         }
         // Stallion
         if (this.isMale()) {
-            return new TranslationTextComponent(s + "male");
+            return new TranslatableComponent(s + "male");
         }
         // Mare
-        return new TranslationTextComponent(s + "female");
+        return new TranslatableComponent(s + "female");
     }
 
     public boolean isSaddle(ItemStack stack) {
-        if (stack.getItem() == Items.SADDLE) {
+        if (stack.isEmpty() || stack.is(Items.SADDLE)) {
             return true;
         }
         ResourceLocation registryName = stack.getItem().getRegistryName();
@@ -1065,15 +1066,27 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
 
     // Override to allow alternate saddles to be equipped
     @Override
-    public boolean setSlot(int slot, ItemStack stack) {
-        if (super.setSlot(slot, stack)) {
-            return true;
-        }
+    public SlotAccess getSlot(int slot) {
         int num = slot - 400;
-        if (num == 0 && isSaddle(stack)) {
-            this.inventory.setItem(num, stack);
+        if (num == 0) {
+            return new SlotAccess() {
+                public ItemStack get() {
+                    return AbstractHorseGenetic.this.inventory.getItem(slot);
+                }
+
+                public boolean set(ItemStack stack) {
+                    if (!isSaddle(stack)) {
+                        return false;
+                    }
+                    else {
+                        AbstractHorseGenetic.this.inventory.setItem(slot, stack);
+                        AbstractHorseGenetic.this.updateContainerEquipment();
+                        return true;
+                    }
+                }
+            };
         }
-        return false;
+        return super.getSlot(slot);
     }
 
     @Override
@@ -1099,11 +1112,11 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
      */
     @Nullable
     @Override
-    public ILivingEntityData finalizeSpawn(IServerWorld worldIn, 
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor worldIn, 
                                             DifficultyInstance difficultyIn, 
-                                            SpawnReason reason, 
-                                            @Nullable ILivingEntityData spawnDataIn, 
-                                            @Nullable CompoundNBT dataTag)
+                                            MobSpawnType reason, 
+                                            @Nullable SpawnGroupData spawnDataIn, 
+                                            @Nullable CompoundTag dataTag)
     {
         if (!(spawnDataIn instanceof GeneticData)) {
             Breed breed = this.getRandomBreed();
@@ -1112,7 +1125,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
         Breed breed = ((GeneticData)spawnDataIn).breed;
         this.randomize(breed);
         // super.finalizeSpawn will call randomizeAttributes
-        ILivingEntityData data = super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
+        SpawnGroupData data = super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
         this.useGeneticAttributes();
         return data;
     }
@@ -1177,11 +1190,11 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
     @Override
     public boolean isPushable() {
         return !(this.isVehicle() 
-            && this.getControllingPassenger() instanceof PlayerEntity);
+            && this.getControllingPassenger() instanceof Player);
     }
 
     // For holding spawn data
-    public static class GeneticData extends AgeableEntity.AgeableData {
+    public static class GeneticData extends AgeableMob.AgeableMobGroupData {
         public final Breed breed;
 
         public GeneticData(Breed breed) {

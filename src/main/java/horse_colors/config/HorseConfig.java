@@ -7,7 +7,6 @@ import net.minecraftforge.common.ForgeConfigSpec.EnumValue;
 import net.minecraftforge.common.ForgeConfigSpec.IntValue;
 import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
 
-import java.util.List;
 import java.util.*;
 
 public class HorseConfig

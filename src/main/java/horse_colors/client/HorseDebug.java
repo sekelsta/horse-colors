@@ -1,22 +1,22 @@
-package sekelsta.client.horse_colors;
+package sekelsta.horse_colors.client;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.AgeableEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Items;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.EntityHitResult;
 
 import sekelsta.horse_colors.client.renderer.TextureLayer;
 import sekelsta.horse_colors.config.HorseConfig;
@@ -28,7 +28,7 @@ import sekelsta.horse_colors.entity.genetics.IGeneticEntity;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = "horse_colors", bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class HorseDebug {
     // Determines when to print horse debug info on the screen
-    public static boolean showDebug(PlayerEntity player)
+    public static boolean showDebug(Player player)
     {
         if (!HorseConfig.COMMON.horseDebugInfo.get())
         {
@@ -37,7 +37,7 @@ public class HorseDebug {
         return showBasicDebug(player) || showGeneDebug(player);
     }
 
-    public static boolean showBasicDebug(PlayerEntity player) {
+    public static boolean showBasicDebug(Player player) {
         ItemStack itemStack = player.getOffhandItem();
         if (itemStack != null && itemStack.getItem() == Items.STICK) {
             return true;
@@ -46,7 +46,7 @@ public class HorseDebug {
         return inHand != null && inHand.getItem() == Items.STICK;
     }
 
-    public static boolean showGeneDebug(PlayerEntity player) {
+    public static boolean showGeneDebug(Player player) {
         ItemStack itemStack = player.getOffhandItem();
         if (itemStack != null && itemStack.getItem() == Items.DEBUG_STICK) {
             return true;
@@ -73,24 +73,24 @@ public class HorseDebug {
         // If the player is looking at a horse and all conditions are met, add 
         // genetic information about that horse to the debug screen
 
-        PlayerEntity player = Minecraft.getInstance().player;
+        Player player = Minecraft.getInstance().player;
         if (!showDebug(player))
         {
             return;
         }
 
         // Check if we're looking at a horse
-        RayTraceResult mouseOver = Minecraft.getInstance().hitResult;
+        HitResult mouseOver = Minecraft.getInstance().hitResult;
         if (mouseOver != null
-            && mouseOver instanceof EntityRayTraceResult
-            && ((EntityRayTraceResult)mouseOver).getEntity() != null
+            && mouseOver instanceof EntityHitResult
+            && ((EntityHitResult)mouseOver).getEntity() != null
             //&& Minecraft.getInstance().objectMouseOver.getType == RayTraceResult.Type.ENTITY
-            && ((EntityRayTraceResult)mouseOver).getEntity() instanceof IGeneticEntity)
+            && ((EntityHitResult)mouseOver).getEntity() instanceof IGeneticEntity)
         {
             // If so, print information about it to the debug screen
-            IGeneticEntity entity = (IGeneticEntity)((EntityRayTraceResult)mouseOver).getEntity();
-            if (showBasicDebug(player) && entity instanceof AgeableEntity) {
-                event.getLeft().add("Growing age: " + ((AgeableEntity)entity).getAge());
+            IGeneticEntity entity = (IGeneticEntity)((EntityHitResult)mouseOver).getEntity();
+            if (showBasicDebug(player) && entity instanceof AgeableMob) {
+                event.getLeft().add("Growing age: " + ((AgeableMob)entity).getAge());
             }
             if (showBasicDebug(player) && entity instanceof AbstractHorseGenetic) {
                 event.getLeft().add("Display age: " + ((AbstractHorseGenetic)entity).getDisplayAge());

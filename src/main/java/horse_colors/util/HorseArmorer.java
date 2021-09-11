@@ -1,11 +1,10 @@
 package sekelsta.horse_colors.util;
 
-import net.minecraft.block.CarpetBlock;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.HorseArmorItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.level.block.WoolCarpetBlock;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.HorseArmorItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -31,7 +30,7 @@ public class HorseArmorer
             return vanilla;
         }
         if (armor instanceof BlockItem) {
-            if (((BlockItem)armor).getBlock() instanceof CarpetBlock) {
+            if (((BlockItem)armor).getBlock() instanceof WoolCarpetBlock) {
                 return new ResourceLocation(HorseColorCalculator.fixPath("armor/carpet"));
             }
         }

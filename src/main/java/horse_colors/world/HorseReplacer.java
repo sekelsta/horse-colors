@@ -1,12 +1,12 @@
 package sekelsta.horse_colors.world;
 
 import java.util.*;
+import java.util.stream.Stream;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.passive.horse.HorseEntity;
-import net.minecraft.entity.passive.horse.DonkeyEntity;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.animal.horse.Horse;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -14,16 +14,20 @@ import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.*;
 
 public class HorseReplacer {
+    private static void loadDuringWorldGen(ServerLevel world, Entity entity) {
+        world.addWorldGenChunkEntities(Stream.of(entity));
+    }
+
 
     @SubscribeEvent
 	public static void replaceHorses(EntityJoinWorldEvent event)
     {
         // We don't want to replace subclasses of horses
-        if (event.getEntity().getClass() == HorseEntity.class
+        if (event.getEntity().getClass() == Horse.class
             && !event.getWorld().isClientSide
             && HorseConfig.SPAWN.convertVanillaHorses.get())
         {
-            HorseEntity horse = (HorseEntity)event.getEntity();
+            Horse horse = (Horse)event.getEntity();
             if (!horse.getPersistentData().contains("converted")) {
                 HorseGeneticEntity newHorse = ModEntities.HORSE_GENETIC.create(event.getWorld());
                 newHorse.copyAbstractHorse(horse);
@@ -33,9 +37,9 @@ public class HorseReplacer {
                 // from chunk loading creates a deadlock. Minecraft's chunk 
                 // loading code calls ServerWorld.loadFromChunk
                 // instead, which assumes the chunk is already loaded.
-                World world = event.getWorld();
-                if (world instanceof ServerWorld) {
-                    ((ServerWorld)world).loadFromChunk(newHorse);
+                Level world = event.getWorld();
+                if (world instanceof ServerLevel) {
+                    loadDuringWorldGen((ServerLevel)world, newHorse);
                 }
                 // Don't convert the same horse twice
                 horse.getPersistentData().putBoolean("converted", true);

@@ -1,19 +1,21 @@
 package sekelsta.horse_colors.item;
 
-import net.minecraft.block.DispenserBlock;
-import net.minecraft.dispenser.*;
-import net.minecraft.entity.passive.horse.AbstractHorseEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
+
+import net.minecraft.core.BlockSource;
+import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.core.dispenser.OptionalDispenseItemBehavior;
+import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import sekelsta.horse_colors.item.*;
 import sekelsta.horse_colors.CreativeTab;
 import sekelsta.horse_colors.HorseColors;
 
@@ -40,18 +42,18 @@ public class ModItems {
     }
 
     private static void registerDispenserBehaviour() {
-        DefaultDispenseItemBehavior dispenseHorseArmor = new OptionalDispenseBehavior() {
+        DefaultDispenseItemBehavior dispenseHorseArmor = new OptionalDispenseItemBehavior() {
             /**
              * Dispense the specified stack, play the dispense sound and spawn particles.
              */
-            protected ItemStack execute(IBlockSource source, ItemStack stack) {
+            protected ItemStack execute(BlockSource source, ItemStack stack) {
                 BlockPos blockpos = source.getPos().relative(source.getBlockState().getValue(DispenserBlock.FACING));
 
-                for(AbstractHorseEntity abstracthorseentity : source.getLevel().getEntitiesOfClass(AbstractHorseEntity.class, new AxisAlignedBB(blockpos), (horse) -> {
+                for(AbstractHorse abstracthorseentity : source.getLevel().getEntitiesOfClass(AbstractHorse.class, new AABB(blockpos), (horse) -> {
                     return horse.isAlive() && horse.canWearArmor();
                 })) {
                     if (abstracthorseentity.isArmor(stack) && !abstracthorseentity.isWearingArmor() && abstracthorseentity.isTamed()) {
-                        abstracthorseentity.setSlot(401, stack.split(1));
+                        abstracthorseentity.getSlot(401).set(stack.split(1));
                         this.setSuccess(true);
                         return stack;
                     }

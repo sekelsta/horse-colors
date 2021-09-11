@@ -1,27 +1,26 @@
 package sekelsta.horse_colors;
 
-import net.minecraft.entity.passive.horse.AbstractHorseEntity;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.HorseInventoryContainer;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.HorseInventoryMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 
 public class ContainerEventHandler {
     public static void editContainer(PlayerContainerEvent.Open event) {
-        if (!(event.getContainer() instanceof HorseInventoryContainer)) {
+        if (!(event.getContainer() instanceof HorseInventoryMenu)) {
             return;
         }
-        HorseInventoryContainer horseContainer = (HorseInventoryContainer)event.getContainer();
-        AbstractHorseEntity horse = null;
+        HorseInventoryMenu horseContainer = (HorseInventoryMenu)event.getContainer();
+        AbstractHorse horse = null;
         try {
-            // , "field_188516_a"
-            horse = ObfuscationReflectionHelper.getPrivateValue(HorseInventoryContainer.class, horseContainer, "field_111242_f");
+            horse = ObfuscationReflectionHelper.getPrivateValue(HorseInventoryMenu.class, horseContainer, "f_39654_");
         }
         catch (ObfuscationReflectionHelper.UnableToAccessFieldException e) {
             System.err.println("Unable to access private value horse while replacing the horse container.");
@@ -36,8 +35,8 @@ public class ContainerEventHandler {
     }
 
     // Replace the saddle slot with one that accepts alternate saddles
-    // This is called both on the server side from here and on theclient side from HorseGui
-    public static void replaceSaddleSlot(AbstractHorseGenetic horse, Container container) {
+    // This is called both on the server side from here and on the client side from HorseGui
+    public static void replaceSaddleSlot(AbstractHorseGenetic horse, AbstractContainerMenu container) {
         // This isn't getting called on dedicated servers, even though it is getting called on the server thread of an integrated client
         Slot saddleSlot = new Slot(horse.getHorseChest(), 0, 8, 18) {
             @Override

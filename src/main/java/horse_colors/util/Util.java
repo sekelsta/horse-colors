@@ -1,19 +1,19 @@
 package sekelsta.horse_colors.util;
 
-import net.minecraft.entity.passive.horse.AbstractHorseEntity;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import sekelsta.horse_colors.HorseColors;
 
 public class Util {
-    public static boolean horseCanMate(AbstractHorseEntity horse) {
+    public static boolean horseCanMate(AbstractHorse horse) {
         // This is the same as calling other.canMate() but doesn't require
         // reflection
         return !horse.isVehicle() && !horse.isPassenger() && horse.isTamed() && !horse.isBaby() && horse.getHealth() >= horse.getMaxHealth() && horse.isInLove();
     }
 
     public static String translate(String in) {
-        return new TranslationTextComponent(HorseColors.MODID + "." + in).getString(10000);
+        return new TranslatableComponent(HorseColors.MODID + "." + in).getString(10000);
     }
 
     public static char toBase64(int v) {

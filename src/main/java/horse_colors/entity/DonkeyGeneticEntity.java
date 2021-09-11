@@ -1,25 +1,21 @@
 package sekelsta.horse_colors.entity;
-import net.minecraft.entity.passive.horse.*;
+import net.minecraft.world.entity.animal.horse.*;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.AgeableEntity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ILivingEntityData;
-import net.minecraft.entity.passive.AnimalEntity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 
 import sekelsta.horse_colors.breed.Breed;
 import sekelsta.horse_colors.breed.donkey.*;
@@ -34,7 +30,7 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
 
     private static final ResourceLocation LOOT_TABLE = new ResourceLocation("minecraft", "entities/donkey");
 
-    public DonkeyGeneticEntity(EntityType<? extends DonkeyGeneticEntity> entityType, World world) {
+    public DonkeyGeneticEntity(EntityType<? extends DonkeyGeneticEntity> entityType, Level world) {
         super(entityType, world);
     }
 
@@ -82,7 +78,7 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
     * Returns true if the mob is currently able to mate with the specified mob.
     */
     @Override
-    public boolean canMate(AnimalEntity otherAnimal) {
+    public boolean canMate(Animal otherAnimal) {
         if (otherAnimal == this)
         {
             return false;
@@ -94,10 +90,10 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
         }
         if (otherAnimal instanceof DonkeyGeneticEntity 
                 || otherAnimal instanceof HorseGeneticEntity
-                || otherAnimal instanceof DonkeyEntity 
-                || otherAnimal instanceof HorseEntity)
+                || otherAnimal instanceof Donkey 
+                || otherAnimal instanceof Horse)
         {
-            return this.canParent() && Util.horseCanMate((AbstractHorseEntity)otherAnimal);
+            return this.canParent() && Util.horseCanMate((AbstractHorse)otherAnimal);
         }
         else
         {
@@ -108,7 +104,7 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
     // Helper function for createChild that creates and spawns an entity of the 
     // correct species
     @Override
-    public AbstractHorseEntity getChild(ServerWorld world, AgeableEntity ageable)
+    public AbstractHorse getChild(ServerLevel world, AgeableMob ageable)
     {
         if (ageable instanceof AbstractHorseGenetic) {
             AbstractHorseGenetic child = null;
@@ -125,10 +121,10 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
             }
             return child;
         }
-        else if (ageable instanceof HorseEntity) {
+        else if (ageable instanceof Horse) {
             return EntityType.MULE.create(this.level);
         }
-        else if (ageable instanceof DonkeyEntity) {
+        else if (ageable instanceof Donkey) {
             return EntityType.DONKEY.create(this.level);
         }
         return null;

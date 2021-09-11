@@ -4,12 +4,15 @@ import net.minecraft.client.renderer.texture.*;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.io.IOException;
-import net.minecraft.resources.IResourceManager;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.platform.TextureUtil;
+
 @OnlyIn(Dist.CLIENT)
-public class CustomLayeredTexture extends Texture {
+public class CustomLayeredTexture extends AbstractTexture {
     public final TextureLayerGroup layerGroup;
 
     public CustomLayeredTexture(TextureLayerGroup layers) {
@@ -20,7 +23,7 @@ public class CustomLayeredTexture extends Texture {
     }
 
     @Override
-    public void load(IResourceManager manager) throws IOException {
+    public void load(ResourceManager manager) throws IOException {
         NativeImage image = layerGroup.getLayer(manager);
 
         if (!RenderSystem.isOnRenderThreadOrInit()) {

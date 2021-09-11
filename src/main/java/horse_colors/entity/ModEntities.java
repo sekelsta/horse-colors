@@ -1,23 +1,26 @@
 package sekelsta.horse_colors.entity;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.Item;
-import net.minecraft.item.SpawnEggItem;
-import net.minecraft.entity.ai.attributes.GlobalEntityTypeAttributes;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.passive.horse.AbstractHorseEntity;
-import net.minecraft.entity.passive.horse.AbstractChestedHorseEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 
 import sekelsta.horse_colors.CreativeTab;
 import sekelsta.horse_colors.HorseColors;
+import sekelsta.horse_colors.client.renderer.HorseArmorLayer;
+import sekelsta.horse_colors.client.renderer.HorseGeneticModel;
 import sekelsta.horse_colors.client.renderer.HorseGeneticRenderer;
 
 @Mod.EventBusSubscriber(modid = HorseColors.MODID, bus = Bus.MOD)
@@ -37,15 +40,15 @@ public class ModEntities {
         final ResourceLocation horseRegistryName = new ResourceLocation(HorseColors.MODID, "horse_felinoid");
         // Vanilla size in 1.12 was 1.3964844F, 1.6F
         // Size numbers are width, height
-        HORSE_GENETIC = EntityType.Builder.of(HorseGeneticEntity::new, EntityClassification.CREATURE).sized(1.2F, 1.6F).build(horseRegistryName.toString());
+        HORSE_GENETIC = EntityType.Builder.of(HorseGeneticEntity::new, MobCategory.CREATURE).sized(1.2F, 1.6F).build(horseRegistryName.toString());
         HORSE_GENETIC.setRegistryName(horseRegistryName);
 
         final ResourceLocation donkeyRegistryName = new ResourceLocation(HorseColors.MODID, "donkey");
-        DONKEY_GENETIC = EntityType.Builder.of(DonkeyGeneticEntity::new, EntityClassification.CREATURE).sized(1.2F, 1.6F).build(donkeyRegistryName.toString());
+        DONKEY_GENETIC = EntityType.Builder.of(DonkeyGeneticEntity::new, MobCategory.CREATURE).sized(1.2F, 1.6F).build(donkeyRegistryName.toString());
         DONKEY_GENETIC.setRegistryName(donkeyRegistryName);
 
         final ResourceLocation muleRegistryName = new ResourceLocation(HorseColors.MODID, "mule");
-        MULE_GENETIC = EntityType.Builder.of(MuleGeneticEntity::new, EntityClassification.CREATURE).sized(1.2F, 1.6F).build(muleRegistryName.toString());
+        MULE_GENETIC = EntityType.Builder.of(MuleGeneticEntity::new, MobCategory.CREATURE).sized(1.2F, 1.6F).build(muleRegistryName.toString());
         MULE_GENETIC.setRegistryName(muleRegistryName);
 
         HORSE_SPAWN_EGG = new SpawnEggItem(HORSE_GENETIC, horseEggPrimary, horseEggSecondary, (new Item.Properties()).tab(CreativeTab.instance));
@@ -58,21 +61,20 @@ public class ModEntities {
         MULE_SPAWN_EGG.setRegistryName(new ResourceLocation(HorseColors.MODID, "mule_spawn_egg"));
     }
 
-    private static void registerAttributes() {
-        GlobalEntityTypeAttributes.put(HORSE_GENETIC, AbstractHorseEntity.createBaseHorseAttributes().build());
-        GlobalEntityTypeAttributes.put(DONKEY_GENETIC, AbstractChestedHorseEntity.createBaseChestedHorseAttributes().build());
-        GlobalEntityTypeAttributes.put(MULE_GENETIC, AbstractChestedHorseEntity.createBaseChestedHorseAttributes().build());
+    @SubscribeEvent
+    public static void registerAttributes(EntityAttributeCreationEvent event) {
+        event.put(HORSE_GENETIC, AbstractHorse.createBaseHorseAttributes().build());
+        event.put(DONKEY_GENETIC, AbstractChestedHorse.createBaseChestedHorseAttributes().build());
+        event.put(MULE_GENETIC, AbstractChestedHorse.createBaseChestedHorseAttributes().build());
     }
 
     @SubscribeEvent
     public static void registerEntities(final RegistryEvent.Register<EntityType<?>> event) {
-
         event.getRegistry().registerAll(
                 HORSE_GENETIC,
                 DONKEY_GENETIC,
                 MULE_GENETIC
         );
-        registerAttributes();
     }
 
     @SubscribeEvent
@@ -84,11 +86,19 @@ public class ModEntities {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static void registerRenders()
+    @SubscribeEvent
+    public static void registerRenderers(final EntityRenderersEvent.RegisterRenderers event)
     {
-        RenderingRegistry.registerEntityRenderingHandler(HORSE_GENETIC, renderManager -> new HorseGeneticRenderer(renderManager));
-        RenderingRegistry.registerEntityRenderingHandler(DONKEY_GENETIC, renderManager -> new HorseGeneticRenderer(renderManager));
-        RenderingRegistry.registerEntityRenderingHandler(MULE_GENETIC, renderManager -> new HorseGeneticRenderer(renderManager));
+        event.registerEntityRenderer(HORSE_GENETIC, renderManager -> new HorseGeneticRenderer(renderManager));
+        event.registerEntityRenderer(DONKEY_GENETIC, renderManager -> new HorseGeneticRenderer(renderManager));
+        event.registerEntityRenderer(MULE_GENETIC, renderManager -> new HorseGeneticRenderer(renderManager));
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    public static void registerLayerDefinition(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(HorseGeneticRenderer.EQUINE_LAYER, HorseGeneticModel::createBodyLayer);
+        event.registerLayerDefinition(HorseArmorLayer.HORSE_ARMOR_LAYER, HorseGeneticModel::createArmorLayer);
     }
 
 }

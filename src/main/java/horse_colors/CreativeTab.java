@@ -1,13 +1,12 @@
 package sekelsta.horse_colors;
 
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
-
-public class CreativeTab extends ItemGroup {
+public class CreativeTab extends CreativeModeTab {
     // Make creative mode tab
-    public static final CreativeTab instance = new CreativeTab(ItemGroup.TABS.length, "tabHorseColors");
+    public static final CreativeTab instance = new CreativeTab(CreativeModeTab.TABS.length, "tabHorseColors");
 
     public CreativeTab(int index, String label) {
         super(index, label);

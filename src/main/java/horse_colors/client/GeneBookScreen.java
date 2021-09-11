@@ -1,32 +1,19 @@
 package sekelsta.horse_colors.client;
 
-import com.google.common.collect.Lists;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.*;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.gui.DialogTexts;
-import net.minecraft.client.gui.IGuiEventListener;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.client.gui.chat.NarratorChatListener;
-import net.minecraft.client.gui.screen.ReadBookScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.gui.widget.button.ChangePageButton;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
-import net.minecraft.util.IReorderingProcessor;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextProperties;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.inventory.PageButton;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -41,18 +28,19 @@ public class GeneBookScreen extends Screen {
     private static final int bookHeight = 192;
     private static final int pageWidth = 130;
     private static final int pageCrease = 10;
+    private static final ResourceLocation BACKGROUND_TEXTURE_LOCATION = new ResourceLocation(HorseColors.MODID + ":textures/gui/book.png");
     int currPage = 0;
     private Genome genome;
 
     private List<List<String>> contents;
     private List<String> pages;
    /** Holds a copy of the page text, split into page width lines */
-    private List<IReorderingProcessor> cachedPageLinesLeft = Collections.emptyList();
-    private List<IReorderingProcessor> cachedPageLinesRight = Collections.emptyList();
+    private List<FormattedCharSequence> cachedPageLinesLeft = Collections.emptyList();
+    private List<FormattedCharSequence> cachedPageLinesRight = Collections.emptyList();
     private int cachedPage = -1;
 
-    private ChangePageButton buttonNextPage;
-    private ChangePageButton buttonPreviousPage;
+    private PageButton buttonNextPage;
+    private PageButton buttonPreviousPage;
     /** Determines if a sound is played when the page is turned */
     private final boolean pageTurnSounds = true;
 
@@ -62,11 +50,15 @@ public class GeneBookScreen extends Screen {
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         // Render the book picture in the back
         this.renderBackground(matrixStack);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.minecraft.getTextureManager().bind(new ResourceLocation(HorseColors.MODID + ":textures/gui/book.png"));
+
+        
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, BACKGROUND_TEXTURE_LOCATION);
+
         int x = (this.width - bookWidth) / 2;
         int y = 2;
         //x = 0;
@@ -86,19 +78,19 @@ public class GeneBookScreen extends Screen {
         super.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 
-    private List<IReorderingProcessor> cachePageLines(int page) {
-        ITextProperties itextproperties;
+    private List<FormattedCharSequence> cachePageLines(int page) {
+        FormattedText itextproperties;
         if (page < 0 || page >= this.getPageCount()) {
-            itextproperties = ITextProperties.EMPTY;
+            itextproperties = FormattedText.EMPTY;
         }
         else {
             String pagetext = this.getPageText(page);
-            itextproperties = ITextProperties.of(pagetext);
+            itextproperties = FormattedText.of(pagetext);
         }
         return this.font.split(itextproperties, lineWrapWidth);
     }
 
-    private void renderPage(MatrixStack matrixStack, int pagenum, List<IReorderingProcessor> cachedPageLines, int x) {
+    private void renderPage(PoseStack matrixStack, int pagenum, List<FormattedCharSequence> cachedPageLines, int x) {
         String pageindicator = I18n.get("book.pageIndicator", pagenum + 1, this.getPageCount());
 
         String pagetext = this.getPageText(pagenum);
@@ -107,7 +99,7 @@ public class GeneBookScreen extends Screen {
 
         int lines = Math.min(linesPerPage, cachedPageLines.size());
         for(int i = 0; i < lines; ++i) {
-            IReorderingProcessor text = cachedPageLines.get(i);
+            FormattedCharSequence text = cachedPageLines.get(i);
             this.font.draw(matrixStack, text, (float)x, (float)(32 + i * 9), 0);
         }
     }
@@ -121,7 +113,7 @@ public class GeneBookScreen extends Screen {
             int lines = 0;
             for (int ln = 0; ln < contents.get(ch).size(); ++ln) {
                 String text = contents.get(ch).get(ln);
-                ITextProperties itextproperties = ITextProperties.of(text);
+                FormattedText itextproperties = FormattedText.of(text);
                 // Get the number of lines for this block of text
                 int wrapped = this.font.getSplitter().splitLines(itextproperties, lineWrapWidth, Style.EMPTY).size();
                 if (lines + wrapped > linesPerPage && lines > 0) {
@@ -139,7 +131,7 @@ public class GeneBookScreen extends Screen {
     }
 
    protected void addDoneButton() {
-      this.addButton(new Button(this.width / 2 - 100, 196, 200, 20, DialogTexts.GUI_DONE, (param) -> {
+      this.addRenderableWidget(new Button(this.width / 2 - 100, 196, 200, 20, CommonComponents.GUI_DONE, (param) -> {
          this.minecraft.setScreen((Screen)null);
       }));
    }
@@ -149,10 +141,10 @@ public class GeneBookScreen extends Screen {
         int x2 = (this.width + bookWidth) / 2;
         int j = 2;
         int y = 159;
-        this.buttonNextPage = this.addButton(new ChangePageButton(x2 - 43 - 24, y, true, (p_214159_1_) -> {
+        this.buttonNextPage = this.addRenderableWidget(new PageButton(x2 - 43 - 24, y, true, (p_214159_1_) -> {
             this.nextPage();
         }, this.pageTurnSounds));
-        this.buttonPreviousPage = this.addButton(new ChangePageButton(x1 + 43, y, false, (p_214158_1_) -> {
+        this.buttonPreviousPage = this.addRenderableWidget(new PageButton(x1 + 43, y, false, (p_214158_1_) -> {
             this.previousPage();
         }, this.pageTurnSounds));
         this.updateButtons();

@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Locale;
 
 import net.minecraft.client.renderer.texture.*;
-import net.minecraft.resources.IResourceManager;
+import net.minecraft.server.packs.resources.ResourceManager;
 
 import sekelsta.horse_colors.util.Color;
+
+import com.mojang.blaze3d.platform.NativeImage;
 
 public class TextureLayerGroup extends TextureLayer {
     public List<TextureLayer> layers;
@@ -27,7 +29,7 @@ public class TextureLayerGroup extends TextureLayer {
     }
 
     @Override
-    public NativeImage getLayer(IResourceManager manager) {
+    public NativeImage getLayer(ResourceManager manager) {
         Iterator<TextureLayer> iterator = this.layers.iterator();
         TextureLayer baselayer = iterator.next();
         NativeImage baseimage = baselayer.getLayer(manager);
