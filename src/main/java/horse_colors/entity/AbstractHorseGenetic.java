@@ -105,10 +105,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         this.setSeed(this.random.nextInt());
         this.setMale(this.random.nextBoolean());
         this.entityData.set(PREGNANT_SINCE, -1);
-        // Trying to do this in writeAdditional would be too late, as the
-        // persistent data is already written from Entity.write before that is
-        // called (at least in Minecraft 1.16.3)
-        this.getPersistentData().putInt("HorseGeneticsVersion", HORSE_GENETICS_VERSION);
     }
 
     public EquineGenome getGenome() {
@@ -225,7 +221,15 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         }
 
         // Done reading, so update format version to the one that will be written
+        // Trying to do this in writeAdditional would be too late, as the
+        // persistent data is already written from Entity.write before that is
+        // called (at least in Minecraft 1.16.3)
         this.getPersistentData().putInt("HorseGeneticsVersion", HORSE_GENETICS_VERSION);
+        // Tell Ride Along how much this horse weighs
+        CompoundTag rideAlongTag = new CompoundTag();
+        rideAlongTag.putDouble("WeightKg", this.getGenome().getGeneticWeightKg());
+        this.getPersistentData().put("RideAlong", rideAlongTag);
+        System.out.println("hello" + this.getPersistentData());
     }
 
 
