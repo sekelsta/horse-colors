@@ -136,7 +136,6 @@ public class HorseGui extends HorseInventoryScreen {
     }
 
     public static void replaceGui(GuiOpenEvent event) {
-/* TODO
         if (event.getGui() instanceof HorseInventoryScreen) {
             HorseInventoryScreen screen = (HorseInventoryScreen)event.getGui();
             AbstractHorse horse = null;
@@ -150,20 +149,10 @@ public class HorseGui extends HorseInventoryScreen {
             }
             if (horse instanceof AbstractHorseGenetic) {
                 AbstractHorseGenetic horseGenetic = (AbstractHorseGenetic)horse;
-                Inventory fakeInventory = null;
-                try {
-                    // field_213127_e = playerInventory
-                    inventory = ObfuscationReflectionHelper.getPrivateValue(AbstractContainerScreen.class, screen, "field_213127_e");
-                }
-                catch (ObfuscationReflectionHelper.UnableToAccessFieldException e) {
-                    System.err.println("Unable to access private value playerInventory while replacing the horse GUI.");
-                    System.err.println(e);
-                }
-
+                Inventory inventory = new Inventory(null);
                 ContainerEventHandler.replaceSaddleSlot(horseGenetic, screen.getMenu());
                 event.setGui(new HorseGui(screen.getMenu(), inventory, horseGenetic));
             }
         }
-*/
     }
 }
