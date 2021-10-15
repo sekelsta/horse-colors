@@ -92,8 +92,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     protected static final AttributeModifier CSNB_SPEED_MODIFIER = new AttributeModifier(CSNB_SPEED_UUID, "CSNB speed penalty", -0.6, AttributeModifier.Operation.MULTIPLY_TOTAL);
     protected static final AttributeModifier CSNB_JUMP_MODIFIER = new AttributeModifier(CSNB_JUMP_UUID, "CSNB jump penalty", -0.6, AttributeModifier.Operation.MULTIPLY_TOTAL);
 
-    protected static final int HORSE_GENETICS_VERSION = 3;
-
     protected List<AbstractHorseGenetic> unbornChildren = new ArrayList<>();
 
     // f_30514_ = standAnimO
@@ -195,13 +193,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     public void readAdditionalSaveData(CompoundTag compound)
     {
         super.readAdditionalSaveData(compound);
-        // Get save format version
-        int version = 0;
-        if (this.getPersistentData().contains("HorseGeneticsVersion")) {
-            version = this.getPersistentData().getInt("HorseGeneticsVersion");
-        }
         // Read the main part of the data
-        readGeneticData(compound, version);
+        readGeneticData(compound);
         // Ensure the true age matches the age
         if (this.trueAge < 0 != this.age < 0) {
             this.trueAge = this.age;
@@ -220,27 +213,24 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
             }
         }
 
-        // Done reading, so update format version to the one that will be written
-        // Trying to do this in writeAdditional would be too late, as the
-        // persistent data is already written from Entity.write before that is
-        // called (at least in Minecraft 1.16.3)
-        this.getPersistentData().putInt("HorseGeneticsVersion", HORSE_GENETICS_VERSION);
+        this.updatePersistentData();
+    }
+
+    private void updatePersistentData() {
         // Tell Ride Along how much this horse weighs
         CompoundTag rideAlongTag = new CompoundTag();
         rideAlongTag.putDouble("WeightKg", this.getGenome().getGeneticWeightKg());
         this.getPersistentData().put("RideAlong", rideAlongTag);
-        System.out.println("hello" + this.getPersistentData());
     }
 
 
-    // A helper function for reading the data either from the main entity
-    // tag in save format versions 2 and under, or for reading it from its own tag
-    // in versions 3+
-    private void readGeneticData(CompoundTag compound, int version) {
+    // A helper function for reading the data
+    private void readGeneticData(CompoundTag compound) {
         // Set genes if they exist
         if (compound.contains("Genes")) {
-            if (version < 3) {
-                // Read genes using the 1:1 conversion of chars to nums
+            String genes = compound.getString("Genes");
+            if (genes.length() > 0 && genes.charAt(0) < 48) {
+                // Read genes using the old 1:1 conversion of chars to nums
                 this.setGeneData(compound.getString("Genes"));
             }
             else {
@@ -354,8 +344,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         if (compound.contains("Variant5")) {
             map.put("4", compound.getInt("Variant5"));
         }
-        else if (!this.getPersistentData().contains("HorseGeneticsVersion")) {
-            this.getPersistentData().putInt("HorseGeneticsVersion", HORSE_GENETICS_VERSION);
+        else {
             this.getGenome().datafixAddingFourthChromosome(map);
         }
         if (compound.contains("SpeedGenes")) {
@@ -1131,6 +1120,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         // super.finalizeSpawn will call randomizeAttributes
         SpawnGroupData data = super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
         this.useGeneticAttributes();
+        this.updatePersistentData();
         return data;
     }
 
