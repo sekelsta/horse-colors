@@ -255,7 +255,7 @@ public class HorseGeneticModel<T extends AbstractHorse> extends AgeableListModel
         );
         PartDefinition backRightHoofDef = backRightShinDef.addOrReplaceChild(
             BACK_RIGHT_HOOF,
-            CubeListBuilder.create().texOffs(95, 51).addBox(-1.5F, 5.0F, -1.5F, 4, 3, 4),
+            CubeListBuilder.create().texOffs(96, 51).addBox(-1.5F, 5.0F, -1.5F, 4, 3, 4),
             PartPose.ZERO
         );
 
