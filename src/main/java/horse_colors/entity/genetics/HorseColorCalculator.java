@@ -711,8 +711,8 @@ public class HorseColorCalculator
         addMealy(horse, textureLayers);
         addBlackBody(horse, layerGroup);
         HorseColorCalculator.addDun(horse, textureLayers);
-        addPoints(horse, textureLayers);
         HorseColorCalculator.addRedManeTail(horse, textureLayers);
+        addPoints(horse, textureLayers);
         textureLayers.add(HorseColorCalculator.getBlackManeTail(horse));
         HorseColorCalculator.addGray(horse, textureLayers);
         addNose(horse, layerGroup);
