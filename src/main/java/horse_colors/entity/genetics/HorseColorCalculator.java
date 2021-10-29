@@ -275,7 +275,8 @@ public class HorseColorCalculator
 
         if (!horse.isHomozygous(Gene.flaxen1, HorseAlleles.FLAXEN)
                 && !horse.isHomozygous(Gene.flaxen2, HorseAlleles.FLAXEN)
-                && !horse.isMushroom()) {
+                && !horse.isMushroom()
+                && !horse.isMealy()) {
             // No flaxen, nothing to do
             return;
         }
@@ -292,6 +293,10 @@ public class HorseColorCalculator
             power *= 0.2f;
         }
         float white = 0f;
+        if (horse.isMealy()) {
+            power *= 0.4f;
+            white += 0.25f;
+        }
         if (horse.isHomozygous(Gene.flaxen1, HorseAlleles.FLAXEN)) {
             power *= 0.5f;
             white += 0.2f;
