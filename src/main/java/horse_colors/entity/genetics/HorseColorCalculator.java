@@ -300,11 +300,8 @@ public class HorseColorCalculator
         if (horse.hasAllele(Gene.champagne, HorseAlleles.CHAMPAGNE)) {
             power *= 0.2f;
         }
-        if (horse.isMealy()) {
-            power *= 0.4f;
-            white += 0.25f;
-        }
-        if (horse.isHomozygous(Gene.flaxen1, HorseAlleles.FLAXEN)) {
+        if (horse.isHomozygous(Gene.flaxen1, HorseAlleles.FLAXEN)
+                || horse.isMealy()) {
             power *= 0.5f;
             white += 0.2f;
         }
