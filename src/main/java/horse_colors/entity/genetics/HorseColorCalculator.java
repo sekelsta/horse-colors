@@ -25,6 +25,8 @@ public class HorseColorCalculator
     private static final Color PINK_SKIN = new Color(0xff, 0xd6, 0xb6);
     private static final Color BLUE_EYES = new Color(0xc1, 0xda, 0xf8);
 
+    private static final float PALOMINO_POWER = 0.2f;
+
     public static String fixPath(String inStr) {
         if (inStr == null || inStr.contains(".png")) {
             return inStr;
@@ -256,23 +258,29 @@ public class HorseColorCalculator
         return 1f + x / 100f;
     }
 
-    private static void addRedManeTail(EquineGenome horse, List<TextureLayer> layers) {
-        final float PALOMINO_POWER = 0.2f;
-        if (!horse.isChestnut()) {
-            return;
+    private static Pigment getFlaxenPower(EquineGenome horse) {
+        float power = 1f;
+        float white = 0f;
+        if (horse.isMealy()) {
+            power *= 0.4f;
+            white += 0.25f;
         }
-
-        if (horse.hasAllele(Gene.cream, HorseAlleles.CREAM)
-                || horse.hasAllele(Gene.champagne, HorseAlleles.CHAMPAGNE)) {
-            TextureLayer palomino_mane = new TextureLayer();
-            palomino_mane.description = "palomino mane";
-            palomino_mane.name = fixPath("manetail");
-            palomino_mane.color = redBodyColor(horse);
-            palomino_mane.color.power(PALOMINO_POWER);
-            setGrayConcentration(horse, palomino_mane);
-            layers.add(palomino_mane);
+        if (horse.isHomozygous(Gene.flaxen1, HorseAlleles.FLAXEN)) {
+            power *= 0.5f;
+            white += 0.2f;
         }
+        if (horse.isHomozygous(Gene.flaxen2, HorseAlleles.FLAXEN)) {
+            power *= 0.8f;
+            white += 0.1f;
+        }
+        if (horse.hasAllele(Gene.flaxen_boost, 1)) {
+            Math.pow(power, 1.5);
+            white *= 1.5;
+        }
+        return new Pigment(PHEOMELANIN, power, white);
+    }
 
+    private static void addFlaxen(EquineGenome horse, List<TextureLayer> layers) {
         if (!horse.isHomozygous(Gene.flaxen1, HorseAlleles.FLAXEN)
                 && !horse.isHomozygous(Gene.flaxen2, HorseAlleles.FLAXEN)
                 && !horse.isMushroom()
@@ -280,19 +288,18 @@ public class HorseColorCalculator
             // No flaxen, nothing to do
             return;
         }
-
         TextureLayer flaxen = new TextureLayer();
         flaxen.name = fixPath("flaxen");
-        flaxen.description = "flaxen";
         flaxen.color = redBodyColor(horse);
-        float power = 1f;
+        Pigment flaxenpower = getFlaxenPower(horse);
+        float power = flaxenpower.concentration;
+        float white = flaxenpower.white;
         if (horse.hasAllele(Gene.cream, HorseAlleles.CREAM)) {
             power *= PALOMINO_POWER;
         }
         if (horse.hasAllele(Gene.champagne, HorseAlleles.CHAMPAGNE)) {
             power *= 0.2f;
         }
-        float white = 0f;
         if (horse.isMealy()) {
             power *= 0.4f;
             white += 0.25f;
@@ -317,6 +324,26 @@ public class HorseColorCalculator
         setGrayConcentration(horse, flaxen);
         flaxen.color.addWhite(white);
         layers.add(flaxen);
+    }
+
+    private static void addRedManeTail(EquineGenome horse, List<TextureLayer> layers) {
+        if (!horse.isChestnut()) {
+            return;
+        }
+
+        if (horse.hasAllele(Gene.cream, HorseAlleles.CREAM)
+                || horse.hasAllele(Gene.champagne, HorseAlleles.CHAMPAGNE)) {
+            TextureLayer palomino_mane = new TextureLayer();
+            palomino_mane.description = "palomino mane";
+            palomino_mane.name = fixPath("manetail");
+            palomino_mane.color = redBodyColor(horse);
+            palomino_mane.color.power(PALOMINO_POWER);
+            setGrayConcentration(horse, palomino_mane);
+            layers.add(palomino_mane);
+
+            addFlaxen(horse, layers);
+        }
+
     }
 
     private static TextureLayer getBlackManeTail(EquineGenome horse) {
@@ -711,8 +738,9 @@ public class HorseColorCalculator
         addMealy(horse, textureLayers);
         addBlackBody(horse, layerGroup);
         HorseColorCalculator.addDun(horse, textureLayers);
-        HorseColorCalculator.addRedManeTail(horse, textureLayers);
+        addFlaxen(horse, textureLayers);
         addPoints(horse, textureLayers);
+        addRedManeTail(horse, textureLayers);
         textureLayers.add(HorseColorCalculator.getBlackManeTail(horse));
         HorseColorCalculator.addGray(horse, textureLayers);
         addNose(horse, layerGroup);
