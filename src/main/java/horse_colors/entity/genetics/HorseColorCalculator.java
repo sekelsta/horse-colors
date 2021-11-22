@@ -200,7 +200,8 @@ public class HorseColorCalculator
         }
  
         white = Math.max(white, 0);
-        return new Pigment(EUMELANIN, concentration, white);
+        // Color isn't used
+        return new Pigment(Color.BLACK, concentration, white);
     }
 
     private static Pigment blackFurPigment(EquineGenome horse) {
@@ -281,6 +282,9 @@ public class HorseColorCalculator
     }
 
     private static void addFlaxen(EquineGenome horse, List<TextureLayer> layers) {
+        if (!horse.isChestnut()) {
+            return;
+        }
         if (!horse.isHomozygous(Gene.flaxen1, HorseAlleles.FLAXEN)
                 && !horse.isHomozygous(Gene.flaxen2, HorseAlleles.FLAXEN)
                 && !horse.isMushroom()
