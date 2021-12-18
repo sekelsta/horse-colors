@@ -2,7 +2,7 @@ package sekelsta.horse_colors.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.HorseInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -16,9 +16,10 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.HorseInventoryMenu;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.client.event.ScreenOpenEvent;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
+import org.jetbrains.annotations.NotNull;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.ContainerEventHandler;
 import sekelsta.horse_colors.entity.AbstractHorseGenetic;
@@ -41,7 +42,7 @@ public class HorseGui extends HorseInventoryScreen {
     * Draws the background layer of this container (behind the items).
     */
     @Override
-    protected void renderBg(PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@NotNull PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, TEXTURE_LOCATION);
@@ -135,9 +136,9 @@ public class HorseGui extends HorseInventoryScreen {
         }
     }
 
-    public static void replaceGui(GuiOpenEvent event) {
-        if (event.getGui() instanceof HorseInventoryScreen) {
-            HorseInventoryScreen screen = (HorseInventoryScreen)event.getGui();
+    public static void replaceGui(ScreenOpenEvent event) {
+        if (event.getScreen() instanceof HorseInventoryScreen) {
+            HorseInventoryScreen screen = (HorseInventoryScreen)event.getScreen();
             AbstractHorse horse = null;
             try {
                 // f_98812_ = horse
@@ -151,7 +152,7 @@ public class HorseGui extends HorseInventoryScreen {
                 AbstractHorseGenetic horseGenetic = (AbstractHorseGenetic)horse;
                 Inventory inventory = new Inventory(null);
                 ContainerEventHandler.replaceSaddleSlot(horseGenetic, screen.getMenu());
-                event.setGui(new HorseGui(screen.getMenu(), inventory, horseGenetic));
+                event.setScreen(new HorseGui(screen.getMenu(), inventory, horseGenetic));
             }
         }
     }

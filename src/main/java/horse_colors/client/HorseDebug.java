@@ -1,7 +1,6 @@
 package sekelsta.horse_colors.client;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -12,13 +11,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.EntityHitResult;
 
-import sekelsta.horse_colors.client.renderer.TextureLayer;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 import sekelsta.horse_colors.entity.genetics.Genome;

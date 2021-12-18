@@ -1,11 +1,8 @@
 package sekelsta.horse_colors;
 
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.common.MinecraftForge;
@@ -15,8 +12,6 @@ import org.apache.logging.log4j.Logger;
 import sekelsta.horse_colors.breed.BreedManager;
 import sekelsta.horse_colors.client.HorseGui;
 import sekelsta.horse_colors.config.HorseConfig;
-import sekelsta.horse_colors.entity.ModEntities;
-import sekelsta.horse_colors.item.ModItems;
 import sekelsta.horse_colors.world.HorseReplacer;
 import sekelsta.horse_colors.world.Spawns;
 
