@@ -2,6 +2,8 @@ package sekelsta.horse_colors.breed;
 
 import sekelsta.horse_colors.HorseColors;
 import com.google.common.collect.ImmutableList;
+
+import java.lang.reflect.ParameterizedType;
 import java.util.*;
 import net.minecraft.resources.ResourceLocation;
 
@@ -26,8 +28,14 @@ public class Breed<T extends Enum<T>> {
     }
 
     public Breed(Breed<T> copy) {
-        this.genes = new EnumMap(copy.genes);
-        this.parent = copy.parent;
+        if (copy == null) {
+            this.genes = new HashMap<T, List<Float>>();
+            this.parent = null;
+        } else {
+            this.genes = new EnumMap(copy.genes);
+            this.parent = copy.parent;
+        }
+
     }
 
     public boolean contains(T gene) {

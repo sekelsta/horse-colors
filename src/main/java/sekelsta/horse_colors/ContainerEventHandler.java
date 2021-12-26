@@ -11,6 +11,7 @@ import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import sekelsta.horse_colors.entity.AbstractHorseGenetic;
+import net.minecraftforge.fml.loading.targets.ForgeClientUserdevLaunchHandler;
 
 public class ContainerEventHandler {
     public static void editContainer(PlayerContainerEvent.Open event) {

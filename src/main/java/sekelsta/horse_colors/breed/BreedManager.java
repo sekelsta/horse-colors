@@ -26,6 +26,7 @@ public class BreedManager extends SimpleJsonResourceReloadListener {
         super(GSON, "breeds");
     }
 
+    // TODO: fix, this function isn't running on clients
     protected void apply(Map<ResourceLocation, JsonElement> mapIn, ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
         breeds = new HashMap<>();
         for(ResourceLocation key : mapIn.keySet()) {
@@ -75,6 +76,6 @@ public class BreedManager extends SimpleJsonResourceReloadListener {
     }
 
     public static Breed<Gene> getBreed(ResourceLocation name) {
-        return breeds.get(name);
+        return breeds != null ? breeds.get(name) : null;
     }
 }
