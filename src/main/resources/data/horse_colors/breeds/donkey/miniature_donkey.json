@@ -1,0 +1,12 @@
+{
+    "population": 1000000,
+    "genes": {
+        "donkey_size0": [1.0],
+        "donkey_size1": [1.0],
+        "donkey_size2": [0.0, 0.5, 1.0],
+        "donkey_size3": [0.1, 1.0],
+        "donkey_size4": [0.0, 1.0],
+        "donkey_size5": [0.9, 1.0],
+        "donkey_size6": [0.5, 1.0]
+    }
+}

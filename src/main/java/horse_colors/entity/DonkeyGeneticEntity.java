@@ -1,8 +1,7 @@
 package sekelsta.horse_colors.entity;
 import net.minecraft.world.entity.animal.horse.*;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import javax.annotation.Nullable;
 
@@ -18,16 +17,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
 import sekelsta.horse_colors.breed.Breed;
-import sekelsta.horse_colors.breed.donkey.*;
+import sekelsta.horse_colors.breed.BreedManager;
 import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.entity.genetics.EquineGenome.Gene;
 import sekelsta.horse_colors.entity.genetics.Species;
 import sekelsta.horse_colors.util.Util;
 
 public class DonkeyGeneticEntity extends AbstractHorseGenetic {
-
-    public static List<Breed> breeds = ImmutableList.of(MiniatureDonkey.breed,
-        MammothDonkey.breed);
-
     private static final ResourceLocation LOOT_TABLE = new ResourceLocation("minecraft", "entities/donkey");
 
     public DonkeyGeneticEntity(EntityType<? extends DonkeyGeneticEntity> entityType, Level world) {
@@ -132,7 +128,12 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
 
     @Override
     public Breed getDefaultBreed() {
-        return DefaultDonkey.breed;
+        return BreedManager.DONKEY.getBreed("default_donkey");
+    }
+
+    @Override
+    public Collection<Breed<Gene>> getBreeds() {
+        return BreedManager.DONKEY.getAllBreeds();
     }
 
     @Override

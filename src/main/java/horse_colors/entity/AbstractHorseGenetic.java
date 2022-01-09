@@ -76,7 +76,7 @@ import net.minecraft.world.entity.ai.goal.RunAroundLikeCrazyGoal;
 import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 
-public abstract class AbstractHorseGenetic extends AbstractChestedHorse implements IGeneticEntity {
+public abstract class AbstractHorseGenetic extends AbstractChestedHorse implements IGeneticEntity<Gene> {
     protected EquineGenome genes = new EquineGenome(this.getSpecies(), this);
     protected static final EntityDataAccessor<String> GENES = SynchedEntityData.<String>defineId(AbstractHorseGenetic.class, EntityDataSerializers.STRING);
 

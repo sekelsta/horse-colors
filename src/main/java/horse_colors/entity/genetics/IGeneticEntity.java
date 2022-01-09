@@ -1,14 +1,13 @@
 package sekelsta.horse_colors.entity.genetics;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Random;
 
 import net.minecraft.world.entity.AgeableMob;
 import sekelsta.horse_colors.breed.Breed;
 import sekelsta.horse_colors.config.HorseConfig;
 
-public interface IGeneticEntity {
+public interface IGeneticEntity<T extends Enum<T>> {
     Genome getGenome();
 
     String getGeneData();
@@ -57,9 +56,7 @@ public interface IGeneticEntity {
         return count;
     }
 
-    default List<Breed> getBreeds() {
-        return ImmutableList.of(getDefaultBreed());
-    }
+    Collection<Breed<T>> getBreeds();
 
     default Breed getRandomBreed() {
         int r = getRand().nextInt(Math.max(1, getPopulation()));

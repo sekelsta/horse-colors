@@ -1,8 +1,7 @@
 package sekelsta.horse_colors.entity;
 import net.minecraft.world.entity.animal.horse.*;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -29,8 +28,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
 import sekelsta.horse_colors.breed.Breed;
-import sekelsta.horse_colors.breed.horse.*;
+import sekelsta.horse_colors.breed.BreedManager;
 import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.entity.genetics.EquineGenome.Gene;
 import sekelsta.horse_colors.entity.genetics.Species;
 import sekelsta.horse_colors.util.Util;
 
@@ -255,21 +255,17 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
 
     @Override
     public Breed getDefaultBreed() {
-        return DefaultHorse.breed;
+        return BreedManager.HORSE.getBreed("default_horse");
+    }
+
+    @Override
+    public Collection<Breed<Gene>> getBreeds() {
+        return BreedManager.HORSE.getAllBreeds();
     }
 
     @Override
     public int getPopulation() {
         return 60000000;
-    }
-
-    @Override
-    public List<Breed> getBreeds() {
-        // This must only be called serverside, because the client does not
-        // load the data packs the breeds use
-        return ImmutableList.of(Appaloosa.breed, 
-        Hucul.breed, MongolianHorse.breed, QuarterHorse.breed, Friesian.breed, 
-        ClevelandBay.breed);
     }
 
     // Set stats for vanilla-like breeding

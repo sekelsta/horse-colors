@@ -2,6 +2,8 @@ package sekelsta.horse_colors.entity;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableList;
+import java.util.Collection;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -23,10 +25,10 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.Level;
 
 import sekelsta.horse_colors.breed.Breed;
-import sekelsta.horse_colors.breed.donkey.*;
-import sekelsta.horse_colors.breed.horse.*;
+import sekelsta.horse_colors.breed.BreedManager;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.genetics.EquineGenome;
+import sekelsta.horse_colors.entity.genetics.EquineGenome.Gene;
 import sekelsta.horse_colors.entity.genetics.Species;
 import sekelsta.horse_colors.HorseColors;
 
@@ -130,6 +132,11 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
         return super.getTypeName();
     }
 
+    @Override
+    public Collection<Breed<Gene>> getBreeds() {
+        return ImmutableList.of(getDefaultBreed());
+    }
+
     /**
      * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
      * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
@@ -140,9 +147,9 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
     {
         spawnDataIn = super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
         EquineGenome horse = new EquineGenome(Species.HORSE);
-        horse.randomize(DefaultHorse.breed);
+        horse.randomize(BreedManager.HORSE.getBreed("default_horse"));
         EquineGenome donkey = new EquineGenome(Species.DONKEY);
-        donkey.randomize(DefaultDonkey.breed);
+        donkey.randomize(BreedManager.DONKEY.getBreed("default_donkey"));
         this.genes.inheritGenes(horse, donkey);
         this.useGeneticAttributes();
         return spawnDataIn;

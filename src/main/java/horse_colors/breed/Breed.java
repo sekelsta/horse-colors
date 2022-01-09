@@ -49,10 +49,6 @@ public class Breed<T extends Enum<T>> {
         return genes.get(gene);
     }
 
-    public static Breed load(String name) {
-        return BreedManager.getBreed(new ResourceLocation(HorseColors.MODID, name));
-    }
-
     // Write in a format that can be parsed as a python dictionary
     public String getMapString() {
         String p = "{";

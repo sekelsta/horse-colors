@@ -1,4 +1,4 @@
-package sekelsta.horse_colors.breed.donkey;
+package sekelsta.horse_colors.breed;
 
 
 import com.google.common.collect.ImmutableList;

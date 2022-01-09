@@ -1,7 +1,9 @@
 package sekelsta.horse_colors.entity.genetics;
 
+import java.util.Collection;
 import java.util.HashMap;
 import net.minecraft.world.entity.AgeableMob;
+import sekelsta.horse_colors.breed.Breed;
 
 public class FakeGeneticEntity implements IGeneticEntity {
     private Genome genome; 
@@ -82,5 +84,10 @@ public class FakeGeneticEntity implements IGeneticEntity {
     @Override
     public void setMotherSize(float size) {
         this.motherSize = size;
+    }
+
+    @Override
+    public Collection<Breed> getBreeds() {
+        return null;
     }
 }

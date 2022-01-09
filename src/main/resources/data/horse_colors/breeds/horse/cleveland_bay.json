@@ -1,0 +1,23 @@
+{
+    "population": 550,
+    "genes": {
+        "extension": [0, 1],
+        "agouti": [0, 0, 0, 0, 1],
+        "dun": [1],
+        "cream": [0.95, 0, 0, 0, 1],
+        "mushroom": [1],
+        "silver": [1],
+        "liver": [0, 1],
+        "gray": [1],
+        "frame": [1],
+        "leopard": [1],
+        "MITF": [0, 0, 0, 1],
+        "rabicano": [1],
+        "white_forelegs": [1],
+        "white_hindlegs": [1],
+        "dapple": [0.9, 1.0],
+        "KIT": [0.88, 0.95, 1.0],
+
+        "HMGA2": [1.0]
+    }
+}
