@@ -200,8 +200,7 @@ public class HorseColorCalculator
         }
  
         white = Math.max(white, 0);
-        // Color isn't used
-        return new Pigment(Color.BLACK, concentration, white);
+        return new Pigment(EUMELANIN, concentration, white);
     }
 
     private static Pigment blackFurPigment(EquineGenome horse) {
