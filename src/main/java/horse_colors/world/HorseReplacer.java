@@ -29,7 +29,7 @@ public class HorseReplacer {
         {
             Horse horse = (Horse)event.getEntity();
             if (!horse.getPersistentData().contains("converted")) {
-                HorseGeneticEntity newHorse = ModEntities.HORSE_GENETIC.create(event.getWorld());
+                HorseGeneticEntity newHorse = ModEntities.HORSE_GENETIC.get().create(event.getWorld());
                 newHorse.copyAbstractHorse(horse);
                 // Spawn the new horse
                 // Normally this is done by calling world.addEntity, which

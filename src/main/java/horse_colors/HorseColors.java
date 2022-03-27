@@ -1,5 +1,6 @@
 package sekelsta.horse_colors;
 
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -12,6 +13,8 @@ import org.apache.logging.log4j.Logger;
 import sekelsta.horse_colors.breed.BreedManager;
 import sekelsta.horse_colors.client.HorseGui;
 import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.entity.ModEntities;
+import sekelsta.horse_colors.item.ModItems;
 import sekelsta.horse_colors.world.HorseReplacer;
 import sekelsta.horse_colors.world.Spawns;
 
@@ -35,10 +38,17 @@ public class HorseColors
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, HorseConfig.spec);
         MinecraftForge.EVENT_BUS.addListener(BreedManager::addReloadListener);
+
+        registerDeferredRegistries(FMLJavaModLoadingContext.get().getModEventBus());
     }
 
     private void clientSetup(final FMLClientSetupEvent event)
     {
         MinecraftForge.EVENT_BUS.addListener(HorseGui::replaceGui);
+    }
+
+    public static void registerDeferredRegistries(IEventBus modBus) {
+        ModEntities.ENTITY_DEFERRED.register(modBus);
+        ModItems.ITEM_DEFERRED.register(modBus);
     }
 }

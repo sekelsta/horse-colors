@@ -74,13 +74,13 @@ public class GeneBookItem extends Item {
                 String translation = null;
                 switch (species) {
                     case HORSE:
-                        translation = ModEntities.HORSE_GENETIC.getDescriptionId();
+                        translation = ModEntities.HORSE_GENETIC.get().getDescriptionId();
                         break;
                     case DONKEY:
-                        translation = ModEntities.DONKEY_GENETIC.getDescriptionId();
+                        translation = ModEntities.DONKEY_GENETIC.get().getDescriptionId();
                         break;
                     case MULE:
-                        translation = ModEntities.MULE_GENETIC.getDescriptionId();
+                        translation = ModEntities.MULE_GENETIC.get().getDescriptionId();
                         break;
                 }
                 if (translation != null) {

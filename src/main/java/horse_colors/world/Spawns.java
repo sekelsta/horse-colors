@@ -45,12 +45,12 @@ public class Spawns {
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void addBiomeSpawns(BiomeLoadingEvent event) {
         int horsePlainsWeight = (int)Math.round(5 * HorseConfig.SPAWN.horseSpawnMultiplier.get());
-        SpawnerData horsePlainsSpawner = new SpawnerData(ModEntities.HORSE_GENETIC, horsePlainsWeight, 2, 6);
+        SpawnerData horsePlainsSpawner = new SpawnerData(ModEntities.HORSE_GENETIC.get(), horsePlainsWeight, 2, 6);
         int horseSavannaWeight = (int)Math.round(1 * HorseConfig.SPAWN.horseSpawnMultiplier.get());
-        SpawnerData horseSavannaSpawner = new SpawnerData(ModEntities.HORSE_GENETIC, horseSavannaWeight, 2, 6);
+        SpawnerData horseSavannaSpawner = new SpawnerData(ModEntities.HORSE_GENETIC.get(), horseSavannaWeight, 2, 6);
         int donkeyWeight = (int)Math.round(1 * HorseConfig.SPAWN.donkeySpawnMultiplier.get());
         // It seems 1.16.2 has increased donkey max herd size in savannas from 1 to 3, to match the plains
-        SpawnerData donkeySpawner = new SpawnerData(ModEntities.DONKEY_GENETIC, donkeyWeight, 1, 3);
+        SpawnerData donkeySpawner = new SpawnerData(ModEntities.DONKEY_GENETIC.get(), donkeyWeight, 1, 3);
 
         // Add to the spawn list according to biome type
         List<SpawnerData> spawns = event.getSpawns().getSpawner(MobCategory.CREATURE);
@@ -112,8 +112,8 @@ public class Spawns {
             return;
         }
         StructureTemplatePool animals = animalsOpt.get();
-        // f_69249_ = rawTemplates
-        List<Pair<StructurePoolElement, Integer>> vanillaList =  ObfuscationReflectionHelper.getPrivateValue(StructureTemplatePool.class, animals, "f_69249_");
+        // f_210559_ = rawTemplates
+        List<Pair<StructurePoolElement, Integer>> vanillaList =  ObfuscationReflectionHelper.getPrivateValue(StructureTemplatePool.class, animals, "f_210559_");
         List<Pair<StructurePoolElement, Integer>> keeperList = new ArrayList<>();
         for (Pair<StructurePoolElement, Integer> p : vanillaList) {
             if (keepJigsawPair(p)) {

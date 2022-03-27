@@ -15,12 +15,18 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 import sekelsta.horse_colors.CreativeTab;
 import sekelsta.horse_colors.HorseColors;
 
 @Mod.EventBusSubscriber(modid = HorseColors.MODID, bus = Bus.MOD)
 public class ModItems {
+    public static final DeferredRegister<Item> ITEM_DEFERRED
+        = DeferredRegister.create(ForgeRegistries.ITEMS, HorseColors.MODID);
+
     public static GeneBookItem geneBookItem;
     public static GenderChangeItem genderChangeItem;
     public static CompatibleHorseArmor netheriteHorseArmor;
