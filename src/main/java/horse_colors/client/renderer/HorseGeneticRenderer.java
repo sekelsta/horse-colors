@@ -12,6 +12,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import sekelsta.horse_colors.HorseColors;
+import sekelsta.horse_colors.client.renderer.TextureLayer;
 import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 import sekelsta.horse_colors.entity.genetics.IGeneticEntity;
 import sekelsta.horse_colors.entity.genetics.HorseColorCalculator;
@@ -20,7 +21,7 @@ import sekelsta.horse_colors.entity.genetics.HorseColorCalculator;
 @OnlyIn(Dist.CLIENT)
 public class HorseGeneticRenderer extends MobRenderer<AbstractHorseGenetic, HorseGeneticModel<AbstractHorseGenetic>>
 {
-    private static final Map<String, ResourceLocation> LAYERED_LOCATION_CACHE = Maps.newHashMap();
+    private static final Map<TextureLayer, ResourceLocation> LAYERED_LOCATION_CACHE = Maps.newHashMap();
     public static final ModelLayerLocation EQUINE_LAYER = new ModelLayerLocation(new ResourceLocation(HorseColors.MODID, "equine"), "equine");
 
     public HorseGeneticRenderer(EntityRendererProvider.Context renderManager)
@@ -44,17 +45,17 @@ public class HorseGeneticRenderer extends MobRenderer<AbstractHorseGenetic, Hors
     public ResourceLocation getTextureLocation(AbstractHorseGenetic entity)
     {
         if (entity instanceof IGeneticEntity) {
-            String s = ((IGeneticEntity)entity).getGenome().getTexture();
-            ResourceLocation resourcelocation = LAYERED_LOCATION_CACHE.get(s);
+            TextureLayer l = ((IGeneticEntity)entity).getGenome().getTexturePaths();
+            ResourceLocation resourcelocation = LAYERED_LOCATION_CACHE.get(l);
 
             if (resourcelocation == null)
             {
-                resourcelocation = new ResourceLocation(s);
+                resourcelocation = new ResourceLocation(l.getUniqueName());
                 Minecraft.getInstance().getTextureManager().register(
                     resourcelocation, 
                     new CustomLayeredTexture(((IGeneticEntity)entity).getGenome().getTexturePaths())
                 );
-                LAYERED_LOCATION_CACHE.put(s, resourcelocation);
+                LAYERED_LOCATION_CACHE.put(l, resourcelocation);
             }
 
             return resourcelocation;

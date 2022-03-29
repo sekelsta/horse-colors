@@ -997,7 +997,6 @@ public class EquineGenome extends Genome {
     public void setTexturePaths()
     {
         this.textureLayers = HorseColorCalculator.getTexturePaths(this);
-        this.textureCacheName = "horse/cache_" + this.textureLayers.getUniqueName();
     }
 
     public String genesToString() {

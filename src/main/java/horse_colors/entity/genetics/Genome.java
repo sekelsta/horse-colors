@@ -25,7 +25,6 @@ public abstract class Genome {
 
     protected IGeneticEntity entity;
 
-    protected String textureCacheName;
     protected TextureLayerGroup textureLayers;
 
     protected final RandomSupplier randSource;
@@ -43,7 +42,7 @@ public abstract class Genome {
     }
 
     public void resetTexture() {
-        this.textureCacheName = null;
+        this.textureLayers = null;
     }
 
     public abstract List<List<String>> getBookContents();
@@ -53,19 +52,9 @@ public abstract class Genome {
     public abstract boolean isValidGeneString(String s);
 
     @OnlyIn(Dist.CLIENT)
-    public String getTexture()
-    {
-        if (this.textureCacheName == null)
-        {
-            this.setTexturePaths();
-        }
-        return this.textureCacheName;
-    }
-
-    @OnlyIn(Dist.CLIENT)
     public TextureLayerGroup getTexturePaths()
     {
-        if (this.textureCacheName == null)
+        if (this.textureLayers == null)
         {
             this.setTexturePaths();
         }

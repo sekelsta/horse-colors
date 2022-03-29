@@ -44,12 +44,13 @@ public class HorseDebug {
     }
 
     public static boolean showGeneDebug(Player player) {
+        return false;/*
         ItemStack itemStack = player.getOffhandItem();
         if (itemStack != null && itemStack.getItem() == Items.DEBUG_STICK) {
             return true;
         }
         ItemStack inHand = player.getMainHandItem();
-        return inHand != null && inHand.getItem() == Items.DEBUG_STICK;
+        return inHand != null && inHand.getItem() == Items.DEBUG_STICK;*/
     }
 
     public static ArrayList<String> debugGenes(Genome genome) {
@@ -94,7 +95,6 @@ public class HorseDebug {
                 event.getLeft().add("Pregnant since: " + ((AbstractHorseGenetic)entity).getPregnancyStart());
             }
             if (showBasicDebug(player)) {
-                event.getLeft().add(entity.getGenome().getTexture());
                 event.getLeft().add("Layers:");
                 for (String s : entity.getGenome().getTexturePaths().getDebugStrings()) {
                     event.getLeft().add(s);
