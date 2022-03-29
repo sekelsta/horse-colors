@@ -17,13 +17,11 @@ public class TextureLayer {
     protected static final Logger LOGGER = LogManager.getLogger();
 
     public String name;
-    public String description;
     public Type type;
     public Color color;
 
     public TextureLayer() {
         name = null;
-        description = null;
         type = Type.NORMAL;
         color = new Color();
     }

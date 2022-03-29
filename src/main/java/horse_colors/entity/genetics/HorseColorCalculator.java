@@ -227,7 +227,6 @@ public class HorseColorCalculator
             return;
         }
         TextureLayer layer = new TextureLayer();
-        layer.description = "black body";
 
         if (horse.getMaxAllele(Gene.agouti) == HorseAlleles.A_BLACK) {
             layer.name = fixPath("base");
@@ -334,7 +333,6 @@ public class HorseColorCalculator
         if (horse.hasAllele(Gene.cream, HorseAlleles.CREAM)
                 || horse.hasAllele(Gene.champagne, HorseAlleles.CHAMPAGNE)) {
             TextureLayer palomino_mane = new TextureLayer();
-            palomino_mane.description = "palomino mane";
             palomino_mane.name = fixPath("manetail");
             palomino_mane.color = redBodyColor(horse);
             palomino_mane.color.power(PALOMINO_POWER);
@@ -355,7 +353,6 @@ public class HorseColorCalculator
         }
         TextureLayer layer = new TextureLayer();
         layer.name = fixPath("flaxen");
-        layer.description = "silver dapple mane";
         Pigment black = blackFurPigment(horse);
         black.concentration *= 0.3f / 15f;
         layer.color = black.toColor();
