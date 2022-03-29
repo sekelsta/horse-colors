@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import net.minecraft.client.renderer.texture.*;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -22,6 +23,23 @@ public class TextureLayerGroup extends TextureLayer {
 
     public TextureLayerGroup(List<TextureLayer> layers) {
         this.layers = layers;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (super.equals(o)) {
+            TextureLayerGroup other = (TextureLayerGroup)o;
+            return other.layers.equals(this.layers) && (other.isColored == this.isColored);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), layers, isColored);
     }
 
     public void add(TextureLayer layer) {

@@ -2,6 +2,7 @@ package sekelsta.horse_colors.client.renderer;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Objects;
 
 import net.minecraft.client.renderer.texture.*;
 import net.minecraft.server.packs.resources.Resource;
@@ -34,6 +35,28 @@ public class TextureLayer {
         HIGHLIGHT,
         POWER,
         ROOT
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (o.getClass() != this.getClass()) {
+            return false;
+        }
+        TextureLayer other = (TextureLayer)o;
+        return (name == other.name || (name != null && name.equals(other.name)))
+            && type == other.type
+            && color == other.color || (color != null && color.equals(other.color));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, type, color);
     }
 
     public NativeImage getLayer(ResourceManager manager) {

@@ -1,5 +1,7 @@
 package sekelsta.horse_colors.util;
 
+import java.util.Objects;
+
 // Has normalized values for red, green, blue, and alpha
 public class Color {
     public static final Color BLACK = new Color(0, 0, 0);
@@ -28,6 +30,26 @@ public class Color {
 
     public Color(Color copy) {
         this(copy.r, copy.g, copy.b);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (getClass() != o.getClass()) {
+            return false;
+        }
+        Color other = (Color)o;
+        return a == other.a && r == other.r && g == other.g && b == other.b;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(a, r, g, b);
     }
 
     public int getIntRed() {
