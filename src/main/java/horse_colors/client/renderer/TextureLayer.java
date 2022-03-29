@@ -79,19 +79,23 @@ public class TextureLayer {
         }
     }
 
+    private int getRGBA(NativeImage image, int x, int y, int width, int height) {
+        return image.getPixelRGBA(x * image.getWidth() / width, y * image.getHeight() / height);
+    }
+
     public void blendLayer(NativeImage base, NativeImage image) {
-        for(int i = 0; i < image.getHeight(); ++i) {
-            for(int j = 0; j < image.getWidth(); ++j) {
-                blendPixel(base, j, i, this.multiply(image.getPixelRGBA(j, i)));
+        for(int y = 0; y < base.getHeight(); ++y) {
+            for(int x = 0; x < base.getWidth(); ++x) {
+                blendPixel(base, x, y, this.multiply(getRGBA(image, x, y, base.getWidth(), base.getHeight())));
             }
         }
     }
 
     public void blendLayerKeepAlpha(NativeImage base, NativeImage image) {
-        for(int i = 0; i < image.getHeight(); ++i) {
-            for(int j = 0; j < image.getWidth(); ++j) {
-                int cb = base.getPixelRGBA(j, i);
-                int ci = this.multiply(image.getPixelRGBA(j, i));
+        for(int y = 0; y < base.getHeight(); ++y) {
+            for(int x = 0; x < base.getWidth(); ++x) {
+                int cb = base.getPixelRGBA(x, y);
+                int ci = this.multiply(getRGBA(image, x, y, base.getWidth(), base.getHeight()));
                 float a = NativeImage.getA(ci) / 255.0F;
                 float r = NativeImage.getR(ci);
                 float g = NativeImage.getG(ci);
@@ -103,72 +107,72 @@ public class TextureLayer {
                 int fr = (int)(r * a + br * (1.0F-a));
                 int fg = (int)(g * a + bg * (1.0F-a));
                 int fb = (int)(b * a + bb * (1.0F-a));
-                base.setPixelRGBA(j, i, NativeImage.combine(fa, fb, fg, fr));
+                base.setPixelRGBA(x, y, NativeImage.combine(fa, fb, fg, fr));
             }
         }
     }
 
     public void shadeLayer(NativeImage base, NativeImage image) {
-        for(int i = 0; i < image.getHeight(); ++i) {
-            for(int j = 0; j < image.getWidth(); ++j) {
-                int color = base.getPixelRGBA(j, i);
-                int shading = this.multiply(image.getPixelRGBA(j, i));
-                base.setPixelRGBA(j, i, this.shade(color, shading));
+        for(int y = 0; y < base.getHeight(); ++y) {
+            for(int x = 0; x < base.getWidth(); ++x) {
+                int color = base.getPixelRGBA(x, y);
+                int shading = this.multiply(getRGBA(image, x, y, base.getWidth(), base.getHeight()));
+                base.setPixelRGBA(x, y, this.shade(color, shading));
             }
         }
     }
 
     public void highlightLayer(NativeImage base, NativeImage image) {
-        for(int i = 0; i < image.getHeight(); ++i) {
-            for(int j = 0; j < image.getWidth(); ++j) {
-                int color = base.getPixelRGBA(j, i);
-                int highlight = this.multiply(image.getPixelRGBA(j, i));
-                base.setPixelRGBA(j, i, this.highlight(color, highlight));
+        for(int y = 0; y < base.getHeight(); ++y) {
+            for(int x = 0; x < base.getWidth(); ++x) {
+                int color = base.getPixelRGBA(x, y);
+                int highlight = this.multiply(getRGBA(image, x, y, base.getWidth(), base.getHeight()));
+                base.setPixelRGBA(x, y, this.highlight(color, highlight));
             }
         }
     }
 
     public void maskLayer(NativeImage base, NativeImage image) {
-        for(int i = 0; i < image.getHeight(); ++i) {
-            for(int j = 0; j < image.getWidth(); ++j) {
-                int color = base.getPixelRGBA(j, i);
+        for(int y = 0; y < base.getHeight(); ++y) {
+            for(int x = 0; x < base.getWidth(); ++x) {
+                int color = base.getPixelRGBA(x, y);
                 // Don't multiply here because that would do the wrong thing
-                int mask = image.getPixelRGBA(j, i);
+                int mask = getRGBA(image, x, y, base.getWidth(), base.getHeight());
                 int maskedColor = this.mask(color, mask);
-                base.setPixelRGBA(j, i, maskedColor);
+                base.setPixelRGBA(x, y, maskedColor);
             }
         }
     }
 
     // Raise RGB values to an exponent >= 1
     public void powerLayer(NativeImage base, NativeImage image) {
-        for(int i = 0; i < image.getHeight(); ++i) {
-            for(int j = 0; j < image.getWidth(); ++j) {
-                int color = base.getPixelRGBA(j, i);
-                int exp = image.getPixelRGBA(j, i);
+        for(int y = 0; y < base.getHeight(); ++y) {
+            for(int x = 0; x < base.getWidth(); ++x) {
+                int color = base.getPixelRGBA(x, y);
+                int exp = getRGBA(image, x, y, base.getWidth(), base.getHeight());
                 exp = this.multiply(exp);
-                blendPixel(base, j, i, this.power(color, exp));
+                blendPixel(base, x, y, this.power(color, exp));
             }
         }
     }
 
     // Raise RGB values to an exponent <= 1
     public void rootLayer(NativeImage base, NativeImage image) {
-        for(int i = 0; i < image.getHeight(); ++i) {
-            for(int j = 0; j < image.getWidth(); ++j) {
-                int color = base.getPixelRGBA(j, i);
-                int exp = image.getPixelRGBA(j, i);
+        for(int y = 0; y < base.getHeight(); ++y) {
+            for(int x = 0; x < base.getWidth(); ++x) {
+                int color = base.getPixelRGBA(x, y);
+                int exp = getRGBA(image, x, y, base.getWidth(), base.getHeight());
                 exp = this.multiply(exp);
-                blendPixel(base, j, i, this.root(color, exp));
+                blendPixel(base, x, y, this.root(color, exp));
             }
         }
     }
 
     public void colorLayer(NativeImage image) {
-        for(int i = 0; i < image.getHeight(); ++i) {
-            for(int j = 0; j < image.getWidth(); ++j) {
-                int color = image.getPixelRGBA(j, i);
-                image.setPixelRGBA(j, i, this.multiply(color));
+        for(int y = 0; y < image.getHeight(); ++y) {
+            for(int x = 0; x < image.getWidth(); ++x) {
+                int color = image.getPixelRGBA(x, y);
+                image.setPixelRGBA(x, y, this.multiply(color));
             }
         }
     }
