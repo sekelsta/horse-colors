@@ -18,10 +18,10 @@ public class HorseColorCalculator
     private static final int GRAY_BODY_STAGES = 19;
     private static final int GRAY_MANE_STAGES = 20;
 
-    private static final Color EUMELANIN = new Color(0xc0, 0x9a, 0x5f);
-    private static final Color PHEOMELANIN = new Color(0xe4, 0xc0, 0x77);
-    private static final Color MUSHROOM = new Color(0xde, 0xcf, 0xbc);
-    private static final Color SHELL_HOOF = new Color(0xff, 0xe5, 0xb8);
+    private static final Color EUMELANIN = new Color(0xb8, 0x72, 0xe1);
+    private static final Color PHEOMELANIN = new Color(0xdb, 0x7c, 0xe8);
+    private static final Color MUSHROOM = new Color(0xdd, 0xbe, 0xe3);
+    private static final Color SHELL_HOOF = new Color(0xfe, 0xdb, 0xcd);
     private static final Color PINK_SKIN = new Color(0xff, 0xd6, 0xb6);
     private static final Color BLUE_EYES = new Color(0xc1, 0xda, 0xf8);
 
