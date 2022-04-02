@@ -177,7 +177,8 @@ public class EquineGenome extends Genome {
         tiger_eye,
         brown_eye_shade1,     // 0 deep, 1 pale recessive
         brown_eye_shade2,     // 0 deep, 1 pale
-        brown_eye_shade3      // 0 pale, 1 deep
+        brown_eye_shade3,     // 0 pale, 1 deep
+        stripe_width        // 0 wide, 1 narrow dominant
     }
 
     public static final double MINIATURE_CUTOFF = 317.5;
@@ -322,6 +323,10 @@ public class EquineGenome extends Genome {
             return false;
         }
         return hasAllele(Gene.dun, HorseAlleles.DUN_OTHER);
+    }
+
+    public boolean isFrostedDun() {
+        return isDun() && !isHomozygous(Gene.stripe_width, 0);
     }
 
     public boolean isMealy() {

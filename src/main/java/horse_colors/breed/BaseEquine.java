@@ -359,5 +359,10 @@ public class BaseEquine {
             0.6f,   // Darker brown eyes
             1f      // Lighter brown eyes
         ));
+
+        genes.put(Gene.stripe_width, ImmutableList.of(
+            0.7f,   // Wide
+            1f      // Narrow
+        ));
     }
 }
