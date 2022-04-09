@@ -88,6 +88,9 @@ public class BreedManager extends SimpleJsonResourceReloadListener {
             Breed<Gene> mongolianHorse = getBreed("mongolian_horse");
             mongolianHorse.parent = Tarpan.breed;
 
+            Breed<Gene> hucul = getBreed("hucul");
+            hucul.parent = mongolianHorse;
+
             Breed<Gene> quarterHorse = getBreed("quarter_horse");
             quarterHorse.parent = mongolianHorse;
 
