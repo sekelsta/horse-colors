@@ -329,6 +329,10 @@ public class EquineGenome extends Genome {
         return isDun() && !isHomozygous(Gene.stripe_width, 0);
     }
 
+    public boolean hasNarrowStripe() {
+        return hasStripe() && !isHomozygous(Gene.stripe_width, 0);
+    }
+
     public boolean isMealy() {
         return (this.getAllele(Gene.light_belly, 0) == HorseAlleles.MEALY 
                     && this.getAllele(Gene.agouti, 0) != HorseAlleles.A_BLACK)
