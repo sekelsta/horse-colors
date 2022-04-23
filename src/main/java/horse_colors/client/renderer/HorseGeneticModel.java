@@ -222,7 +222,7 @@ public class HorseGeneticModel<T extends AbstractHorse> extends AgeableListModel
         PartDefinition neckDef = root.addOrReplaceChild(
             NECK,
             CubeListBuilder.create().texOffs(0, 12).addBox(-2.05F, -9.8F, -2.0F, 4, 14, 8),
-            PartPose.offsetAndRotation(0.0F, 4.0F, -10.0F, ((float)Math.PI / 6F), 0.0F, 0.0F)
+            PartPose.offsetAndRotation(0.0F, 4.0F, -10.0F, 0.0F, 0.0F, 0.0F)
         );
 
         // When making something a child that wasn't before, subtract the
@@ -535,8 +535,8 @@ public class HorseGeneticModel<T extends AbstractHorse> extends AgeableListModel
             matrixStackIn.translate(0.0F, 0.95F * (1.0F - ageScale), 0.0F);
         }
 
-        ImmutableList.of(this.backLeftThigh, this.backRightThigh, 
-                         this.frontLeftLeg, this.frontRightLeg).forEach(render);
+        //ImmutableList.of(this.backLeftThigh, this.backRightThigh, 
+        //                 this.frontLeftLeg, this.frontRightLeg).forEach(render);
 
         if (this.young) {
 
@@ -627,7 +627,7 @@ public class HorseGeneticModel<T extends AbstractHorse> extends AgeableListModel
         this.setMouthAnimations(mouthOpenAmount);
 
         this.neck.setPos(0.0F, 4.0F, -10.0F);
-        this.neck.xRot = rearingAmount * (0.2617994F + f4) + grassEatingAmount * 2.1816616F + (1.0F - Math.max(rearingAmount, grassEatingAmount)) * 0.5235988F + f4;
+        this.neck.xRot = 0.0F;
         this.neck.yRot = neckBend * headRelativeRotation * 0.017453292F;
         this.neck.y = rearingAmount * -6.0F + grassEatingAmount * 11.0F + (1.0F - Math.max(rearingAmount, grassEatingAmount)) * this.neck.y;
         this.neck.z = rearingAmount * -1.0F + grassEatingAmount * -10.0F + (1.0F - Math.max(rearingAmount, grassEatingAmount)) * this.neck.z;
