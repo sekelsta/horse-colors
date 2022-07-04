@@ -199,17 +199,8 @@ public class HorseConfig
         public static BooleanValue convertVanillaHorses;
 
         Spawn(final ForgeConfigSpec.Builder builder) {
-            builder.comment("Settings to configure spawning")
+            builder.comment("Settings to configure spawning. Note as of Minecraft 1.19 spawn weights are now controlled via json data.")
                    .push("spawn");
-            horseSpawnMultiplier = builder
-                    .comment("Larger numbers make horses more common, smaller numbers make them less common.",
-                             "1.0 makes them as common as in vanilla.")
-                    .defineInRange("horseSpawnMultiplier", 1.0, 0.0, 1000.0);
-
-            donkeySpawnMultiplier = builder
-                    .comment("Larger numbers make donkeys more common, smaller numbers make them less common.",
-                             "1.0 makes them as common as in vanilla.")
-                    .defineInRange("donkeySpawnMultiplier", 1.0, 0.0, 1000.0);
 
             blockVanillaHorseSpawns =  builder
                     .comment("Whether to allow new vanilla horses to spawn. This will not affect any",

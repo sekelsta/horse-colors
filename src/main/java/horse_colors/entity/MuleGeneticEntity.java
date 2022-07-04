@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -127,7 +126,7 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
         if (!this.isBaby() && !HorseConfig.BREEDING.enableGenders.get()
             && this.getSpecies() == Species.HINNY) {
             String s = "entity." + HorseColors.MODID + ".hinny";
-            return new TranslatableComponent(s);
+            return Component.translatable(s);
         }
         return super.getTypeName();
     }

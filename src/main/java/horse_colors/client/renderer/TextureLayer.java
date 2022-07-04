@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.texture.*;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.client.MinecraftForgeClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sekelsta.horse_colors.util.Color;
@@ -64,8 +65,8 @@ public class TextureLayer {
             LOGGER.error("Attempting to load unspecified texture (name is null): " + this.toString());
             return null;
         }
-        try (Resource iresource = manager.getResource(new ResourceLocation(this.name))) {
-            NativeImage image = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(this.name), manager);
+        try {
+            NativeImage image = MinecraftForgeClient.getImageLayer(new ResourceLocation(this.name), manager);
             return image;
         } catch (IOException ioexception) {
             LOGGER.error("Couldn't load layered image", (Throwable)ioexception);

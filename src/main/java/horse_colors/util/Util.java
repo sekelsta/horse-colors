@@ -1,7 +1,7 @@
 package sekelsta.horse_colors.util;
 
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 import sekelsta.horse_colors.HorseColors;
 
@@ -13,7 +13,7 @@ public class Util {
     }
 
     public static String translate(String in) {
-        return new TranslatableComponent(HorseColors.MODID + "." + in).getString(10000);
+        return Component.translatable(HorseColors.MODID + "." + in).getString(10000);
     }
 
     public static char toBase64(int v) {

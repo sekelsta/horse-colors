@@ -2,6 +2,7 @@ package sekelsta.horse_colors.entity.genetics;
 
 import java.util.Collection;
 import java.util.HashMap;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.AgeableMob;
 import sekelsta.horse_colors.breed.Breed;
 
@@ -42,8 +43,8 @@ public class FakeGeneticEntity implements IGeneticEntity {
     }
 
     @Override
-    public java.util.Random getRand() {
-        return new java.util.Random();
+    public RandomSource getRand() {
+        return null;
     }
 
     @Override

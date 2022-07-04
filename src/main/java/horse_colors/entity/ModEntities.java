@@ -16,7 +16,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.ForgeSpawnEggItem;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -72,17 +71,9 @@ public class ModEntities {
         event.put(MULE_GENETIC.get(), AbstractChestedHorse.createBaseChestedHorseAttributes().build());
     }
 
-    @SubscribeEvent
-    public static void registerEntities(final RegistryEvent.Register<EntityType<?>> event) {
+    public static void registerSpawnPlacements() {
         SpawnPlacements.register(HORSE_GENETIC.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Animal::checkAnimalSpawnRules);
         SpawnPlacements.register(DONKEY_GENETIC.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Animal::checkAnimalSpawnRules);
-    }
-
-    @SubscribeEvent
-    public static void registerSpawnEggs(RegistryEvent.Register<Item> event) {/*
-        event.getRegistry().register(HORSE_SPAWN_EGG);
-        event.getRegistry().register(DONKEY_SPAWN_EGG);
-        event.getRegistry().register(MULE_SPAWN_EGG);*/
     }
 
     @OnlyIn(Dist.CLIENT)

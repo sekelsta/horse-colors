@@ -25,6 +25,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 
 import sekelsta.horse_colors.breed.Breed;
@@ -270,11 +271,11 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
 
     // Set stats for vanilla-like breeding
     @Override
-    protected void randomizeAttributes() {
-        super.randomizeAttributes();
+    protected void randomizeAttributes(RandomSource rand) {
+        super.randomizeAttributes(rand);
         if (!HorseConfig.GENETICS.useGeneticStats.get()) {
-            this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(this.generateRandomSpeed());
-            this.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(this.generateRandomJumpStrength());
+            this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(this.generateRandomSpeed(rand));
+            this.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(this.generateRandomJumpStrength(rand));
         }
     }
 }

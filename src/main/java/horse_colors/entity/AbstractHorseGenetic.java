@@ -11,7 +11,26 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.stats.Stats;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -25,32 +44,13 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.stats.Stats;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.level.GameRules;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
@@ -129,7 +129,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     }
 
     @Override
-    public Random getRand() {
+    public RandomSource getRand() {
         return super.getRandom();
     }
 
@@ -510,7 +510,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                 && (HorseConfig.GENETICS.bookShowsGenes.get()
                     || HorseConfig.GENETICS.bookShowsTraits.get())
                 && (this.isTamed() || player.getAbilities().instabuild)) {
-            ItemStack book = new ItemStack(ModItems.geneBookItem);
+            ItemStack book = new ItemStack(ModItems.geneBookItem.get());
             if (book.getTag() == null) {
                 book.setTag(new CompoundTag());
             }
@@ -554,7 +554,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                 }
             }
             else {
-                this.openInventory(player);
+                this.openCustomInventoryScreen(player);
             }
             return true;
         }
@@ -567,7 +567,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                 }
             }
             else {
-                this.openInventory(player);
+                this.openCustomInventoryScreen(player);
             }
             return true;
         }
@@ -580,7 +580,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         ItemStack itemstack = player.getItemInHand(hand);
         if (!this.isBaby()) {
             if (this.isTamed() && player.isSecondaryUseActive()) {
-                this.openInventory(player);
+                this.openCustomInventoryScreen(player);
                 return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
         }
@@ -908,7 +908,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         if (this.getGenome().isHomozygous(Gene.leopard, HorseAlleles.LEOPARD) && !this.level.isClientSide()) {
             AttributeInstance speedAttribute = this.getAttribute(Attributes.MOVEMENT_SPEED);
             AttributeInstance jumpAttribute = this.getAttribute(Attributes.JUMP_STRENGTH);
-            float brightness = this.getBrightness();
+            float brightness = this.level.getMaxLocalRawBrightness(this.getOnPos());
             if (brightness > 0.5f) {
                 if (speedAttribute.getModifier(CSNB_SPEED_UUID) != null) {
                     speedAttribute.removeModifier(CSNB_SPEED_MODIFIER);
@@ -936,16 +936,20 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         return (double)this.getBbHeight() * 0.833 - 0.295;
     }
 
-    /**
-     * returns true if all the conditions for steering the entity are met. For pigs, this is true if it is being ridden
-     * by a player and the player is holding a carrot-on-a-stick
-     */
     @Override
-    public boolean canBeControlledByRider() {
-        return this.getControllingPassenger() instanceof LivingEntity
-            && !(this.getControllingPassenger() instanceof Animal)
-            && (this.getControllingPassenger() instanceof Player 
-                || !this.isLeashed());
+    @Nullable
+    public LivingEntity getControllingPassenger() {
+        if (this.isSaddled()) {
+            Entity entity = this.getFirstPassenger();
+            if (entity instanceof LivingEntity) {
+                LivingEntity rider = (LivingEntity)entity;
+                if (!(rider instanceof Animal) && (rider instanceof Player || !this.isLeashed())) {
+                    return rider;
+                }
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -1027,14 +1031,14 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         if (this.isBaby()) {
             // Foal
             if (!HorseConfig.BREEDING.enableGenders.get()) {
-                return new TranslatableComponent(s + "foal");
+                return Component.translatable(s + "foal");
             }
             // Colt
             if (this.isMale()) {
-                return new TranslatableComponent(s + "colt");
+                return Component.translatable(s + "colt");
             }
             // Filly
-            return new TranslatableComponent(s + "filly");
+            return Component.translatable(s + "filly");
         }
 
         // Horse
@@ -1043,18 +1047,14 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         }
         // Stallion
         if (this.isMale()) {
-            return new TranslatableComponent(s + "male");
+            return Component.translatable(s + "male");
         }
         // Mare
-        return new TranslatableComponent(s + "female");
+        return Component.translatable(s + "female");
     }
 
     public boolean isSaddle(ItemStack stack) {
-        if (stack.isEmpty() || stack.is(Items.SADDLE)) {
-            return true;
-        }
-        ResourceLocation registryName = stack.getItem().getRegistryName();
-        return registryName.getNamespace().equals("eanimod") && registryName.getPath().contains("saddle");
+        return stack.isEmpty() || stack.is(Items.SADDLE);
     }
 
     // Override to allow alternate saddles to be equipped
@@ -1091,10 +1091,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
 
     // Randomize only health, for mules and donkeys
     @Override
-    protected void randomizeAttributes() {
+    protected void randomizeAttributes(RandomSource rand) {
         // Set stats for vanilla-like breeding
         if (!HorseConfig.GENETICS.useGeneticStats.get()) {
-            float maxHealth = this.generateRandomMaxHealth() + this.getGenome().getBaseHealth();
+            float maxHealth = this.generateRandomMaxHealth(rand) + this.getGenome().getBaseHealth();
             this.getAttribute(Attributes.MAX_HEALTH).setBaseValue((double)maxHealth);
         }
     }

@@ -2,6 +2,9 @@ package sekelsta.horse_colors.world;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Holder;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.data.worldgen.PlainVillagePools;
 import net.minecraft.data.worldgen.Pools;
@@ -11,13 +14,18 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings.SpawnerData;
 import net.minecraft.world.level.levelgen.structure.pools.*;
-import net.minecraftforge.event.world.BiomeLoadingEvent;
+
+import net.minecraftforge.common.Tags;
+import net.minecraftforge.common.world.BiomeModifier;
+import net.minecraftforge.common.world.ModifiableBiomeInfo;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.RegistryObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,6 +38,45 @@ import sekelsta.horse_colors.HorseColors;
 
 @Mod.EventBusSubscriber(modid = HorseColors.MODID)
 public class Spawns {
+    public static final DeferredRegister<Codec<? extends BiomeModifier>> BIOME_MODIFIER_DEFERRED = DeferredRegister.create(ForgeRegistries.Keys.BIOME_MODIFIER_SERIALIZERS, HorseColors.MODID);
+
+    private static final RegistryObject<Codec<? extends BiomeModifier>> BIOME_MODIFIER_SERIALIZER = RegistryObject.create(new ResourceLocation(HorseColors.MODID, "biome_spawn_serializer"), ForgeRegistries.Keys.BIOME_MODIFIER_SERIALIZERS, HorseColors.MODID);
+
+    public record EquineBiomeModifier(SpawnerData plainsSpawner, SpawnerData savannaSpawner) implements BiomeModifier {
+        @Override
+        public void modify(Holder<Biome> biomeHolder, Phase phase, ModifiableBiomeInfo.BiomeInfo.Builder builder) {
+            if (phase == Phase.ADD) {
+                if (biomeHolder.containsTag(Tags.Biomes.IS_PLAINS)) {
+                    builder.getMobSpawnSettings().addSpawn(plainsSpawner.type.getCategory(), plainsSpawner);
+                }
+                else if (biomeHolder.containsTag(Tags.Biomes.IS_SAVANNA)) {
+                    builder.getMobSpawnSettings().addSpawn(savannaSpawner.type.getCategory(), savannaSpawner);
+                }
+            }
+            else if (phase == Phase.REMOVE) {
+                List<SpawnerData> spawns = builder.getMobSpawnSettings().getSpawner(MobCategory.CREATURE);
+                spawns.removeIf(EquineBiomeModifier::shouldRemove);
+            }
+        }
+
+        @Override
+        public Codec<? extends BiomeModifier> codec() {
+            return BIOME_MODIFIER_SERIALIZER.get();
+        }
+
+        private static boolean shouldRemove(SpawnerData spawner) {
+            return spawner.type == EntityType.HORSE || spawner.type == EntityType.DONKEY;
+        }
+    }
+
+    public static void registerBiomeModifiers() {
+        Codec<EquineBiomeModifier> codec = 
+            RecordCodecBuilder.create(builder -> builder.group(
+                    SpawnerData.CODEC.fieldOf("plains_spawner").forGetter(EquineBiomeModifier::plainsSpawner),
+                    SpawnerData.CODEC.fieldOf("savanna_spawner").forGetter(EquineBiomeModifier::savannaSpawner)
+            ).apply(builder, EquineBiomeModifier::new));
+        BIOME_MODIFIER_DEFERRED.register("equine_spawn", () -> codec);
+    }
 
     @SubscribeEvent
     // This is not registered to the event queue by the Mod.EventBusSubscriber 
@@ -40,9 +87,8 @@ public class Spawns {
         changeVillageAnimals();
     }
 
-    // As the documentation to BiomeLoadingEvent describes, adding entity
-    // spawns should use HIGH priority
-    @SubscribeEvent(priority = EventPriority.HIGH)
+/*
+    // TODO: move logic
     public static void addBiomeSpawns(BiomeLoadingEvent event) {
         int horsePlainsWeight = (int)Math.round(5 * HorseConfig.SPAWN.horseSpawnMultiplier.get());
         SpawnerData horsePlainsSpawner = new SpawnerData(ModEntities.HORSE_GENETIC.get(), horsePlainsWeight, 2, 6);
@@ -64,8 +110,7 @@ public class Spawns {
         }
     }
 
-    // And removing entity spawns should use NORMAL priority
-    @SubscribeEvent(priority = EventPriority.NORMAL)
+    // TODO: move logic
     public static void removeBiomeSpawns(BiomeLoadingEvent event) {
         List<SpawnerData> entriesToRemove = new ArrayList<>();
         List<SpawnerData> originalSpawns = event.getSpawns().getSpawner(MobCategory.CREATURE);
@@ -84,6 +129,7 @@ public class Spawns {
             originalSpawns.remove(entry);
         }
     }
+*/
 
     private static boolean isVanillaVillageHorsePiece(SinglePoolElement piece) {
         return piece.toString().contains("minecraft:village/common/animals/horses");

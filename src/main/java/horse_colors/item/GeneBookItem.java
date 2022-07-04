@@ -17,7 +17,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.util.StringUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -85,7 +84,7 @@ public class GeneBookItem extends Item {
                 }
                 if (translation != null) {
                     // Compare to the author name on written books
-                    tooltip.add(new TranslatableComponent(translation).withStyle(ChatFormatting.GRAY));
+                    tooltip.add(Component.translatable(translation).withStyle(ChatFormatting.GRAY));
                 }
             }
         }

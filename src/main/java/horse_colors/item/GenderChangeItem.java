@@ -14,7 +14,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.Level;
 
 import net.minecraftforge.api.distmarker.Dist;
@@ -64,7 +63,7 @@ public class GenderChangeItem extends Item {
     public void addInformation(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         if (!HorseConfig.isGenderEnabled()) {
             String translation = HorseColors.MODID + ".gender_change_item.gender_disabled_warning";
-            tooltip.add(new TranslatableComponent(translation).withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable(translation).withStyle(ChatFormatting.GRAY));
         }
     }
 

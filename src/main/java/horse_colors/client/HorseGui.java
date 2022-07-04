@@ -8,8 +8,6 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.player.Inventory;
@@ -119,20 +117,19 @@ public class HorseGui extends HorseInventoryScreen {
         int hands = inches / 4;
         int point = inches % 4;
         String translationKey = HorseColors.MODID + ".gui.height";
-        Component heightText = new TranslatableComponent(
-                                        translationKey, hands, point, cm);
+        Component heightText = Component.translatable(translationKey, hands, point, cm);
         String heightString = heightText.getString(1000);
         int yy = 20;
         for (String line : heightString.split("\n")) {
             // matrix stack, text, x, y, color
-            this.font.draw(matrixStack, new TextComponent(line), 82, yy, 0x404040);
+            this.font.draw(matrixStack, Component.literal(line), 82, yy, 0x404040);
             yy += 9;
         }
         if (horseGenetic.getGenome().isMiniature()) {
-            this.font.draw(matrixStack, new TranslatableComponent(HorseColors.MODID + ".gui.miniature"), 82, yy, 0x404040);
+            this.font.draw(matrixStack, Component.translatable(HorseColors.MODID + ".gui.miniature"), 82, yy, 0x404040);
         }
         else if (horseGenetic.getGenome().isLarge()) {
-            this.font.draw(matrixStack, new TranslatableComponent(HorseColors.MODID + ".gui.large"), 82, yy, 0x404040);
+            this.font.draw(matrixStack, Component.translatable(HorseColors.MODID + ".gui.large"), 82, yy, 0x404040);
         }
     }
 
