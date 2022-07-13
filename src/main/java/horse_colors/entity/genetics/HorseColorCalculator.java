@@ -534,34 +534,19 @@ public class HorseColorCalculator
         if (horse.isHomozygous(Gene.flaxen2, 0)) {
             spread += 1;
         }
-        
-        String prefix = "";
-        TextureLayer other = null;
-        if (horse.isHomozygous(Gene.light_legs, 1)) {
-            // Use version with darker legs
-            prefix = "l";
-        }
-        else if (horse.hasAllele(Gene.less_light_legs, 0)) {
-            // Set light_belly texture to leave the legs dark and be one 
-            // shade darker as a whole, and add a thin layer with light legs
-            prefix = "l";
-            if (spread > 1) {
-                spread -= 1;
-                other = new TextureLayer();
-                other.name = fixPath("mealy/mealy1");
-                other.color = redBodyColor(horse);
-                other.color.power(0.04f * (2 - color));
-            }
-        }
 
-        light_belly.name = fixPath("mealy/" + prefix + "mealy" + spread);
+        light_belly.name = fixPath("mealy/mealy" + spread);
         light_belly.color = redBodyColor(horse);
         light_belly.color.power(0.04f * (2 - color));
 
-        textureLayers.add(light_belly);
-        if (other != null) {
-            textureLayers.add(other);
+        // Donkeys ignore all of the above
+        if (horse.species == Species.DONKEY) {
+            light_belly.name = fixPath("mealy/donkey_mealy");;
+            light_belly.color = redBodyColor(horse);
+            light_belly.color.power(0.04f);
         }
+
+        textureLayers.add(light_belly);
     }
 
     private static Pigment blackManePigment(EquineGenome horse) {

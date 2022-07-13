@@ -106,7 +106,7 @@ if False:
     mass_convert(fix_hooves, "16px-src_big_hooves" + path, "16px-src" + path)
     mass_convert(fix_hooves, "16px-unq_big_hooves" + path, "16px-unq" + path)
 
-if True:
+if False:
     base='/entity/horse/'
     folders = ['pinto', 'face', 'socks', 'leopard', 'roan']
     for folder in folders:

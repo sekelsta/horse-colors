@@ -2,6 +2,10 @@ from PIL import Image
 import os
 import sys
 
+def mkdir(dirname):
+    if not os.path.isdir(dirname):
+        os.mkdir(dirname)
+
 def enlarge(filename, savename):
     im = Image.open(filename)
     pixels = im.load()
@@ -39,11 +43,11 @@ def shrink(filename, savename, mirror=[], mirror_width=128):
     newim.save(savename)
 
 def mass_convert(func, srcdir, enddir):
+    mkdir(enddir)
     for name in os.listdir(srcdir):
         srcname = srcdir + '/' + name
         endname = enddir + '/' + name
         if os.path.isdir(srcname):
-            os.mkdir(endname)
             mass_convert(func, srcname, endname)
         else:
             #print(srcname)
@@ -58,8 +62,10 @@ def do_convert():
         {'x':96, 'y': 46, 'w': 12, 'h':5}, # Right back lower leg
         {'x':96, 'y': 55, 'w': 16, 'h':3}  # Right back hoof
         ]
-    mass_convert(enlarge, '16px-src', '32px-der')
-    mass_convert(lambda x,y: shrink(x, y, mirror=horse_mirror), '32px-src', '16px-der')
+    if os.path.isdir('16px-src'):
+        mass_convert(enlarge, '16px-src', '32px-der')
+    if os.path.isdir('32px-src'):
+        mass_convert(lambda x,y: shrink(x, y, mirror=horse_mirror), '32px-src', '16px-der')
 
 if __name__ == '__main__':
     if (len(sys.argv) > 1):
