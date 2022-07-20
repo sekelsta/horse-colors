@@ -117,7 +117,7 @@ public class HorseConfig
 
             enableGenders = builder
                     .comment("Enables or disables all features relating to gender.")
-                    .define("enableGenders", false);
+                    .define("enableGenders", true);
 
             genderlessBreedingCooldown = builder
                     .comment("The number of ticks until horses can breed again, when genders are disabled.",
