@@ -102,22 +102,7 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
     @Override
     public AbstractHorse getChild(ServerLevel world, AgeableMob ageable)
     {
-        if (ageable instanceof AbstractHorseGenetic) {
-            AbstractHorseGenetic child = null;
-            AbstractHorseGenetic other = (AbstractHorseGenetic)ageable;
-            if (ageable instanceof HorseGeneticEntity) {
-                child = ModEntities.MULE_GENETIC.get().create(this.level);
-                if (HorseConfig.BREEDING.enableGenders.get()
-                        && !this.isMale() && ((HorseGeneticEntity)ageable).isMale()) {
-                    ((MuleGeneticEntity)child).setSpecies(Species.HINNY);
-                }
-            }
-            else if (ageable instanceof DonkeyGeneticEntity) {
-                child = ModEntities.DONKEY_GENETIC.get().create(this.level);
-            }
-            return child;
-        }
-        else if (ageable instanceof Horse) {
+        if (ageable instanceof Horse) {
             return EntityType.MULE.create(this.level);
         }
         else if (ageable instanceof Donkey) {

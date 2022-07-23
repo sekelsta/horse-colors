@@ -76,10 +76,8 @@ public class GeneBookItem extends Item {
                         translation = ModEntities.HORSE_GENETIC.get().getDescriptionId();
                         break;
                     case DONKEY:
-                        translation = ModEntities.DONKEY_GENETIC.get().getDescriptionId();
                         break;
                     case MULE:
-                        translation = ModEntities.MULE_GENETIC.get().getDescriptionId();
                         break;
                 }
                 if (translation != null) {

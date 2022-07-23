@@ -66,7 +66,7 @@ public class Spawns {
         }
 
         private static boolean shouldRemove(SpawnerData spawner) {
-            return spawner.type == EntityType.HORSE || spawner.type == EntityType.DONKEY;
+            return spawner.type == EntityType.HORSE;
         }
     }
 

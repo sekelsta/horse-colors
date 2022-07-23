@@ -217,13 +217,6 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
             if (ageable instanceof HorseGeneticEntity) {
                 child = ModEntities.HORSE_GENETIC.get().create(this.level);
             }
-            else if (ageable instanceof DonkeyGeneticEntity) {
-                child = ModEntities.MULE_GENETIC.get().create(this.level);
-                if (HorseConfig.BREEDING.enableGenders.get()
-                        && this.isMale() && !((DonkeyGeneticEntity)ageable).isMale()) {
-                    ((MuleGeneticEntity)child).setSpecies(Species.HINNY);
-                }
-            }  
             return child;
         }
         else if (ageable instanceof Horse) {

@@ -293,12 +293,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                             child = ModEntities.HORSE_GENETIC.get().create(this.level);
                             break;
                         case DONKEY:
-                            child = ModEntities.DONKEY_GENETIC.get().create(this.level);
                             break;
                         case MULE:
                         case HINNY:
-                            child = ModEntities.MULE_GENETIC.get().create(this.level);
-                            ((MuleGeneticEntity)child).setSpecies(species);
                             break;
                     }
                     if (child != null) {

@@ -38,17 +38,9 @@ public class ModEntities {
 
     public static final RegistryObject<EntityType<HorseGeneticEntity>> HORSE_GENETIC 
         = registerEntity("horse_felinoid", HorseGeneticEntity::new, 1.2F, 1.6F);
-    public static final RegistryObject<EntityType<DonkeyGeneticEntity>> DONKEY_GENETIC 
-        = registerEntity("donkey", DonkeyGeneticEntity::new, 1.2F, 1.6F);
-    public static final RegistryObject<EntityType<MuleGeneticEntity>> MULE_GENETIC 
-        = registerEntity("mule", MuleGeneticEntity::new, 1.2F, 1.6F);
 
     public static RegistryObject<Item> HORSE_SPAWN_EGG 
         = registerSpawnEgg("horse_spawn_egg", HORSE_GENETIC, 0x7F4320, 0x110E0D);
-    public static RegistryObject<Item> DONKEY_SPAWN_EGG 
-        = registerSpawnEgg("donkey_spawn_egg", DONKEY_GENETIC, 0x726457, 0xcdc0b5);
-    public static RegistryObject<Item> MULE_SPAWN_EGG 
-        = registerSpawnEgg("mule_spawn_egg", MULE_GENETIC, 0x4b3a30, 0xcdb9a8);
 
     private static <T extends Animal> RegistryObject<EntityType<T>> registerEntity(
             String name, EntityType.EntityFactory<T> factory, float width, float height) {
@@ -67,13 +59,10 @@ public class ModEntities {
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(HORSE_GENETIC.get(), AbstractHorse.createBaseHorseAttributes().build());
-        event.put(DONKEY_GENETIC.get(), AbstractChestedHorse.createBaseChestedHorseAttributes().build());
-        event.put(MULE_GENETIC.get(), AbstractChestedHorse.createBaseChestedHorseAttributes().build());
     }
 
     public static void registerSpawnPlacements() {
         SpawnPlacements.register(HORSE_GENETIC.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Animal::checkAnimalSpawnRules);
-        SpawnPlacements.register(DONKEY_GENETIC.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Animal::checkAnimalSpawnRules);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -81,8 +70,6 @@ public class ModEntities {
     public static void registerRenderers(final EntityRenderersEvent.RegisterRenderers event)
     {
         event.registerEntityRenderer(HORSE_GENETIC.get(), renderManager -> new HorseGeneticRenderer(renderManager));
-        event.registerEntityRenderer(DONKEY_GENETIC.get(), renderManager -> new HorseGeneticRenderer(renderManager));
-        event.registerEntityRenderer(MULE_GENETIC.get(), renderManager -> new HorseGeneticRenderer(renderManager));
     }
 
     @OnlyIn(Dist.CLIENT)
