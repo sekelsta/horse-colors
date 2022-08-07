@@ -14,7 +14,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.HorseInventoryMenu;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ScreenOpenEvent;
+import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import org.jetbrains.annotations.NotNull;
@@ -133,7 +133,7 @@ public class HorseGui extends HorseInventoryScreen {
         }
     }
 
-    public static void replaceGui(ScreenOpenEvent event) {
+    public static void replaceGui(ScreenEvent.Opening event) {
         if (event.getScreen() instanceof HorseInventoryScreen) {
             HorseInventoryScreen screen = (HorseInventoryScreen)event.getScreen();
             AbstractHorse horse = null;
@@ -149,7 +149,7 @@ public class HorseGui extends HorseInventoryScreen {
                 AbstractHorseGenetic horseGenetic = (AbstractHorseGenetic)horse;
                 Inventory inventory = new Inventory(null);
                 ContainerEventHandler.replaceSaddleSlot(horseGenetic, screen.getMenu());
-                event.setScreen(new HorseGui(screen.getMenu(), inventory, horseGenetic));
+                event.setNewScreen(new HorseGui(screen.getMenu(), inventory, horseGenetic));
             }
         }
     }

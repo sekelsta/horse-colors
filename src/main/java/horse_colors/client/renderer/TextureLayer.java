@@ -1,6 +1,7 @@
 package sekelsta.horse_colors.client.renderer;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -8,7 +9,6 @@ import net.minecraft.client.renderer.texture.*;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.MinecraftForgeClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sekelsta.horse_colors.util.Color;
@@ -17,6 +17,8 @@ import com.mojang.blaze3d.platform.NativeImage;
 
 public class TextureLayer {
     protected static final Logger LOGGER = LogManager.getLogger();
+
+    private static final HashMap<ResourceLocation, NativeImage> loadedImages = new HashMap<>();
 
     public String name;
     public Type type;
@@ -65,9 +67,14 @@ public class TextureLayer {
             LOGGER.error("Attempting to load unspecified texture (name is null): " + this.toString());
             return null;
         }
+        ResourceLocation resourceLocation = new ResourceLocation(this.name);
+        NativeImage loadedImage = loadedImages.get(resourceLocation);
+        if (loadedImage != null) {
+            return loadedImage;
+        }
         try {
-            NativeImage image = MinecraftForgeClient.getImageLayer(new ResourceLocation(this.name), manager);
-            return image;
+            Resource resource = manager.getResource(resourceLocation).orElseThrow();
+            return NativeImage.read(resource.open());
         } catch (IOException ioexception) {
             LOGGER.error("Couldn't load layered image", (Throwable)ioexception);
         }

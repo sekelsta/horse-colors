@@ -9,6 +9,7 @@ import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.data.worldgen.PlainVillagePools;
 import net.minecraft.data.worldgen.Pools;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.Biome;
@@ -49,7 +50,7 @@ public class Spawns {
                 if (biomeHolder.containsTag(Tags.Biomes.IS_PLAINS)) {
                     builder.getMobSpawnSettings().addSpawn(plainsSpawner.type.getCategory(), plainsSpawner);
                 }
-                else if (biomeHolder.containsTag(Tags.Biomes.IS_SAVANNA)) {
+                else if (biomeHolder.containsTag(BiomeTags.IS_SAVANNA)) {
                     builder.getMobSpawnSettings().addSpawn(savannaSpawner.type.getCategory(), savannaSpawner);
                 }
             }

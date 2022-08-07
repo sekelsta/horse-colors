@@ -7,7 +7,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import sekelsta.horse_colors.config.HorseConfig;
@@ -20,16 +20,16 @@ public class HorseReplacer {
 
 
     @SubscribeEvent
-	public static void replaceHorses(EntityJoinWorldEvent event)
+	public static void replaceHorses(EntityJoinLevelEvent event)
     {
         // We don't want to replace subclasses of horses
         if (event.getEntity().getClass() == Horse.class
-            && !event.getWorld().isClientSide
+            && !event.getLevel().isClientSide
             && HorseConfig.SPAWN.convertVanillaHorses.get())
         {
             Horse horse = (Horse)event.getEntity();
             if (!horse.getPersistentData().contains("converted")) {
-                HorseGeneticEntity newHorse = ModEntities.HORSE_GENETIC.get().create(event.getWorld());
+                HorseGeneticEntity newHorse = ModEntities.HORSE_GENETIC.get().create(event.getLevel());
                 newHorse.copyAbstractHorse(horse);
                 // Spawn the new horse
                 // Normally this is done by calling world.addEntity, which
@@ -37,7 +37,7 @@ public class HorseReplacer {
                 // from chunk loading creates a deadlock. Minecraft's chunk 
                 // loading code calls ServerWorld.loadFromChunk
                 // instead, which assumes the chunk is already loaded.
-                Level world = event.getWorld();
+                Level world = event.getLevel();
                 if (world instanceof ServerLevel) {
                     loadDuringWorldGen((ServerLevel)world, newHorse);
                 }

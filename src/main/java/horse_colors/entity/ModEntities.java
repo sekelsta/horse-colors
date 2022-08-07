@@ -34,7 +34,7 @@ import sekelsta.horse_colors.item.ModItems;
 @Mod.EventBusSubscriber(modid = HorseColors.MODID, bus = Bus.MOD)
 public class ModEntities {
     public static final DeferredRegister<EntityType<?>> ENTITY_DEFERRED 
-        = DeferredRegister.create(ForgeRegistries.ENTITIES, HorseColors.MODID);
+        = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, HorseColors.MODID);
 
     public static final RegistryObject<EntityType<HorseGeneticEntity>> HORSE_GENETIC 
         = registerEntity("horse_felinoid", HorseGeneticEntity::new, 1.2F, 1.6F);
