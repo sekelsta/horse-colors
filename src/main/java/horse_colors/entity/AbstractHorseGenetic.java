@@ -243,15 +243,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
             this.randomize(getBreed(compound.getString("Breed")));
         }
         else {
-            // If we haven't been given color data, we should randomize
-            // anything not specified
-            if (!compound.contains("Variant")
-                    && !compound.contains("Variant2")
-                    && !compound.contains("Variant3")
-                    && !compound.contains("Variant4")) {
-                randomize(getRandomBreed());
-            }
-            readLegacyAdditional(compound);
+            randomize(getRandomBreed());
         }
 
         // Replace saddle reading functionality from AbstractHorseEntity with
@@ -326,45 +318,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                 getGenome().setAllele(gene, 1, alleles[1]);
             }
         }
-    }
-
-    public void readLegacyAdditional(CompoundTag compound) {
-        Map<String, Integer> map = new HashMap<>();
-        if (compound.contains("Variant")) {
-            map.put("0", compound.getInt("Variant"));
-        }
-        if (compound.contains("Variant2")) {
-            map.put("1", compound.getInt("Variant2"));
-        }
-        if (compound.contains("Variant3")) {
-            map.put("2", compound.getInt("Variant3"));
-        }
-        if (compound.contains("Variant4")) {
-            map.put("3", compound.getInt("Variant4"));
-        }
-        if (compound.contains("Variant5")) {
-            map.put("4", compound.getInt("Variant5"));
-        }
-        else {
-            this.getGenome().datafixAddingFourthChromosome(map);
-        }
-        if (compound.contains("SpeedGenes")) {
-            map.put("speed", compound.getInt("SpeedGenes"));
-        }
-        if (compound.contains("JumpGenes")) {
-            map.put("jump", compound.getInt("JumpGenes"));
-        }
-        if (compound.contains("HealthGenes")) {
-            map.put("health", compound.getInt("HealthGenes"));
-        }
-        if (compound.contains("MHC1")) {
-            map.put("mhc1", compound.getInt("MHC1"));
-            map.put("mhc2", compound.getInt("MHC2"));
-        }
-        if (compound.contains("Immune")) {
-            map.put("immune", compound.getInt("Immune"));
-        }
-        this.genes.setLegacyGenes(map);
     }
 
     public void copyAbstractHorse(AbstractHorse horse)
