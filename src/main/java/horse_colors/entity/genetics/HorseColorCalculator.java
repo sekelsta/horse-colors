@@ -452,26 +452,25 @@ public class HorseColorCalculator
         if (!horse.hasStripe()) {
             return;
         }
+
+        float dunStrength = horse.dunStrength();
+        float dunRoot = 1f - dunStrength;
+        float w = 0.5f * dunStrength * (1f - dunRoot / 2);
+        if (horse.isHomozygous(Gene.light_dun, 1)) {
+            w *= 2f;
+        }
+
+
         TextureLayer white = new TextureLayer();
         white.name = fixPath("dun/dun_dilute");
-        white.color.a = 0.2f;
-        if (!horse.isDun()) {
-            white.color.a *= 0.1f;
-        }
-        if (horse.isHomozygous(Gene.light_dun, 1)) {
-            white.color.a *= 2f;
-        }
+        white.color.a = w;
         white.type = TextureLayer.Type.SHADE;
         layers.add(white);
 
         TextureLayer layer = new TextureLayer();
         layer.name = fixPath("dun/dun_dilute");
         layer.type = TextureLayer.Type.ROOT;
-        float dunpower = 0.6f;
-        if (!horse.isDun()) {
-            dunpower = 0.9f;
-        }
-        layer.color = new Color(dunpower, dunpower, dunpower);
+        layer.color = new Color(dunRoot, dunRoot, dunRoot);
         layers.add(layer);
     }
 

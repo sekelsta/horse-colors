@@ -198,12 +198,6 @@ public class BaseEquine {
             1f,     // Mealy does not lighten the legs so much
             1f      // Mealy lightens the legs all the way
         ));
-        genes.put(Gene.donkey_dun, ImmutableList.of(
-            1f,     // Dun
-            0f, 
-            0f,
-            0f
-        ));
         genes.put(Gene.flaxen_boost, ImmutableList.of(
             0.95f,  // Flaxen manes are darker
             1f      // Flaxen manes are lighter

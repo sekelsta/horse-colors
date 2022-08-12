@@ -40,11 +40,13 @@ public class BaseDonkey {
             0.5f,   // Mealy does not lighten the legs so much
             1f      // Mealy lightens the legs all the way
         ));
-        GENES.put(Gene.donkey_dun, ImmutableList.of(
+        GENES.put(Gene.dun, ImmutableList.of(
+            0f,     // Horse nd2
+            0f,     // Horse nd1
+            0f,     // Horse dun
             0.5f,   // Dun
             0.95f,  // Non-dun with cross
-            1f,     // Non-dun, no cross
-            0f      // Unused
+            1f      // Non-dun, no cross
         ));
 
         GENES.put(Gene.double_ovulation, ImmutableList.of(

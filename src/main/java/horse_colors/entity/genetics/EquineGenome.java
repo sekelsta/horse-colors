@@ -63,7 +63,7 @@ public class EquineGenome extends Genome {
         reduced_points,
         light_legs,
         less_light_legs,
-        donkey_dun,
+        DEPRECATED_donkey_dun,
         flaxen_boost,
         light_dun,
         marble,
@@ -272,38 +272,50 @@ public class EquineGenome extends Genome {
         return this.hasAllele(Gene.gray, HorseAlleles.GRAY);
     }
 
-    // Arbitrarily decide homozygous donkey nondun breaks horse dun.
-    // Obviously there's no way to check this in real life except by
-    // theorizing once we know more about donkey dun.
-    public boolean isDun() {
-        return this.hasAllele(Gene.donkey_dun, HorseAlleles.DONKEY_DUN)
-            && (this.hasAllele(Gene.dun, HorseAlleles.DUN)
-                || this.isHomozygous(Gene.dun, HorseAlleles.DUN_OTHER));
+    // Returns a number from 0 to 1, with 0 being less dun effect and 1 being more
+    public float dunStrength() {
+        int m = getAllele(Gene.dun, 0);
+        int p = getAllele(Gene.dun, 1);
+
+        if ((m == HorseAlleles.DUN || m == HorseAlleles.DONKEY_DUN) 
+                && (p == HorseAlleles.DUN || p == HorseAlleles.DONKEY_DUN)) {
+            return 0.4f;
+        }
+        else if ((m == HorseAlleles.DUN || m == HorseAlleles.DONKEY_DUN) 
+                || (p == HorseAlleles.DUN || p == HorseAlleles.DONKEY_DUN)) {
+            return 0.3f;
+        }
+        else if ((m == HorseAlleles.NONDUN1 || m == HorseAlleles.DONKEY_NONDUN_CROSS) 
+                && (p == HorseAlleles.NONDUN1 || p == HorseAlleles.DONKEY_NONDUN_CROSS)) {
+            return 0.16f;
+        }
+        else if ((m == HorseAlleles.NONDUN1 || m == HorseAlleles.DONKEY_NONDUN_CROSS) 
+                || (p == HorseAlleles.NONDUN1 || p == HorseAlleles.DONKEY_NONDUN_CROSS)) {
+            return 0.08f;
+        }
+
+        return 0;
     }
 
     // Whether the horse shows primitive markings such as the dorsal stripe.
     public boolean hasStripe() {
-        // Some confusion here to account for "donkey dun" mules
-        if (isHomozygous(Gene.dun, HorseAlleles.NONDUN2)) {
-            return false;
+        for (int parent = 0; parent < 2; ++parent) {
+            int d = getAllele(Gene.dun, parent);
+            if (d == HorseAlleles.DUN 
+                || d == HorseAlleles.NONDUN1 
+                || d == HorseAlleles.DONKEY_DUN
+                || d == HorseAlleles.DONKEY_NONDUN_CROSS)
+            {
+                return true;
+            }
         }
-        if (isHomozygous(Gene.donkey_dun, HorseAlleles.DONKEY_NONDUN)) {
-            return false;
-        }
-        if (hasAllele(Gene.dun, HorseAlleles.DUN)) {
-            return true;
-        }
-        if (hasAllele(Gene.donkey_dun, HorseAlleles.DONKEY_DUN)) {
-            return true;
-        }
-        if (hasAllele(Gene.dun, HorseAlleles.NONDUN2)) {
-            return false;
-        }
-        return hasAllele(Gene.dun, HorseAlleles.DUN_OTHER);
+
+        return false;
     }
 
     public boolean isFrostedDun() {
-        return isDun() && !isHomozygous(Gene.stripe_width, 0);
+        return (hasAllele(Gene.dun, HorseAlleles.DUN) || hasAllele(Gene.dun, HorseAlleles.DONKEY_DUN))
+                    && !isHomozygous(Gene.stripe_width, 0);
     }
 
     public boolean hasNarrowStripe() {
