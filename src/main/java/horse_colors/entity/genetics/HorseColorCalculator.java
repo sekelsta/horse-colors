@@ -587,7 +587,7 @@ public class HorseColorCalculator
             TextureLayer mane = new TextureLayer();
             if (horse.hasNarrowStripe()) {
                 mane.name = fixPath("dun/dunmanetail");
-                if (!horse.isChestnut()) {
+                if (!horse.isChestnut() && !horse.isDun()) {
                     TextureLayer layer = new TextureLayer();
                     layer.name = fixPath("manetail");
                     layer.color = blackManePigment(horse).toColor();

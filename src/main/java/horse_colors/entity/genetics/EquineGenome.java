@@ -272,6 +272,10 @@ public class EquineGenome extends Genome {
         return this.hasAllele(Gene.gray, HorseAlleles.GRAY);
     }
 
+    public boolean isDun() {
+        return hasAllele(Gene.dun, HorseAlleles.DUN) || hasAllele(Gene.dun, HorseAlleles.DONKEY_DUN);
+    }
+
     // Returns a number from 0 to 1, with 0 being less dun effect and 1 being more
     public float dunStrength() {
         int m = getAllele(Gene.dun, 0);
@@ -314,8 +318,7 @@ public class EquineGenome extends Genome {
     }
 
     public boolean isFrostedDun() {
-        return (hasAllele(Gene.dun, HorseAlleles.DUN) || hasAllele(Gene.dun, HorseAlleles.DONKEY_DUN))
-                    && !isHomozygous(Gene.stripe_width, 0);
+        return isDun() && !isHomozygous(Gene.stripe_width, 0);
     }
 
     public boolean hasNarrowStripe() {
