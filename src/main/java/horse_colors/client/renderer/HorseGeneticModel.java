@@ -176,8 +176,8 @@ public class HorseGeneticModel<T extends AbstractHorse> extends AgeableListModel
         this.horn = this.head.getChild(HORN);
         this.babyHorn = this.head.getChild(BABY_HORN);
 
-        this.leftChest = this.body.getChild(LEFT_CHEST);
-        this.rightChest = this.body.getChild(RIGHT_CHEST);
+        this.leftChest = root.getChild(LEFT_CHEST);
+        this.rightChest = root.getChild(RIGHT_CHEST);
         
         this.faceRopes = this.head.getChild(FACE_ROPES);
         this.leftBit = this.head.getChild(LEFT_BIT);
@@ -370,12 +370,12 @@ public class HorseGeneticModel<T extends AbstractHorse> extends AgeableListModel
             PartPose.ZERO
         );
 
-        PartDefinition leftChestDef = bodyDef.addOrReplaceChild(
+        PartDefinition leftChestDef = root.addOrReplaceChild(
             LEFT_CHEST,
             CubeListBuilder.create().texOffs(0, 34).addBox(-3.0F, 0.0F, 0.0F, 8, 8, 3),
             PartPose.offsetAndRotation(-7.5F, 3.0F, 10.0F, 0F, (float)Math.PI / 2F, 0F)
         );
-        PartDefinition rightChestDef = bodyDef.addOrReplaceChild(
+        PartDefinition rightChestDef = root.addOrReplaceChild(
             RIGHT_CHEST,
             CubeListBuilder.create().texOffs(0, 47).addBox(-3.0F, 0.0F, 0.0F, 8, 8, 3),
             PartPose.offsetAndRotation(4.5F, 3.0F, 10.0F, 0F, (float)Math.PI / 2F, 0F)
