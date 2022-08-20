@@ -224,6 +224,19 @@ public class HorseColorCalculator
         if (horse.isChestnut()) {
             return;
         }
+
+        if (horse.hasAllele(Gene.donkey_dark, 1)) {
+            TextureLayer donkeyDark = new TextureLayer();
+            donkeyDark.name = fixPath("donkey_dark");
+            donkeyDark.color = blackBodyColor(horse);
+            setGrayConcentration(horse, donkeyDark);
+            if (!horse.isHomozygous(Gene.donkey_dark, 1)) {
+                donkeyDark.color.a = 0.5f;
+            }
+            layers.add(donkeyDark);
+        }
+
+
         TextureLayer layer = new TextureLayer();
 
         if (horse.getMaxAllele(Gene.agouti) == HorseAlleles.A_BLACK) {
@@ -714,8 +727,8 @@ public class HorseColorCalculator
         TextureLayerGroup layerGroup = new TextureLayerGroup(textureLayers);
         TextureLayer red = getRedBody(horse);
         textureLayers.add(red);
-        addMealy(horse, textureLayers);
         addBlackBody(horse, layerGroup);
+        addMealy(horse, textureLayers);
         addLightManeTail(horse, textureLayers);
         addDun(horse, textureLayers);
         addPoints(horse, textureLayers);

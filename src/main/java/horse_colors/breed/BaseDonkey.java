@@ -85,6 +85,9 @@ public class BaseDonkey {
             0.9f,
             1.0f
         ));
+        GENES.put(Gene.stripe_width, ImmutableList.of(
+            1f      // Wide
+        ));
 
         // Make the max speed and jump of donkeys lower than that of horses
         ImmutableList<Float> one = ImmutableList.of(1f);

@@ -64,5 +64,8 @@ public class Takhi {
             0.8f,   // Wild type
             1f      // Darker liver chestnut
         ));
+        GENES.put(Gene.donkey_dark, ImmutableList.of(
+            1f    // Lighter
+        ));
     }
 }

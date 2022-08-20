@@ -183,7 +183,7 @@ public class BaseEquine {
             1f      // Ivory
         ));
         genes.put(Gene.donkey_dark, ImmutableList.of(
-            0f,     // Lighter
+            0.3f,   // Lighter
             1f      // Darker
         ));
         genes.put(Gene.reduced_points, ImmutableList.of(
