@@ -48,10 +48,6 @@ public class Takhi {
             15f / 16f,  // Non white-suppression
             1f          // White suppression
         ));
-        GENES.put(Gene.reduced_points, ImmutableList.of(
-            0.9f,   // Higher leg black
-            1f      // Lower leg black
-        ));
         GENES.put(Gene.flaxen_boost, ImmutableList.of(
             0.5f,   // Flaxen manes are darker
             1f      // Flaxen manes are lighter

@@ -187,7 +187,7 @@ public class BaseEquine {
             1f      // Darker
         ));
         genes.put(Gene.reduced_points, ImmutableList.of(
-            1f,     // Higher leg black
+            0.9f,   // Higher leg black
             1f      // Lower leg black
         ));
         genes.put(Gene.light_legs, ImmutableList.of(

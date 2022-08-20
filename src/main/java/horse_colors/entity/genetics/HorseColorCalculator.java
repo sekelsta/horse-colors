@@ -553,7 +553,12 @@ public class HorseColorCalculator
 
         // Donkeys ignore all of the above
         if (horse.species == Species.DONKEY) {
-            light_belly.name = fixPath("mealy/donkey_mealy");;
+            if (horse.hasAllele(Gene.reduced_points, 1)) {
+                light_belly.name = fixPath("mealy/donkey_mealy");
+            }
+            else {
+                light_belly.name = fixPath("mealy/donkey_mealy_darkleg");
+            }
             light_belly.color = redBodyColor(horse);
             light_belly.color.power(0.04f);
         }
