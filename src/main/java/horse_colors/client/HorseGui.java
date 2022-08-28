@@ -107,7 +107,7 @@ public class HorseGui extends HorseInventoryScreen {
     @Override
     protected void renderLabels(PoseStack matrixStack, int x, int y) {
         super.renderLabels(matrixStack, x, y);
-        if (!HorseConfig.COMMON.enableSizes.get() || horseGenetic.isBaby()) {
+        if (!HorseConfig.COMMON.enableSizes.get() || horseGenetic.isBaby() || horseGenetic.hasChest()) {
             // Avoid showing an inaccurate height for foals
             return;
         }
