@@ -45,6 +45,7 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
@@ -528,6 +529,14 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
             }
             return true;
         }
+        // Unequip a chest
+        if (this.hasChest() && itemstack.getItem() instanceof AxeItem) {
+            this.dropEquipment();
+            this.setChest(false);
+            this.createInventory();
+            return true;
+        }
+
         // Only allow taming with an empty hand
         if (!this.isTamed()) {
             this.makeMad();
