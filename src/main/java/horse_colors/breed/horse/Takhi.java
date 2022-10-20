@@ -56,9 +56,9 @@ public class Takhi {
             1f,     // Darker dun
             0f      // Lighter dun
         ));
-        GENES.put(Gene.liver_boost, ImmutableList.of(
-            0.8f,   // Wild type
-            1f      // Darker liver chestnut
+        GENES.put(Gene.liver, ImmutableList.of(
+            0.1f,   // Liver
+            1f      // Non-liver
         ));
         GENES.put(Gene.donkey_dark, ImmutableList.of(
             1f    // Lighter

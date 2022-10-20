@@ -44,7 +44,7 @@ public class BaseEquine {
             0f      // MAPT minor
         ));
         genes.put(Gene.liver, ImmutableList.of(
-            0.1f,   // Liver
+            0.9f,   // Liver
             1f      // Non-liver
         ));
         genes.put(Gene.flaxen1, ImmutableList.of(
@@ -194,7 +194,7 @@ public class BaseEquine {
             1f,     // Mealy lightens the legs
             1f      // Mealy does not lighten the legs
         ));
-        genes.put(Gene.less_light_legs, ImmutableList.of(
+        genes.put(Gene.DEPRECATED_less_light_legs, ImmutableList.of(
             1f,     // Mealy does not lighten the legs so much
             1f      // Mealy lightens the legs all the way
         ));
@@ -243,7 +243,7 @@ public class BaseEquine {
             1f      // Mushroom
         ));
         genes.put(Gene.liver_boost, ImmutableList.of(
-            1f,     // Wild type
+            0.8f,   // Wild type
             1f      // Darker liver chestnut
         ));
 

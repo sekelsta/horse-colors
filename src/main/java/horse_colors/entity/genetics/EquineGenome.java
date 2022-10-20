@@ -62,7 +62,7 @@ public class EquineGenome extends Genome {
         cross,
         reduced_points,
         light_legs,
-        less_light_legs,
+        DEPRECATED_less_light_legs,
         DEPRECATED_donkey_dun,
         flaxen_boost,
         light_dun,

@@ -33,12 +33,8 @@ public class BaseDonkey {
             1f      // Shoulder stripe
         ));
         GENES.put(Gene.light_legs, ImmutableList.of(
-            0.5f,   // Mealy lightens the legs
+            0.3f,   // Mealy lightens the legs
             1f      // Mealy does not lighten the legs
-        ));
-        GENES.put(Gene.less_light_legs, ImmutableList.of(
-            0.5f,   // Mealy does not lighten the legs so much
-            1f      // Mealy lightens the legs all the way
         ));
         GENES.put(Gene.dun, ImmutableList.of(
             0f,     // Horse nd2

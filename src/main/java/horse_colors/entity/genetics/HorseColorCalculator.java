@@ -553,7 +553,7 @@ public class HorseColorCalculator
 
         // Donkeys ignore all of the above
         if (horse.species == Species.DONKEY) {
-            if (horse.hasAllele(Gene.reduced_points, 1)) {
+            if (horse.hasAllele(Gene.light_legs, 0)) {
                 light_belly.name = fixPath("mealy/donkey_mealy");
             }
             else {
@@ -596,8 +596,11 @@ public class HorseColorCalculator
             if (horse.hasAllele(Gene.reduced_points, 1)) {
                 name = "wild_bay";
             }
-            if (horse.species == Species.DONKEY) {
-                name = "wild_bay";
+            else if (horse.species == Species.DONKEY) {
+                name = "donkey_bay";
+                if (horse.hasStripe()) {
+                    name = "wild_bay";
+                }
             }
             legs.name = fixPath(name);
             points.add(legs);
