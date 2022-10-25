@@ -265,7 +265,10 @@ public class HorsePatternCalculator {
 
         String folder = "pinto/";
 
-        if (horse.isTobiano())
+        if (horse.hasAllele(Gene.KIT, HorseAlleles.KIT_DONKEY_SPOTTING)) {
+            layer.name = HorseColorCalculator.fixPath(folder + "donkey_spotting");
+        }
+        else if (horse.isTobiano())
         {
             // Splashed white and tobiano can combine to make most of the horse white
             // See Pacific Pintos, Pacific Cloud Nine

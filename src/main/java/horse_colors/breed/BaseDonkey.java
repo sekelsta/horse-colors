@@ -45,6 +45,20 @@ public class BaseDonkey {
             1f      // Non-dun, no cross
         ));
 
+        GENES.put(Gene.KIT, ImmutableList.of(
+            0.98f,  // Wildtype
+            0f,     // White boost
+            0f,     // Markings1
+            0f,     // Markings2
+            0f,     // Markings3
+            0f,     // Markings4
+            0f,     // Markings5
+            0f,     // W20
+            0.995f, // Donkey spotting
+            0f,     // Flashy white
+            1f      // Donkey white
+        ));
+
         GENES.put(Gene.double_ovulation, ImmutableList.of(
             0.5f,   // Twins less likely
             1.0f    // Twins more likely

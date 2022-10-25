@@ -347,6 +347,7 @@ public class EquineGenome extends Genome {
 
     public boolean isWhite() {
         return this.hasAllele(Gene.KIT, HorseAlleles.KIT_DOMINANT_WHITE)
+            || this.hasAllele(Gene.KIT, HorseAlleles.KIT_DONKEY_WHITE)
             || this.isLethalWhite()
             || this.isHomozygous(Gene.KIT, HorseAlleles.KIT_SABINO1)
             || (this.hasAllele(Gene.KIT, HorseAlleles.KIT_SABINO1)
@@ -368,8 +369,25 @@ public class EquineGenome extends Genome {
         return this.isHomozygous(Gene.frame, HorseAlleles.FRAME);
     }
 
+    private boolean isEmbryonicLethalAllele(Gene gene, int allele) {
+        if (gene == Gene.KIT) {
+            return allele == HorseAlleles.KIT_DOMINANT_WHITE 
+                || allele == HorseAlleles.KIT_DONKEY_WHITE;
+        }
+        return false;
+    }
+
     public boolean isEmbryonicLethal() {
-        return this.isHomozygous(Gene.KIT, HorseAlleles.KIT_DOMINANT_WHITE);
+        return isEmbryonicLethalAllele(Gene.KIT, getAllele(Gene.KIT, 0))
+            && isEmbryonicLethalAllele(Gene.KIT, getAllele(Gene.KIT, 1));
+    }
+
+    public boolean isMaybeEmbryonicLethal() {
+        int maternal = getAllele(Gene.KIT, 0);
+        int paternal = getAllele(Gene.KIT, 1);
+
+        return (isEmbryonicLethalAllele(Gene.KIT, maternal) || maternal == HorseAlleles.KIT_DONKEY_SPOTTING)
+            && (isEmbryonicLethalAllele(Gene.KIT, paternal) || paternal == HorseAlleles.KIT_DONKEY_SPOTTING);
     }
 
     public boolean hasERURiskFactor() {
@@ -815,9 +833,23 @@ public class EquineGenome extends Genome {
         }
 
         // Homozygote dominant whites will be replaced with heterozygotes
-        if (isHomozygous(Gene.KIT, HorseAlleles.KIT_DOMINANT_WHITE))
+        if (isEmbryonicLethal() || isMaybeEmbryonicLethal())
         {
             setAllele(Gene.KIT, 0, 0);
+        }
+
+        // Catch anything that fell through the cracks, in case I add genes and forget to update this
+        while (isEmbryonicLethal() || isMaybeEmbryonicLethal() || isLethalWhite()) {
+            HorseColors.logger.info("Re-randomizing spawn of a wild horse that would have been non-viable.");
+            randomizeGenes(breed);
+        }
+
+        // Don't spawn donkey white spotting linked to sorrel
+        for (int i = 0; i < 2; ++i) {
+            if (getAllele(Gene.KIT, i) == HorseAlleles.KIT_DONKEY_SPOTTING 
+                    && getAllele(Gene.extension, i) == HorseAlleles.E_RED) {
+                setAllele(Gene.extension, i, HorseAlleles.E_BLACK);
+            }
         }
 
         entity.setSeed(this.entity.getRand().nextInt());

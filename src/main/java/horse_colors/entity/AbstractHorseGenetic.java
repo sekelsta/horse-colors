@@ -763,12 +763,17 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
             if (ageable instanceof AbstractHorseGenetic) {
                 AbstractHorseGenetic other = (AbstractHorseGenetic)ageable;
                 foal.getGenome().inheritGenes(this.getGenome(), other.getGenome());
-            }
-            // Dominant white is homozygous lethal early in pregnancy. No child
-            // is born.
-            if (foal.getGenome().isEmbryonicLethal())
-            {
-                return null;
+                // No child is born for genotypes strongly suspected to be embryonic lethal, or re-roll for those
+                // that we're not sure about
+                while (foal.getGenome().isEmbryonicLethal() || foal.getGenome().isMaybeEmbryonicLethal())
+                {
+                    if (foal.getGenome().isEmbryonicLethal()) {
+                        return null;
+                    }
+                    else if (foal.getGenome().isMaybeEmbryonicLethal()) {
+                        foal.getGenome().inheritGenes(this.getGenome(), other.getGenome());
+                    }
+                }
             }
             foal.setMotherSize(this.getGenome().getAdultScale());
             foal.setMale(this.random.nextBoolean());
