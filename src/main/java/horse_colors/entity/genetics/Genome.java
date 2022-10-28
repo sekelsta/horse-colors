@@ -82,12 +82,9 @@ public abstract class Genome {
         entity.setGeneData(new String(buffer));
     }
 
-    // Replace the given allele with a random one.
-    // It may be the same as before.
-    public void mutateAllele(Enum gene, int n) {
-        Breed breed = entity.getDefaultBreed();
+    public List<Integer> getAllowedAlleles(Enum gene, Breed breed) {
         if (!breed.contains(gene)) {
-            return;
+            return null;
         }
         List<Float> frequencies = breed.get(gene);
         List<Integer> allowedAlleles = new ArrayList<>();
@@ -100,6 +97,17 @@ public abstract class Genome {
                 allowedAlleles.add(i);
                 val = frequencies.get(i);
             }
+        }
+        return allowedAlleles;
+    }
+
+    // Replace the given allele with a random one.
+    // It may be the same as before.
+    public void mutateAllele(Enum gene, int n) {
+        Breed breed = entity.getDefaultBreed();
+        List<Integer> allowedAlleles = getAllowedAlleles(gene, breed);
+        if (allowedAlleles == null) {
+            return;
         }
         int size = allowedAlleles.size();
         int v = allowedAlleles.get(this.rand.nextInt(size));

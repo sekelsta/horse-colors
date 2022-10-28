@@ -61,6 +61,11 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
     }
 
     @Override
+    protected void readExtraGenes(CompoundTag compound) {
+        // Do nothing
+    }
+
+    @Override
     public ResourceLocation getDefaultLootTable() {
         return this.LOOT_TABLE;
     }

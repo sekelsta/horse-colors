@@ -310,12 +310,16 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         setMotherSize(motherSize);
     }
 
-    private void readExtraGenes(CompoundTag compound) {
+    protected void readExtraGenes(CompoundTag compound) {
         for (Enum gene : this.getGenome().listGenes()) {
             if (compound.contains(gene.toString())) {
                 int alleles[] = compound.getIntArray(gene.toString());
-                getGenome().setAllele(gene, 0, alleles[0]);
-                getGenome().setAllele(gene, 1, alleles[1]);
+                List<Integer> allowedAlleles = getGenome().getAllowedAlleles(gene, getDefaultBreed());
+                for (int i = 0; i < 2; ++i) {
+                    if (allowedAlleles.contains(alleles[i])) {
+                        getGenome().setAllele(gene, i, alleles[i]);
+                    }
+                }
             }
         }
     }
