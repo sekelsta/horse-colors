@@ -7,6 +7,9 @@ import net.minecraftforge.common.ForgeConfigSpec.EnumValue;
 import net.minecraftforge.common.ForgeConfigSpec.IntValue;
 import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
 
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.animal.horse.*;
+
 import java.util.*;
 
 public class HorseConfig
@@ -197,6 +200,8 @@ public class HorseConfig
         public static BooleanValue blockVanillaHorseSpawns;
         public static BooleanValue blockVanillaDonkeySpawns;
         public static BooleanValue convertVanillaHorses;
+        public static BooleanValue convertVanillaDonkeys;
+        public static BooleanValue convertVanillaMules;
 
         Spawn(final ForgeConfigSpec.Builder builder) {
             builder.comment("Settings to configure spawning. Note as of Minecraft 1.19 spawn weights are now controlled via json data.")
@@ -215,6 +220,14 @@ public class HorseConfig
             convertVanillaHorses = builder
                     .comment("If this is set to true, existing horses will be turned into horses with genetics")
                     .define("convertVanillaHorses", false);
+
+            convertVanillaDonkeys = builder
+                    .comment("If this is set to true, existing donkeys will be turned into donkeys with genetics")
+                    .define("convertVanillaDonkeys", false);
+
+            convertVanillaMules = builder
+                    .comment("If this is set to true, existing mules will be turned into mules with genetics")
+                    .define("convertVanillaMules", false);
 
             builder.pop();
         }
@@ -247,5 +260,13 @@ public class HorseConfig
 
     public static int getHorsePregnancyLength() {
         return BREEDING.pregnancyLength.get();
+    }
+
+    public static boolean shouldConvert(Entity entity) {
+        Class c = entity.getClass();
+        // We don't want to replace subclasses of horses
+        return (c == Horse.class && SPAWN.convertVanillaHorses.get())
+            || (c == Donkey.class && SPAWN.convertVanillaDonkeys.get())
+            || (c == Mule.class && SPAWN.convertVanillaMules.get());
     }
 }

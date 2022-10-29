@@ -57,7 +57,9 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
     */
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
-        this.setSpecies(Species.valueOf(compound.getString("Species")));
+        if (compound.contains("Species")) {
+            this.setSpecies(Species.valueOf(compound.getString("Species")));
+        }
     }
 
     @Override
@@ -146,21 +148,14 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
         return ImmutableList.of(getDefaultBreed());
     }
 
-    /**
-     * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
-     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
-     */
-    @Nullable
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor worldIn, DifficultyInstance difficultyIn, MobSpawnType reason, @Nullable SpawnGroupData spawnDataIn, @Nullable CompoundTag dataTag)
-    {
-        spawnDataIn = super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
+    protected void randomize(Breed breed) {
+        super.randomize(breed);
+
         EquineGenome horse = new EquineGenome(Species.HORSE);
         horse.randomize(BreedManager.HORSE.getBreed("default_horse"));
         EquineGenome donkey = new EquineGenome(Species.DONKEY);
         donkey.randomize(BreedManager.DONKEY.getBreed("default_donkey"));
         this.genes.inheritGenes(horse, donkey);
-        this.useGeneticAttributes();
-        return spawnDataIn;
     }
 }

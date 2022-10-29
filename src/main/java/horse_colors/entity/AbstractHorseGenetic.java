@@ -131,7 +131,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
 
     @Override
     public RandomSource getRand() {
-        return super.getRandom();
+        return this.getRandom();
     }
 
     @Override
@@ -1100,7 +1100,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         return data;
     }
 
-    private void randomize(Breed breed) {
+    protected void randomize(Breed breed) {
         this.getGenome().randomize(breed);
         // Choose a random age
         this.trueAge = this.random.nextInt(HorseConfig.GROWTH.getMaxAge());

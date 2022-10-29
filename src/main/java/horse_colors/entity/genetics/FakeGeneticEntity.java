@@ -44,7 +44,7 @@ public class FakeGeneticEntity implements IGeneticEntity {
 
     @Override
     public RandomSource getRand() {
-        return null;
+        return RandomSource.create();
     }
 
     @Override

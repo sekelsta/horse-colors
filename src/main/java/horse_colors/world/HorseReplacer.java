@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.animal.horse.Horse;
+import net.minecraft.world.entity.animal.horse.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
@@ -22,30 +22,47 @@ public class HorseReplacer {
     @SubscribeEvent
 	public static void replaceHorses(EntityJoinLevelEvent event)
     {
-        // We don't want to replace subclasses of horses
-        if (event.getEntity().getClass() == Horse.class
-            && !event.getLevel().isClientSide
-            && HorseConfig.SPAWN.convertVanillaHorses.get())
-        {
-            Horse horse = (Horse)event.getEntity();
-            if (!horse.getPersistentData().contains("converted")) {
-                HorseGeneticEntity newHorse = ModEntities.HORSE_GENETIC.get().create(event.getLevel());
-                newHorse.copyAbstractHorse(horse);
-                // Spawn the new horse
-                // Normally this is done by calling world.addEntity, which
-                // makes sure to load the chunk first. However calling that
-                // from chunk loading creates a deadlock. Minecraft's chunk 
-                // loading code calls ServerWorld.loadFromChunk
-                // instead, which assumes the chunk is already loaded.
-                Level world = event.getLevel();
-                if (world instanceof ServerLevel) {
-                    loadDuringWorldGen((ServerLevel)world, newHorse);
-                }
-                // Don't convert the same horse twice
-                horse.getPersistentData().putBoolean("converted", true);
-            }
-            // Cancel the event regardless
-            event.setCanceled(true);
+        if (event.getLevel().isClientSide()) {
+            return;
         }
+        Entity entity = event.getEntity();
+        if (!HorseConfig.shouldConvert(entity)) {
+            return;
+        }
+        if (entity.getPersistentData().contains("converted")) {
+            event.setCanceled(true);
+            return;
+        }
+
+        AbstractHorseGenetic newHorse = null;
+        if (entity.getClass() == Horse.class)
+        {
+            newHorse = ModEntities.HORSE_GENETIC.get().create(event.getLevel());
+        }
+        else if (entity.getClass() == Donkey.class)
+        {
+            newHorse = ModEntities.DONKEY_GENETIC.get().create(event.getLevel());
+        }
+        else if (entity.getClass() == Mule.class)
+        {
+            newHorse = ModEntities.MULE_GENETIC.get().create(event.getLevel());
+        }
+        newHorse.copyAbstractHorse((AbstractHorse)entity);
+
+        // Spawn the new horse
+        // Normally this is done by calling world.addEntity, which
+        // makes sure to load the chunk first. However calling that
+        // from chunk loading creates a deadlock. Minecraft's chunk 
+        // loading code calls ServerWorld.loadFromChunk
+        // instead, which assumes the chunk is already loaded.
+        Level world = event.getLevel();
+        if (world instanceof ServerLevel) {
+            loadDuringWorldGen((ServerLevel)world, newHorse);
+        }
+
+        // Don't convert the same horse twice
+        entity.getPersistentData().putBoolean("converted", true);
+        // Cancel the event regardless
+        event.setCanceled(true);
 	}
 }
