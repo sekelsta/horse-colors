@@ -195,8 +195,6 @@ public class HorseConfig
     }
 
     public static class Spawn {
-        public static DoubleValue horseSpawnMultiplier;
-        public static DoubleValue donkeySpawnMultiplier;
         public static BooleanValue blockVanillaHorseSpawns;
         public static BooleanValue blockVanillaDonkeySpawns;
         public static BooleanValue convertVanillaHorses;
