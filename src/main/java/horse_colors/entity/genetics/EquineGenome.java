@@ -1005,7 +1005,7 @@ public class EquineGenome extends Genome {
             Gene.champagne, Gene.KIT, Gene.frame, Gene.MITF, Gene.leopard, 
             Gene.PATN1, Gene.mushroom, Gene.tiger_eye);
         if (this.species == Species.DONKEY) {
-            colorgenelist = ImmutableList.of(Gene.extension, Gene.agouti, Gene.KIT);
+            colorgenelist = ImmutableList.of(Gene.extension, Gene.agouti, Gene.KIT, Gene.color);
         }
         ArrayList<String> test_results = new ArrayList<>();
         if (HorseConfig.GENETICS.bookShowsGenes.get()) {

@@ -23,6 +23,7 @@ public class HorseColorCalculator
     private static final Color MUSHROOM = new Color(0xde, 0xcf, 0xbc);
     private static final Color SHELL_HOOF = new Color(0xff, 0xe5, 0xb8);
     private static final Color PINK_SKIN = new Color(0xff, 0xd6, 0xb6);
+    private static final Color PINK_EYE = new Color(0xff, 0xd6, 0xd6);
     private static final Color BLUE_EYES = new Color(0xc1, 0xda, 0xf8);
 
     public static String fixPath(String inStr) {
@@ -412,7 +413,12 @@ public class HorseColorCalculator
         layer.name = fixPath("iris");
         // Blue background color
         Pigment blue = new Pigment(BLUE_EYES, blueEyeShade(horse), 0f);
-        if (horse.isHomozygous(Gene.MITF, HorseAlleles.MITF_SW1)) {
+        if (horse.isAlbino()) {
+            blue.white = 0.2f;
+            layer.color = blue.toColor();
+            layer.color.multiply(PINK_EYE);
+        }
+        else if (horse.isHomozygous(Gene.MITF, HorseAlleles.MITF_SW1)) {
             // Unpigmented blue eyes
             layer.color = blue.toColor();
         }

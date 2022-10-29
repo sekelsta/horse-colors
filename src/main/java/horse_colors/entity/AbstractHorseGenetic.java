@@ -462,12 +462,17 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         return this.inventory;
     }
 
+    protected boolean canTestGenetics() {
+        return true;
+    }
+
     private boolean itemInteract(Player player, ItemStack itemstack, InteractionHand hand) {
         // Enter genetic test results
         if (itemstack.getItem() == Items.BOOK
                 && (HorseConfig.GENETICS.bookShowsGenes.get()
                     || HorseConfig.GENETICS.bookShowsTraits.get())
-                && (this.isTamed() || player.getAbilities().instabuild)) {
+                && (this.isTamed() || player.getAbilities().instabuild)
+                && this.canTestGenetics()) {
             ItemStack book = new ItemStack(ModItems.geneBookItem.get());
             if (book.getTag() == null) {
                 book.setTag(new CompoundTag());

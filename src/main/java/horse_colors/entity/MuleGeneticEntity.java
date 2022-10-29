@@ -100,6 +100,11 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
     }
 
     @Override
+    protected boolean canTestGenetics() {
+        return false;
+    }
+
+    @Override
     // Helper function for createChild that creates and spawns an entity of the 
     // correct species
     public AbstractHorse getChild(ServerLevel world, AgeableMob ageable) {
