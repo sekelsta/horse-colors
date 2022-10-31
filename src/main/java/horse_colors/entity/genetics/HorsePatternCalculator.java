@@ -9,32 +9,17 @@ import sekelsta.horse_colors.entity.genetics.EquineGenome.Gene;
 public class HorsePatternCalculator {
 
     public static boolean hasPigmentInEars(EquineGenome horse) {
-        // Use the old value until the new system is done.
-        return getPreviousFaceWhiteLevel(horse) <= 18;/*
-        WhiteBoost whiteBoost = new WhiteBoost(horse);
-        int boost = whiteBoost.getForehead() * 2;
-        boost += whiteBoost.getMuzzle();
-        boost += whiteBoost.getNoseBridge();
-        // TODO: check that this is the right number
-        return boost <= 18;*/
+        int white = (int)(getSplashFactor(horse) * (1f + getSabinoFactor(horse) / 100f));
+        return white <= 60;
     }
 
-    // This will be used only until the new face markings are done
-    public static int getPreviousFaceWhiteLevel(EquineGenome horse) {
+    private static int getSplashFactor(EquineGenome horse) {
         int white = -2;
+
         if (horse.hasAllele(Gene.white_suppression, 1))
         {
             white -= 4;
         }
-
-        white += horse.countAlleles(Gene.KIT, HorseAlleles.KIT_WHITE_BOOST);
-        white += horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS1);
-        white += 2 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS2);
-        white += 2 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS3);
-        white += 3 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS4);
-        white += 3 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS5);
-        white += 3 * horse.countW20();;
-        white += 4 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_FLASHY_WHITE);
 
         white += 6 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW1);
         white += 9 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW3);
@@ -44,176 +29,86 @@ public class HorsePatternCalculator {
         white += 8 * horse.countAlleles(Gene.PAX3, HorseAlleles.PAX3_SW4);
 
         white += 3 * horse.countAlleles(Gene.white_star, 1);
+
+        if (horse.hasMC1RWhiteBoost()) {
+            white += 1;
+        }
+
+        if (white > 0) {
+            white = (int)Math.pow(white, 1.5);
+        }
+
+        return white;
+    }
+
+    private static int getSabinoFactor(EquineGenome horse) {
+        int white = -2;
+        if (horse.hasAllele(Gene.white_suppression, 1))
+        {
+            white -= 4;
+        }
+        white += horse.countAlleles(Gene.KIT, HorseAlleles.KIT_WHITE_BOOST);
+        white += 2 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS1);
+        white += 3 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS2);
+        white += 4 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS3);
+        white += 5 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS4);
+        white += 6 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS5);
+        white += 7 * horse.countW20();
+        white += 8 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_FLASHY_WHITE);
         white += horse.countAlleles(Gene.white_forelegs, 1);
         white += horse.countAlleles(Gene.white_hindlegs, 1);
+
+        white += 40 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_SABINO1);
 
         if (horse.hasMC1RWhiteBoost()) {
             white += 2;
         }
+
         return white;
-    }
-
-    // This will be used only until the new face markings are done
-    public static TextureLayer getPreviousFaceMarking(EquineGenome horse)
-    {
-        int white = getPreviousFaceWhiteLevel(horse);
-        // Turn a signed integer into unsigned, also drop a few bits 
-        // used elsewhere
-        int unused_bits = 2;
-        int random = (horse.getRandom("leg_white") << 1) >>> (1 + unused_bits);
-
-        white += random & 3;
-
-
-        if (white <= 0) {
-            return null;
-        }
-        int face_marking = white / 5;
-
-        TextureLayer layer = new TextureLayer();
-        String folder = "face/";
-        switch (face_marking)
-        {
-            case 0:
-                break;
-            case 1:
-                layer.name = HorseColorCalculator.fixPath(folder + "star");
-                break;
-            case 2:
-                layer.name = HorseColorCalculator.fixPath(folder + "strip");
-                break;
-            case 3:
-                layer.name = HorseColorCalculator.fixPath(folder + "blaze");
-                break;
-            default:
-                layer.name = HorseColorCalculator.fixPath(folder + "blaze");
-                break;
-        }
-
-        return layer;
     }
 
     public static void addFaceMarkings(EquineGenome horse, List<TextureLayer> textureLayers)
     {
-        TextureLayer face = getPreviousFaceMarking(horse);
-        if (face != null && face.name != null) {
-            textureLayers.add(face);
-        }/*
-        WhiteBoost whiteBoost = new WhiteBoost(horse);
-        int random = HorseColorCalculator.randSource.getVal("face_white", horse.getChromosome("random"));
+        int splash = getSplashFactor(horse);
+        int white = 2 * splash + getSabinoFactor(horse);
 
-        int starSize = whiteBoost.getForehead();
-        starSize += random & 1;
-        int stripSize = whiteBoost.getNoseBridge();
-        stripSize += (random >>> 1) &  1;
-        int snipSize = whiteBoost.getMuzzle();
-        snipSize += (random >>> 2)  & 1;
+        int random = horse.getRandom("face_white") >>> 1;
 
-        TextureLayer star = new TextureLayer();
-
-        if (starSize > 5) {
-            star.name = HorseColorCalculator.fixPath("face/star_strip");
-        }
-        else if (starSize > 3) {
-            star.name = HorseColorCalculator.fixPath("face/star_large");
-        }
-        else if (starSize > 0) {
-            int star_choice = HorseColorCalculator.randSource.getVal("star_choice", horse.getChromosome("random")) & 3;
-            String starpic = "face/star";
-            if (star_choice == 1) {
-                starpic += "_moon";
-            }
-            if (star_choice == 2) {
-                starpic += "_lightning";
-            }
-            if (star_choice == 3) {
-                starpic += "6";
-            }
-            star.name = HorseColorCalculator.fixPath(starpic);
-        }
-        else {
-            star.name = null;
-        }
-
-        if (star.name != null) {
-            textureLayers.add(star);
-        }
-
-        TextureLayer strip = new TextureLayer();
-
-        if (stripSize > 3) {
-            strip.name = HorseColorCalculator.fixPath("face/strip");
-        }
-        else {
-            strip.name = null;
-        }
-
-        if (strip.name != null) {
-            textureLayers.add(strip);
-        }
-
-        TextureLayer snip = new TextureLayer();
-
-        if (snipSize > 5) {
-            snip.name = HorseColorCalculator.fixPath("face/mouth");
-        }
-        else if (snipSize > 4) {
-            snip.name = HorseColorCalculator.fixPath("face/snip_large");
-        }
-        else if (snipSize > 3) {
-            snip.name = HorseColorCalculator.fixPath("face/snip_offcenter");
-        }
-        else if (snipSize > 2) {
-            snip.name = HorseColorCalculator.fixPath("face/snip");
-        }
-        else if (snipSize > 1) {
-            snip.name = HorseColorCalculator.fixPath("face/snip_small");
-        }
-        else {
-            snip.name = null;
-        }
-
-        if (snip.name != null) {
-            textureLayers.add(snip);
-        }
-/*
-        int white = whiteBoost.getMuzzle() + whiteBoost.getNoseBridge() + whiteBoost.getForehead();
         white += random & 3;
 
-
         if (white <= 0) {
-            return null;
+            return;
         }
         int face_marking = white / 5;
 
         TextureLayer layer = new TextureLayer();
-        String folder = "face/";
-        switch (face_marking)
-        {
-            case 0:
-                break;
-            case 1:
-                layer.name = HorseColorCalculator.fixPath(folder + "star");
-                break;
-            case 2:
-                layer.name = HorseColorCalculator.fixPath(folder + "strip");
-                break;
-            case 3:
-                layer.name = HorseColorCalculator.fixPath(folder + "blaze");
-                break;
-            default:
-                layer.name = HorseColorCalculator.fixPath(folder + "blaze");
-                break;
+
+        String marking = null;
+        if (white < 5) {
+            marking = "star";
+        }
+        else if (white < 8) {
+            marking = "lightning";
+        }
+        else if (white < 10) {
+            marking = "star2";
+        }
+        else if (white < 15) {
+            marking = "strip";
+        }
+        else if (white >= 25 && splash >= 5) {
+            marking = "broad_blaze";
+        }
+        else {
+            marking = "blaze";
         }
 
-        return layer;*/
+        layer.name = HorseColorCalculator.fixPath("face/" + marking);
+        textureLayers.add(layer);
     }
 
     public static void addLegMarkings(EquineGenome horse, List<TextureLayer> textureLayers)
     {
-        WhiteBoost whiteBoost = new WhiteBoost(horse);
-
-
         String[] legs = new String[4];
 
         // Turn a signed integer into unsigned, also drop a few bits 
@@ -223,17 +118,17 @@ public class HorsePatternCalculator {
         // for compatibility with previous versions
         random = (random << 1) >>> 5;
 
+        int base_white = getSabinoFactor(horse) / 2 + getSplashFactor(horse) / 3;
+
         for (int i = 0; i < 4; ++i) {
             int r = random & 7;
             random = random >>> 3;
-            int w = whiteBoost.getForelegs();
-            if (i >= 2) {
-                w = whiteBoost.getHindlegs();
+            int w = base_white;
+            if (i < 2) {
+                w += 2 * horse.countAlleles(Gene.white_forelegs, 1);
             }
-            // Add bonus from things that don't make socks 
-            // on their own but still increase white
-            if (w > -2) {
-                w += whiteBoost.conditional;
+            else {
+                w = 2 * horse.countAlleles(Gene.white_hindlegs, 1);
             }
 
             if (w < 0) {
@@ -314,10 +209,28 @@ public class HorsePatternCalculator {
         {
             layer.name = HorseColorCalculator.fixPath(folder + "splash");
         }
-        // Use the layer
-        if (layer.name != null && !layer.name.equals("")) {
-            textureLayers.add(layer);
+        else {
+            return;
         }
+
+        if (horse.isHomozygous(Gene.KIT, HorseAlleles.KIT_TOBIANO)) {
+            int cat_tracks = 5;
+            cat_tracks -= horse.getRandom("cat_tracks") & 1;
+            cat_tracks -= getSplashFactor(horse) / 3;
+            cat_tracks -= getSabinoFactor(horse) / 4;
+            if (cat_tracks > 0) {
+                cat_tracks = Math.min(5, cat_tracks);
+                TextureLayer cat = new TextureLayer();
+                cat.name = HorseColorCalculator.fixPath("repigmentation/cat_tracks" + cat_tracks);
+                cat.type = TextureLayer.Type.MASK;
+                TextureLayerGroup layers = new TextureLayerGroup();
+                layers.add(layer);
+                layers.add(cat);
+                layer = layers;            
+            }
+        }
+
+        textureLayers.add(layer);
     }
 
     public static void addLeopard(EquineGenome horse, List<TextureLayer> textureLayers)
@@ -336,6 +249,21 @@ public class HorsePatternCalculator {
         int patn = 7 * horse.countAlleles(Gene.PATN1, HorseAlleles.PATN);
         patn += 2 * horse.countAlleles(Gene.PATN2, HorseAlleles.PATN);
         patn += horse.countAlleles(Gene.PATN3, HorseAlleles.PATN);
+
+        int boost = 0;
+        if (horse.hasAllele(Gene.leopard_suppression, 1)) {
+            boost -= 1 + horse.countAlleles(Gene.PATN1, HorseAlleles.PATN);
+        }
+        if (horse.isHomozygous(Gene.leopard_suppression2, 1)) {
+            boost -= 1;
+        }
+        if (horse.hasAllele(Gene.PATN_boost1, 1)) {
+            boost += 1;
+        }
+        if (horse.isHomozygous(Gene.PATN_boost2, 1)) {
+            boost += 1;
+        }
+
         TextureLayer spread = new TextureLayer();
         if (patn == 0)
         {
@@ -344,8 +272,7 @@ public class HorsePatternCalculator {
             return;
         }
         else {
-            WhiteBoost whiteBoost = new WhiteBoost(horse);
-            patn += whiteBoost.getBlanket();
+            patn += boost + getSabinoFactor(horse) / 4 + getSplashFactor(horse) / 6;
 
             if (patn < 1) {
                 spread.name = HorseColorCalculator.fixPath("leopard/varnish_roan");
@@ -379,136 +306,5 @@ public class HorsePatternCalculator {
         layers.add(spread);
         layers.add(spots);
         textureLayers.add(new TextureLayerGroup(layers));
-    }
-
-    // For figuring out what parts of the horse get what amount more or less white
-    public static class WhiteBoost {
-        public int general = 0;
-        // Does not make white on its own but increases white
-        public int conditional = 0;
-        public int leg = 0;
-        public int face = 0;
-        public int foreleg = 0;
-        public int hindleg = 0;
-        public int forehead = 0;
-        public int noseBridge = 0;
-        public int muzzle = 0;
-        // As in leopard complex, not including PATN genes
-        public int blanket = 0;
-
-        // Any gene with more than 4 alleles that affect white levels should
-        // usually be incomplete dominant so it is easier to calculate
-        public WhiteBoost(EquineGenome horse) {
-            foreleg = 2 * horse.countAlleles(Gene.white_forelegs, 1);
-            hindleg = 2 * horse.countAlleles(Gene.white_hindlegs, 1);
-            forehead += horse.countAlleles(Gene.white_star, 1);
-            setOldLegWhite(horse);
-
-            if (horse.hasMC1RWhiteBoost()) {
-                conditional += 2;
-            }
-
-            setGeneralWhite(horse);
-            
-
-            // Face white
-            face = getOldFaceWhiteLevel(horse);
-        }
-
-        private void setGeneralWhite(EquineGenome horse) {
-            if (horse.hasAllele(Gene.white_suppression, 1))
-            {
-                general -= 4;
-            }
-            general += horse.countAlleles(Gene.KIT, HorseAlleles.KIT_WHITE_BOOST);
-            general += horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS1);
-            general += 2 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS2);
-            general += 2 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS3);
-            general += 3 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS4);
-            general += 3 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS5);
-            general += 3 * horse.countW20();;
-            general += 4 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_FLASHY_WHITE);
-
-            general += 2 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW1);
-            general += 6 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW3);
-            general += 2 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW5);
-
-            general += 2 * horse.countAlleles(Gene.PAX3, HorseAlleles.PAX3_SW2);
-            general += 3 * horse.countAlleles(Gene.PAX3, HorseAlleles.PAX3_SW4);
-            if (horse.hasAllele(Gene.white_star, 1)) {
-                general += 1;
-            }
-        }
-
-        public static int getOldFaceWhiteLevel(EquineGenome horse) {
-            int white = -2;
-
-            white += 6 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW1);
-            white += 9 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW3);
-            white += 8 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW5);
-
-            white += 7 * horse.countAlleles(Gene.PAX3, HorseAlleles.PAX3_SW2);
-            white += 8 * horse.countAlleles(Gene.PAX3, HorseAlleles.PAX3_SW4);
-
-            white += horse.countAlleles(Gene.white_forelegs, 1);
-            white += horse.countAlleles(Gene.white_hindlegs, 1);
-
-            if (horse.hasMC1RWhiteBoost()) {
-                white += 2;
-            }
-            return white;
-        }
-
-        private void setOldLegWhite(EquineGenome horse) {
-            int white = -3;
-
-            white += 1 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS1);
-            white += 1 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS2);
-            white += 2 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS3);
-            white += 2 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS4);
-            white += 3 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS5);
-            white += 4 * horse.countW20();
-            white += 4 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_FLASHY_WHITE);
-            this.leg = white;
-        }
-
-        public void setBlanketWhite(EquineGenome horse) {
-            if (horse.hasAllele(Gene.leopard_suppression, 1)) {
-                blanket -= 1 + horse.countAlleles(Gene.PATN1, HorseAlleles.PATN);
-            }
-            if (horse.isHomozygous(Gene.leopard_suppression2, 1)) {
-                blanket -= 1;
-            }
-            if (horse.hasAllele(Gene.PATN_boost1, 1)) {
-                blanket += 1;
-            }
-            if (horse.isHomozygous(Gene.PATN_boost2, 1)) {
-                blanket += 1;
-            }
-        }
-
-        public int getForelegs() {
-            return general + leg + foreleg;
-        }
-
-        public int getHindlegs() {
-            return general + leg + hindleg;
-        }
-
-        public int getBlanket() {
-            return general / 2 + blanket;
-        }
-
-        public int getForehead() {
-            return (general + face) / 5 + forehead;
-        }
-
-        public int getNoseBridge() {
-            return (general + face) / 5 + noseBridge;
-        }
-
-        public int getMuzzle() {
-            return (general + face) / 5 + muzzle;
-        }
     }
 }

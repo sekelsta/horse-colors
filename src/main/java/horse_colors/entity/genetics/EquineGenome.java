@@ -189,7 +189,7 @@ public class EquineGenome extends Genome {
     public EquineGenome(Species species, IGeneticEntity entityIn) {
         super(species, entityIn, new RandomSupplier(ImmutableList.of("leg_white",
                 "face_white", "star_choice", "roan_density", "liver_darkness", 
-                "shade", "size")));
+                "shade", "size", "cat_tracks")));
     }
 
     public EquineGenome(Species species) {
@@ -211,7 +211,9 @@ public class EquineGenome extends Genome {
         // KIT, a heterozygous tobiano horse would have much closer linkage.
         // See https://www.mun.ca/biology/scarr/iGen3_16-08.html for a 
         // diagram of the effect an inversion has on crossover and linkage
-        linkages.add(new Genome.Linkage(Gene.extension, 0.2f));
+        // Going to arbitrarily put them 3 cM apart instead, because I heard that number somewhere and donkey spotting
+        // appears to be very tightly linked to extension.
+        linkages.add(new Genome.Linkage(Gene.extension, 0.03f));
         linkages.add(new Genome.Linkage(Gene.KIT));
 
         linkages.add(new Genome.Linkage(Gene.agouti, 0.0f));
