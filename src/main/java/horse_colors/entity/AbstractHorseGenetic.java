@@ -969,7 +969,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
             float facingZ = Mth.cos(this.yBodyRot * ((float)Math.PI / 180F));
             // A rearing amount of 1 corresponds to 45 degrees up
             float rearAngle = standAnim0 * (float)Math.PI / 4F;
-            float rearXZ = -1f * (1F - Mth.cos(rearAngle)) * xLoc;
+            // The y distance from the top of the back to the bottom of the belly (10 pixels)
+            float bodyHeight = 10F / 16F * this.getGenome().getAdultScale();
+            float rearXZ = xLoc * (Mth.cos(rearAngle) - 1F) - bodyHeight * Mth.sin(rearAngle);
             float rearY = Mth.sin(rearAngle) * xLoc / 2F;
             xzOffset += rearXZ;
             yOffset += rearY;
@@ -977,7 +979,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                 ((LivingEntity)passenger).yBodyRot = this.yBodyRot;
             }
         }
-
 
         // Here boats use this.yRot, but we use this.yBodyRot,
         // because this.yRot doesn't change when the unsaddled horse moves around
