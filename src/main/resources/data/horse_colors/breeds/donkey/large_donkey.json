@@ -1,5 +1,5 @@
 {
-    "population": 2000000,
+    "population": 20000000,
     "genes": {
         "donkey_size0": [0.1, 0.3, 1.0],
         "donkey_size1": [0.1, 0.3, 1.0],
