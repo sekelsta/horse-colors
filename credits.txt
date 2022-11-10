@@ -15,6 +15,7 @@ horse/leopard/lplp_features.png
 
 Thanks to RosaNera for the rabicano texture
 Thanks to Rambonata for the sabino tobiano texture
+Thanks to Navia for the biomes-you-go compatibility textures horse_armor_ametrine.png and horse_armor_pendorite.png
 
 Thanks to HigherThanFire for the Arabic translation ar_sa.json
 Thanks to RedVanguard1692 for the updated Chinese translation zh_cn.json

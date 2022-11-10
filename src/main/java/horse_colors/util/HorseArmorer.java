@@ -14,6 +14,14 @@ import sekelsta.horse_colors.item.CompatibleHorseArmor;
 
 public class HorseArmorer
 {
+    private static boolean shouldOverwriteResource(ResourceLocation location) {
+        if (location == null) {
+            return false;
+        }
+        String namespace = location.getNamespace();
+        return namespace.equals("minecraft") || namespace.equals("byg");
+    }
+
     @OnlyIn(Dist.CLIENT)
     public static ResourceLocation getTexture(Item armor)
     {
@@ -21,13 +29,13 @@ public class HorseArmorer
             return ((CompatibleHorseArmor)armor).getAlternateTexture();
         }
         if (armor instanceof HorseArmorItem) {
-            ResourceLocation vanilla = ((HorseArmorItem)armor).getTexture();
+            ResourceLocation textureLocation = ((HorseArmorItem)armor).getTexture();
             // Only use my own version of textures in the minecraft namespace
-            if (vanilla != null && vanilla.getNamespace().equals("minecraft")) {
-                return new ResourceLocation(HorseColors.MODID, vanilla.getPath());
+            if (shouldOverwriteResource(textureLocation)) {
+                return new ResourceLocation(HorseColors.MODID, textureLocation.getPath());
             }
 
-            return vanilla;
+            return textureLocation;
         }
         if (armor instanceof BlockItem) {
             if (((BlockItem)armor).getBlock() instanceof WoolCarpetBlock) {
