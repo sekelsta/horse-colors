@@ -69,6 +69,7 @@ public class HorseAlleles
     public static final int KIT_TOBIANO_W20 = 13;
     public static final int KIT_ROAN = 14;
     public static final int KIT_DOMINANT_WHITE = 15;
+    public static final int KIT_W5 = 16;
 
     // Leopard complex
     public static final int NONLEOPARD = 0;

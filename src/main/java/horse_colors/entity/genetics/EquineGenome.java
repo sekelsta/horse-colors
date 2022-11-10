@@ -347,12 +347,51 @@ public class EquineGenome extends Genome {
             || HorseAlleles.isTobianoAllele(getAllele(Gene.KIT, 1));
     }
 
+    public int getSabinoFactor() {
+        int white = 0;
+        white += 90 * countAlleles(Gene.KIT, HorseAlleles.KIT_DOMINANT_WHITE);
+        white += 90 * countAlleles(Gene.KIT, HorseAlleles.KIT_DONKEY_WHITE);
+        white += 25 * countAlleles(Gene.KIT, HorseAlleles.KIT_W5);
+        white += 5 * countAlleles(Gene.KIT, HorseAlleles.KIT_SABINO1);
+        white += 15 * countAlleles(Gene.KIT, HorseAlleles.KIT_FLASHY_WHITE);
+        white += 6 * countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS5);
+        white += 5 * countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS4);
+        white += 4 * countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS3);
+        white += 3 * countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS2);
+        white += 2 * countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS1);
+        white += 2 * countAlleles(Gene.white_forelegs, 1);
+        white += 2 * countAlleles(Gene.white_hindlegs, 1);
+        white += 2 * countAlleles(Gene.KIT, HorseAlleles.KIT_WHITE_BOOST);
+
+        if (hasMC1RWhiteBoost()) {
+            white += 8;
+        }
+
+        double boost = 0;
+        if (hasAllele(Gene.white_suppression, 1))
+        {
+            white -= 8;
+            boost -= 0.5;
+        }
+
+        boost += 2.5 * countAlleles(Gene.KIT, HorseAlleles.KIT_SABINO1);
+        boost += 2 * countW20();
+        boost += 0.5 * countAlleles(Gene.KIT, HorseAlleles.KIT_W5);
+        boost += 0.5 * countAlleles(Gene.KIT, HorseAlleles.KIT_WHITE_BOOST);
+
+        white += boost;
+        if (white > 0) {
+            white += (int)(white * boost);
+        }
+
+        return white;
+    }
+
     public boolean isWhite() {
-        return this.hasAllele(Gene.KIT, HorseAlleles.KIT_DOMINANT_WHITE)
-            || this.hasAllele(Gene.KIT, HorseAlleles.KIT_DONKEY_WHITE)
+        int sabino = getSabinoFactor();
+        return sabino > 85
             || this.isLethalWhite()
-            || this.isHomozygous(Gene.KIT, HorseAlleles.KIT_SABINO1)
-            || (this.hasAllele(Gene.KIT, HorseAlleles.KIT_SABINO1)
+            || (sabino > 50
                 && (this.hasAllele(Gene.frame, HorseAlleles.FRAME)
                     || this.isTobiano())
                 && this.isHomozygous(Gene.MITF, HorseAlleles.MITF_SW1));
@@ -374,7 +413,8 @@ public class EquineGenome extends Genome {
     private boolean isEmbryonicLethalAllele(Gene gene, int allele) {
         if (gene == Gene.KIT) {
             return allele == HorseAlleles.KIT_DOMINANT_WHITE 
-                || allele == HorseAlleles.KIT_DONKEY_WHITE;
+                || allele == HorseAlleles.KIT_DONKEY_WHITE
+                || allele == HorseAlleles.KIT_W5;
         }
         return false;
     }

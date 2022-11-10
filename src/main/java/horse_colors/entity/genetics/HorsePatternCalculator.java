@@ -9,7 +9,7 @@ import sekelsta.horse_colors.entity.genetics.EquineGenome.Gene;
 public class HorsePatternCalculator {
 
     public static boolean hasPigmentInEars(EquineGenome horse) {
-        int white = (int)(getSplashFactor(horse) * (1f + getSabinoFactor(horse) / 100f));
+        int white = (int)(getSplashFactor(horse) * (1f + horse.getSabinoFactor() / 100f));
         return white <= 60;
     }
 
@@ -41,36 +41,10 @@ public class HorsePatternCalculator {
         return white;
     }
 
-    private static int getSabinoFactor(EquineGenome horse) {
-        int white = -2;
-        if (horse.hasAllele(Gene.white_suppression, 1))
-        {
-            white -= 4;
-        }
-        white += horse.countAlleles(Gene.KIT, HorseAlleles.KIT_WHITE_BOOST);
-        white += 2 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS1);
-        white += 3 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS2);
-        white += 4 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS3);
-        white += 5 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS4);
-        white += 6 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS5);
-        white += 7 * horse.countW20();
-        white += 8 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_FLASHY_WHITE);
-        white += horse.countAlleles(Gene.white_forelegs, 1);
-        white += horse.countAlleles(Gene.white_hindlegs, 1);
-
-        white += 40 * horse.countAlleles(Gene.KIT, HorseAlleles.KIT_SABINO1);
-
-        if (horse.hasMC1RWhiteBoost()) {
-            white += 2;
-        }
-
-        return white;
-    }
-
     public static void addFaceMarkings(EquineGenome horse, List<TextureLayer> textureLayers)
     {
         int splash = getSplashFactor(horse);
-        int white = 2 * splash + getSabinoFactor(horse);
+        int white = 2 * splash + horse.getSabinoFactor();
 
         int random = horse.getRandom("face_white") >>> 1;
 
@@ -114,28 +88,26 @@ public class HorsePatternCalculator {
         // Turn a signed integer into unsigned, also drop a few bits 
         // used elsewhere
         int random = horse.getRandom("leg_white");
-        // Make unsigned, plus drop 4 unused bits from the beginning
-        // for compatibility with previous versions
-        random = (random << 1) >>> 5;
+        random = random >>> 1;
 
-        int base_white = getSabinoFactor(horse) / 2 + getSplashFactor(horse) / 3;
+        int base_white = horse.getSabinoFactor() / 4 + getSplashFactor(horse) / 3;
 
         for (int i = 0; i < 4; ++i) {
-            int r = random & 7;
-            random = random >>> 3;
             int w = base_white;
+            w += random & 7 - 3;
+            random = random >>> 3;
             if (i < 2) {
-                w += 2 * horse.countAlleles(Gene.white_forelegs, 1);
+                w += horse.countAlleles(Gene.white_forelegs, 1);
             }
             else {
-                w = 2 * horse.countAlleles(Gene.white_hindlegs, 1);
+                w += horse.countAlleles(Gene.white_hindlegs, 1);
             }
 
             if (w < 0) {
                 legs[i] = null;
             }
             else {
-                legs[i] = HorseColorCalculator.fixPath("socks/" + String.valueOf(i) + "_" + String.valueOf(Math.min(7, w / 2 + r)));
+                legs[i] = HorseColorCalculator.fixPath("socks/" + String.valueOf(i) + "_" + String.valueOf(Math.min(7, w)));
             }
         }
 
@@ -158,10 +130,11 @@ public class HorsePatternCalculator {
             return;
         }
 
-        String folder = "pinto/";
+        String pinto = null;
+        int sabino = horse.getSabinoFactor();
 
         if (horse.hasAllele(Gene.KIT, HorseAlleles.KIT_DONKEY_SPOTTING)) {
-            layer.name = HorseColorCalculator.fixPath(folder + "donkey_spotting");
+            pinto = "donkey_spotting";
         }
         else if (horse.isTobiano())
         {
@@ -169,55 +142,62 @@ public class HorsePatternCalculator {
             // See Pacific Pintos, Pacific Cloud Nine
             if (horse.isHomozygous(Gene.MITF, HorseAlleles.MITF_SW1))
             {
-                layer.name = HorseColorCalculator.fixPath(folder + "medicine_hat");
+                pinto = "medicine_hat";
             }
-            else if (horse.hasAllele(Gene.KIT, HorseAlleles.KIT_SABINO1))
+            else if (sabino >= 35)
             {
-                layer.name = HorseColorCalculator.fixPath(folder + "sabino_tobiano");
+                pinto = "sabino_tobiano";
             }
             else if (horse.hasAllele(Gene.frame, HorseAlleles.FRAME))
             {
-                layer.name =  HorseColorCalculator.fixPath(folder + "war_shield");
+                pinto = "war_shield";
             }
             else
             {
-                layer.name = HorseColorCalculator.fixPath(folder + "tobiano");
+                pinto = "tobiano";
             }
         }
-        else if (horse.hasAllele(Gene.KIT, HorseAlleles.KIT_SABINO1))
+        else if (sabino >= 50)
         {
             if (horse.isHomozygous(Gene.MITF, HorseAlleles.MITF_SW1)) {
-                layer.name = HorseColorCalculator.fixPath(folder + "sabino_splash");
+                pinto = "sabino_splash";
             }
             else if (horse.hasAllele(Gene.frame, HorseAlleles.FRAME)) {
-                layer.name = HorseColorCalculator.fixPath(folder + "frame_sabino");
+                pinto = "frame_sabino";
             }
             else {
-                layer.name = HorseColorCalculator.fixPath(folder + "sabino");
+                pinto = "sabino_50";
             }
         }
         else if (horse.hasAllele(Gene.frame, HorseAlleles.FRAME))
         {
             if (horse.isHomozygous(Gene.MITF, HorseAlleles.MITF_SW1)) {
-                layer.name = HorseColorCalculator.fixPath(folder + "frame_splash");
+                pinto = "frame_splash";
             }
             else {
-                layer.name = HorseColorCalculator.fixPath(folder + "frame");
+                pinto = "frame";
             }
         }
         else if (horse.isHomozygous(Gene.MITF, HorseAlleles.MITF_SW1))
         {
-            layer.name = HorseColorCalculator.fixPath(folder + "splash");
+            pinto = "splash";
+        }
+        else if (sabino >= 40) {
+            pinto = "sabino_40";
+        }
+        else if (sabino >= 25) {
+            pinto = "sabino_25";
         }
         else {
             return;
         }
+        layer.name = HorseColorCalculator.fixPath("pinto/" + pinto);
 
         if (horse.isHomozygous(Gene.KIT, HorseAlleles.KIT_TOBIANO)) {
             int cat_tracks = 5;
             cat_tracks -= horse.getRandom("cat_tracks") & 1;
             cat_tracks -= getSplashFactor(horse) / 3;
-            cat_tracks -= getSabinoFactor(horse) / 4;
+            cat_tracks -= horse.getSabinoFactor() / 4;
             if (cat_tracks > 0) {
                 cat_tracks = Math.min(5, cat_tracks);
                 TextureLayer cat = new TextureLayer();
@@ -272,7 +252,7 @@ public class HorsePatternCalculator {
             return;
         }
         else {
-            patn += boost + getSabinoFactor(horse) / 4 + getSplashFactor(horse) / 6;
+            patn += boost + horse.getSabinoFactor() / 8 + getSplashFactor(horse) / 6;
 
             if (patn < 1) {
                 spread.name = HorseColorCalculator.fixPath("leopard/varnish_roan");
