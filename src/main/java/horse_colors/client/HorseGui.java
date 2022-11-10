@@ -125,7 +125,7 @@ public class HorseGui extends HorseInventoryScreen {
             this.font.draw(matrixStack, Component.literal(line), 82, yy, 0x404040);
             yy += 9;
         }
-        if (horseGenetic.getGenome().isMiniature()) {
+        if (horseGenetic.getGenome().isMiniature() && !HorseConfig.COMMON.rideSmallEquines.get()) {
             this.font.draw(matrixStack, Component.translatable(HorseColors.MODID + ".gui.miniature"), 82, yy, 0x404040);
         }
         else if (horseGenetic.getGenome().isLarge()) {

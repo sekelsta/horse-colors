@@ -24,10 +24,10 @@ public class HorseConfig
     public static class Common {
         public static BooleanValue horseDebugInfo;
         public static BooleanValue enableGroundTie;
-        public static BooleanValue autoEquipSaddle;
         public static BooleanValue spookyHorses;
         public static BooleanValue enableSizes;
         public static BooleanValue useGeneticAnimalsIcons;
+        public static BooleanValue rideSmallEquines;
 
         Common(final ForgeConfigSpec.Builder builder) {
             builder.comment("Common config settings")
@@ -45,12 +45,6 @@ public class HorseConfig
                     .translation("horse_colors.config.common.horseDebugInfo")
                     .define("horseDebugInfo", false);
 
-            autoEquipSaddle = builder
-                    .comment("If enabled, right clicking a horse while holding a saddle or horse armor", 
-                             "will equip it (as long as the horse isn't already wearing something in that slot)",
-                             "instead of opening the inventory.")
-                    .define("autoEquipSaddle", true);
-
             spookyHorses = builder
                     .comment("If enabled, horses will be spooked by monsters and throw their rider.")
                     .define("spookyHorses", false);
@@ -63,6 +57,10 @@ public class HorseConfig
                     .comment("Whether to use the gray themed gender icons from Genetic Animals (by mokiyoki,",
                              "used by permission) in place of the default pink and blue icons.")
                     .define("useGeneticAnimalsIcons", false);
+
+            rideSmallEquines = builder
+                    .comment("Whether the player can ride horses that are realistically too small to carry an adult human")
+                    .define("rideSmallEquines", false);
 
             builder.pop();
         }

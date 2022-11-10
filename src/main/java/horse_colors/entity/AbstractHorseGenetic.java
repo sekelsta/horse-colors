@@ -454,8 +454,16 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     // instructing the entity to mount the horse.
     private boolean canFitRider(Player rider) {
         return canAddPassenger(rider) 
-            && !this.getGenome().isMiniature()
+            && (!this.getGenome().isMiniature() || HorseConfig.COMMON.rideSmallEquines.get())
             && (this.getGenome().isLarge() || this.getPassengers().size() < 1);
+    }
+
+    @Override
+    protected void doPlayerRide(Player player) {
+        if (!canFitRider(player)) {
+            return;
+        }
+        super.doPlayerRide(player);
     }
 
     public SimpleContainer getHorseChest() {
@@ -518,20 +526,15 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         }
         // If tame, equip saddle
         if (!this.isSaddled() && isSaddle(itemstack) && this.isSaddleable()) {
-             if (HorseConfig.COMMON.autoEquipSaddle.get()) {
-                if (!this.level.isClientSide) {
-                    ItemStack saddle = itemstack.split(1);
-                    this.inventory.setItem(0, saddle);
-                }
-            }
-            else {
-                this.openCustomInventoryScreen(player);
+            if (!this.level.isClientSide) {
+                ItemStack saddle = itemstack.split(1);
+                this.inventory.setItem(0, saddle);
             }
             return true;
         }
         // If tame, equip armor
         if (this.isArmor(itemstack) && this.canWearArmor()) {
-             if (HorseConfig.COMMON.autoEquipSaddle.get() && this.inventory.getItem(1).isEmpty()) {
+             if (this.inventory.getItem(1).isEmpty()) {
                 if (!this.level.isClientSide) {
                     ItemStack armor = itemstack.split(1);
                     this.inventory.setItem(1, armor);
