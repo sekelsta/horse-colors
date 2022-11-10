@@ -5,15 +5,21 @@ import java.util.Collection;
 import java.util.Map;
 import javax.annotation.Nullable;
 
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.DifficultyInstance;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.TemptGoal;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 
 import sekelsta.horse_colors.breed.Breed;
@@ -28,6 +34,25 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
 
     public DonkeyGeneticEntity(EntityType<? extends DonkeyGeneticEntity> entityType, Level world) {
         super(entityType, world);
+    }
+
+    @Override
+    protected void addBehaviourGoals() {
+        this.goalSelector.addGoal(0, new FloatGoal(this));
+        this.goalSelector.addGoal(3, new TemptGoal(this, 1.25D, Ingredient.of(Items.APPLE, Items.GOLDEN_CARROT, Items.GOLDEN_APPLE, Items.ENCHANTED_GOLDEN_APPLE), false));
+    }
+
+    @Override
+    protected boolean handleEating(Player player, ItemStack stack) {
+        boolean usedAction = false;
+        if (stack.is(Items.APPLE)) {
+            if (!this.level.isClientSide && this.isTamed() && this.getAge() == 0 && !this.isInLove()) {
+                this.setInLove(player);
+                usedAction = true;
+            }
+        }
+        boolean supFed = super.handleEating(player, stack);
+        return usedAction || supFed;
     }
 
     @Override
