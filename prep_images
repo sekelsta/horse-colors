@@ -1,8 +1,0 @@
-#!/bin/bash
-python3 scripts/image_size.py "horse_art_src"
-rm -r src/main/resources/assets/horse_colors/textures/*
-cp -r horse_art_src/16px-der/* src/main/resources/assets/horse_colors/textures/
-cp -r horse_art_src/16px-src/* src/main/resources/assets/horse_colors/textures/
-cp -r horse_art_src/16px-unq/* src/main/resources/assets/horse_colors/textures/
-rm -r horse_art_src/32px-der/
-rm -r horse_art_src/16px-der/
