@@ -134,7 +134,12 @@ public class HorsePatternCalculator {
         int sabino = horse.getSabinoFactor();
 
         if (horse.hasAllele(Gene.KIT, HorseAlleles.KIT_DONKEY_SPOTTING)) {
-            pinto = "donkey_spotting";
+            if (horse.isHomozygous(Gene.tyger, 1) || sabino > 30) {
+                pinto = "tyger_spotting";
+            }
+            else {
+                pinto = "donkey_spotting";
+            }
         }
         else if (horse.isTobiano())
         {

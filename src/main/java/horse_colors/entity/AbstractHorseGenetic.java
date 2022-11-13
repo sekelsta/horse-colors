@@ -322,6 +322,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                 }
             }
         }
+        getGenome().finalizeGenes();
     }
 
     public void copyAbstractHorse(AbstractHorse horse)

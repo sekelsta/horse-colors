@@ -62,7 +62,7 @@ public class EquineGenome extends Genome {
         cross,
         reduced_points,
         light_legs,
-        DEPRECATED_less_light_legs,
+        tyger,
         DEPRECATED_donkey_dun,
         flaxen_boost,
         light_dun,
@@ -867,7 +867,13 @@ public class EquineGenome extends Genome {
     public void randomize(Breed breed)
     {
         randomizeGenes(breed);
+        finalizeGenes();
 
+        entity.setSeed(this.entity.getRand().nextInt());
+        this.entity.setMale(this.rand.nextBoolean());
+    }
+
+    public void finalizeGenes() {
         // Replace lethal white overos with heterozygotes
         if (isHomozygous(Gene.frame, HorseAlleles.FRAME))
         {
@@ -880,12 +886,6 @@ public class EquineGenome extends Genome {
             setAllele(Gene.KIT, 0, 0);
         }
 
-        // Catch anything that fell through the cracks, in case I add genes and forget to update this
-        while (isEmbryonicLethal() || isMaybeEmbryonicLethal() || isLethalWhite()) {
-            HorseColors.logger.info("Re-randomizing spawn of a wild horse that would have been non-viable.");
-            randomizeGenes(breed);
-        }
-
         // Don't spawn donkey white spotting linked to sorrel
         for (int i = 0; i < 2; ++i) {
             if (getAllele(Gene.KIT, i) == HorseAlleles.KIT_DONKEY_SPOTTING 
@@ -893,9 +893,6 @@ public class EquineGenome extends Genome {
                 setAllele(Gene.extension, i, HorseAlleles.E_BLACK);
             }
         }
-
-        entity.setSeed(this.entity.getRand().nextInt());
-        this.entity.setMale(this.rand.nextBoolean());
     }
 
     public String judgeStatRaw(int val) {
