@@ -37,17 +37,13 @@ public class HorseArmorLayer extends RenderLayer<AbstractHorseGenetic, HorseGene
 
     @Override
     public void render(PoseStack matrixStack, MultiBufferSource renderTypeBuffer, int p_225628_3_, AbstractHorseGenetic entityIn, float f1, float f2, float f3, float f4, float f5, float f6) {
-        if (!(entityIn instanceof HorseGeneticEntity)) {
-            return;
-        }
-        HorseGeneticEntity horse = (HorseGeneticEntity)entityIn;
-        ItemStack itemstack = horse.getArmor();
+        ItemStack itemstack = entityIn.getArmor();
         Item armor = itemstack.getItem();
         ResourceLocation textureLocation = HorseArmorer.getTexture(armor);
         if (textureLocation != null) {
             this.getParentModel().copyPropertiesTo(this.horseModel);
-            this.horseModel.prepareMobModel(horse, f1, f2, f3);
-            this.horseModel.setupAnim(horse, f1, f2, f4, f5, f6);
+            this.horseModel.prepareMobModel(entityIn, f1, f2, f3);
+            this.horseModel.setupAnim(entityIn, f1, f2, f4, f5, f6);
             float r = 1.0F;
             float g = 1.0F;
             float b = 1.0F;

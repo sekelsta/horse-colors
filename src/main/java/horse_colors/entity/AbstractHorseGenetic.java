@@ -11,7 +11,6 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.ListTag;
@@ -21,31 +20,45 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.stats.Stats;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.stats.Stats;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ExperienceOrb;
-import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.ai.goal.BreedGoal;
+import net.minecraft.world.entity.ai.goal.FollowParentGoal;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.PanicGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.RunAroundLikeCrazyGoal;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.HorseArmorItem;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
@@ -68,15 +81,6 @@ import sekelsta.horse_colors.item.ModItems;
 import sekelsta.horse_colors.item.GeneBookItem;
 import sekelsta.horse_colors.util.Util;
 
-import net.minecraft.world.entity.ai.goal.BreedGoal;
-import net.minecraft.world.entity.ai.goal.FollowParentGoal;
-import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.PanicGoal;
-import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.RunAroundLikeCrazyGoal;
-import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
-import net.minecraft.world.entity.animal.horse.AbstractHorse;
-
 public abstract class AbstractHorseGenetic extends AbstractChestedHorse implements IGeneticEntity<Gene> {
     protected EquineGenome genes = new EquineGenome(this.getSpecies(), this);
     protected static final EntityDataAccessor<String> GENES = SynchedEntityData.<String>defineId(AbstractHorseGenetic.class, EntityDataSerializers.STRING);
@@ -88,6 +92,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     protected static final EntityDataAccessor<Float> MOTHER_SIZE = SynchedEntityData.<Float>defineId(AbstractHorseGenetic.class, EntityDataSerializers.FLOAT);
     protected int trueAge;
 
+    protected static final UUID ARMOR_MODIFIER_UUID = UUID.fromString("556E1665-8B10-40C8-8F9D-CF9B1667F295");
     protected static final UUID CSNB_SPEED_UUID = UUID.fromString("84ca527a-5c70-4336-a737-ae3f6d40ef45");
     protected static final UUID CSNB_JUMP_UUID = UUID.fromString("72323326-888b-4e46-bf52-f669600642f7");
     protected static final AttributeModifier CSNB_SPEED_MODIFIER = new AttributeModifier(CSNB_SPEED_UUID, "CSNB speed penalty", -0.6, AttributeModifier.Operation.MULTIPLY_TOTAL);
@@ -169,6 +174,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     {
         super.addAdditionalSaveData(compound);
         writeGeneticData(compound);
+        if (!this.inventory.getItem(1).isEmpty()) {
+            compound.put("ArmorItem", this.inventory.getItem(1).save(new CompoundTag()));
+        }
     }
 
     private void writeGeneticData(CompoundTag compound) {
@@ -215,7 +223,17 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         }
 
         this.updatePersistentData();
+
+        if (compound.contains("ArmorItem", 10)) {
+            ItemStack itemstack = ItemStack.of(compound.getCompound("ArmorItem"));
+            if (!itemstack.isEmpty() && this.isArmor(itemstack)) {
+                this.inventory.setItem(1, itemstack);
+            }
+        }
+        this.updateContainerEquipment();
     }
+
+
 
     private void updatePersistentData() {
         // Tell Ride Along how much this horse weighs
@@ -323,6 +341,55 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
             }
         }
         getGenome().finalizeGenes();
+    }
+
+    public ItemStack getArmor() {
+        return this.getItemBySlot(EquipmentSlot.CHEST);
+    }
+
+    private void setArmor(ItemStack itemstack) {
+        this.setItemSlot(EquipmentSlot.CHEST, itemstack);
+        this.setDropChance(EquipmentSlot.CHEST, 0.0F);
+    }
+
+   /**
+    * Updates the items in the saddle and armor slots of the horse's inventory.
+    */
+    @Override
+    protected void updateContainerEquipment() {
+        if (!this.level.isClientSide()) {
+            super.updateContainerEquipment();
+            this.setArmorStack(this.inventory.getItem(1));
+            this.setDropChance(EquipmentSlot.CHEST, 0.0F);
+        }
+    }
+
+    private void setArmorStack(ItemStack itemstack) {
+        // this.func_213805_k(itemStack);
+        this.setArmor(itemstack);
+        if (!this.level.isClientSide) {
+            this.getAttribute(Attributes.ARMOR).removeModifier(ARMOR_MODIFIER_UUID);
+            // Do not use this.isArmor(itemstack)) because that can return true for things which
+            // can't be cast to HorseArmorItem
+            if (itemstack.getItem() instanceof HorseArmorItem) {
+                int i = ((HorseArmorItem)itemstack.getItem()).getProtection();
+                if (i != 0) {
+                    this.getAttribute(Attributes.ARMOR).addTransientModifier((new AttributeModifier(ARMOR_MODIFIER_UUID, "Horse armor bonus", (double)i, AttributeModifier.Operation.ADDITION)));
+                }
+            }
+        }
+    }
+
+   /**
+    * Called by InventoryBasic.containerChanged() on a array that is never filled.
+    */
+    public void containerChanged(Container invBasic) {
+        ItemStack itemstack = this.getArmor();
+        super.containerChanged(invBasic);
+        ItemStack itemstack1 = this.getArmor();
+        if (this.tickCount > 20 && this.isArmor(itemstack1) && itemstack != itemstack1) {
+            this.playSound(SoundEvents.HORSE_ARMOR, 0.5F, 1.0F);
+        }
     }
 
     public void copyAbstractHorse(AbstractHorse horse)
@@ -475,6 +542,23 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         return true;
     }
 
+    @Override
+    public boolean canWearArmor() {
+        return true;
+    }
+
+    @Override
+    public boolean isArmor(ItemStack stack) {
+        if (stack.is(ItemTags.WOOL_CARPETS)) {
+            return true;
+        }
+        if (stack.getItem() instanceof HorseArmorItem) {
+            HorseArmorItem armor = (HorseArmorItem)(stack.getItem());
+            return armor.getProtection() == 0;
+        }
+        return false;
+    }
+
     private boolean itemInteract(Player player, ItemStack itemstack, InteractionHand hand) {
         // Enter genetic test results
         if (itemstack.getItem() == Items.BOOK
@@ -534,7 +618,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
             return true;
         }
         // If tame, equip armor
-        if (this.isArmor(itemstack) && this.canWearArmor()) {
+        if (this.isArmor(itemstack)) {
              if (this.inventory.getItem(1).isEmpty()) {
                 if (!this.level.isClientSide) {
                     ItemStack armor = itemstack.split(1);
@@ -877,6 +961,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                 this.addEffect(new MobEffectInstance(MobEffects.WITHER, 100, 3));
             }
         }
+
+        ItemStack stack = this.inventory.getItem(1);
+        if (isArmor(stack)) stack.onHorseArmorTick(this.level, this);
     }
 
     public void aiStep() {

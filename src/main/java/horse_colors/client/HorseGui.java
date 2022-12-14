@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.ContainerEventHandler;
 import sekelsta.horse_colors.entity.AbstractHorseGenetic;
+import sekelsta.horse_colors.entity.HorseGeneticEntity;
 import sekelsta.horse_colors.HorseColors;
 
 
@@ -58,11 +59,13 @@ public class HorseGui extends HorseInventoryScreen {
             this.blit(matrixStack, i + 7, j + 35 - 18, 18, this.imageHeight + 54, 18, 18);
         }
 
-        if (this.horseGenetic.canWearArmor()) {
-            // If it were a llama would draw the carpet like this
-            // this.blit(i + 7, j + 35, 36, this.imageHeight + 54, 18, 18);
-            // But it's not, so draw the armor slot
+        if (this.horseGenetic instanceof HorseGeneticEntity) {
+            // Draw the armor slot
             this.blit(matrixStack, i + 7, j + 35, 0, this.imageHeight + 54, 18, 18);
+        }
+        else {
+            // Draw carpet slot
+            this.blit(matrixStack, i + 7, j + 35, 36, this.imageHeight + 54, 18, 18);
         }
 
         if (HorseConfig.isGenderEnabled()) {

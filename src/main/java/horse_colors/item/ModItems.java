@@ -43,7 +43,7 @@ public class ModItems {
                 BlockPos blockpos = source.getPos().relative(source.getBlockState().getValue(DispenserBlock.FACING));
 
                 for(AbstractHorse abstracthorseentity : source.getLevel().getEntitiesOfClass(AbstractHorse.class, new AABB(blockpos), (horse) -> {
-                    return horse.isAlive() && horse.canWearArmor();
+                    return horse.isAlive();
                 })) {
                     if (abstracthorseentity.isArmor(stack) && !abstracthorseentity.isWearingArmor() && abstracthorseentity.isTamed()) {
                         abstracthorseentity.getSlot(401).set(stack.split(1));
