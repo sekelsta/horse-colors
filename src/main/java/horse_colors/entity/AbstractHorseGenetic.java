@@ -273,8 +273,12 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
             }
         }
 
-        this.setSeed(compound.getInt("Random"));
-        this.trueAge = compound.getInt("true_age");
+        if (compound.contains("Random")) {
+            this.setSeed(compound.getInt("Random"));
+        }
+        if (compound.contains("true_age")) {
+            this.trueAge = compound.getInt("true_age");
+        }
         if (compound.contains("gender")) {
             this.setMale(compound.getBoolean("gender"));
         }
