@@ -13,7 +13,7 @@ horse/leopard/leopard_marble.png
 horse/leopard/lp_features.png
 horse/leopard/lplp_features.png
 
-Thanks to RosaNera for the rabicano texture
+Thanks to Sydney Dennis for the rabicano, homozygous_tobiano, and tovero textures
 Thanks to Rambonata for the sabino tobiano texture
 Thanks to Navia for the biomes-you-go compatibility textures horse_armor_ametrine.png and horse_armor_pendorite.png
 

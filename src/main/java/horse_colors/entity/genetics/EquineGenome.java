@@ -189,7 +189,7 @@ public class EquineGenome extends Genome {
     public EquineGenome(Species species, IGeneticEntity entityIn) {
         super(species, entityIn, new RandomSupplier(ImmutableList.of("leg_white",
                 "face_white", "star_choice", "roan_density", "liver_darkness", 
-                "shade", "size", "cat_tracks")));
+                "shade", "size", "cat_tracks", "pinto")));
     }
 
     public EquineGenome(Species species) {
@@ -345,6 +345,11 @@ public class EquineGenome extends Genome {
     public boolean isTobiano() {
         return HorseAlleles.isTobianoAllele(getAllele(Gene.KIT, 0))
             || HorseAlleles.isTobianoAllele(getAllele(Gene.KIT, 1));
+    }
+
+    public boolean isHomozygousTobiano() {
+        return HorseAlleles.isTobianoAllele(getAllele(Gene.KIT, 0))
+            && HorseAlleles.isTobianoAllele(getAllele(Gene.KIT, 1));
     }
 
     public int getSabinoFactor() {

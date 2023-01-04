@@ -155,7 +155,22 @@ public class HorsePatternCalculator {
             }
             else if (horse.hasAllele(Gene.frame, HorseAlleles.FRAME))
             {
-                pinto = "war_shield";
+                if ((horse.getRandom("pinto") & 1) == 0) {
+                    pinto = "tovero";
+                }
+                else
+                {
+                    pinto = "war_shield";
+                }
+            }
+            else if (horse.isHomozygousTobiano()) {
+                if ((horse.getRandom("pinto") & 1) == 0) {
+                    pinto = "homozygous_tobiano";
+                }
+                else
+                {
+                    pinto = "tobiano";
+                }
             }
             else
             {
@@ -198,7 +213,7 @@ public class HorsePatternCalculator {
         }
         layer.name = HorseColorCalculator.fixPath("pinto/" + pinto);
 
-        if (horse.isHomozygous(Gene.KIT, HorseAlleles.KIT_TOBIANO)) {
+        if (horse.isHomozygousTobiano()) {
             int cat_tracks = 5;
             cat_tracks -= horse.getRandom("cat_tracks") & 1;
             cat_tracks -= getSplashFactor(horse) / 3;
