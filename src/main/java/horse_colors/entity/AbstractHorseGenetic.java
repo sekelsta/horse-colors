@@ -333,6 +333,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     }
 
     protected void readExtraGenes(CompoundTag compound) {
+        boolean changed = false;
         for (Enum gene : this.getGenome().listGenes()) {
             if (compound.contains(gene.toString())) {
                 int alleles[] = compound.getIntArray(gene.toString());
@@ -342,9 +343,12 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                         getGenome().setAllele(gene, i, alleles[i]);
                     }
                 }
+                changed = true;
             }
         }
-        getGenome().finalizeGenes();
+        if (changed) {
+            getGenome().finalizeGenes();
+        }
     }
 
     public ItemStack getArmor() {
