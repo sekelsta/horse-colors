@@ -32,6 +32,7 @@ public class HorseColors
     {
         instance = this;
 
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(Spawns::onLoadComplete);
         MinecraftForge.EVENT_BUS.addListener(ContainerEventHandler::editContainer);
