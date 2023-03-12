@@ -932,7 +932,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                 this.trueAge = this.age;
             }
             else {
-                this.trueAge = Math.max(0, this.trueAge + 1);
+                this.trueAge = Math.max(0, Math.max(trueAge, trueAge + 1));
             }
             // Allow imprecision
             final int c = 400;
