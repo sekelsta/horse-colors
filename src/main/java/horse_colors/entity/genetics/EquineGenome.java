@@ -354,8 +354,8 @@ public class EquineGenome extends Genome {
 
     public int getSabinoFactor() {
         int white = 0;
+        white += 200 * countAlleles(Gene.KIT, HorseAlleles.KIT_DONKEY_WHITE);
         white += 90 * countAlleles(Gene.KIT, HorseAlleles.KIT_DOMINANT_WHITE);
-        white += 90 * countAlleles(Gene.KIT, HorseAlleles.KIT_DONKEY_WHITE);
         white += 25 * countAlleles(Gene.KIT, HorseAlleles.KIT_W5);
         white += 5 * countAlleles(Gene.KIT, HorseAlleles.KIT_SABINO1);
         white += 15 * countAlleles(Gene.KIT, HorseAlleles.KIT_FLASHY_WHITE);
@@ -370,6 +370,10 @@ public class EquineGenome extends Genome {
 
         if (hasMC1RWhiteBoost()) {
             white += 8;
+        }
+
+        if (this.species == Species.DONKEY) {
+            white -= 10;
         }
 
         double boost = 0;

@@ -16,6 +16,10 @@ public class HorsePatternCalculator {
     private static int getSplashFactor(EquineGenome horse) {
         int white = -2;
 
+        if (horse.species == Species.DONKEY) {
+            white -= 4;
+        }
+
         if (horse.hasAllele(Gene.white_suppression, 1))
         {
             white -= 4;
