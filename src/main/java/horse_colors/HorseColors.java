@@ -34,12 +34,12 @@ public class HorseColors
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(Spawns::onLoadComplete);
         MinecraftForge.EVENT_BUS.addListener(ContainerEventHandler::editContainer);
         MinecraftForge.EVENT_BUS.register(HorseReplacer.class);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, HorseConfig.spec);
         MinecraftForge.EVENT_BUS.addListener(BreedManager::addReloadListener);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(ModItems::addToCreativeTab);
 
         Spawns.registerBiomeModifiers();
 

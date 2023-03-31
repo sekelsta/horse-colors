@@ -1,15 +1,16 @@
 package sekelsta.horse_colors.item;
 
-
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.OptionalDispenseItemBehavior;
-import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.core.BlockPos;
+import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
@@ -17,8 +18,8 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-import sekelsta.horse_colors.CreativeTab;
 import sekelsta.horse_colors.HorseColors;
+import sekelsta.horse_colors.entity.ModEntities;
 
 public class ModItems {
     public static final DeferredRegister<Item> ITEM_DEFERRED
@@ -28,10 +29,10 @@ public class ModItems {
         () -> new GeneBookItem((new Item.Properties()).stacksTo(1))
     );
     public static final RegistryObject<GenderChangeItem> genderChangeItem = ITEM_DEFERRED.register("gender_change_item",
-        () -> new GenderChangeItem((new Item.Properties()).stacksTo(64).tab(CreativeTab.instance))
+        () -> new GenderChangeItem((new Item.Properties()).stacksTo(64))
     );
     public static final RegistryObject<CompatibleHorseArmor> netheriteHorseArmor = ITEM_DEFERRED.register("netherite_horse_armor", 
-        () -> new CompatibleHorseArmor(13, "netherite", (new Item.Properties()).stacksTo(1).tab(CreativeTab.instance).fireResistant())
+        () -> new CompatibleHorseArmor(13, "netherite", (new Item.Properties()).stacksTo(1).fireResistant())
     );
 
     public static void registerDispenseBehaviour() {
@@ -56,5 +57,16 @@ public class ModItems {
             }
         };
         DispenserBlock.registerBehavior(netheriteHorseArmor.get(), dispenseHorseArmor);
+    }
+
+    public static void addToCreativeTab(CreativeModeTabEvent.BuildContents event) {
+        // Skip gene book item
+        if (event.getTab() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+            event.accept(genderChangeItem);
+        }
+        else if (event.getTab() == CreativeModeTabs.COMBAT) {
+            event.accept(netheriteHorseArmor);
+        }
+        ModEntities.addToCreativeTab(event);
     }
 }
