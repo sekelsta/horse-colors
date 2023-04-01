@@ -4,7 +4,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '5.1.+'
 }
 
-version = '1.19.3-11.2'
+version = '1.19.3-11.2-dapper'
 group = 'com.sekelsta.horse_colors' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'horse_colors'
 

@@ -78,6 +78,9 @@ public class HorseGeneticModel<T extends AbstractHorse> extends AgeableListModel
     private static final String LEFT_STIRRUP = "left_stirrup";
     private static final String RIGHT_STIRRUP = "right_stirrup";
 
+    private static final String HAT = "hat";
+    private static final String BRIM = "brim";
+
 
     private final ModelPart body;
     private final ModelPart head;
@@ -132,6 +135,9 @@ public class HorseGeneticModel<T extends AbstractHorse> extends AgeableListModel
     private final ModelPart rightStirrupLeather;
     private final ModelPart leftStirrup;
     private final ModelPart rightStirrup;
+
+    private final ModelPart hat;
+    private final ModelPart brim;
 
     private final ModelPart[] tackArray;
     private final ModelPart[] extraTackArray;
@@ -192,6 +198,9 @@ public class HorseGeneticModel<T extends AbstractHorse> extends AgeableListModel
         this.rightStirrupLeather = this.saddleBase.getChild(RIGHT_STIRRUP_LEATHER);
         this.leftStirrup = this.leftStirrupLeather.getChild(LEFT_STIRRUP);
         this.rightStirrup = this.rightStirrupLeather.getChild(RIGHT_STIRRUP);
+
+        this.hat = this.neck.getChild(HAT);
+        this.brim = this.neck.getChild(BRIM);
 
 
         this.tackArray = new ModelPart[]{saddleBase, saddleFront, saddleBack, leftStirrup, leftStirrupLeather, rightStirrup, rightStirrupLeather, leftBit, rightBit, faceRopes};
@@ -440,6 +449,18 @@ public class HorseGeneticModel<T extends AbstractHorse> extends AgeableListModel
         PartDefinition rightStirrupDef = rightStirrupLeatherDef.addOrReplaceChild(
             RIGHT_STIRRUP,
             CubeListBuilder.create().texOffs(74, 4).addBox(-0.5F, 6.0F, -1.0F, 1, 2, 2),
+            PartPose.ZERO
+        );
+
+
+        PartDefinition hatDef = neckDef.addOrReplaceChild(
+            HAT,
+            CubeListBuilder.create().texOffs(0, 68).addBox(-3.5F, -19F, -3.5F, 7, 7, 7),
+            PartPose.ZERO
+        );
+        PartDefinition brimDef = neckDef.addOrReplaceChild(
+            BRIM,
+            CubeListBuilder.create().texOffs(0, 82).addBox(-4.5F, -12F, -4.5F, 9, 2, 9),
             PartPose.ZERO
         );
 
@@ -714,5 +735,8 @@ public class HorseGeneticModel<T extends AbstractHorse> extends AgeableListModel
         else {
             this.stiffMane.z = 0.0F;
         }
+
+        this.hat.xRot = -1 * (float)Math.PI / 6;
+        this.brim.xRot = this.hat.xRot;
     }
 }
