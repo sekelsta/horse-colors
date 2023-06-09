@@ -8,13 +8,15 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.HorseInventoryMenu;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ScreenEvent;
+import net.minecraftforge.client.event.ScreenOpenEvent;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import org.jetbrains.annotations.NotNull;
@@ -120,23 +122,23 @@ public class HorseGui extends HorseInventoryScreen {
         int hands = inches / 4;
         int point = inches % 4;
         String translationKey = HorseColors.MODID + ".gui.height";
-        Component heightText = Component.translatable(translationKey, hands, point, cm);
+        Component heightText = new TranslatableComponent(translationKey, hands, point, cm);
         String heightString = heightText.getString(1000);
         int yy = 20;
         for (String line : heightString.split("\n")) {
             // matrix stack, text, x, y, color
-            this.font.draw(matrixStack, Component.literal(line), 82, yy, 0x404040);
+            this.font.draw(matrixStack, new TextComponent(line), 82, yy, 0x404040);
             yy += 9;
         }
         if (horseGenetic.getGenome().isMiniature() && !HorseConfig.COMMON.rideSmallEquines.get()) {
-            this.font.draw(matrixStack, Component.translatable(HorseColors.MODID + ".gui.miniature"), 82, yy, 0x404040);
+            this.font.draw(matrixStack, new TranslatableComponent(HorseColors.MODID + ".gui.miniature"), 82, yy, 0x404040);
         }
         else if (horseGenetic.getGenome().isLarge()) {
-            this.font.draw(matrixStack, Component.translatable(HorseColors.MODID + ".gui.large"), 82, yy, 0x404040);
+            this.font.draw(matrixStack, new TranslatableComponent(HorseColors.MODID + ".gui.large"), 82, yy, 0x404040);
         }
     }
 
-    public static void replaceGui(ScreenEvent.Opening event) {
+    public static void replaceGui(ScreenOpenEvent event) {
         if (event.getScreen() instanceof HorseInventoryScreen) {
             HorseInventoryScreen screen = (HorseInventoryScreen)event.getScreen();
             AbstractHorse horse = null;
@@ -152,7 +154,7 @@ public class HorseGui extends HorseInventoryScreen {
                 AbstractHorseGenetic horseGenetic = (AbstractHorseGenetic)horse;
                 Inventory inventory = new Inventory(null);
                 ContainerEventHandler.replaceSaddleSlot(horseGenetic, screen.getMenu());
-                event.setNewScreen(new HorseGui(screen.getMenu(), inventory, horseGenetic));
+                event.setScreen(new HorseGui(screen.getMenu(), inventory, horseGenetic));
             }
         }
     }

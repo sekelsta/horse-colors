@@ -3,7 +3,6 @@ package sekelsta.horse_colors.entity.genetics;
 import java.util.Collection;
 import java.util.Random;
 
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.AgeableMob;
 import sekelsta.horse_colors.breed.Breed;
 import sekelsta.horse_colors.config.HorseConfig;
@@ -17,7 +16,7 @@ public interface IGeneticEntity<T extends Enum<T>> {
     int getSeed();
     void setSeed(int seed);
 
-    RandomSource getRand();
+    Random getRand();
 
     boolean isMale();
     void setMale(boolean gender);

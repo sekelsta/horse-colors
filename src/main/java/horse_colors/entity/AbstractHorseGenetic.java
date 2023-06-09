@@ -18,6 +18,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,8 +27,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
@@ -58,15 +59,16 @@ import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.HorseArmorItem;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.level.block.WoolCarpetBlock;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
@@ -135,7 +137,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     }
 
     @Override
-    public RandomSource getRand() {
+    public Random getRand() {
         return this.getRandom();
     }
 
@@ -560,7 +562,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
 
     @Override
     public boolean isArmor(ItemStack stack) {
-        if (stack.is(ItemTags.WOOL_CARPETS)) {
+        if (stack.getItem() instanceof BlockItem
+                    && ((BlockItem)stack.getItem()).getBlock() instanceof WoolCarpetBlock) {
             return true;
         }
         if (stack.getItem() instanceof HorseArmorItem) {
@@ -637,7 +640,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                 }
             }
             else {
-                this.openCustomInventoryScreen(player);
+                this.openInventory(player);
             }
             return true;
         }
@@ -650,7 +653,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         ItemStack itemstack = player.getItemInHand(hand);
         if (!this.isBaby()) {
             if (this.isTamed() && player.isSecondaryUseActive()) {
-                this.openCustomInventoryScreen(player);
+                this.openInventory(player);
                 return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
         }
@@ -1110,14 +1113,14 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         if (this.isBaby()) {
             // Foal
             if (!HorseConfig.BREEDING.enableGenders.get()) {
-                return Component.translatable(s + "foal");
+                return new TranslatableComponent(s + "foal");
             }
             // Colt
             if (this.isMale()) {
-                return Component.translatable(s + "colt");
+                return new TranslatableComponent(s + "colt");
             }
             // Filly
-            return Component.translatable(s + "filly");
+            return new TranslatableComponent(s + "filly");
         }
 
         // Horse
@@ -1126,10 +1129,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         }
         // Stallion
         if (this.isMale()) {
-            return Component.translatable(s + "male");
+            return new TranslatableComponent(s + "male");
         }
         // Mare
-        return Component.translatable(s + "female");
+        return new TranslatableComponent(s + "female");
     }
 
     public boolean isSaddle(ItemStack stack) {
@@ -1170,10 +1173,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
 
     // Randomize only health, for mules and donkeys
     @Override
-    protected void randomizeAttributes(RandomSource rand) {
+    protected void randomizeAttributes() {
         // Set stats for vanilla-like breeding
         if (!HorseConfig.GENETICS.useGeneticStats.get()) {
-            float maxHealth = this.generateRandomMaxHealth(rand) + this.getGenome().getBaseHealth();
+            float maxHealth = this.generateRandomMaxHealth() + this.getGenome().getBaseHealth();
             this.getAttribute(Attributes.MAX_HEALTH).setBaseValue((double)maxHealth);
         }
     }

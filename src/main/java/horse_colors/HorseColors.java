@@ -41,8 +41,6 @@ public class HorseColors
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, HorseConfig.spec);
         MinecraftForge.EVENT_BUS.addListener(BreedManager::addReloadListener);
 
-        Spawns.registerBiomeModifiers();
-
         registerDeferredRegistries(FMLJavaModLoadingContext.get().getModEventBus());
     }
 
@@ -59,6 +57,5 @@ public class HorseColors
     public static void registerDeferredRegistries(IEventBus modBus) {
         ModEntities.ENTITY_DEFERRED.register(modBus);
         ModItems.ITEM_DEFERRED.register(modBus);
-        Spawns.BIOME_MODIFIER_DEFERRED.register(modBus);
     }
 }

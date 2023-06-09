@@ -67,14 +67,9 @@ public class TextureLayer {
             LOGGER.error("Attempting to load unspecified texture (name is null): " + this.toString());
             return null;
         }
-        ResourceLocation resourceLocation = new ResourceLocation(this.name);
-        NativeImage loadedImage = loadedImages.get(resourceLocation);
-        if (loadedImage != null) {
-            return loadedImage;
-        }
-        try {
-            Resource resource = manager.getResource(resourceLocation).orElseThrow();
-            return NativeImage.read(resource.open());
+        try (Resource iresource = manager.getResource(new ResourceLocation(this.name))) {
+            NativeImage image = net.minecraftforge.client.MinecraftForgeClient.getImageLayer(new ResourceLocation(this.name), manager);
+            return image;
         } catch (IOException ioexception) {
             LOGGER.error("Couldn't load layered image", (Throwable)ioexception);
         }

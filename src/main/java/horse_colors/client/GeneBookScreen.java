@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.*;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.client.GameNarrator;
+import net.minecraft.client.gui.chat.NarratorChatListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.PageButton;
@@ -45,7 +45,7 @@ public class GeneBookScreen extends Screen {
     private final boolean pageTurnSounds = true;
 
     public GeneBookScreen(Genome genomeIn) {
-        super(GameNarrator.NO_TITLE);
+        super(NarratorChatListener.NO_TITLE);
         this.genome = genomeIn;
     }
 

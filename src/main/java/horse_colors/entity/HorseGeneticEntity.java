@@ -11,7 +11,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
@@ -165,7 +164,8 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     @Override
     public boolean isArmor(ItemStack stack) {
         return stack.getItem() instanceof HorseArmorItem
-                || stack.is(ItemTags.WOOL_CARPETS);
+                || (stack.getItem() instanceof BlockItem
+                    && ((BlockItem)stack.getItem()).getBlock() instanceof WoolCarpetBlock);
     }
 
     @Override
@@ -185,11 +185,11 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
 
     // Set stats for vanilla-like breeding
     @Override
-    protected void randomizeAttributes(RandomSource rand) {
-        super.randomizeAttributes(rand);
+    protected void randomizeAttributes() {
+        super.randomizeAttributes();
         if (!HorseConfig.GENETICS.useGeneticStats.get()) {
-            this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(this.generateRandomSpeed(rand));
-            this.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(this.generateRandomJumpStrength(rand));
+            this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(this.generateRandomSpeed());
+            this.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(this.generateRandomJumpStrength());
         }
     }
 }

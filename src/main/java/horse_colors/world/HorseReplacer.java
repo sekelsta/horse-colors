@@ -7,7 +7,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.horse.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import sekelsta.horse_colors.config.HorseConfig;
@@ -20,9 +20,9 @@ public class HorseReplacer {
 
 
     @SubscribeEvent
-	public static void replaceHorses(EntityJoinLevelEvent event)
+	public static void replaceHorses(EntityJoinWorldEvent event)
     {
-        if (event.getLevel().isClientSide()) {
+        if (event.getWorld().isClientSide()) {
             return;
         }
         Entity entity = event.getEntity();
@@ -37,15 +37,15 @@ public class HorseReplacer {
         AbstractHorseGenetic newHorse = null;
         if (entity.getClass() == Horse.class)
         {
-            newHorse = ModEntities.HORSE_GENETIC.get().create(event.getLevel());
+            newHorse = ModEntities.HORSE_GENETIC.get().create(event.getWorld());
         }
         else if (entity.getClass() == Donkey.class)
         {
-            newHorse = ModEntities.DONKEY_GENETIC.get().create(event.getLevel());
+            newHorse = ModEntities.DONKEY_GENETIC.get().create(event.getWorld());
         }
         else if (entity.getClass() == Mule.class)
         {
-            newHorse = ModEntities.MULE_GENETIC.get().create(event.getLevel());
+            newHorse = ModEntities.MULE_GENETIC.get().create(event.getWorld());
         }
         newHorse.copyAbstractHorse((AbstractHorse)entity);
 
@@ -55,7 +55,7 @@ public class HorseReplacer {
         // from chunk loading creates a deadlock. Minecraft's chunk 
         // loading code calls ServerWorld.loadFromChunk
         // instead, which assumes the chunk is already loaded.
-        Level world = event.getLevel();
+        Level world = event.getWorld();
         if (world instanceof ServerLevel) {
             loadDuringWorldGen((ServerLevel)world, newHorse);
         }
