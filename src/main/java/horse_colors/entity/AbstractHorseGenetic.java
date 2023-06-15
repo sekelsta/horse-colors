@@ -106,9 +106,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     public AbstractHorseGenetic(EntityType<? extends AbstractHorseGenetic> entityType, Level worldIn)
     {
         super(entityType, worldIn);
-        this.setSeed(this.random.nextInt());
-        this.setMale(this.random.nextBoolean());
-        this.entityData.set(PREGNANT_SINCE, -1);
     }
 
     public EquineGenome getGenome() {
@@ -1190,6 +1187,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                                             @Nullable SpawnGroupData spawnDataIn, 
                                             @Nullable CompoundTag dataTag)
     {
+        this.setSeed(this.random.nextInt());
+        this.entityData.set(PREGNANT_SINCE, -1);
         if (!(spawnDataIn instanceof GeneticData)) {
             Breed breed = this.getRandomBreed();
             spawnDataIn = new GeneticData(breed);
