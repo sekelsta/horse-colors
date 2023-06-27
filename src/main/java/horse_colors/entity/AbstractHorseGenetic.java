@@ -32,6 +32,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.AgeableMob;
@@ -505,7 +506,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
 
     protected SoundEvent getHurtSound(DamageSource damageSourceIn) {
         // Don't stop and rear in response to suffocation or cactus damage
-        if (damageSourceIn != DamageSource.IN_WALL && damageSourceIn != DamageSource.CACTUS) {
+        DamageSources damageSources = level.damageSources();
+        if (damageSourceIn != damageSources.inWall() && damageSourceIn != damageSources.cactus()) {
             // Chance to rear up
             super.getHurtSound(damageSourceIn);
         }
@@ -1170,7 +1172,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     protected void randomizeAttributes(RandomSource rand) {
         // Set stats for vanilla-like breeding
         if (!HorseConfig.GENETICS.useGeneticStats.get()) {
-            float maxHealth = this.generateRandomMaxHealth(rand) + this.getGenome().getBaseHealth();
+            float maxHealth = this.generateMaxHealth(rand::nextInt) + this.getGenome().getBaseHealth();
             this.getAttribute(Attributes.MAX_HEALTH).setBaseValue((double)maxHealth);
         }
     }

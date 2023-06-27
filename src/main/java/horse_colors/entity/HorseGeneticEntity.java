@@ -188,8 +188,8 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     protected void randomizeAttributes(RandomSource rand) {
         super.randomizeAttributes(rand);
         if (!HorseConfig.GENETICS.useGeneticStats.get()) {
-            this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(this.generateRandomSpeed(rand));
-            this.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(this.generateRandomJumpStrength(rand));
+            this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(this.generateSpeed(rand::nextDouble));
+            this.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(this.generateJumpStrength(rand::nextDouble));
         }
     }
 }

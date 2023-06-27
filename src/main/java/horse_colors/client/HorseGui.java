@@ -104,7 +104,7 @@ public class HorseGui extends HorseInventoryScreen {
             }
         }
 
-        InventoryScreen.renderEntityInInventory(i + 51, j + 60, 17, (float)(i + 51) - mouseX, (float)(j + 75 - 50) - mouseY, this.horseGenetic);
+        InventoryScreen.renderEntityInInventoryFollowsMouse(matrixStack, i + 51, j + 60, 17, (float)(i + 51) - mouseX, (float)(j + 75 - 50) - mouseY, this.horseGenetic);
     }
 
     @Override

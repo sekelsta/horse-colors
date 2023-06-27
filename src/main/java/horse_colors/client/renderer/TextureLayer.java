@@ -108,14 +108,81 @@ public class TextureLayer {
         }
     }
 
-    private int getRGBA(NativeImage image, int x, int y, int width, int height) {
-        return image.getPixelRGBA(x * image.getWidth() / width, y * image.getHeight() / height);
+    private float getRedAsFloat(NativeImage image, int x, int y) {
+        byte b = image.getRedOrLuminance(x, y);
+        int i = (int)b & 255;
+        return i / 255f;
+    }
+
+    private float getGreenAsFloat(NativeImage image, int x, int y) {
+        byte b = image.getGreenOrLuminance(x, y);
+        int i = (int)b & 255;
+        return i / 255f;
+    }
+
+    private float getBlueAsFloat(NativeImage image, int x, int y) {
+        byte b = image.getBlueOrLuminance(x, y);
+        int i = (int)b & 255;
+        return i / 255f;
+    }
+
+    private float getAlphaAsFloat(NativeImage image, int x, int y) {
+        byte b = image.getLuminanceOrAlpha(x, y);
+        int i = (int)b & 255;
+        return i / 255f;
+    }
+
+    private float getMultipliedRedAsFloat(NativeImage image, int x, int y) {
+        return getRedAsFloat(image, x, y) * color.r;
+    }
+
+    private float getMultipliedGreenAsFloat(NativeImage image, int x, int y) {
+        return getGreenAsFloat(image, x, y) * color.g;
+    }
+
+    private float getMultipliedBlueAsFloat(NativeImage image, int x, int y) {
+        return getBlueAsFloat(image, x, y) * color.b;
+    }
+
+    private float getMultipliedAlphaAsFloat(NativeImage image, int x, int y) {
+        return getAlphaAsFloat(image, x, y) * color.a;
+    }
+
+    private void setRGBA(NativeImage image, int x, int y, float r, float g, float b, float a) {
+        int ir = clamp((int)(r * 255));
+        int ig = clamp((int)(g * 255));
+        int ib = clamp((int)(b * 255));
+        int ia = clamp((int)(a * 255));
+
+        int redOffset = image.format().luminanceOrRedOffset();
+        int greenOffset = image.format().luminanceOrGreenOffset();
+        int blueOffset = image.format().luminanceOrBlueOffset();
+        int alphaOffset = image.format().luminanceOrAlphaOffset();
+
+        int color = (ir << redOffset) | (ig << greenOffset) | (ib << blueOffset) | (ia << alphaOffset);
+
+        image.setPixelRGBA(x, y, color);
     }
 
     public void blendLayer(NativeImage base, NativeImage image) {
         for(int y = 0; y < base.getHeight(); ++y) {
             for(int x = 0; x < base.getWidth(); ++x) {
-                blendPixel(base, x, y, this.multiply(getRGBA(image, x, y, base.getWidth(), base.getHeight())));
+                float baseR = getRedAsFloat(base, x, y);
+                float baseG = getGreenAsFloat(base, x, y);
+                float baseB = getBlueAsFloat(base, x, y);
+                float baseA = getAlphaAsFloat(base, x, y);
+
+                float imgR = getMultipliedRedAsFloat(image, x, y);
+                float imgG = getMultipliedGreenAsFloat(image, x, y);
+                float imgB = getMultipliedBlueAsFloat(image, x, y);
+                float imgA = getMultipliedAlphaAsFloat(image, x, y);
+
+                float r = imgR * imgA + baseR * (1 - imgA);
+                float g = imgG * imgA + baseG * (1 - imgA);
+                float b = imgB * imgA + baseB * (1 - imgA);
+                float a = imgA * imgA + baseA * (1 - imgA);
+
+                setRGBA(base, x, y, r, g, b, a);
             }
         }
     }
@@ -123,20 +190,22 @@ public class TextureLayer {
     public void blendLayerKeepAlpha(NativeImage base, NativeImage image) {
         for(int y = 0; y < base.getHeight(); ++y) {
             for(int x = 0; x < base.getWidth(); ++x) {
-                int cb = base.getPixelRGBA(x, y);
-                int ci = this.multiply(getRGBA(image, x, y, base.getWidth(), base.getHeight()));
-                float a = NativeImage.getA(ci) / 255.0F;
-                float r = NativeImage.getR(ci);
-                float g = NativeImage.getG(ci);
-                float b = NativeImage.getB(ci);
-                float br = NativeImage.getR(cb);
-                float bg = NativeImage.getG(cb);
-                float bb = NativeImage.getB(cb);
-                int fa = NativeImage.getA(cb);
-                int fr = (int)(r * a + br * (1.0F-a));
-                int fg = (int)(g * a + bg * (1.0F-a));
-                int fb = (int)(b * a + bb * (1.0F-a));
-                base.setPixelRGBA(x, y, NativeImage.combine(fa, fb, fg, fr));
+                float baseR = getRedAsFloat(base, x, y);
+                float baseG = getGreenAsFloat(base, x, y);
+                float baseB = getBlueAsFloat(base, x, y);
+                float baseA = getAlphaAsFloat(base, x, y);
+
+                float imgR = getMultipliedRedAsFloat(image, x, y);
+                float imgG = getMultipliedGreenAsFloat(image, x, y);
+                float imgB = getMultipliedBlueAsFloat(image, x, y);
+                float imgA = getMultipliedAlphaAsFloat(image, x, y);
+
+                float r = baseR * baseA + imgR * (1 - baseA);
+                float g = baseG * baseA + imgG * (1 - baseA);
+                float b = baseB * baseA + imgB * (1 - baseA);
+                float a = imgA;
+
+                setRGBA(base, x, y, r, g, b, a);
             }
         }
     }
@@ -144,9 +213,25 @@ public class TextureLayer {
     public void shadeLayer(NativeImage base, NativeImage image) {
         for(int y = 0; y < base.getHeight(); ++y) {
             for(int x = 0; x < base.getWidth(); ++x) {
-                int color = base.getPixelRGBA(x, y);
-                int shading = this.multiply(getRGBA(image, x, y, base.getWidth(), base.getHeight()));
-                base.setPixelRGBA(x, y, this.shade(color, shading));
+                float baseR = getRedAsFloat(base, x, y);
+                float baseG = getGreenAsFloat(base, x, y);
+                float baseB = getBlueAsFloat(base, x, y);
+                float baseA = getAlphaAsFloat(base, x, y);
+
+                float imgR = getMultipliedRedAsFloat(image, x, y);
+                float imgG = getMultipliedGreenAsFloat(image, x, y);
+                float imgB = getMultipliedBlueAsFloat(image, x, y);
+                float imgA = getMultipliedAlphaAsFloat(image, x, y);
+
+                float value = (baseR + baseG + baseB) / 3f;
+                float a = imgA * (0.5f + 0.5f * (1 - value) * (1 - value));
+
+                float r = imgR * a + baseR * (1 - a);
+                float g = imgG * a + baseG * (1 - a);
+                float b = imgB * a + baseB * (1 - a);
+                a = a * a + baseA * (1 - a);
+
+                setRGBA(base, x, y, r, g, b, a);
             }
         }
     }
@@ -154,9 +239,25 @@ public class TextureLayer {
     public void highlightLayer(NativeImage base, NativeImage image) {
         for(int y = 0; y < base.getHeight(); ++y) {
             for(int x = 0; x < base.getWidth(); ++x) {
-                int color = base.getPixelRGBA(x, y);
-                int highlight = this.multiply(getRGBA(image, x, y, base.getWidth(), base.getHeight()));
-                base.setPixelRGBA(x, y, this.highlight(color, highlight));
+                float baseR = getRedAsFloat(base, x, y);
+                float baseG = getGreenAsFloat(base, x, y);
+                float baseB = getBlueAsFloat(base, x, y);
+                float baseA = getAlphaAsFloat(base, x, y);
+
+                float imgR = getMultipliedRedAsFloat(image, x, y);
+                float imgG = getMultipliedGreenAsFloat(image, x, y);
+                float imgB = getMultipliedBlueAsFloat(image, x, y);
+                float imgA = getMultipliedAlphaAsFloat(image, x, y);
+
+                float value = (baseR + baseG + baseB) / 3f;
+                float a = imgA * (0.5f + 0.5f * value * value);
+
+                float r = imgR * a + baseR * (1 - a);
+                float g = imgG * a + baseG * (1 - a);
+                float b = imgB * a + baseB * (1 - a);
+                a = a * a + baseA * (1 - a);
+
+                setRGBA(base, x, y, r, g, b, a);
             }
         }
     }
@@ -164,11 +265,15 @@ public class TextureLayer {
     public void maskLayer(NativeImage base, NativeImage image) {
         for(int y = 0; y < base.getHeight(); ++y) {
             for(int x = 0; x < base.getWidth(); ++x) {
-                int color = base.getPixelRGBA(x, y);
+                float baseR = getRedAsFloat(base, x, y);
+                float baseG = getGreenAsFloat(base, x, y);
+                float baseB = getBlueAsFloat(base, x, y);
+                float baseA = getAlphaAsFloat(base, x, y);
+
                 // Don't multiply here because that would do the wrong thing
-                int mask = getRGBA(image, x, y, base.getWidth(), base.getHeight());
-                int maskedColor = this.mask(color, mask);
-                base.setPixelRGBA(x, y, maskedColor);
+                float imgA = getAlphaAsFloat(image, x, y);
+
+                setRGBA(base, x, y, baseR, baseG, baseB, baseA * imgA);
             }
         }
     }
@@ -177,10 +282,29 @@ public class TextureLayer {
     public void powerLayer(NativeImage base, NativeImage image) {
         for(int y = 0; y < base.getHeight(); ++y) {
             for(int x = 0; x < base.getWidth(); ++x) {
-                int color = base.getPixelRGBA(x, y);
-                int exp = getRGBA(image, x, y, base.getWidth(), base.getHeight());
-                exp = this.multiply(exp);
-                blendPixel(base, x, y, this.power(color, exp));
+                float baseR = getRedAsFloat(base, x, y);
+                float baseG = getGreenAsFloat(base, x, y);
+                float baseB = getBlueAsFloat(base, x, y);
+                float baseA = getAlphaAsFloat(base, x, y);
+
+                float imgR = getMultipliedRedAsFloat(image, x, y);
+                float imgG = getMultipliedGreenAsFloat(image, x, y);
+                float imgB = getMultipliedBlueAsFloat(image, x, y);
+                float imgA = getMultipliedAlphaAsFloat(image, x, y);
+
+                // For each RGB value, raise color to the 1 / imgV
+                // No dividing by 0
+                float expR = (float)Math.pow(baseR, 1 / Math.max(0.002f, imgR));
+                float expG = (float)Math.pow(baseG, 1 / Math.max(0.002f, imgG));
+                float expB = (float)Math.pow(baseB, 1 / Math.max(0.002f, imgB));
+                float a = imgA;
+
+                float r = expR * a + baseR * (1 - a);
+                float g = expG * a + baseG * (1 - a);
+                float b = expB * a + baseB * (1 - a);
+                a = a * a + baseA * (1 - a);
+
+                setRGBA(base, x, y, r, g, b, a);
             }
         }
     }
@@ -189,10 +313,28 @@ public class TextureLayer {
     public void rootLayer(NativeImage base, NativeImage image) {
         for(int y = 0; y < base.getHeight(); ++y) {
             for(int x = 0; x < base.getWidth(); ++x) {
-                int color = base.getPixelRGBA(x, y);
-                int exp = getRGBA(image, x, y, base.getWidth(), base.getHeight());
-                exp = this.multiply(exp);
-                blendPixel(base, x, y, this.root(color, exp));
+                float baseR = getRedAsFloat(base, x, y);
+                float baseG = getGreenAsFloat(base, x, y);
+                float baseB = getBlueAsFloat(base, x, y);
+                float baseA = getAlphaAsFloat(base, x, y);
+
+                float imgR = getMultipliedRedAsFloat(image, x, y);
+                float imgG = getMultipliedGreenAsFloat(image, x, y);
+                float imgB = getMultipliedBlueAsFloat(image, x, y);
+                float imgA = getMultipliedAlphaAsFloat(image, x, y);
+
+                // For each RGB value, raise color to the imgV
+                float expR = (float)Math.pow(baseR, imgR);
+                float expG = (float)Math.pow(baseG, imgG);
+                float expB = (float)Math.pow(baseB, imgB);
+                float a = imgA;
+
+                float r = expR * a + baseR * (1 - a);
+                float g = expG * a + baseG * (1 - a);
+                float b = expB * a + baseB * (1 - a);
+                a = a * a + baseA * (1 - a);
+
+                setRGBA(base, x, y, r, g, b, a);
             }
         }
     }
@@ -200,101 +342,14 @@ public class TextureLayer {
     public void colorLayer(NativeImage image) {
         for(int y = 0; y < image.getHeight(); ++y) {
             for(int x = 0; x < image.getWidth(); ++x) {
-                int color = image.getPixelRGBA(x, y);
-                image.setPixelRGBA(x, y, this.multiply(color));
+                float imgR = getMultipliedRedAsFloat(image, x, y);
+                float imgG = getMultipliedGreenAsFloat(image, x, y);
+                float imgB = getMultipliedBlueAsFloat(image, x, y);
+                float imgA = getMultipliedAlphaAsFloat(image, x, y);
+
+                setRGBA(image, x, y, imgR, imgG, imgB, imgA);
             }
         }
-    }
-
-
-    public int multiply(int color) {
-        int a = NativeImage.getA(color);
-        a = (int)((float)a * this.color.a);
-        int r = NativeImage.getR(color);
-        r = (int)((float)r * this.color.r);
-        int g = NativeImage.getG(color);
-        g = (int)((float)g * this.color.g);
-        int b = NativeImage.getB(color);
-        b = (int)((float)b * this.color.b);
-        return NativeImage.combine(a, b, g, r);
-    }
-
-    public int shade(int color, int shading) {
-        float cr = NativeImage.getR(color);
-        float cg = NativeImage.getG(color);
-        float cb = NativeImage.getB(color);
-        float sr = NativeImage.getR(shading);
-        float sg = NativeImage.getG(shading);
-        float sb = NativeImage.getB(shading);
-        float a = (float)NativeImage.getA(shading) / 255.0F;
-        float avg = (float)(cr + cg + cb) / 255.0F / 3.0F;
-        a *= 0.5f + 0.5f * (1f - avg) * (1f - avg);
-        float na = 1.0F - a;
-        float r = Math.max(0, Math.min(255.0F, sr * a + cr * na));
-        float g = Math.max(0, Math.min(255.0F, sg * a + cg * na));
-        float b = Math.max(0, Math.min(255.0F, sb * a + cb * na));
-        int ca = NativeImage.getA(color);
-        return NativeImage.combine(ca, (int)b, (int)g, (int)r);
-    }
-    
-    public int highlight(int color, int light) {
-        float r0 = NativeImage.getR(color);
-        float g0 = NativeImage.getG(color);
-        float b0 = NativeImage.getB(color);
-        float r1 = NativeImage.getR(light);
-        float g1 = NativeImage.getG(light);
-        float b1 = NativeImage.getB(light);
-        float a = (float)NativeImage.getA(light) / 255.0F;
-        float avg = (float)(r0 + g0 + b0) / 255.0F / 3.0F;
-        a *= 0.5f + 0.5f * avg * avg;
-        float na = 1.0F - a;
-        float r = Math.max(0, Math.min(255.0F, r1 * a + r0 * na));
-        float g = Math.max(0, Math.min(255.0F, g1 * a + g0 * na));
-        float b = Math.max(0, Math.min(255.0F, b1 * a + b0 * na));
-        int ca = NativeImage.getA(color);
-        return NativeImage.combine(ca, (int)b, (int)g, (int)r);
-    }
-
-    // For each RGB value, raise color to the 1 / exp
-    public int power(int color, int exp) {
-        float r0 = NativeImage.getR(color) / 255f;
-        float g0 = NativeImage.getG(color) / 255f;
-        float b0 = NativeImage.getB(color) / 255f;
-        // No dividing by 0
-        float r1 = Math.max(0.002f, NativeImage.getR(exp) / 255f);
-        float g1 = Math.max(0.002f, NativeImage.getG(exp) / 255f);
-        float b1 = Math.max(0.002f, NativeImage.getB(exp) / 255f);
-        int r = clamp((int)(255f * Math.pow(r0, 1f / r1)));
-        int g = clamp((int)(255f * Math.pow(g0, 1f / g1)));
-        int b = clamp((int)(255f * Math.pow(b0, 1f / b1)));
-        int a = NativeImage.getA(exp);
-        return NativeImage.combine(a, b, g, r);
-    }
-
-    // For each RGB value, raise color to the exp
-    public int root(int color, int exp) {
-        float r0 = NativeImage.getR(color) / 255f;
-        float g0 = NativeImage.getG(color) / 255f;
-        float b0 = NativeImage.getB(color) / 255f;
-        float r1 = NativeImage.getR(exp) / 255f;
-        float g1 = NativeImage.getG(exp) / 255f;
-        float b1 = NativeImage.getB(exp) / 255f;
-        int r = clamp((int)(255f * Math.pow(r0, r1)));
-        int g = clamp((int)(255f * Math.pow(g0, g1)));
-        int b = clamp((int)(255f * Math.pow(b0, b1)));
-        int a = NativeImage.getA(exp);
-        return NativeImage.combine(a, b, g, r);
-    }
-
-    public int mask(int color, int mask) {
-        float a = NativeImage.getA(color) * NativeImage.getA(mask);
-        a /= 255.0F;
-        float weight = this.color.a;
-        a = a * weight + NativeImage.getA(color) * (1 - weight);
-        int r = NativeImage.getR(color);
-        int g = NativeImage.getG(color);
-        int b = NativeImage.getB(color);
-        return NativeImage.combine((int)a, b, g, r);
     }
 
     // Restrict to range [0, 255]
@@ -340,39 +395,5 @@ public class TextureLayer {
         s += "_";
         // Specify English to avoid Turkish locale bug
         return s.toLowerCase(Locale.ENGLISH);
-    }
-
-    public void blendPixel(NativeImage image, int x, int y, int color) {
-        int baseColor = image.getPixelRGBA(x, y);
-        float a = (float)image.getA(color) / 255.0F;
-        float blue = (float)image.getB(color);
-        float green = (float)image.getG(color);
-        float red = (float)image.getR(color);
-        float baseAlpha = (float)image.getA(baseColor) / 255.0F;
-        float baseBlue = (float)image.getB(baseColor);
-        float baseGreen = (float)image.getG(baseColor);
-        float baseRed = (float)image.getR(baseColor);
-        float alph = a * a + baseAlpha * (1 - a);
-        int finalAlpha = (int)(alph * 255.0F);
-        int finalBlue = (int)(blue * a + baseBlue * (1 - a));
-        int finalGreen = (int)(green * a + baseGreen * (1 - a));
-        int finalRed = (int)(red * a + baseRed * (1 - a));
-        if (finalAlpha > 255) {
-            finalAlpha = 255;
-        }
-
-        if (finalBlue > 255) {
-            finalBlue =  255;
-        }
-
-        if (finalGreen > 255) {
-            finalGreen = 255;
-        }
-
-        if (finalRed > 255) {
-            finalRed = 255;
-        }
-
-        image.setPixelRGBA(x, y, image.combine(finalAlpha, finalBlue, finalGreen, finalRed));
     }
 }
