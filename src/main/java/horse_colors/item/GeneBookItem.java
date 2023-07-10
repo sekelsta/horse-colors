@@ -135,7 +135,7 @@ public class GeneBookItem extends Item {
         else {
             stack.resetHoverName();
         }
-        return InteractionResult.sidedSuccess(player.level.isClientSide);
+        return InteractionResult.sidedSuccess(player.level().isClientSide);
     } 
 
 

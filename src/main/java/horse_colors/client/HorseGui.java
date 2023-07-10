@@ -2,6 +2,7 @@ package sekelsta.horse_colors.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.HorseInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -41,31 +42,31 @@ public class HorseGui extends HorseInventoryScreen {
     * Draws the background layer of this container (behind the items).
     */
     @Override
-    protected void renderBg(@NotNull PoseStack matrixStack, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, TEXTURE_LOCATION);
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
-        this.blit(matrixStack, i, j, 0, 0, this.imageWidth, this.imageHeight);
+        guiGraphics.blit(TEXTURE_LOCATION, i, j, 0, 0, this.imageWidth, this.imageHeight);
         if (this.horseGenetic instanceof AbstractChestedHorse) {
             AbstractChestedHorse abstractchestedhorseentity = (AbstractChestedHorse)this.horseGenetic;
             if (abstractchestedhorseentity.hasChest()) {
-                this.blit(matrixStack, i + 79, j + 17, 0, this.imageHeight, abstractchestedhorseentity.getInventoryColumns() * 18, 54);
+                guiGraphics.blit(TEXTURE_LOCATION, i + 79, j + 17, 0, this.imageHeight, abstractchestedhorseentity.getInventoryColumns() * 18, 54);
             }
         }
 
         if (this.horseGenetic.isSaddleable()) {
-            this.blit(matrixStack, i + 7, j + 35 - 18, 18, this.imageHeight + 54, 18, 18);
+            guiGraphics.blit(TEXTURE_LOCATION, i + 7, j + 35 - 18, 18, this.imageHeight + 54, 18, 18);
         }
 
         if (this.horseGenetic instanceof HorseGeneticEntity) {
             // Draw the armor slot
-            this.blit(matrixStack, i + 7, j + 35, 0, this.imageHeight + 54, 18, 18);
+            guiGraphics.blit(TEXTURE_LOCATION, i + 7, j + 35, 0, this.imageHeight + 54, 18, 18);
         }
         else {
             // Draw carpet slot
-            this.blit(matrixStack, i + 7, j + 35, 36, this.imageHeight + 54, 18, 18);
+            guiGraphics.blit(TEXTURE_LOCATION, i + 7, j + 35, 36, this.imageHeight + 54, 18, 18);
         }
 
         if (HorseConfig.isGenderEnabled()) {
@@ -87,29 +88,29 @@ public class HorseGui extends HorseInventoryScreen {
                 renderX -= 2;
                 int pregRenderX = renderX + iconWidth + 1;
                 // Blit pregnancy background
-                this.blit(matrixStack, pregRenderX, renderY + 1, 181, 23, 2, 10);
+                guiGraphics.blit(TEXTURE_LOCATION, pregRenderX, renderY + 1, 181, 23, 2, 10);
                 // Blit pregnancy foreground based on progress
                 int pregnantAmount = (int)(11 * horseGenetic.getPregnancyProgress());
-                this.blit(matrixStack, pregRenderX, renderY + 11 - pregnantAmount, 177, 33 - pregnantAmount, 2, pregnantAmount);
+                guiGraphics.blit(TEXTURE_LOCATION, pregRenderX, renderY + 11 - pregnantAmount, 177, 33 - pregnantAmount, 2, pregnantAmount);
             }
             // Blit gender icon
             // X, y to render to, x, y to render from, width, height
-            this.blit(matrixStack, renderX, renderY, textureX, textureY, iconWidth, iconHeight);
+            guiGraphics.blit(TEXTURE_LOCATION, renderX, renderY, textureX, textureY, iconWidth, iconHeight);
 
             // Render genetic animals pregnancy progress indicator
             if (this.horseGenetic.isPregnant() && grayIcons) {
                 // Blit pregnancy foreground based on progress
                 int pregnantAmount = (int)(10 * horseGenetic.getPregnancyProgress()) + 1;
-                this.blit(matrixStack, renderX, renderY + 11 - pregnantAmount, textureX, textureY + iconHeight + 11 - pregnantAmount, iconWidth, pregnantAmount);
+                guiGraphics.blit(TEXTURE_LOCATION, renderX, renderY + 11 - pregnantAmount, textureX, textureY + iconHeight + 11 - pregnantAmount, iconWidth, pregnantAmount);
             }
         }
 
-        InventoryScreen.renderEntityInInventoryFollowsMouse(matrixStack, i + 51, j + 60, 17, (float)(i + 51) - mouseX, (float)(j + 75 - 50) - mouseY, this.horseGenetic);
+        InventoryScreen.renderEntityInInventoryFollowsMouse(guiGraphics, i + 51, j + 60, 17, (float)(i + 51) - mouseX, (float)(j + 75 - 50) - mouseY, this.horseGenetic);
     }
 
     @Override
-    protected void renderLabels(PoseStack matrixStack, int x, int y) {
-        super.renderLabels(matrixStack, x, y);
+    protected void renderLabels(GuiGraphics guiGraphics, int x, int y) {
+        super.renderLabels(guiGraphics, x, y);
         if (!HorseConfig.COMMON.enableSizes.get() || horseGenetic.isBaby() || horseGenetic.hasChest()) {
             // Avoid showing an inaccurate height for foals
             return;
@@ -125,14 +126,14 @@ public class HorseGui extends HorseInventoryScreen {
         int yy = 20;
         for (String line : heightString.split("\n")) {
             // matrix stack, text, x, y, color
-            this.font.draw(matrixStack, Component.literal(line), 82, yy, 0x404040);
+            guiGraphics.drawString(this.font, Component.literal(line), 82, yy, 0x404040);
             yy += 9;
         }
         if (horseGenetic.isTooSmallForPlayerToRide()) {
-            this.font.draw(matrixStack, Component.translatable(HorseColors.MODID + ".gui.miniature"), 82, yy, 0x404040);
+            guiGraphics.drawString(this.font, Component.translatable(HorseColors.MODID + ".gui.miniature"), 82, yy, 0x404040);
         }
         else if (horseGenetic.getGenome().isLarge()) {
-            this.font.draw(matrixStack, Component.translatable(HorseColors.MODID + ".gui.large"), 82, yy, 0x404040);
+            guiGraphics.drawString(this.font, Component.translatable(HorseColors.MODID + ".gui.large"), 82, yy, 0x404040);
         }
     }
 

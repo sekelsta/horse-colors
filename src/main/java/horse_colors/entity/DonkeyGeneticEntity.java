@@ -46,7 +46,7 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
     protected boolean handleEating(Player player, ItemStack stack) {
         boolean usedAction = false;
         if (stack.is(Items.APPLE)) {
-            if (!this.level.isClientSide && this.isTamed() && this.getAge() == 0 && !this.isInLove()) {
+            if (!this.level().isClientSide && this.isTamed() && this.getAge() == 0 && !this.isInLove()) {
                 this.setInLove(player);
                 usedAction = true;
             }
@@ -131,22 +131,22 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
             AbstractHorseGenetic child = null;
             AbstractHorseGenetic other = (AbstractHorseGenetic)ageable;
             if (ageable instanceof HorseGeneticEntity) {
-                child = ModEntities.MULE_GENETIC.get().create(this.level);
+                child = ModEntities.MULE_GENETIC.get().create(this.level());
                 if (HorseConfig.BREEDING.enableGenders.get()
                         && !this.isMale() && ((HorseGeneticEntity)ageable).isMale()) {
                     ((MuleGeneticEntity)child).setSpecies(Species.HINNY);
                 }
             }
             else if (ageable instanceof DonkeyGeneticEntity) {
-                child = ModEntities.DONKEY_GENETIC.get().create(this.level);
+                child = ModEntities.DONKEY_GENETIC.get().create(this.level());
             }
             return child;
         }
         else if (ageable instanceof Horse) {
-            return EntityType.MULE.create(this.level);
+            return EntityType.MULE.create(this.level());
         }
         else if (ageable instanceof Donkey) {
-            return EntityType.DONKEY.create(this.level);
+            return EntityType.DONKEY.create(this.level());
         }
         return null;
     }

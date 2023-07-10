@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.*;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.client.GameNarrator;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.PageButton;
@@ -50,9 +51,9 @@ public class GeneBookScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         // Render the book picture in the back
-        this.renderBackground(matrixStack);
+        this.renderBackground(guiGraphics);
 
         
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
@@ -62,7 +63,7 @@ public class GeneBookScreen extends Screen {
         int x = (this.width - bookWidth) / 2;
         int y = 2;
         //x = 0;
-        this.blit(matrixStack, x, y, 0, 0, bookWidth, bookHeight, 512, 256);
+        guiGraphics.blit(BACKGROUND_TEXTURE_LOCATION, x, y, 0, 0, bookWidth, bookHeight, 512, 256);
 
         if (this.cachedPage != this.currPage) {
             this.cachedPageLinesLeft = cachePageLines(this.currPage);
@@ -70,12 +71,12 @@ public class GeneBookScreen extends Screen {
         }
         this.cachedPage = this.currPage;
 
-        renderPage(matrixStack, currPage, cachedPageLinesLeft, this.width / 2 - pageWidth - pageCrease);
+        renderPage(guiGraphics, currPage, cachedPageLinesLeft, this.width / 2 - pageWidth - pageCrease);
         if (this.getPageCount() > currPage + 1) {
-            renderPage(matrixStack, currPage + 1, cachedPageLinesRight, this.width / 2 + pageCrease);
+            renderPage(guiGraphics, currPage + 1, cachedPageLinesRight, this.width / 2 + pageCrease);
         }
 
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
+        super.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
     private List<FormattedCharSequence> cachePageLines(int page) {
@@ -90,17 +91,17 @@ public class GeneBookScreen extends Screen {
         return this.font.split(itextproperties, lineWrapWidth);
     }
 
-    private void renderPage(PoseStack matrixStack, int pagenum, List<FormattedCharSequence> cachedPageLines, int x) {
+    private void renderPage(GuiGraphics guiGraphics, int pagenum, List<FormattedCharSequence> cachedPageLines, int x) {
         String pageindicator = I18n.get("book.pageIndicator", pagenum + 1, this.getPageCount());
 
         String pagetext = this.getPageText(pagenum);
         int j1 = this.getTextWidth(pageindicator);
-        this.font.draw(matrixStack, pageindicator, (float)(x - j1 + pageWidth), 18.0F, 0);
+        guiGraphics.drawString(this.font, pageindicator, (float)(x - j1 + pageWidth), 18.0F, 0, false);
 
         int lines = Math.min(linesPerPage, cachedPageLines.size());
         for(int i = 0; i < lines; ++i) {
             FormattedCharSequence text = cachedPageLines.get(i);
-            this.font.draw(matrixStack, text, (float)x, (float)(32 + i * 9), 0);
+            guiGraphics.drawString(this.font, text, (float)x, (float)(32 + i * 9), 0, false);
         }
     }
 

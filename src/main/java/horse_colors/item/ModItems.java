@@ -10,7 +10,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.event.CreativeModeTabEvent;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
@@ -59,12 +59,12 @@ public class ModItems {
         DispenserBlock.registerBehavior(netheriteHorseArmor.get(), dispenseHorseArmor);
     }
 
-    public static void addToCreativeTab(CreativeModeTabEvent.BuildContents event) {
+    public static void addToCreativeTab(BuildCreativeModeTabContentsEvent event) {
         // Skip gene book item
-        if (event.getTab() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+        if (event.getTabKey().equals(CreativeModeTabs.TOOLS_AND_UTILITIES)) {
             event.accept(genderChangeItem);
         }
-        else if (event.getTab() == CreativeModeTabs.COMBAT) {
+        else if (event.getTabKey().equals(CreativeModeTabs.COMBAT)) {
             event.accept(netheriteHorseArmor);
         }
         ModEntities.addToCreativeTab(event);

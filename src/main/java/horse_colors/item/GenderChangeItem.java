@@ -34,12 +34,12 @@ public class GenderChangeItem extends Item {
             IGeneticEntity g = (IGeneticEntity)target;
             g.setMale(!g.isMale());
             if (player != null) {
-                target.level.playSound((Player)null, player.getX(), player.getY(), player.getZ(), SoundEvents.SPLASH_POTION_THROW, SoundSource.PLAYERS, 0.5F, 0.4F / (target.level.getRandom().nextFloat() * 0.4F + 0.8F));
+                target.level().playSound((Player)null, player.getX(), player.getY(), player.getZ(), SoundEvents.SPLASH_POTION_THROW, SoundSource.PLAYERS, 0.5F, 0.4F / (target.level().getRandom().nextFloat() * 0.4F + 0.8F));
             }
             if (player == null || !player.getAbilities().instabuild) {
                 stack.shrink(1);
             }
-            return InteractionResult.sidedSuccess(player.level.isClientSide);
+            return InteractionResult.sidedSuccess(player.level().isClientSide);
         }
         return InteractionResult.PASS;
     } 
