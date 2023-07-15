@@ -124,16 +124,17 @@ public class HorseGui extends HorseInventoryScreen {
         Component heightText = Component.translatable(translationKey, hands, point, cm);
         String heightString = heightText.getString(1000);
         int yy = 20;
+
         for (String line : heightString.split("\n")) {
             // matrix stack, text, x, y, color
-            guiGraphics.drawString(this.font, Component.literal(line), 82, yy, 0x404040);
+            guiGraphics.drawString(this.font, Component.literal(line), 82, yy, 0x404040, false);
             yy += 9;
         }
         if (horseGenetic.isTooSmallForPlayerToRide()) {
-            guiGraphics.drawString(this.font, Component.translatable(HorseColors.MODID + ".gui.miniature"), 82, yy, 0x404040);
+            guiGraphics.drawString(this.font, Component.translatable(HorseColors.MODID + ".gui.miniature"), 82, yy, 0x404040, false);
         }
         else if (horseGenetic.getGenome().isLarge()) {
-            guiGraphics.drawString(this.font, Component.translatable(HorseColors.MODID + ".gui.large"), 82, yy, 0x404040);
+            guiGraphics.drawString(this.font, Component.translatable(HorseColors.MODID + ".gui.large"), 82, yy, 0x404040, false);
         }
     }
 
