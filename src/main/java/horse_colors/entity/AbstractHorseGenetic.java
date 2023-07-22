@@ -1252,6 +1252,11 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         // This is different from LivingEntity.getScale which uses
         // 0.5 for children
         float base = isBaby()? 0.6f : 1.0f;
+        if (getGenome() == null) {
+            // This can happen since Forge version 47.1.6, which indirectly calls getScale() from Entity.<init>
+            // At that point our constructor hasn't run yet and the genome is still null.
+            return base;
+        }
         return this.getGenome().getAdultScale() * base;
     }
 
