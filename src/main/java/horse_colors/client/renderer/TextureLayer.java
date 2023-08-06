@@ -165,8 +165,10 @@ public class TextureLayer {
     }
 
     public void blendLayer(NativeImage base, NativeImage image) {
-        for(int y = 0; y < base.getHeight(); ++y) {
-            for(int x = 0; x < base.getWidth(); ++x) {
+        for(int base_y = 0; base_y < base.getHeight(); ++base_y) {
+            for(int base_x = 0; base_x < base.getWidth(); ++base_x) {
+                int x = base_x * image.getWidth() / base.getWidth();
+                int y = base_y * image.getHeight() / base.getHeight();
                 float baseR = getRedAsFloat(base, x, y);
                 float baseG = getGreenAsFloat(base, x, y);
                 float baseB = getBlueAsFloat(base, x, y);
@@ -188,8 +190,10 @@ public class TextureLayer {
     }
 
     public void blendLayerKeepAlpha(NativeImage base, NativeImage image) {
-        for(int y = 0; y < base.getHeight(); ++y) {
-            for(int x = 0; x < base.getWidth(); ++x) {
+        for(int base_y = 0; base_y < base.getHeight(); ++base_y) {
+            for(int base_x = 0; base_x < base.getWidth(); ++base_x) {
+                int x = base_x * image.getWidth() / base.getWidth();
+                int y = base_y * image.getHeight() / base.getHeight();
                 float baseR = getRedAsFloat(base, x, y);
                 float baseG = getGreenAsFloat(base, x, y);
                 float baseB = getBlueAsFloat(base, x, y);
@@ -211,8 +215,10 @@ public class TextureLayer {
     }
 
     public void shadeLayer(NativeImage base, NativeImage image) {
-        for(int y = 0; y < base.getHeight(); ++y) {
-            for(int x = 0; x < base.getWidth(); ++x) {
+        for(int base_y = 0; base_y < base.getHeight(); ++base_y) {
+            for(int base_x = 0; base_x < base.getWidth(); ++base_x) {
+                int x = base_x * image.getWidth() / base.getWidth();
+                int y = base_y * image.getHeight() / base.getHeight();
                 float baseR = getRedAsFloat(base, x, y);
                 float baseG = getGreenAsFloat(base, x, y);
                 float baseB = getBlueAsFloat(base, x, y);
@@ -237,8 +243,10 @@ public class TextureLayer {
     }
 
     public void highlightLayer(NativeImage base, NativeImage image) {
-        for(int y = 0; y < base.getHeight(); ++y) {
-            for(int x = 0; x < base.getWidth(); ++x) {
+        for(int base_y = 0; base_y < base.getHeight(); ++base_y) {
+            for(int base_x = 0; base_x < base.getWidth(); ++base_x) {
+                int x = base_x * image.getWidth() / base.getWidth();
+                int y = base_y * image.getHeight() / base.getHeight();
                 float baseR = getRedAsFloat(base, x, y);
                 float baseG = getGreenAsFloat(base, x, y);
                 float baseB = getBlueAsFloat(base, x, y);
@@ -263,8 +271,10 @@ public class TextureLayer {
     }
 
     public void maskLayer(NativeImage base, NativeImage image) {
-        for(int y = 0; y < base.getHeight(); ++y) {
-            for(int x = 0; x < base.getWidth(); ++x) {
+        for(int base_y = 0; base_y < base.getHeight(); ++base_y) {
+            for(int base_x = 0; base_x < base.getWidth(); ++base_x) {
+                int x = base_x * image.getWidth() / base.getWidth();
+                int y = base_y * image.getHeight() / base.getHeight();
                 float baseR = getRedAsFloat(base, x, y);
                 float baseG = getGreenAsFloat(base, x, y);
                 float baseB = getBlueAsFloat(base, x, y);
@@ -280,8 +290,10 @@ public class TextureLayer {
 
     // Raise RGB values to an exponent >= 1
     public void powerLayer(NativeImage base, NativeImage image) {
-        for(int y = 0; y < base.getHeight(); ++y) {
-            for(int x = 0; x < base.getWidth(); ++x) {
+        for(int base_y = 0; base_y < base.getHeight(); ++base_y) {
+            for(int base_x = 0; base_x < base.getWidth(); ++base_x) {
+                int x = base_x * image.getWidth() / base.getWidth();
+                int y = base_y * image.getHeight() / base.getHeight();
                 float baseR = getRedAsFloat(base, x, y);
                 float baseG = getGreenAsFloat(base, x, y);
                 float baseB = getBlueAsFloat(base, x, y);
@@ -311,8 +323,10 @@ public class TextureLayer {
 
     // Raise RGB values to an exponent <= 1
     public void rootLayer(NativeImage base, NativeImage image) {
-        for(int y = 0; y < base.getHeight(); ++y) {
-            for(int x = 0; x < base.getWidth(); ++x) {
+        for(int base_y = 0; base_y < base.getHeight(); ++base_y) {
+            for(int base_x = 0; base_x < base.getWidth(); ++base_x) {
+                int x = base_x * image.getWidth() / base.getWidth();
+                int y = base_y * image.getHeight() / base.getHeight();
                 float baseR = getRedAsFloat(base, x, y);
                 float baseG = getGreenAsFloat(base, x, y);
                 float baseB = getBlueAsFloat(base, x, y);

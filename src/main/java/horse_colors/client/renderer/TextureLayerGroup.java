@@ -64,7 +64,13 @@ public class TextureLayerGroup extends TextureLayer {
             }
             NativeImage image = layer.getLayer(manager);
             if (image != null) {
-                layer.combineLayers(baseimage, image);
+                try {
+                    layer.combineLayers(baseimage, image);
+                }
+                catch (Exception e) {
+                    throw new RuntimeException("Unable to combine images adding layer "
+                                                 + layer + " for " + this + ".\n Error: " + e);
+                }
             }
         }
 
