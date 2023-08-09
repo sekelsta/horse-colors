@@ -204,10 +204,10 @@ public class TextureLayer {
                 float imgB = getMultipliedBlueAsFloat(image, x, y);
                 float imgA = getMultipliedAlphaAsFloat(image, x, y);
 
-                float r = baseR * baseA + imgR * (1 - baseA);
-                float g = baseG * baseA + imgG * (1 - baseA);
-                float b = baseB * baseA + imgB * (1 - baseA);
-                float a = imgA;
+                float r = imgR * imgA + baseR * (1 - imgA);
+                float g = imgG * imgA + baseG * (1 - imgA);
+                float b = imgB * imgA + baseB * (1 - imgA);
+                float a = baseA;
 
                 setRGBA(base, x, y, r, g, b, a);
             }
