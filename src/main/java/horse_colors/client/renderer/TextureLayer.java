@@ -169,10 +169,10 @@ public class TextureLayer {
             for(int base_x = 0; base_x < base.getWidth(); ++base_x) {
                 int x = base_x * image.getWidth() / base.getWidth();
                 int y = base_y * image.getHeight() / base.getHeight();
-                float baseR = getRedAsFloat(base, x, y);
-                float baseG = getGreenAsFloat(base, x, y);
-                float baseB = getBlueAsFloat(base, x, y);
-                float baseA = getAlphaAsFloat(base, x, y);
+                float baseR = getRedAsFloat(base, base_x, base_y);
+                float baseG = getGreenAsFloat(base, base_x, base_y);
+                float baseB = getBlueAsFloat(base, base_x, base_y);
+                float baseA = getAlphaAsFloat(base, base_x, base_y);
 
                 float imgR = getMultipliedRedAsFloat(image, x, y);
                 float imgG = getMultipliedGreenAsFloat(image, x, y);
@@ -184,7 +184,7 @@ public class TextureLayer {
                 float b = imgB * imgA + baseB * (1 - imgA);
                 float a = imgA * imgA + baseA * (1 - imgA);
 
-                setRGBA(base, x, y, r, g, b, a);
+                setRGBA(base, base_x, base_y, r, g, b, a);
             }
         }
     }
@@ -194,10 +194,10 @@ public class TextureLayer {
             for(int base_x = 0; base_x < base.getWidth(); ++base_x) {
                 int x = base_x * image.getWidth() / base.getWidth();
                 int y = base_y * image.getHeight() / base.getHeight();
-                float baseR = getRedAsFloat(base, x, y);
-                float baseG = getGreenAsFloat(base, x, y);
-                float baseB = getBlueAsFloat(base, x, y);
-                float baseA = getAlphaAsFloat(base, x, y);
+                float baseR = getRedAsFloat(base, base_x, base_y);
+                float baseG = getGreenAsFloat(base, base_x, base_y);
+                float baseB = getBlueAsFloat(base, base_x, base_y);
+                float baseA = getAlphaAsFloat(base, base_x, base_y);
 
                 float imgR = getMultipliedRedAsFloat(image, x, y);
                 float imgG = getMultipliedGreenAsFloat(image, x, y);
@@ -209,7 +209,7 @@ public class TextureLayer {
                 float b = imgB * imgA + baseB * (1 - imgA);
                 float a = baseA;
 
-                setRGBA(base, x, y, r, g, b, a);
+                setRGBA(base, base_x, base_y, r, g, b, a);
             }
         }
     }
@@ -219,10 +219,10 @@ public class TextureLayer {
             for(int base_x = 0; base_x < base.getWidth(); ++base_x) {
                 int x = base_x * image.getWidth() / base.getWidth();
                 int y = base_y * image.getHeight() / base.getHeight();
-                float baseR = getRedAsFloat(base, x, y);
-                float baseG = getGreenAsFloat(base, x, y);
-                float baseB = getBlueAsFloat(base, x, y);
-                float baseA = getAlphaAsFloat(base, x, y);
+                float baseR = getRedAsFloat(base, base_x, base_y);
+                float baseG = getGreenAsFloat(base, base_x, base_y);
+                float baseB = getBlueAsFloat(base, base_x, base_y);
+                float baseA = getAlphaAsFloat(base, base_x, base_y);
 
                 float imgR = getMultipliedRedAsFloat(image, x, y);
                 float imgG = getMultipliedGreenAsFloat(image, x, y);
@@ -237,7 +237,7 @@ public class TextureLayer {
                 float b = imgB * a + baseB * (1 - a);
                 a = a * a + baseA * (1 - a);
 
-                setRGBA(base, x, y, r, g, b, a);
+                setRGBA(base, base_x, base_y, r, g, b, a);
             }
         }
     }
@@ -247,10 +247,10 @@ public class TextureLayer {
             for(int base_x = 0; base_x < base.getWidth(); ++base_x) {
                 int x = base_x * image.getWidth() / base.getWidth();
                 int y = base_y * image.getHeight() / base.getHeight();
-                float baseR = getRedAsFloat(base, x, y);
-                float baseG = getGreenAsFloat(base, x, y);
-                float baseB = getBlueAsFloat(base, x, y);
-                float baseA = getAlphaAsFloat(base, x, y);
+                float baseR = getRedAsFloat(base, base_x, base_y);
+                float baseG = getGreenAsFloat(base, base_x, base_y);
+                float baseB = getBlueAsFloat(base, base_x, base_y);
+                float baseA = getAlphaAsFloat(base, base_x, base_y);
 
                 float imgR = getMultipliedRedAsFloat(image, x, y);
                 float imgG = getMultipliedGreenAsFloat(image, x, y);
@@ -265,7 +265,7 @@ public class TextureLayer {
                 float b = imgB * a + baseB * (1 - a);
                 a = a * a + baseA * (1 - a);
 
-                setRGBA(base, x, y, r, g, b, a);
+                setRGBA(base, base_x, base_y, r, g, b, a);
             }
         }
     }
@@ -275,15 +275,15 @@ public class TextureLayer {
             for(int base_x = 0; base_x < base.getWidth(); ++base_x) {
                 int x = base_x * image.getWidth() / base.getWidth();
                 int y = base_y * image.getHeight() / base.getHeight();
-                float baseR = getRedAsFloat(base, x, y);
-                float baseG = getGreenAsFloat(base, x, y);
-                float baseB = getBlueAsFloat(base, x, y);
-                float baseA = getAlphaAsFloat(base, x, y);
+                float baseR = getRedAsFloat(base, base_x, base_y);
+                float baseG = getGreenAsFloat(base, base_x, base_y);
+                float baseB = getBlueAsFloat(base, base_x, base_y);
+                float baseA = getAlphaAsFloat(base, base_x, base_y);
 
                 // Don't multiply here because that would do the wrong thing
                 float imgA = getAlphaAsFloat(image, x, y);
 
-                setRGBA(base, x, y, baseR, baseG, baseB, baseA * imgA);
+                setRGBA(base, base_x, base_y, baseR, baseG, baseB, baseA * imgA);
             }
         }
     }
@@ -294,10 +294,10 @@ public class TextureLayer {
             for(int base_x = 0; base_x < base.getWidth(); ++base_x) {
                 int x = base_x * image.getWidth() / base.getWidth();
                 int y = base_y * image.getHeight() / base.getHeight();
-                float baseR = getRedAsFloat(base, x, y);
-                float baseG = getGreenAsFloat(base, x, y);
-                float baseB = getBlueAsFloat(base, x, y);
-                float baseA = getAlphaAsFloat(base, x, y);
+                float baseR = getRedAsFloat(base, base_x, base_y);
+                float baseG = getGreenAsFloat(base, base_x, base_y);
+                float baseB = getBlueAsFloat(base, base_x, base_y);
+                float baseA = getAlphaAsFloat(base, base_x, base_y);
 
                 float imgR = getMultipliedRedAsFloat(image, x, y);
                 float imgG = getMultipliedGreenAsFloat(image, x, y);
@@ -316,7 +316,7 @@ public class TextureLayer {
                 float b = expB * a + baseB * (1 - a);
                 a = a * a + baseA * (1 - a);
 
-                setRGBA(base, x, y, r, g, b, a);
+                setRGBA(base, base_x, base_y, r, g, b, a);
             }
         }
     }
@@ -327,10 +327,10 @@ public class TextureLayer {
             for(int base_x = 0; base_x < base.getWidth(); ++base_x) {
                 int x = base_x * image.getWidth() / base.getWidth();
                 int y = base_y * image.getHeight() / base.getHeight();
-                float baseR = getRedAsFloat(base, x, y);
-                float baseG = getGreenAsFloat(base, x, y);
-                float baseB = getBlueAsFloat(base, x, y);
-                float baseA = getAlphaAsFloat(base, x, y);
+                float baseR = getRedAsFloat(base, base_x, base_y);
+                float baseG = getGreenAsFloat(base, base_x, base_y);
+                float baseB = getBlueAsFloat(base, base_x, base_y);
+                float baseA = getAlphaAsFloat(base, base_x, base_y);
 
                 float imgR = getMultipliedRedAsFloat(image, x, y);
                 float imgG = getMultipliedGreenAsFloat(image, x, y);
@@ -348,7 +348,7 @@ public class TextureLayer {
                 float b = expB * a + baseB * (1 - a);
                 a = a * a + baseA * (1 - a);
 
-                setRGBA(base, x, y, r, g, b, a);
+                setRGBA(base, base_x, base_y, r, g, b, a);
             }
         }
     }

@@ -69,7 +69,7 @@ public class TextureLayerGroup extends TextureLayer {
                 }
                 catch (Exception e) {
                     throw new RuntimeException("Unable to combine images adding layer "
-                                                 + layer + " for " + this + ".\n Error: " + e);
+                                                 + layer + " for " + this, e);
                 }
             }
         }
