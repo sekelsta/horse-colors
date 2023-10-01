@@ -5,7 +5,6 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.PlainVillagePools;
 import net.minecraft.data.worldgen.Pools;
 import net.minecraft.resources.ResourceLocation;
@@ -27,7 +26,6 @@ import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
-import net.minecraftforge.event.entity.living.MobSpawnEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -78,12 +76,5 @@ public class Spawns {
                     SpawnerData.CODEC.fieldOf("savanna_spawner").forGetter(EquineBiomeModifier::savannaSpawner)
             ).apply(builder, EquineBiomeModifier::new));
         BIOME_MODIFIER_DEFERRED.register("equine_spawn", () -> codec);
-    }
-
-    @SubscribeEvent
-    public static void neoforge_issue_939_workaround(MobSpawnEvent.FinalizeSpawn event) {
-        if (event.getEntity() instanceof AbstractHorseGenetic && event.getSpawnData() == null) {
-            event.setSpawnData(new AbstractHorseGenetic.GeneticData(((AbstractHorseGenetic)event.getEntity()).getRandomBreed()));
-        }
     }
 }

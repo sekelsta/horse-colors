@@ -1,7 +1,6 @@
 package sekelsta.horse_colors.entity;
 
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.entity.Mob;
@@ -17,7 +16,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.ForgeSpawnEggItem;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -26,6 +24,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+import sekelsta.horse_colors.CreativeTab;
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.client.renderer.HorseArmorLayer;
 import sekelsta.horse_colors.client.renderer.HorseGeneticModel;
@@ -61,7 +60,7 @@ public class ModEntities {
 
     private static RegistryObject<Item> registerSpawnEgg(String name, RegistryObject<? extends EntityType<? extends Mob>> type, int primary, int secondary) {
         return ModItems.ITEM_DEFERRED.register(name, 
-            () -> new ForgeSpawnEggItem(type, primary, secondary, new Item.Properties())
+            () -> new ForgeSpawnEggItem(type, primary, secondary, new Item.Properties().tab(CreativeTab.instance))
         );
     }
 
@@ -91,14 +90,5 @@ public class ModEntities {
     public static void registerLayerDefinition(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(HorseGeneticRenderer.EQUINE_LAYER, HorseGeneticModel::createBodyLayer);
         event.registerLayerDefinition(HorseArmorLayer.HORSE_ARMOR_LAYER, HorseGeneticModel::createArmorLayer);
-    }
-
-    // Called from ModItems
-    public static void addToCreativeTab(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey().equals(CreativeModeTabs.SPAWN_EGGS)) {
-            event.accept(HORSE_SPAWN_EGG);
-            event.accept(DONKEY_SPAWN_EGG);
-            event.accept(MULE_SPAWN_EGG);
-        }
     }
 }

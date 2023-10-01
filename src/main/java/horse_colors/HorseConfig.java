@@ -6,8 +6,8 @@ import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.common.ForgeConfigSpec.EnumValue;
 import net.minecraftforge.common.ForgeConfigSpec.IntValue;
 import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
+import net.minecraftforge.registries.ForgeRegistries;
 
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.horse.*;
 import net.minecraft.world.item.ItemStack;
@@ -315,7 +315,7 @@ public class HorseConfig
     }
 
     private static String getName(ItemStack stack) {
-        return BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
+        return ForgeRegistries.ITEMS.getKey(stack.getItem()).getPath();
     }
 
     public static boolean shouldConvert(Entity entity) {

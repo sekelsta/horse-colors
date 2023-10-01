@@ -39,7 +39,6 @@ public class HorseColors
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, HorseConfig.spec);
         MinecraftForge.EVENT_BUS.addListener(BreedManager::addReloadListener);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(ModItems::addToCreativeTab);
 
         Spawns.registerBiomeModifiers();
 

@@ -115,7 +115,7 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
     // Helper function for createChild that creates and spawns an entity of the 
     // correct species
     public AbstractHorse getChild(ServerLevel world, AgeableMob ageable) {
-        MuleGeneticEntity child = ModEntities.MULE_GENETIC.get().create(this.level());
+        MuleGeneticEntity child = ModEntities.MULE_GENETIC.get().create(this.level);
         return child;
     }
 

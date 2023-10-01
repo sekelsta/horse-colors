@@ -327,14 +327,14 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                     AbstractHorseGenetic child = null;
                     switch(species) {
                         case HORSE:
-                            child = ModEntities.HORSE_GENETIC.get().create(this.level());
+                            child = ModEntities.HORSE_GENETIC.get().create(this.level);
                             break;
                         case DONKEY:
-                            child = ModEntities.DONKEY_GENETIC.get().create(this.level());
+                            child = ModEntities.DONKEY_GENETIC.get().create(this.level);
                             break;
                         case MULE:
                         case HINNY:
-                            child = ModEntities.MULE_GENETIC.get().create(this.level());
+                            child = ModEntities.MULE_GENETIC.get().create(this.level);
                             ((MuleGeneticEntity)child).setSpecies(species);
                             break;
                     }
@@ -396,7 +396,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     */
     @Override
     protected void updateContainerEquipment() {
-        if (!this.level().isClientSide()) {
+        if (!this.level.isClientSide()) {
             super.updateContainerEquipment();
             this.setArmorStack(this.inventory.getItem(1));
             this.setDropChance(EquipmentSlot.CHEST, 0.0F);
@@ -406,7 +406,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     private void setArmorStack(ItemStack itemstack) {
         // this.func_213805_k(itemStack);
         this.setArmor(itemstack);
-        if (!this.level().isClientSide) {
+        if (!this.level.isClientSide) {
             this.getAttribute(Attributes.ARMOR).removeModifier(ARMOR_MODIFIER_UUID);
             // Do not use this.isArmor(itemstack)) because that can return true for things which
             // can't be cast to HorseArmorItem
@@ -533,7 +533,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     }
 
     public void setAutobreedable(boolean allowed) {
-        if (level().isClientSide) {
+        if (level.isClientSide) {
             HorsePacketHandler.sendToServer(new CAutobreedPacket(getId(), allowed));
         }
         else {
@@ -584,8 +584,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
 
     protected SoundEvent getHurtSound(DamageSource damageSourceIn) {
         // Don't stop and rear in response to suffocation or cactus damage
-        DamageSources damageSources = level().damageSources();
-        if (damageSourceIn != damageSources.inWall() && damageSourceIn != damageSources.cactus()) {
+        if (damageSourceIn != DamageSource.IN_WALL && damageSourceIn != DamageSource.CACTUS) {
             // Chance to rear up
             super.getHurtSound(damageSourceIn);
         }
@@ -674,7 +673,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         }
         // Unequip a chest
         if (hasChest() && itemstack.getItem() instanceof AxeItem) {
-            if (!level().isClientSide) {
+            if (!level.isClientSide) {
                 spawnAtLocation(Blocks.CHEST);
                 if (inventory != null) {
                     for (int i = 2; i < inventory.getContainerSize(); ++i) {
@@ -709,7 +708,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         }
         // If tame, equip saddle
         if (!this.isSaddled() && isSaddle(itemstack) && this.isSaddleable()) {
-            if (!this.level().isClientSide) {
+            if (!this.level.isClientSide) {
                 ItemStack saddle = itemstack.split(1);
                 this.inventory.setItem(0, saddle);
             }
@@ -718,7 +717,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         // If tame, equip armor
         if (this.isArmor(itemstack)) {
              if (this.inventory.getItem(1).isEmpty()) {
-                if (!this.level().isClientSide) {
+                if (!this.level.isClientSide) {
                     ItemStack armor = itemstack.split(1);
                     this.inventory.setItem(1, armor);
                 }
@@ -738,7 +737,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         if (!this.isBaby()) {
             if (this.isTamed() && player.isSecondaryUseActive()) {
                 this.openCustomInventoryScreen(player);
-                return InteractionResult.sidedSuccess(this.level().isClientSide);
+                return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
         }
 
@@ -756,13 +755,13 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
             }
             // See if we interact with the item
             if (itemInteract(player, itemstack, hand)) {
-                return InteractionResult.sidedSuccess(this.level().isClientSide);
+                return InteractionResult.sidedSuccess(this.level.isClientSide);
             }
         }
 
         if (!this.isBaby() && canFitRider(player)) {
             this.doPlayerRide(player);
-            return InteractionResult.sidedSuccess(this.level().isClientSide);
+            return InteractionResult.sidedSuccess(this.level.isClientSide);
         }
         // else
         return super.mobInteract(player, hand);
@@ -824,10 +823,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
 
         if (isBaby()) {
             fed = true;
-            if (!level().isClientSide()) {
+            if (!level.isClientSide()) {
                 ageUp(getGrowthBonus(stack));
             }
-            level().addParticle(ParticleTypes.HAPPY_VILLAGER, getRandomX(1), getRandomY() + 0.5, getRandomZ(1), 0, 0, 0);
+            level.addParticle(ParticleTypes.HAPPY_VILLAGER, getRandomX(1), getRandomY() + 0.5, getRandomZ(1), 0, 0, 0);
         }
         else if (isTamed() && isFertile() && !isInLove() && isBreedingFood(stack)) {
             fed = true;
@@ -841,7 +840,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
 
         if (!isTamed() && getTemper() < getMaxTemper()) {
             fed = true;
-            if (!level().isClientSide()) {
+            if (!level.isClientSide()) {
                 modifyTemper(getTemperBonus(stack));
             }
         }
@@ -956,7 +955,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         
         if (foals.size() <= 0) {
             // Spawn smoke particles to indicate failure
-            this.level().broadcastEntityEvent(this, (byte)6);
+            this.level.broadcastEntityEvent(this, (byte)6);
             // Only spawn XP and grant the achievement for successful births
             return;
         }
@@ -971,7 +970,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
 
         if (HorseConfig.isPregnancyEnabled()) {
             // Spawn heart particles
-            this.level().broadcastEntityEvent(this, (byte)18);
+            this.level.broadcastEntityEvent(this, (byte)18);
         }
 
         // Spawn XP orbs
@@ -1102,7 +1101,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
 
         if (child instanceof AbstractHorseGenetic) {
             unbornChildren.add((AbstractHorseGenetic)child);
-            if (!this.level().isClientSide) {
+            if (!this.level.isClientSide) {
                 // Can't be a child
                 this.trueAge = Math.max(0, this.trueAge);
                 this.entityData.set(PREGNANT_SINCE, this.trueAge);
@@ -1136,7 +1135,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     {
         super.tick();
         // Keep track of age
-        if (!this.level().isClientSide) {
+        if (!this.level.isClientSide) {
             // For children, align with growing age in case they have been fed
             if (this.age < 0) {
                 this.trueAge = this.age;
@@ -1153,7 +1152,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         }
 
         // Pregnancy
-        if (!this.level().isClientSide && this.isPregnant()) {
+        if (!this.level.isClientSide && this.isPregnant()) {
             // Check pregnancy
             if (this.unbornChildren == null
                     || this.unbornChildren.size() == 0) {
@@ -1164,8 +1163,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
             int currentLength = this.trueAge - this.getPregnancyStart();
             if (currentLength >= totalLength) {
                 for (AbstractHorseGenetic child : unbornChildren) {
-                    if (this.level() instanceof ServerLevel) {
-                        this.spawnChild(child, (ServerLevel)this.level());
+                    if (this.level instanceof ServerLevel) {
+                        this.spawnChild(child, (ServerLevel)this.level);
                     }
                 }
                 this.unbornChildren = new ArrayList<>();
@@ -1174,13 +1173,13 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         }
 
          else if (HorseConfig.BREEDING.autobreeding.get() 
-                 && !this.level().isClientSide
+                 && !this.level.isClientSide
                  && tickCount % 800 == 0 
                  && (!isMale() || !HorseConfig.isGenderEnabled())
                  && canAutobreed() 
                  && canFallInLove() 
                  && random.nextFloat() < 0.05f) {
-            List<AbstractHorseGenetic> equines = level().getEntitiesOfClass(AbstractHorseGenetic.class, getBoundingBox().inflate(16, 12, 16));
+            List<AbstractHorseGenetic> equines = level.getEntitiesOfClass(AbstractHorseGenetic.class, getBoundingBox().inflate(16, 12, 16));
             if (equines.size() < 16) {
                 setInLove(null);
                 AbstractHorseGenetic stallion = equines
@@ -1206,7 +1205,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         }
 
         ItemStack stack = this.inventory.getItem(1);
-        if (isArmor(stack)) stack.onHorseArmorTick(this.level(), this);
+        if (isArmor(stack)) stack.onHorseArmorTick(this.level, this);
     }
 
     public void aiStep() {
@@ -1215,10 +1214,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
             this.entityData.set(PREGNANT_SINCE, 0);
         }
 
-        if (this.getGenome().isHomozygous(Gene.leopard, HorseAlleles.LEOPARD) && !this.level().isClientSide()) {
+        if (this.getGenome().isHomozygous(Gene.leopard, HorseAlleles.LEOPARD) && !this.level.isClientSide()) {
             AttributeInstance speedAttribute = this.getAttribute(Attributes.MOVEMENT_SPEED);
             AttributeInstance jumpAttribute = this.getAttribute(Attributes.JUMP_STRENGTH);
-            float brightness = this.level().getMaxLocalRawBrightness(this.getOnPos());
+            float brightness = this.level.getMaxLocalRawBrightness(this.getOnPos());
             if (brightness > 0.5f) {
                 if (speedAttribute.getModifier(CSNB_SPEED_UUID) != null) {
                     speedAttribute.removeModifier(CSNB_SPEED_MODIFIER);
@@ -1265,7 +1264,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     @Override
     // Overriden so passenger position while rearing depends on the horse's size,
     // also to support multiple passengers.
-    public void positionRider(Entity passenger, Entity.MoveFunction moveFunction) {
+    public void positionRider(Entity passenger) {
         if (!this.hasPassenger(passenger)) {
             return;
         }
@@ -1313,12 +1312,11 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                 ((LivingEntity)passenger).yBodyRot = this.yBodyRot;
             }
         }
-
         // Here boats use this.yRot, but we use this.yBodyRot,
         // because this.yRot doesn't change when the unsaddled horse moves around
         Vec3 vector3d = new Vec3((double)xzOffset, 0.0D, 0.0D);
         vector3d = vector3d.yRot(-this.yBodyRot * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
-        moveFunction.accept(passenger, this.getX() + vector3d.x, this.getY() + yOffset, this.getZ() + vector3d.z);
+        passenger.setPos(this.getX() + vector3d.x, this.getY() + yOffset, this.getZ() + vector3d.z);
         if (!(passenger instanceof Player)) {
             passenger.setYBodyRot(this.yBodyRot);
             passenger.setYRot(this.yBodyRot);
@@ -1405,7 +1403,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     protected void randomizeAttributes(RandomSource rand) {
         // Set stats for vanilla-like breeding
         if (!HorseConfig.GENETICS.useGeneticStats.get()) {
-            float maxHealth = this.generateMaxHealth(rand::nextInt) + this.getGenome().getBaseHealth();
+            float maxHealth = generateRandomMaxHealth(rand) + getGenome().getBaseHealth();
             this.getAttribute(Attributes.MAX_HEALTH).setBaseValue((double)maxHealth);
         }
     }

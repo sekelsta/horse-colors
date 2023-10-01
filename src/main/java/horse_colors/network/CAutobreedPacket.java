@@ -38,7 +38,7 @@ public class CAutobreedPacket {
 
         // Enqueue anything that needs to be thread-safe
         context.get().enqueueWork(() -> {
-            Entity entity = sender.level().getEntity(packet.entityID);
+            Entity entity = sender.level.getEntity(packet.entityID);
             ((AbstractHorseGenetic)entity).setAutobreedable(packet.allowed);
         });
         context.get().setPacketHandled(true);

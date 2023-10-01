@@ -58,7 +58,7 @@ public class StayWithHerd extends Goal {
             lastSearchTick = horse.tickCount + horse.getRandom().nextInt(8);
             double horizontalSearch = 4 + 16 * age;
             double verticalSearch = 4 + 8 * age;
-            List<AbstractHorse> equines = horse.level().getEntitiesOfClass(AbstractHorse.class, horse.getBoundingBox().inflate(horizontalSearch, verticalSearch, horizontalSearch));
+            List<AbstractHorse> equines = horse.level.getEntitiesOfClass(AbstractHorse.class, horse.getBoundingBox().inflate(horizontalSearch, verticalSearch, horizontalSearch));
             target = getBestTarget(equines.stream().filter((h) -> h != horse).toList());
         }
         return canContinueToUse();
