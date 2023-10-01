@@ -22,6 +22,9 @@ public interface IGeneticEntity<T extends Enum<T>> {
     boolean isMale();
     void setMale(boolean gender);
 
+    boolean isFertile();
+    void setFertile(boolean fertile);
+
     int getRebreedTicks();
 
     int getBirthAge();

@@ -97,8 +97,13 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
     }
 
     @Override
-    protected boolean canParent() {
+    public boolean isFertile() {
         return false;
+    }
+
+    @Override
+    public void setFertile(boolean fertile) {
+        // Pass
     }
 
     @Override

@@ -89,6 +89,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     protected static final EntityDataAccessor<Integer> HORSE_RANDOM = SynchedEntityData.<Integer>defineId(AbstractHorseGenetic.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<Integer> DISPLAY_AGE = SynchedEntityData.<Integer>defineId(AbstractHorseGenetic.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<Boolean> GENDER = SynchedEntityData.<Boolean>defineId(AbstractHorseGenetic.class, EntityDataSerializers.BOOLEAN);
+    protected static final EntityDataAccessor<Boolean> FERTILE = SynchedEntityData.<Boolean>defineId(AbstractHorseGenetic.class, EntityDataSerializers.BOOLEAN);
     protected static final EntityDataAccessor<Integer> PREGNANT_SINCE = SynchedEntityData.<Integer>defineId(AbstractHorseGenetic.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<Float> MOTHER_SIZE = SynchedEntityData.<Float>defineId(AbstractHorseGenetic.class, EntityDataSerializers.FLOAT);
     protected int trueAge;
@@ -160,6 +161,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         this.entityData.define(HORSE_RANDOM, 0);
         this.entityData.define(DISPLAY_AGE, 0);
         this.entityData.define(GENDER, false);
+        this.entityData.define(FERTILE, true);
         this.entityData.define(PREGNANT_SINCE, -1);
         this.entityData.define(MOTHER_SIZE, 1f);
     }
@@ -182,6 +184,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         compound.putInt("Random", this.getSeed());
         compound.putInt("true_age", this.trueAge);
         compound.putBoolean("gender", this.isMale());
+        compound.putBoolean("fertile", this.isFertile());
         compound.putInt("pregnant_since", this.getPregnancyStart());
         if (this.unbornChildren != null) {
             ListTag unbornChildrenTag = new ListTag();
@@ -221,6 +224,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         }
 
         this.updatePersistentData();
+
+        if (getSpecies() == Species.MULE || getSpecies() == Species.HINNY) {
+            setFertile(false);
+        }
 
         if (compound.contains("ArmorItem", 10)) {
             ItemStack itemstack = ItemStack.of(compound.getCompound("ArmorItem"));
@@ -282,6 +289,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         }
         else {
             this.setMale(this.random.nextBoolean());
+        }
+        if (compound.contains("fertile")) {
+            this.setFertile(compound.getBoolean("fertile"));
         }
 
         int pregnantSince = -1;
@@ -474,6 +484,30 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
             this.entityData.set(PREGNANT_SINCE, -1);
         }
         this.entityData.set(GENDER, gender);
+    }
+
+    public boolean isFertile() {
+        return ((Boolean)this.entityData.get(FERTILE)).booleanValue();
+    }
+
+    public void setFertile(boolean fertile) {
+        if (isPregnant()) {
+            fertile = true;
+        }
+        this.entityData.set(FERTILE, fertile);
+    }
+
+    @Override
+    protected boolean canParent() {
+        return super.canParent() && isFertile();
+    }
+
+    @Override
+    public void setInLove(Player loveCause) {
+        if (!isFertile()) {
+            return;
+        }
+        super.setInLove(loveCause);
     }
 
     public boolean isPregnant() {
@@ -1125,7 +1159,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         }
         // Stallion
         if (this.isMale()) {
-            return Component.translatable(s + "male");
+            return Component.translatable(s + (this.isFertile() ? "male" : "neuter"));
         }
         // Mare
         return Component.translatable(s + "female");

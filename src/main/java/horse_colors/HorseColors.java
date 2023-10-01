@@ -54,6 +54,7 @@ public class HorseColors
     public void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(ModEntities::registerSpawnPlacements);
         event.enqueueWork(ModItems::registerDispenseBehaviour);
+        event.enqueueWork(ModItems::registerPotionRecipes);
     }
 
     public static void registerDeferredRegistries(IEventBus modBus) {

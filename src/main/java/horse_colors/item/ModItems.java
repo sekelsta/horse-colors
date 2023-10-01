@@ -10,6 +10,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -28,8 +29,14 @@ public class ModItems {
     public static final RegistryObject<GeneBookItem> geneBookItem = ITEM_DEFERRED.register("gene_book", 
         () -> new GeneBookItem((new Item.Properties()).stacksTo(1))
     );
-    public static final RegistryObject<GenderChangeItem> genderChangeItem = ITEM_DEFERRED.register("gender_change_item",
+    public static final RegistryObject<GenderChangeItem> genderChangePotion = ITEM_DEFERRED.register("gender_change_item",
         () -> new GenderChangeItem((new Item.Properties()).stacksTo(64))
+    );
+    public static final RegistryObject<FertilityPotion> fertilityPotion = ITEM_DEFERRED.register("fertility_potion",
+        () -> new FertilityPotion((new Item.Properties()).stacksTo(64), true)
+    );
+    public static final RegistryObject<FertilityPotion> infertilityPotion = ITEM_DEFERRED.register("infertility_potion",
+        () -> new FertilityPotion((new Item.Properties()).stacksTo(64), false)
     );
     public static final RegistryObject<CompatibleHorseArmor> netheriteHorseArmor = ITEM_DEFERRED.register("netherite_horse_armor", 
         () -> new CompatibleHorseArmor(13, "netherite", (new Item.Properties()).stacksTo(1).fireResistant())
@@ -59,10 +66,16 @@ public class ModItems {
         DispenserBlock.registerBehavior(netheriteHorseArmor.get(), dispenseHorseArmor);
     }
 
+    public static void registerPotionRecipes() {
+        BrewingRecipeRegistry.addRecipe(new InfertilityPotionBrewingRecipe());
+    }
+
     public static void addToCreativeTab(BuildCreativeModeTabContentsEvent event) {
         // Skip gene book item
         if (event.getTabKey().equals(CreativeModeTabs.TOOLS_AND_UTILITIES)) {
-            event.accept(genderChangeItem);
+            event.accept(genderChangePotion);
+            event.accept(fertilityPotion);
+            event.accept(infertilityPotion);
         }
         else if (event.getTabKey().equals(CreativeModeTabs.COMBAT)) {
             event.accept(netheriteHorseArmor);

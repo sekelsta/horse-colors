@@ -58,6 +58,16 @@ public class FakeGeneticEntity implements IGeneticEntity {
     }
 
     @Override
+    public boolean isFertile() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setFertile(boolean fertile) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public int getRebreedTicks() {
         return 0;
     }
