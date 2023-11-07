@@ -421,6 +421,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorseEntity im
             || MOTHER_SIZE.equals(key)) {
             this.refreshDimensions();
         }
+        else if (DISPLAY_AGE.equals(key)) {
+            this.getGenome().resetTexture();
+        }
 
         super.onSyncedDataUpdated(key);
     }

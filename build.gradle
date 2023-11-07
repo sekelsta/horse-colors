@@ -4,7 +4,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '6+', changing: true
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
@@ -12,9 +12,9 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.16.5-1.6.1.1'
+version = '1.16.5-6.1.2'
 group = 'com.sekelsta.horse_colors' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'horse_colors'
+archivesBaseName = 'realistic_horse_genetics'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8) // Mojang ships Java 8 to end users, so your mod should target Java 8.
 
