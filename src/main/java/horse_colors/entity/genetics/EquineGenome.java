@@ -183,9 +183,6 @@ public class EquineGenome extends Genome {
 
     public static final double MINIATURE_CUTOFF = 317.5;
 
-    // For converting to and from the save format used in horse_colors-1.4.x and earlier
-    private static final ImmutableList<String> chromosomes = ImmutableList.of("0", "1", "2", "3", "speed", "jump", "health", "mhc1", "mhc2", "immune", "random", "4");
-
     public EquineGenome(Species species, IGeneticEntity entityIn) {
         super(species, entityIn, new RandomSupplier(ImmutableList.of("leg_white",
                 "face_white", "star_choice", "roan_density", "liver_darkness", 
@@ -251,14 +248,11 @@ public class EquineGenome extends Genome {
 
     public boolean isDoubleCream() {
         return this.isHomozygous(Gene.cream, HorseAlleles.CREAM) 
-            || this.isHomozygous(Gene.cream, HorseAlleles.SNOWDROP)
-            || (this.hasAllele(Gene.cream, HorseAlleles.CREAM)
-                && this.hasAllele(Gene.cream, HorseAlleles.SNOWDROP));
+            || this.isHomozygous(Gene.cream, HorseAlleles.SNOWDROP);
     }
 
     public boolean isCreamPearl() {
-        return (this.hasAllele(Gene.cream, HorseAlleles.CREAM)
-                || this.hasAllele(Gene.cream, HorseAlleles.SNOWDROP))
+        return this.hasAllele(Gene.cream, HorseAlleles.CREAM)
             && this.hasAllele(Gene.cream, HorseAlleles.PEARL);
     }
 
