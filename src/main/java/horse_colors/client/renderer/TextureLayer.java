@@ -182,7 +182,7 @@ public class TextureLayer {
                 float r = imgR * imgA + baseR * (1 - imgA);
                 float g = imgG * imgA + baseG * (1 - imgA);
                 float b = imgB * imgA + baseB * (1 - imgA);
-                float a = imgA * imgA + baseA * (1 - imgA);
+                float a = baseA + (imgA * (1 - baseA));
 
                 setRGBA(base, base_x, base_y, r, g, b, a);
             }
