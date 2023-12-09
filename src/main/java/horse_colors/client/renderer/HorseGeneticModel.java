@@ -472,7 +472,7 @@ public class HorseGeneticModel<T extends AbstractHorse> extends AgeableListModel
         this.rightChest.visible = hasChest;
 
         boolean isSaddled = entityIn.isSaddled();
-        boolean showReins = entityIn.isControlledByLocalInstance();
+        boolean showReins = entityIn.getControllingPassenger() != null;
 
         for(ModelPart tack_piece : this.tackArray) {
             tack_piece.visible = isSaddled;
