@@ -27,6 +27,7 @@ public class HorseGeneticRenderer extends MobRenderer<AbstractHorseGenetic, Hors
     public HorseGeneticRenderer(EntityRendererProvider.Context renderManager)
     {
         super(renderManager, new HorseGeneticModel<AbstractHorseGenetic>(renderManager.bakeLayer(EQUINE_LAYER)), 0.75F);
+        this.addLayer(new HorseSaddleLayer(this, renderManager.getModelSet()));
         this.addLayer(new HorseArmorLayer(this, renderManager.getModelSet()));
     }
 
