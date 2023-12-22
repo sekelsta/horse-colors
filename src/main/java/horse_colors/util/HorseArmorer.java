@@ -9,6 +9,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import sekelsta.horse_colors.HorseColors;
+import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 import sekelsta.horse_colors.entity.genetics.HorseColorCalculator;
 import sekelsta.horse_colors.item.CompatibleHorseArmor;
 
@@ -43,5 +44,23 @@ public class HorseArmorer
             }
         }
         return null;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static ResourceLocation getSaddleTexture(AbstractHorseGenetic horse) {
+        if (!horse.isSaddled()) {
+            return null;
+        }
+        return new ResourceLocation(HorseColorCalculator.fixPath("saddle"));
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static int getSaddleTint(AbstractHorseGenetic horse) {
+        return 0xffffff;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static boolean isSaddleEnchanted(AbstractHorseGenetic horse) {
+        return false;
     }
 }
