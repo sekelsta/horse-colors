@@ -38,13 +38,6 @@ public class HorseConfig
                     .translation("horse_colors.config.common.enableGroundTie")
                     .define("enableGroundTie", false);
 
-            horseDebugInfo = builder
-                    .comment("If enabled, debugging information will appear on the screen when the",
-            "player is holding a stick in their left hand and looks at a horse.",
-            "For most users, it is probably better to leave this as false.")
-                    .translation("horse_colors.config.common.horseDebugInfo")
-                    .define("horseDebugInfo", false);
-
             spookyHorses = builder
                     .comment("If enabled, horses will be spooked by monsters and throw their rider.")
                     .define("spookyHorses", false);

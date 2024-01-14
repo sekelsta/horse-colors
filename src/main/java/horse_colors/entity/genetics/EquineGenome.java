@@ -32,9 +32,7 @@ public class EquineGenome extends Genome {
         sooty1,       // 0 for non-sooty, 1 for sooty
         sooty2,       // same as above
         sooty3,       // 0 for sooty, 1 for non-sooty
-        // I'm treating this as the agouti promoter region responsible for 
-        // white bellied agouti in mice
-        light_belly,
+        light_belly,  // Assuming same agouti promoter region as in white bellied agouti mice
         mealy1,
         mealy2,
         KIT,
@@ -224,15 +222,6 @@ public class EquineGenome extends Genome {
         return linkages;
     }
 
-    public void printGeneData() {
-        String g = entity.getGeneData();
-        String gene_debug = "";
-        for (int i = 0; i < g.length(); ++i) {
-            gene_debug += (short)g.charAt(i) + " ";
-        }
-        System.out.println(gene_debug);
-    }
-
     public boolean isChestnut()
     {
         return this.isHomozygous(Gene.extension, HorseAlleles.E_RED);
@@ -360,11 +349,7 @@ public class EquineGenome extends Genome {
         white += 2 * countAlleles(Gene.KIT, HorseAlleles.KIT_MARKINGS1);
         white += 2 * countAlleles(Gene.white_forelegs, 1);
         white += 2 * countAlleles(Gene.white_hindlegs, 1);
-        white += 2 * countAlleles(Gene.KIT, HorseAlleles.KIT_WHITE_BOOST);
-
-        if (hasMC1RWhiteBoost()) {
-            white += 8;
-        }
+        white += 1 * countAlleles(Gene.KIT, HorseAlleles.KIT_WHITE_BOOST);
 
         if (this.species == Species.DONKEY) {
             white -= 10;
@@ -381,6 +366,9 @@ public class EquineGenome extends Genome {
         boost += 2 * countW20();
         boost += 0.5 * countAlleles(Gene.KIT, HorseAlleles.KIT_W5);
         boost += 0.5 * countAlleles(Gene.KIT, HorseAlleles.KIT_WHITE_BOOST);
+        if (hasMC1RWhiteBoost()) {
+            boost += 0.5;
+        }
 
         white += boost;
         if (white > 0) {

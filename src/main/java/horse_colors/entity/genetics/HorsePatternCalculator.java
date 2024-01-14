@@ -13,7 +13,7 @@ public class HorsePatternCalculator {
         return white <= 60;
     }
 
-    private static int getSplashFactor(EquineGenome horse) {
+    public static int getSplashFactor(EquineGenome horse) {
         int white = -2;
 
         if (horse.species == Species.DONKEY) {
@@ -25,21 +25,21 @@ public class HorsePatternCalculator {
             white -= 4;
         }
 
-        white += 6 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW1);
-        white += 9 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW3);
-        white += 8 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW5);
+        white += 5 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW1);
+        white += 8 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW3);
+        white += 7 * horse.countAlleles(Gene.MITF, HorseAlleles.MITF_SW5);
 
-        white += 7 * horse.countAlleles(Gene.PAX3, HorseAlleles.PAX3_SW2);
-        white += 8 * horse.countAlleles(Gene.PAX3, HorseAlleles.PAX3_SW4);
+        white += 6 * horse.countAlleles(Gene.PAX3, HorseAlleles.PAX3_SW2);
+        white += 7 * horse.countAlleles(Gene.PAX3, HorseAlleles.PAX3_SW4);
 
-        white += 3 * horse.countAlleles(Gene.white_star, 1);
+        white += 2 * horse.countAlleles(Gene.white_star, 1);
 
         if (horse.hasMC1RWhiteBoost()) {
             white += 1;
         }
 
         if (white > 0) {
-            white = (int)Math.pow(white, 1.5);
+            white = (int)Math.round(Math.pow(white, 1.25));
         }
 
         return white;
@@ -52,29 +52,28 @@ public class HorsePatternCalculator {
 
         int random = horse.getRandom("face_white") >>> 1;
 
-        white += random & 3;
+        white += Math.min(2 * white, random & 7 - 4);
 
         if (white <= 0) {
             return;
         }
-        int face_marking = white / 5;
 
         TextureLayer layer = new TextureLayer();
 
         String marking = null;
-        if (white < 5) {
+        if (white < 10) {
             marking = "star";
         }
-        else if (white < 8) {
+        else if (white < 16) {
             marking = "lightning";
         }
-        else if (white < 10) {
+        else if (white < 20) {
             marking = "star2";
         }
-        else if (white < 15) {
+        else if (white < 30) {
             marking = "strip";
         }
-        else if (white >= 25 && splash >= 5) {
+        else if (white >= 50 && splash >= 5) {
             marking = "broad_blaze";
         }
         else {
@@ -88,30 +87,25 @@ public class HorsePatternCalculator {
     public static void addLegMarkings(EquineGenome horse, List<TextureLayer> textureLayers)
     {
         String[] legs = new String[4];
-
-        // Turn a signed integer into unsigned, also drop a few bits 
-        // used elsewhere
         int random = horse.getRandom("leg_white");
-        random = random >>> 1;
-
-        int base_white = horse.getSabinoFactor() / 4 + getSplashFactor(horse) / 3;
-
+        int base_white = horse.getSabinoFactor() / 4 + getSplashFactor(horse) / 6;
         for (int i = 0; i < 4; ++i) {
             int w = base_white;
-            w += random & 7 - 3;
-            random = random >>> 3;
             if (i < 2) {
                 w += horse.countAlleles(Gene.white_forelegs, 1);
             }
             else {
                 w += horse.countAlleles(Gene.white_hindlegs, 1);
             }
+            int r = random & 7 - 4;
+            random = random >>> 3;
+            w += Math.min(r, 2 * w);
 
-            if (w < 0) {
+            if (w < 1) {
                 legs[i] = null;
             }
             else {
-                legs[i] = HorseColorCalculator.fixPath("socks/" + String.valueOf(i) + "_" + String.valueOf(Math.min(7, w)));
+                legs[i] = HorseColorCalculator.fixPath("socks/" + String.valueOf(i) + "_" + String.valueOf(Math.min(7, w - 1)));
             }
         }
 
