@@ -50,9 +50,11 @@ public class HorsePatternCalculator {
         int splash = getSplashFactor(horse);
         int white = 2 * splash + horse.getSabinoFactor();
 
-        int random = horse.getRandom("face_white") >>> 1;
+        int random = horse.getRandom("face_white");
 
         white += Math.min(2 * white, random & 7 - 4);
+        random = random >>> 3;
+        String symmetry = (random & 1) == 0 ? "_l" : "_r";
 
         if (white <= 0) {
             return;
@@ -65,15 +67,21 @@ public class HorsePatternCalculator {
             marking = "star";
         }
         else if (white < 16) {
-            marking = "lightning";
+            marking = "lightning" + symmetry;
         }
         else if (white < 20) {
-            marking = "star2";
+            marking = "star2" + symmetry;
+        }
+        else if (white < 30 && splash >= 5) {
+            marking = "star3";
         }
         else if (white < 30) {
             marking = "strip";
         }
-        else if (white >= 50 && splash >= 5) {
+        else if (white < 50 && splash >= 7) {
+            marking = "star_snip" + symmetry;
+        }
+        else if (white >= 50 && splash >= 7) {
             marking = "broad_blaze";
         }
         else {
