@@ -37,6 +37,7 @@
     "horse_colors.book.genetic_color": "Genetic tests (colour)",
     "horse_colors.book.genetic_size": "Genetic tests (size)",
     "horse_colors.book.size_disclaimer": "Many unknown genes also affect size.",
+    "horse_colors.book.gray_recommendation": "Avoid breeding to another grey horse, as the offspring may have mild health issues.",
     "horse_colors.gender_change_item.gender_disabled_warning": "This will have no effect unless gender is enabled in the configuration",
     "horse_colors.genes.gray.name": "Grey",
     "horse_colors.stats.health": "Health",

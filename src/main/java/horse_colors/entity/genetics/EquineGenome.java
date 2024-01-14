@@ -1053,6 +1053,26 @@ public class EquineGenome extends Genome {
         if (!test_results.isEmpty()) {
             contents.add(test_results);
         }
+        ArrayList<String> breeding_recommendations = new ArrayList<>();
+        breeding_recommendations.add(Util.translate("book.breeding_recommendations") + ":");
+        if (hasAllele(Gene.frame, HorseAlleles.FRAME)) {
+            breeding_recommendations.add(Util.translate("book.frame_recommendation"));
+        }
+        if (HorseConfig.GENETICS.enableHealthEffects.get()) {
+            // Skip warning about splashed white and deafness
+            if (hasAllele(Gene.silver, HorseAlleles.SILVER)) {
+                breeding_recommendations.add(Util.translate("book.silver_recommendation"));
+            }
+            if (hasAllele(Gene.leopard, HorseAlleles.LEOPARD)) {
+                breeding_recommendations.add(Util.translate("book.leopard_recommendation"));
+            }
+            if (hasAllele(Gene.gray, HorseAlleles.GRAY)) {
+                breeding_recommendations.add(Util.translate("book.gray_recommendation"));
+            }
+        }
+        if (breeding_recommendations.size() > 1) {
+            contents.add(breeding_recommendations);
+        }
         return contents;
     }
 
