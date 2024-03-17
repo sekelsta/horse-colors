@@ -1120,19 +1120,15 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         Vec3 vector3d = new Vec3((double)xzOffset, 0.0D, 0.0D);
         vector3d = vector3d.yRot(-this.yBodyRot * ((float)Math.PI / 180F) - ((float)Math.PI / 2F));
         moveFunction.accept(passenger, this.getX() + vector3d.x, this.getY() + yOffset, this.getZ() + vector3d.z);
-        this.applyYaw(passenger);
+        if (!(passenger instanceof Player)) {
+            passenger.setYBodyRot(this.yBodyRot);
+            passenger.setYRot(this.yBodyRot);
+            passenger.setYHeadRot(this.yBodyRot);
+        }
         if (passenger instanceof Animal && this.getPassengers().size() > 1) {
             int degrees = passenger.getId() % 2 == 0 ? 90 : 270;
             passenger.setYBodyRot(((Animal)passenger).yBodyRot + (float)degrees);
             passenger.setYHeadRot(passenger.getYHeadRot() + (float)degrees);
-        }
-    }
-
-    private void applyYaw(Entity entity) {
-        if (!(entity instanceof Player)) {
-            entity.setYBodyRot(this.yBodyRot);
-            entity.setYRot(this.yBodyRot);
-            entity.setYHeadRot(this.yBodyRot);
         }
     }
 
