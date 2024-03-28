@@ -50,7 +50,9 @@ public class TextureLayerGroup extends TextureLayer {
     public NativeImage getLayer(ResourceManager manager) {
         Iterator<TextureLayer> iterator = this.layers.iterator();
         TextureLayer baselayer = iterator.next();
-        NativeImage baseimage = baselayer.getLayer(manager);
+        NativeImage sourceImage = baselayer.getLayer(manager);
+        NativeImage baseimage = new NativeImage(sourceImage.format(), sourceImage.getWidth(), sourceImage.getHeight(), false);
+        baseimage.copyFrom(sourceImage);
         if (baseimage == null) {
             // baselayer.getLayer() will already have logged an error
             return null;

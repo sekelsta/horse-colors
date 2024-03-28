@@ -18,7 +18,7 @@ import com.mojang.blaze3d.platform.NativeImage;
 public class TextureLayer {
     protected static final Logger LOGGER = LogManager.getLogger();
 
-    private static final HashMap<ResourceLocation, NativeImage> loadedImages = new HashMap<>();
+    private static final HashMap<String, NativeImage> loadedImages = new HashMap<>();
 
     public String name;
     public Type type;
@@ -67,19 +67,18 @@ public class TextureLayer {
             LOGGER.error("Attempting to load unspecified texture (name is null): " + this.toString());
             return null;
         }
-        ResourceLocation resourceLocation = new ResourceLocation(this.name);
-        NativeImage loadedImage = loadedImages.get(resourceLocation);
-        if (loadedImage != null) {
-            return loadedImage;
+        if (!loadedImages.containsKey(name)) {
+            try {
+                ResourceLocation resourceLocation = new ResourceLocation(this.name);
+                Resource resource = manager.getResource(resourceLocation).orElseThrow();
+                loadedImages.put(name, NativeImage.read(resource.open()));
+            } catch (IOException ioexception) {
+                LOGGER.error("Couldn't load layered image", (Throwable)ioexception);
+                LOGGER.error("Skipping layer " + this.toString());
+                return null;
+            }
         }
-        try {
-            Resource resource = manager.getResource(resourceLocation).orElseThrow();
-            return NativeImage.read(resource.open());
-        } catch (IOException ioexception) {
-            LOGGER.error("Couldn't load layered image", (Throwable)ioexception);
-        }
-        LOGGER.error("Skipping layer " + this.toString());
-        return null;
+        return loadedImages.get(name);
     }
 
     public void combineLayers(NativeImage base, NativeImage image) {
