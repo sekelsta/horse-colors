@@ -6,16 +6,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.renderer.texture.*;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 import sekelsta.horse_colors.util.Color;
 
-import com.mojang.blaze3d.platform.NativeImage;
-
 public class TextureLayerGroup extends TextureLayer {
     public List<TextureLayer> layers;
-    boolean isColored = false;
     
     public TextureLayerGroup() {
         this.layers = new ArrayList<>();
@@ -30,73 +28,61 @@ public class TextureLayerGroup extends TextureLayer {
         if (o == this) {
             return true;
         }
+        if (!(o instanceof TextureLayerGroup)) {
+            return false;
+        }
         if (super.equals(o)) {
             TextureLayerGroup other = (TextureLayerGroup)o;
-            return other.layers.equals(this.layers) && (other.isColored == this.isColored);
+            return other.layers.equals(this.layers);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), layers, isColored);
+        return Objects.hash(super.hashCode(), layers.hashCode());
     }
 
     public void add(TextureLayer layer) {
         layers.add(layer);
     }
 
-    @Override
-    public NativeImage getLayer(ResourceManager manager) {
-        Iterator<TextureLayer> iterator = this.layers.iterator();
-        TextureLayer baselayer = iterator.next();
-        NativeImage sourceImage = baselayer.getLayer(manager);
-        NativeImage baseimage = new NativeImage(sourceImage.format(), sourceImage.getWidth(), sourceImage.getHeight(), false);
-        baseimage.copyFrom(sourceImage);
+    protected NativeImage getUncoloredImage(ResourceManager manager) {
+        TextureLayer baselayer = layers.get(0);
+        NativeImage baseimage = baselayer.getImage(manager);
         if (baseimage == null) {
             // baselayer.getLayer() will already have logged an error
             return null;
         }
-        baselayer.colorLayer(baseimage);
 
-        while(iterator.hasNext()) {
-            TextureLayer layer = iterator.next();
+        for (int i = 1; i < layers.size(); ++i) {
+            TextureLayer layer = layers.get(i);
             if (layer == null) {
                 continue;
             }
-            NativeImage image = layer.getLayer(manager);
-            if (image != null) {
-                try {
-                    layer.combineLayers(baseimage, image);
-                }
-                catch (Exception e) {
-                    throw new RuntimeException("Unable to combine images adding layer "
-                                                 + layer + " for " + this, e);
-                }
+            try {
+                layer.apply(baseimage, manager);
+            }
+            catch (Exception e) {
+                throw new RuntimeException("Unable to combine images adding layer "
+                                             + layer + " for " + this, e);
             }
         }
-
-        this.colorLayer(baseimage);
-        // Mark colored to avoid a double multiply
-        this.isColored = true;
 
         return baseimage;
     }
 
-    // Override to use the isColored field
     @Override
-    public void combineLayers(NativeImage base, NativeImage image) {
-        if (this.isColored) {
-            // Temporarily set the color to white to avoid multiplying, but
-            // also set it back at the end so that reloading textures does not
-            // turn all layergroups white.
-            Color temp = this.color;
-            this.color = new Color();
-            super.combineLayers(base, image);
-            this.color = temp;
-        }
-        else {
-            super.combineLayers(base, image);
+    public NativeImage getImage(ResourceManager manager) {
+        NativeImage baseimage = getUncoloredImage(manager);
+        colorLayer(baseimage);
+        return baseimage;
+    }
+
+    @Override
+    public void apply(NativeImage base, ResourceManager manager) {
+        try (NativeImage image = getUncoloredImage(manager)) {
+            combineLayers(base, image);
         }
     }
 
