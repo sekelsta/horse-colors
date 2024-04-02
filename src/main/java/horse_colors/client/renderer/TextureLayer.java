@@ -5,19 +5,16 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.renderer.texture.*;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.resources.ResourceLocation;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.util.Color;
 
-import com.mojang.blaze3d.platform.NativeImage;
 
 public class TextureLayer {
-    protected static final Logger LOGGER = LogManager.getLogger();
-
     private static final HashMap<String, NativeImage> loadedImages = new HashMap<>();
 
     public String name;
@@ -62,9 +59,9 @@ public class TextureLayer {
         return Objects.hash(name, type, color);
     }
 
-    public NativeImage getLayer(ResourceManager manager) {
+    private NativeImage getSource(ResourceManager manager) {
         if (this.name == null) {
-            LOGGER.error("Attempting to load unspecified texture (name is null): " + this.toString());
+            HorseColors.logger.error("Attempting to load unspecified texture (name is null): " + this.toString());
             return null;
         }
         if (!loadedImages.containsKey(name)) {
@@ -73,15 +70,28 @@ public class TextureLayer {
                 Resource resource = manager.getResource(resourceLocation).orElseThrow();
                 loadedImages.put(name, NativeImage.read(resource.open()));
             } catch (IOException ioexception) {
-                LOGGER.error("Couldn't load layered image", (Throwable)ioexception);
-                LOGGER.error("Skipping layer " + this.toString());
+                HorseColors.logger.error("Couldn't load layered image", (Throwable)ioexception);
+                HorseColors.logger.error("Skipping layer " + this.toString());
                 return null;
             }
         }
         return loadedImages.get(name);
     }
 
-    public void combineLayers(NativeImage base, NativeImage image) {
+    public NativeImage getImage(ResourceManager manager) {
+        NativeImage source = getSource(manager);
+        NativeImage base = new NativeImage(source.format(), source.getWidth(), source.getHeight(), false);
+        base.copyFrom(source);
+        colorLayer(base);
+        return base;
+    }
+
+    public void apply(NativeImage base, ResourceManager manager) {
+        NativeImage image = getSource(manager);
+        combineLayers(base, image);
+    }
+
+    protected void combineLayers(NativeImage base, NativeImage image) {
         switch(this.type) {
             case NORMAL:
                 blendLayer(base, image);
@@ -107,25 +117,25 @@ public class TextureLayer {
         }
     }
 
-    private float getRedAsFloat(NativeImage image, int x, int y) {
+    private static float getRedAsFloat(NativeImage image, int x, int y) {
         byte b = image.getRedOrLuminance(x, y);
         int i = (int)b & 255;
         return i / 255f;
     }
 
-    private float getGreenAsFloat(NativeImage image, int x, int y) {
+    private static float getGreenAsFloat(NativeImage image, int x, int y) {
         byte b = image.getGreenOrLuminance(x, y);
         int i = (int)b & 255;
         return i / 255f;
     }
 
-    private float getBlueAsFloat(NativeImage image, int x, int y) {
+    private static float getBlueAsFloat(NativeImage image, int x, int y) {
         byte b = image.getBlueOrLuminance(x, y);
         int i = (int)b & 255;
         return i / 255f;
     }
 
-    private float getAlphaAsFloat(NativeImage image, int x, int y) {
+    private static float getAlphaAsFloat(NativeImage image, int x, int y) {
         byte b = image.getLuminanceOrAlpha(x, y);
         int i = (int)b & 255;
         return i / 255f;
@@ -352,7 +362,7 @@ public class TextureLayer {
         }
     }
 
-    public void colorLayer(NativeImage image) {
+    protected void colorLayer(NativeImage image) {
         for(int y = 0; y < image.getHeight(); ++y) {
             for(int x = 0; x < image.getWidth(); ++x) {
                 float imgR = getMultipliedRedAsFloat(image, x, y);

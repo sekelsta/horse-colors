@@ -24,7 +24,7 @@ public class CustomLayeredTexture extends AbstractTexture {
 
     @Override
     public void load(ResourceManager manager) throws IOException {
-        NativeImage image = layerGroup.getLayer(manager);
+        NativeImage image = layerGroup.getImage(manager);
 
         if (!RenderSystem.isOnRenderThreadOrInit()) {
             RenderSystem.recordRenderCall(() -> {
