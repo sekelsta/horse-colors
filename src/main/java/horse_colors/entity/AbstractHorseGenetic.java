@@ -84,6 +84,8 @@ import sekelsta.horse_colors.util.Util;
 
 public abstract class AbstractHorseGenetic extends AbstractChestedHorse implements IGeneticEntity<Gene> {
     protected EquineGenome genes = new EquineGenome(this.getSpecies(), this);
+    protected UUID motherUUID = null;
+    protected UUID fatherUUID = null;
     protected static final EntityDataAccessor<String> GENES = SynchedEntityData.<String>defineId(AbstractHorseGenetic.class, EntityDataSerializers.STRING);
 
     protected static final EntityDataAccessor<Integer> HORSE_RANDOM = SynchedEntityData.<Integer>defineId(AbstractHorseGenetic.class, EntityDataSerializers.INT);
@@ -146,7 +148,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
             this.goalSelector.addGoal(1, new SpookGoal(this, Monster.class, 8.0F, 1.5, 1.5));
         }
         this.goalSelector.addGoal(2, new BreedGoal(this, 1.0D, AbstractHorse.class));
-        this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.0D));
+        this.goalSelector.addGoal(4, new FollowMother(this, 1.0D));
         this.goalSelector.addGoal(6, new RandomWalkGroundTie(this, 0.7D));
         this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
@@ -192,17 +194,35 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                 CompoundTag childNBT = new CompoundTag();
                 childNBT.putString("species", child.getSpecies().toString());
                 childNBT.putString("genes", child.getGenome().genesToString());
+                if (child.motherUUID != null) {
+                    childNBT.putUUID("MotherUUID", child.motherUUID);
+                }
+                if (child.fatherUUID != null) {
+                    childNBT.putUUID("FatherUUID", child.fatherUUID);
+                }
                 unbornChildrenTag.add(childNBT);
             }
             compound.put("unborn_children", unbornChildrenTag);
         }   
         compound.putFloat("mother_size", this.getMotherSize());
+        if (motherUUID != null) {
+            compound.putUUID("MotherUUID", this.motherUUID);
+        }
+        if (fatherUUID != null) {
+            compound.putUUID("FatherUUID", this.fatherUUID);
+        }
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound)
     {
         super.readAdditionalSaveData(compound);
+        if (compound.hasUUID("MotherUUID")) {
+            this.motherUUID = compound.getUUID("MotherUUID");
+        }
+        if (compound.hasUUID("FatherUUID")) {
+            this.fatherUUID = compound.getUUID("FatherUUID");
+        }
         // Read the main part of the data
         readGeneticData(compound);
         // Ensure the true age matches the age
@@ -327,6 +347,15 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                     if (child != null) {
                         EquineGenome genome = new EquineGenome(child.getSpecies(), child);
                         genome.genesFromString(childNBT.getString("genes"));
+                        if (childNBT.hasUUID("MotherUUID")) {
+                            child.motherUUID = childNBT.getUUID("MotherUUID");
+                        }
+                        else {
+                            child.motherUUID = this.uuid;
+                        }
+                        if (childNBT.hasUUID("FatherUUID")) {
+                            child.fatherUUID = childNBT.getUUID("FatherUUID");
+                        }
                         this.unbornChildren.add(child);
                     }
                 }
@@ -434,6 +463,14 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
             return getBirthAge();
         }
         return getDisplayAge();
+    }
+
+    public UUID getMotherUUID() {
+        return motherUUID;
+    }
+
+    public UUID getFatherUUID() {
+        return fatherUUID;
     }
 
     public void setGeneData(String genes) {
@@ -920,6 +957,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
             foal.setMale(this.random.nextBoolean());
             foal.useGeneticAttributes();
             foal.setAge(HorseConfig.GROWTH.getMinAge());
+            foal.motherUUID = this.uuid;
+            foal.fatherUUID = ageable.getUUID();
         }
         return child;
     }
