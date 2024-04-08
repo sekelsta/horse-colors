@@ -7,13 +7,16 @@ import net.minecraftforge.common.ForgeConfigSpec.EnumValue;
 import net.minecraftforge.common.ForgeConfigSpec.IntValue;
 import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.horse.*;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.*;
 
 public class HorseConfig
 {
+    private static Set<String> equineFoodsSet = null;
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     public static final Common COMMON = new Common(BUILDER);
     public static final Growth GROWTH = new Growth(BUILDER);
@@ -28,8 +31,24 @@ public class HorseConfig
         public static BooleanValue enableSizes;
         public static BooleanValue useGeneticAnimalsIcons;
         public static BooleanValue rideSmallEquines;
+        public static ConfigValue<ArrayList<String>> equineFoods;
 
         Common(final ForgeConfigSpec.Builder builder) {
+            ArrayList<String> DEFAULT_EQUINE_FOODS = new ArrayList<>(Arrays.asList("hay_block",  "wheat", "sugar", 
+                "carrot", "apple", "pumpkin", "carved_pumpkin", "melon_slice", "glistening_melon_slice", "grass", 
+                "tall_grass", "dandelion", "cornflower", "oxeye_daisy", "dried_kelp", "sugar_cane", "beetroot", 
+                "sweet_berries", "brown_mushroom", "bamboo", "honeycomb", "banana", "cherry", "coconut", 
+                "date", "dragonfruit", "fig", "grapefruit", "mango", "nectarine", "orange", "peach", "pear", "pecan", 
+                "persimmon", "plum", "walnut", "artichoke", "barley", "basil", "bellpepper", "blackberry", "blueberry", 
+                "broccoli", "cabbage", "cantalope", "cauliflower", "celery", "corn", "cranberry", "cucumber", "currant", 
+                "grape", "greenbean", "honeydew", "hops", "kale", "kiwi", "lettuce", "oat", "olive", "peanut", 
+                "pineapple", "radish", "raspberry", "rice", "rutabaga", "squash", "strawberry", "sweetpotato", 
+                "tea_leaves", "turnip", "zucchini", "molasses", "caramel", "raisins", "corn_husk", "rice_bale", 
+                "straw_bale", "straw", "blueberries", "okra", "mandarin", "pomelo", "yuzu", "sugar_cube", 
+                "timothy_bushel", "oat_bushel", "alfalfa_bushel", "timothy_bale", "timothy_bale_slab", "alfalfa_bale", 
+                "alfalfa_bale_slab", "oat_bale", "oat_bale_slab", "quality_bale", "quality_bale_slab", "scoop_sweet", 
+                "scoop_rose", "cabbage_leaf", "pumpkin_slice"));
+
             builder.comment("Common config settings")
                     .push("common");
 
@@ -54,6 +73,10 @@ public class HorseConfig
             rideSmallEquines = builder
                     .comment("Whether the player can ride horses that are realistically too small to carry an adult human")
                     .define("rideSmallEquines", false);
+
+            equineFoods = builder
+                    .comment("Foods that can be eaten by horses and donkeys to restore health, increase tameness, and speed foal growth.")
+                    .define("equineFoods", DEFAULT_EQUINE_FOODS);
 
             builder.pop();
         }
@@ -104,8 +127,15 @@ public class HorseConfig
         public static IntValue maleBreedingCooldown;
         public static IntValue femaleBreedingCooldown;
         public static IntValue pregnancyLength;
+        public static ConfigValue<ArrayList<String>> horseBreedingFoods;
+        public static ConfigValue<ArrayList<String>> donkeyBreedingFoods;
 
         public Breeding(final ForgeConfigSpec.Builder builder) {
+            ArrayList<String> DEFAULT_HORSE_BREEDABLE = new ArrayList<>(Arrays.asList("golden_carrot", 
+                "golden_apple", "enchanted_golden_apple", "hay_block"));
+            ArrayList<String> DEFAULT_DONKEY_BREEDABLE = new ArrayList<>(Arrays.asList("golden_carrot", 
+                "golden_apple", "enchanted_golden_apple", "apple", "hay_block"));
+
             builder.comment("Config settings related to breeding and gender")
                     .push("breeding");
 
@@ -137,6 +167,14 @@ public class HorseConfig
                             "Lowering this will not let female horses breed again sooner unless you",
                             "also lower femaleRebreedTicks")
                     .defineInRange("pregnancyLength", 24000, 0, Integer.MAX_VALUE);
+
+            horseBreedingFoods = builder
+                    .comment("Foods which put horses in love mode, along with the usual benefits to health, growth, and tameness.")
+                    .define("horseBreedingFoods", DEFAULT_HORSE_BREEDABLE);
+
+            donkeyBreedingFoods = builder
+                    .comment("Foods which put donkeys in love mode, along with the usual benefits to health, growth, and tameness.")
+                    .define("donkeyBreedingFoods", DEFAULT_DONKEY_BREEDABLE);
 
             builder.pop();
         }
@@ -249,6 +287,25 @@ public class HorseConfig
 
     public static int getHorsePregnancyLength() {
         return BREEDING.pregnancyLength.get();
+    }
+
+    public static boolean isEquineFood(ItemStack stack) {
+        if (equineFoodsSet == null) {
+            equineFoodsSet = new HashSet<>(COMMON.equineFoods.get());
+        }
+        return equineFoodsSet.contains(getName(stack));
+    }
+
+    public static boolean isHorseBreedingFood(ItemStack stack) {
+        return BREEDING.horseBreedingFoods.get().contains(getName(stack));
+    }
+
+    public static boolean isDonkeyBreedingFood(ItemStack stack) {
+        return BREEDING.donkeyBreedingFoods.get().contains(getName(stack));
+    }
+
+    private static String getName(ItemStack stack) {
+        return BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
     }
 
     public static boolean shouldConvert(Entity entity) {

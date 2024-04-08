@@ -2,6 +2,7 @@ package sekelsta.horse_colors.entity;
 
 import com.google.common.collect.ImmutableList;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.ListTag;
@@ -48,11 +50,12 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
-import net.minecraft.world.entity.ai.goal.FollowParentGoal;
+import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.PanicGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RunAroundLikeCrazyGoal;
+import net.minecraft.world.entity.ai.goal.TemptGoal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
@@ -62,12 +65,14 @@ import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.HorseArmorItem;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
@@ -142,6 +147,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
 
     @Override
     protected void registerGoals() {
+        this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new PanicGoal(this, 1.2D));
         this.goalSelector.addGoal(1, new RunAroundLikeCrazyGoal(this, 1.2D));
         if (HorseConfig.COMMON.spookyHorses.get()) {
@@ -152,7 +158,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         this.goalSelector.addGoal(6, new RandomWalkGroundTie(this, 0.7D));
         this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
-        this.addBehaviourGoals();
+        this.goalSelector.addGoal(3, new TemptGoal(this, 1.25, 
+            Ingredient.of(Items.GOLDEN_CARROT, Items.GOLDEN_APPLE, Items.ENCHANTED_GOLDEN_APPLE, Items.APPLE, Blocks.HAY_BLOCK.asItem()), false));
     }
 
     @Override
@@ -749,6 +756,96 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         }
         // else
         return super.mobInteract(player, hand);
+    }
+
+    @Override
+    public boolean isFood(ItemStack stack) {
+        return HorseConfig.isEquineFood(stack);
+    }
+
+    public boolean isBreedingFood(ItemStack stack) {
+        return false;
+    }
+
+    protected int getGrowthBonus(ItemStack stack) {
+        int growth = 20;
+        if (stack.is(Blocks.HAY_BLOCK.asItem())) {
+            growth *= 9;
+        }
+        else if (stack.is(Blocks.GRASS.asItem())) {
+            return 4;
+        }
+        else if (stack.is(Blocks.TALL_GRASS.asItem())) {
+            return 8;
+        }
+        else if (stack.is(Items.BROWN_MUSHROOM) || stack.is(Items.RED_MUSHROOM) || stack.is(Items.DRIED_KELP)) {
+            return 2;
+        }
+        else if (stack.is(Items.SUGAR) || stack.is(Items.SWEET_BERRIES)) {
+            return 10;
+        }
+        return growth;
+    }
+
+    protected int getTemperBonus(ItemStack stack) {
+        if (stack.is(Items.GOLDEN_CARROT) || stack.is(Items.SUGAR) || stack.is(Items.SWEET_BERRIES)) {
+            return 5;
+        }
+        else if (stack.is(Items.GOLDEN_APPLE) || stack.is(Items.ENCHANTED_GOLDEN_APPLE)) {
+            return 10;
+        }
+        else if (stack.is(Items.BROWN_MUSHROOM) || stack.is(Items.RED_MUSHROOM) || stack.is(Items.DRIED_KELP) 
+                || stack.is(Blocks.GRASS.asItem()) || stack.is(Blocks.TALL_GRASS.asItem())) {
+            return 1;
+        }
+        return 3;
+    }
+
+    protected float getHealthRegained(ItemStack stack) {
+        if (stack.is(Blocks.HAY_BLOCK.asItem())) {
+            return 20;
+        }
+        return 2;
+    }
+
+    @Override
+    protected boolean handleEating(Player player, ItemStack stack) {
+        boolean fed = false;
+
+        if (isBaby()) {
+            fed = true;
+            if (!level().isClientSide()) {
+                ageUp(getGrowthBonus(stack));
+            }
+            level().addParticle(ParticleTypes.HAPPY_VILLAGER, getRandomX(1), getRandomY() + 0.5, getRandomZ(1), 0, 0, 0);
+        }
+        else if (isTamed() && isFertile() && !isInLove() && isBreedingFood(stack)) {
+            fed = true;
+            setInLove(player);
+        }
+
+        if (getHealth() < getMaxHealth()) {
+            fed = true;
+            heal(getHealthRegained(stack));
+        }
+
+        if (!isTamed() && getTemper() < getMaxTemper()) {
+            fed = true;
+            if (!level().isClientSide()) {
+                modifyTemper(getTemperBonus(stack));
+            }
+        }
+
+        if (fed) {
+            try {
+                ObfuscationReflectionHelper.findMethod(AbstractHorse.class, "m_30610_").invoke(this); // eating()
+            }
+            catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+            gameEvent(GameEvent.EAT);
+        }
+        return fed;
     }
 
     protected void useGeneticAttributes()

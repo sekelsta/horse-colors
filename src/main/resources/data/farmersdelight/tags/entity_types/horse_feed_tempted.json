@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "horse_colors:horse_felinoid",
+    "horse_colors:donkey",
+    "horse_colors:mule"
+  ]
+}

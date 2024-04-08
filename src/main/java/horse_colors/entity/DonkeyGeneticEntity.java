@@ -60,19 +60,33 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
         return this.LOOT_TABLE;
     }
 
+    @Override
     protected SoundEvent getAmbientSound() {
         super.getAmbientSound();
         return SoundEvents.DONKEY_AMBIENT;
     }
 
+    @Override
     protected SoundEvent getDeathSound() {
         super.getDeathSound();
         return SoundEvents.DONKEY_DEATH;
     }
 
+    @Override
     protected SoundEvent getHurtSound(DamageSource damageSourceIn) {
         super.getHurtSound(damageSourceIn);
         return SoundEvents.DONKEY_HURT;
+    }
+
+    @Override
+    protected SoundEvent getEatingSound() {
+        return SoundEvents.DONKEY_EAT;
+    }
+
+    @Override
+    protected SoundEvent getAngrySound() {
+        super.getAngrySound();
+        return SoundEvents.DONKEY_ANGRY;
     }
 
     @Override
@@ -149,6 +163,11 @@ public class DonkeyGeneticEntity extends AbstractHorseGenetic {
             return EntityType.DONKEY.create(this.level());
         }
         return null;
+    }
+
+    @Override
+    public boolean isBreedingFood(ItemStack stack) {
+        return HorseConfig.isDonkeyBreedingFood(stack);
     }
 
     @Override

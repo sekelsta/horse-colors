@@ -54,21 +54,30 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         }
     }
 
+    @Override
     protected SoundEvent getAmbientSound() {
         super.getAmbientSound();
         return SoundEvents.HORSE_AMBIENT;
     }
 
+    @Override
     protected SoundEvent getDeathSound() {
         super.getDeathSound();
         return SoundEvents.HORSE_DEATH;
     }
 
+    @Override
     protected SoundEvent getHurtSound(DamageSource damageSourceIn) {
         super.getHurtSound(damageSourceIn);
         return SoundEvents.HORSE_HURT;
     }
 
+    @Override
+    protected SoundEvent getEatingSound() {
+        return SoundEvents.HORSE_EAT;
+    }
+
+    @Override
     protected SoundEvent getAngrySound() {
         super.getAngrySound();
         return SoundEvents.HORSE_ANGRY;
@@ -166,6 +175,11 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     public boolean isArmor(ItemStack stack) {
         return stack.getItem() instanceof HorseArmorItem
                 || stack.is(ItemTags.WOOL_CARPETS);
+    }
+
+    @Override
+    public boolean isBreedingFood(ItemStack stack) {
+        return HorseConfig.isHorseBreedingFood(stack);
     }
 
     @Override

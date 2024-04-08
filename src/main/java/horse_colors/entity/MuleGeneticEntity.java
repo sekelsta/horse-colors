@@ -119,19 +119,33 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
         return child;
     }
 
+    @Override
     protected SoundEvent getAmbientSound() {
         super.getAmbientSound();
         return SoundEvents.MULE_AMBIENT;
     }
 
+    @Override
     protected SoundEvent getDeathSound() {
         super.getDeathSound();
         return SoundEvents.MULE_DEATH;
     }
 
+    @Override
     protected SoundEvent getHurtSound(DamageSource damageSourceIn) {
         super.getHurtSound(damageSourceIn);
         return SoundEvents.MULE_HURT;
+    }
+
+    @Override
+    protected SoundEvent getEatingSound() {
+        return SoundEvents.MULE_EAT;
+    }
+
+    @Override
+    protected SoundEvent getAngrySound() {
+        super.getAngrySound();
+        return SoundEvents.MULE_ANGRY;
     }
 
     protected void playChestEquipSound() {
