@@ -51,7 +51,7 @@ This mod adds biologically correct genetics for horses, massively expanding the 
     modId="minecraft"
     mandatory=true
     # Includes the latest Minecraft version and minor updates, but not the next major version
-    versionRange="[1.20.1,1.21)"
+    versionRange="[1.20.1,1.20.2)"
     ordering="NONE"
     side="BOTH"
 
