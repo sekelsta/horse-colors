@@ -760,7 +760,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
 
     @Override
     public boolean isFood(ItemStack stack) {
-        return HorseConfig.isEquineFood(stack);
+        return HorseConfig.isEquineFood(stack) || isBreedingFood(stack);
     }
 
     public boolean isBreedingFood(ItemStack stack) {
