@@ -154,12 +154,12 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
             this.goalSelector.addGoal(1, new SpookGoal(this, Monster.class, 8.0F, 1.5, 1.5));
         }
         this.goalSelector.addGoal(2, new BreedGoal(this, 1.0D, AbstractHorse.class));
+        this.goalSelector.addGoal(3, new TemptGoal(this, 1.25, 
+            Ingredient.of(Items.GOLDEN_CARROT, Items.GOLDEN_APPLE, Items.ENCHANTED_GOLDEN_APPLE, Items.APPLE, Blocks.HAY_BLOCK.asItem()), false));
         this.goalSelector.addGoal(4, new FollowMother(this, 1.0D));
         this.goalSelector.addGoal(6, new RandomWalkGroundTie(this, 0.7D));
         this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
-        this.goalSelector.addGoal(3, new TemptGoal(this, 1.25, 
-            Ingredient.of(Items.GOLDEN_CARROT, Items.GOLDEN_APPLE, Items.ENCHANTED_GOLDEN_APPLE, Items.APPLE, Blocks.HAY_BLOCK.asItem()), false));
     }
 
     @Override
@@ -290,10 +290,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         }
         // Otherwise, use a breed for a base if given one
         else if (compound.contains("Breed")) {
-            this.randomize(getBreed(compound.getString("Breed")));
+            this.randomizeGenes(getBreed(compound.getString("Breed")));
         }
         else {
-            randomize(getRandomBreed());
+            randomizeGenes(getRandomBreed());
         }
 
         // Replace saddle reading functionality from AbstractHorseEntity with
@@ -1355,33 +1355,36 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                                             @Nullable SpawnGroupData spawnDataIn, 
                                             @Nullable CompoundTag dataTag)
     {
-        this.setSeed(this.random.nextInt());
         this.entityData.set(PREGNANT_SINCE, -1);
         if (!(spawnDataIn instanceof GeneticData)) {
             Breed breed = this.getRandomBreed();
             spawnDataIn = new GeneticData(breed);
         }
-        Breed breed = ((GeneticData)spawnDataIn).breed;
-        this.randomize(breed);
         // super.finalizeSpawn will call randomizeAttributes
-        SpawnGroupData data = super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
+        spawnDataIn = super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
+        Breed breed = ((GeneticData)spawnDataIn).breed;
+        randomizeGenes(breed);
+        setMale(random.nextBoolean());
+        // Choose a random age
+        trueAge = random.nextInt(HorseConfig.GROWTH.getMaxAge());
+        // This preserves the ratio of child/adult
+        if (random.nextInt(5) == 0) {
+            // Foals pick a random age within the younger half
+            trueAge = getBirthAge() + random.nextInt(-getBirthAge() / 2);
+        }
+        if (super.isTamed()) {
+            trueAge = Math.max(0, trueAge);
+        }
+        // Don't set the growing age to a positive value, that would be bad
+        setAge(Math.min(0, trueAge));
         this.useGeneticAttributes();
         this.updatePersistentData();
-        return data;
+        return spawnDataIn;
     }
 
-    protected void randomize(Breed breed) {
+    protected void randomizeGenes(Breed breed) {
+        setSeed(random.nextInt());
         this.getGenome().randomize(breed);
-        // Choose a random age
-        this.trueAge = this.random.nextInt(HorseConfig.GROWTH.getMaxAge());
-        // This preserves the ratio of child/adult
-        if (this.random.nextInt(5) == 0) {
-            // Foals pick a random age within the younger half
-            this.trueAge = this.getBirthAge() + this.random.nextInt(-this.getBirthAge() / 2);
-        }
-        this.setMale(this.random.nextBoolean());
-        // Don't set the growing age to a positive value, that would be bad
-        this.setAge(Math.min(0, this.trueAge));
         this.useGeneticAttributes();
         // Assume mother was the same size
         this.setMotherSize(this.getGenome().getGeneticScale());
@@ -1390,7 +1393,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     }
 
     public void initFromVillageSpawn() {
-        this.randomize(getRandomBreed());
+        randomizeGenes(getRandomBreed());
+        setMale(random.nextBoolean());
+        trueAge = random.nextInt(HorseConfig.GROWTH.getMaxAge());
+        setAge(Math.min(0, trueAge));
         // All village horses are easier to tame
         this.modifyTemper(this.getMaxTemper() / 2);
         if (!this.isBaby() && this.random.nextInt(16) == 0) {

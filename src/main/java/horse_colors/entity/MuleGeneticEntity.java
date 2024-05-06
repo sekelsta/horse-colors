@@ -168,13 +168,17 @@ public class MuleGeneticEntity extends AbstractHorseGenetic {
     }
 
     @Override
-    protected void randomize(Breed breed) {
-        super.randomize(breed);
-
+    protected void randomizeGenes(Breed breed) {
         EquineGenome horse = new EquineGenome(Species.HORSE);
         horse.randomize(BreedManager.HORSE.getBreed("default_horse"));
         EquineGenome donkey = new EquineGenome(Species.DONKEY);
         donkey.randomize(BreedManager.DONKEY.getBreed("default_donkey"));
-        this.genes.inheritGenes(horse, donkey);
+        genes.inheritGenes(horse, donkey);
+
+        useGeneticAttributes();
+        // Assume mother was the same size
+        setMotherSize(getGenome().getGeneticScale());
+        // Size depends on mother size so call again to stabilize somewhat
+        setMotherSize(getGenome().getGeneticScale());
     }
 }

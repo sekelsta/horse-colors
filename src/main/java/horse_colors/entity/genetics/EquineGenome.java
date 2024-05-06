@@ -859,9 +859,6 @@ public class EquineGenome extends Genome {
     {
         randomizeGenes(breed);
         finalizeGenes();
-
-        entity.setSeed(this.entity.getRand().nextInt());
-        this.entity.setMale(this.rand.nextBoolean());
     }
 
     public void finalizeGenes() {
