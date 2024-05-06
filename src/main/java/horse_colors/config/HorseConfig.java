@@ -107,7 +107,7 @@ public class HorseConfig
 
             growTime = builder
                     .comment("The number of twenty minute Minecraft days that it takes for a foal to become an adult.")
-                    .defineInRange("growTime", 1.0, 2/24000., 10000);
+                    .defineInRange("growTime", 5.0, 2/24000., 10000);
 
             builder.pop();
         }
@@ -156,17 +156,17 @@ public class HorseConfig
 
             femaleBreedingCooldown = builder
                     .comment("The number of ticks until female horses can breed again.",
-                            "The default value is 24000 ticks (20 minutes, or 1 minecraft day).",
+                            "The default value is 96000 ticks (80 minutes, or 4 minecraft days).",
                             "This must always be at least as long as pregnancyLength.")
-                    .defineInRange("femaleBreedingCooldown", 24000, 0, Integer.MAX_VALUE);
+                    .defineInRange("femaleBreedingCooldown", 96000, 0, Integer.MAX_VALUE);
 
             pregnancyLength = builder
                     .comment("If genders are enabled, females will be pregnant for this many ticks.",
-                            "The default value is 24000 ticks (20 minutes, or 1 minecraft day).",
+                            "The default value is 48000 ticks (40 minutes, or 2 minecraft days).",
                             "To disable pregnancy altogether, set this number to 0.",
                             "Lowering this will not let female horses breed again sooner unless you",
                             "also lower femaleRebreedTicks")
-                    .defineInRange("pregnancyLength", 24000, 0, Integer.MAX_VALUE);
+                    .defineInRange("pregnancyLength", 48000, 0, Integer.MAX_VALUE);
 
             horseBreedingFoods = builder
                     .comment("Foods which put horses in love mode, along with the usual benefits to health, growth, and tameness.")
