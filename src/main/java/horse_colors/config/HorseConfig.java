@@ -123,6 +123,7 @@ public class HorseConfig
 
     public static class Breeding {
         public static BooleanValue enableGenders;
+        public static BooleanValue autobreeding;
         public static IntValue genderlessBreedingCooldown;
         public static IntValue maleBreedingCooldown;
         public static IntValue femaleBreedingCooldown;
@@ -142,6 +143,10 @@ public class HorseConfig
             enableGenders = builder
                     .comment("Enables or disables all features relating to gender.")
                     .define("enableGenders", true);
+
+            autobreeding = builder
+                    .comment("If true, horses can breed automatically if wild or if owner allows it.")
+                    .define("autobreeding", false);
 
             genderlessBreedingCooldown = builder
                     .comment("The number of ticks until horses can breed again, when genders are disabled.",

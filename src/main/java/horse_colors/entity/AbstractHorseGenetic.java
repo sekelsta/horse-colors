@@ -100,6 +100,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     protected static final EntityDataAccessor<Integer> PREGNANT_SINCE = SynchedEntityData.<Integer>defineId(AbstractHorseGenetic.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<Float> MOTHER_SIZE = SynchedEntityData.<Float>defineId(AbstractHorseGenetic.class, EntityDataSerializers.FLOAT);
     protected int trueAge;
+    public boolean ownerAllowsAutobreeding = false;
 
     protected static final UUID ARMOR_MODIFIER_UUID = UUID.fromString("556E1665-8B10-40C8-8F9D-CF9B1667F295");
     protected static final UUID CSNB_SPEED_UUID = UUID.fromString("84ca527a-5c70-4336-a737-ae3f6d40ef45");
@@ -1017,6 +1018,21 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         return this.isMale() != other.isMale();
     }
 
+    public boolean isDirectRelative(AbstractHorseGenetic other) {
+        boolean isParent = this.uuid != null && (this.uuid == other.motherUUID || this.uuid == other.fatherUUID);
+        boolean isChild = other.uuid != null && (this.motherUUID == other.uuid || this.fatherUUID == other.uuid);
+        boolean sharesMother = this.motherUUID != null && (this.motherUUID == other.motherUUID || this.motherUUID == other.fatherUUID);
+        boolean sharesFather = this.fatherUUID != null && (this.fatherUUID == other.fatherUUID || this.fatherUUID == other.motherUUID);
+        return isParent || isChild || sharesMother || sharesFather;
+    }
+
+    public boolean canAutobreed() {
+        // Check elsewhere if autobreeding is allowed in the config
+        boolean notArmored = this.inventory.getItem(1).isEmpty();
+        return !isVehicle() && !isLeashed() && !isSaddled() && !hasChest() && notArmored
+            && (!isTamed() || ownerAllowsAutobreeding) && isFertile() && getAge() == 0;
+    }
+
     @Override
     public AgeableMob getBreedOffspring(ServerLevel world, AgeableMob ageable)
     {
@@ -1130,6 +1146,26 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                 }
                 this.unbornChildren = new ArrayList<>();
                 this.entityData.set(PREGNANT_SINCE, -1);
+            }
+        }
+        else if (HorseConfig.BREEDING.autobreeding.get() 
+                && tickCount % 800 == 0 
+                && !isMale() 
+                && canAutobreed() 
+                && canFallInLove() 
+                && random.nextFloat() < 0.05f) {
+            List<AbstractHorseGenetic> equines = level().getEntitiesOfClass(AbstractHorseGenetic.class, getBoundingBox().inflate(12, 8, 12));
+            if (equines.size() < 16) {
+                setInLove(null);
+                AbstractHorseGenetic stallion = equines
+                    .stream()
+                    .filter((h) -> h.isMale() && h.canAutobreed() && !isDirectRelative(h) && h.canFallInLove())
+                    .sorted((h1, h2) -> Double.compare(h1.distanceToSqr(this), h2.distanceToSqr(this)))
+                    .findFirst()
+                    .orElse(null);
+                if (stallion != null) {
+                    stallion.setInLove(null);
+                }
             }
         }
 
