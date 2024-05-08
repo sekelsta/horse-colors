@@ -188,6 +188,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         if (!this.inventory.getItem(1).isEmpty()) {
             compound.put("ArmorItem", this.inventory.getItem(1).save(new CompoundTag()));
         }
+        compound.putBoolean("ownerAllowsAutobreeding", ownerAllowsAutobreeding);
     }
 
     private void writeGeneticData(CompoundTag compound) {
@@ -265,6 +266,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
             }
         }
         this.updateContainerEquipment();
+
+        if (compound.contains("ownerAllowsAutobreeding")) {
+            ownerAllowsAutobreeding = compound.getBoolean("ownerAllowsAutobreeding");
+        }
     }
 
 

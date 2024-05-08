@@ -1,7 +1,8 @@
 package sekelsta.horse_colors.client;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.HorseInventoryScreen;
@@ -32,6 +33,10 @@ public class HorseGui extends HorseInventoryScreen {
     // The EntityHorse whose inventory is currently being accessed.
     // This is a copy of super's horseEntity field for access without reflection.
     private final AbstractHorseGenetic horseGenetic;
+    private final int autobreedIconWidth = 12;
+    private final int autobreedIconHeight = 10;
+    private int autobreedRenderX;
+    private int autobreedRenderY;
 
     public HorseGui(HorseInventoryMenu container, Inventory playerInventory, AbstractHorseGenetic horse) {
         super(container, playerInventory, horse);
@@ -69,11 +74,12 @@ public class HorseGui extends HorseInventoryScreen {
             guiGraphics.blit(TEXTURE_LOCATION, i + 7, j + 35, 36, this.imageHeight + 54, 18, 18);
         }
 
+        int genderIconRenderX = i + 168;
         if (HorseConfig.isGenderEnabled()) {
             int iconWidth = 10;
             int iconHeight = 11;
             int textureX = 176;
-            int renderX = i + 157;
+            genderIconRenderX -= iconWidth + 1;
             int renderY = j + 4;
             if (this.horseGenetic.isMale()) {
                 textureX += iconWidth;
@@ -88,8 +94,8 @@ public class HorseGui extends HorseInventoryScreen {
             }
             // Render pregnancy progress bar
             if (this.horseGenetic.isPregnant() && !grayIcons) {
-                renderX -= 2;
-                int pregRenderX = renderX + iconWidth + 1;
+                genderIconRenderX -= 2;
+                int pregRenderX = genderIconRenderX + iconWidth + 1;
                 // Blit pregnancy background
                 guiGraphics.blit(TEXTURE_LOCATION, pregRenderX, renderY + 1, 181, 23, 2, 10);
                 // Blit pregnancy foreground based on progress
@@ -98,13 +104,31 @@ public class HorseGui extends HorseInventoryScreen {
             }
             // Blit gender icon
             // X, y to render to, x, y to render from, width, height
-            guiGraphics.blit(TEXTURE_LOCATION, renderX, renderY, textureX, textureY, iconWidth, iconHeight);
+            guiGraphics.blit(TEXTURE_LOCATION, genderIconRenderX, renderY, textureX, textureY, iconWidth, iconHeight);
 
             // Render genetic animals pregnancy progress indicator
             if (this.horseGenetic.isPregnant() && grayIcons) {
                 // Blit pregnancy foreground based on progress
                 int pregnantAmount = (int)(10 * horseGenetic.getPregnancyProgress()) + 1;
-                guiGraphics.blit(TEXTURE_LOCATION, renderX, renderY + 11 - pregnantAmount, textureX, iconHeight + 22 - pregnantAmount, iconWidth, pregnantAmount);
+                guiGraphics.blit(TEXTURE_LOCATION, genderIconRenderX, renderY + 11 - pregnantAmount, textureX, iconHeight + 22 - pregnantAmount, iconWidth, pregnantAmount);
+            }
+        }
+        if (HorseConfig.BREEDING.autobreeding.get()) {
+            int textureX = 177;
+            int textureY = 36;
+            if (horseGenetic.ownerAllowsAutobreeding) {
+                textureX += autobreedIconWidth + 1;
+            }
+            int renderX = genderIconRenderX - autobreedIconWidth - 1;
+            if (horseGenetic.isMale()) {
+                renderX -= 2;
+            }
+            int renderY = j + 5;
+            autobreedRenderX = renderX;
+            autobreedRenderY = renderY;
+            guiGraphics.blit(TEXTURE_LOCATION, renderX, renderY, textureX, textureY, autobreedIconWidth, autobreedIconHeight);
+            if (inAutobreedButton(mouseX, mouseY)) {
+                guiGraphics.blit(TEXTURE_LOCATION, renderX - 1, renderY - 1, 203, textureY - 1, autobreedIconWidth + 2, autobreedIconHeight + 2);
             }
         }
 
@@ -139,6 +163,20 @@ public class HorseGui extends HorseInventoryScreen {
         else if (horseGenetic.getGenome().isLarge()) {
             guiGraphics.drawString(this.font, Component.translatable(HorseColors.MODID + ".gui.large"), 82, yy, 0x404040, false);
         }
+    }
+
+    @Override
+    public boolean mouseClicked(double x, double y, int button) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT && HorseConfig.BREEDING.autobreeding.get() && inAutobreedButton(x, y)) {
+            horseGenetic.ownerAllowsAutobreeding = !horseGenetic.ownerAllowsAutobreeding;
+            return true;
+        }
+        return super.mouseClicked(x, y, button);
+    }
+
+    private final boolean inAutobreedButton(double x, double y) {
+        return x >= autobreedRenderX && x < autobreedRenderX + autobreedIconWidth
+            && y >= autobreedRenderY && y < autobreedRenderY + autobreedIconHeight;
     }
 
     public static void replaceGui(ScreenEvent.Opening event) {
