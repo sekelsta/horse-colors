@@ -1150,7 +1150,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         }
         else if (HorseConfig.BREEDING.autobreeding.get() 
                 && tickCount % 800 == 0 
-                && !isMale() 
+                && (!isMale() || !HorseConfig.isGenderEnabled())
                 && canAutobreed() 
                 && canFallInLove() 
                 && random.nextFloat() < 0.05f) {
@@ -1159,7 +1159,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                 setInLove(null);
                 AbstractHorseGenetic stallion = equines
                     .stream()
-                    .filter((h) -> h.isMale() && h.canAutobreed() && !isDirectRelative(h) && h.canFallInLove())
+                    .filter((h) -> isOppositeGender(h) && h.canAutobreed() && !isDirectRelative(h) && h.canFallInLove())
                     .sorted((h1, h2) -> Double.compare(h1.distanceToSqr(this), h2.distanceToSqr(this)))
                     .findFirst()
                     .orElse(null);
