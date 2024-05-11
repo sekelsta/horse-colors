@@ -28,6 +28,7 @@ public class HorseConfig
         public static BooleanValue horseDebugInfo;
         public static BooleanValue enableGroundTie;
         public static BooleanValue spookyHorses;
+        public static BooleanValue jealousStallions;
         public static BooleanValue enableSizes;
         public static BooleanValue useGeneticAnimalsIcons;
         public static BooleanValue rideSmallEquines;
@@ -60,6 +61,10 @@ public class HorseConfig
             spookyHorses = builder
                     .comment("If enabled, horses will be spooked by monsters and throw their rider.")
                     .define("spookyHorses", false);
+
+            jealousStallions = builder
+                    .comment("If enabled, stallions will chase each other away from mares.")
+                    .define("jealousStallions", true);
 
             enableSizes = builder
                     .comment("If enabled, horses can be different sizes.")
