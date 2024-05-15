@@ -27,6 +27,7 @@ import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.event.entity.living.MobSpawnEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,7 +35,7 @@ import java.util.function.Function;
 import java.util.List;
 
 import sekelsta.horse_colors.config.HorseConfig;
-import sekelsta.horse_colors.entity.ModEntities;
+import sekelsta.horse_colors.entity.*;
 import sekelsta.horse_colors.HorseColors;
 
 @Mod.EventBusSubscriber(modid = HorseColors.MODID)
@@ -77,5 +78,12 @@ public class Spawns {
                     SpawnerData.CODEC.fieldOf("savanna_spawner").forGetter(EquineBiomeModifier::savannaSpawner)
             ).apply(builder, EquineBiomeModifier::new));
         BIOME_MODIFIER_DEFERRED.register("equine_spawn", () -> codec);
+    }
+
+    @SubscribeEvent
+    public static void neoforge_issue_939_workaround(MobSpawnEvent.FinalizeSpawn event) {
+        if (event.getEntity() instanceof AbstractHorseGenetic && event.getSpawnData() == null) {
+            event.setSpawnData(new AbstractHorseGenetic.GeneticData(((AbstractHorseGenetic)event.getEntity()).getRandomBreed()));
+        }
     }
 }

@@ -1389,34 +1389,37 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor worldIn, 
                                             DifficultyInstance difficultyIn, 
                                             MobSpawnType reason, 
-                                            @Nullable SpawnGroupData spawnDataIn, 
+                                            @Nullable SpawnGroupData spawnData, 
                                             @Nullable CompoundTag dataTag)
     {
         this.entityData.set(PREGNANT_SINCE, -1);
-        if (!(spawnDataIn instanceof GeneticData)) {
-            Breed breed = this.getRandomBreed();
-            spawnDataIn = new GeneticData(breed);
+        if (!(spawnData instanceof GeneticData)) {
+            spawnData = new GeneticData(getRandomBreed());
         }
         // super.finalizeSpawn will call randomizeAttributes
-        spawnDataIn = super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
-        Breed breed = ((GeneticData)spawnDataIn).breed;
-        randomizeGenes(breed);
+        spawnData = super.finalizeSpawn(worldIn, difficultyIn, reason, spawnData, dataTag);
+        GeneticData geneticData = (GeneticData)spawnData;
+        randomizeGenes(geneticData.breed);
         setMale(random.nextBoolean());
-        // Choose a random age
-        trueAge = random.nextInt(HorseConfig.GROWTH.getMaxAge());
-        // This preserves the ratio of child/adult
-        if (random.nextInt(5) == 0) {
+        boolean foal = !super.isTamed() && random.nextInt(4) == 0;
+        if (reason == MobSpawnType.NATURAL || reason == MobSpawnType.CHUNK_GENERATION) {
+            foal = foal && geneticData.getGroupSize() > 1;
+            if (!foal) {
+                setMale(geneticData.getGroupSize() <= 1);
+            }
+        }
+        if (foal) {
             // Foals pick a random age within the younger half
             trueAge = getBirthAge() + random.nextInt(-getBirthAge() / 2);
         }
-        if (super.isTamed()) {
-            trueAge = Math.max(0, trueAge);
+        else {
+            trueAge = random.nextInt(HorseConfig.GROWTH.getMaxAge());
         }
         // Don't set the growing age to a positive value, that would be bad
         setAge(Math.min(0, trueAge));
         this.useGeneticAttributes();
         this.updatePersistentData();
-        return spawnDataIn;
+        return spawnData;
     }
 
     protected void randomizeGenes(Breed breed) {
