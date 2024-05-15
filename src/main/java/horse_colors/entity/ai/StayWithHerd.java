@@ -4,22 +4,25 @@ import java.util.*;
 import java.util.stream.Stream;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
+
+import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 
 public class StayWithHerd extends Goal {
     protected final AbstractHorseGenetic horse;
     protected AbstractHorse target;
-    protected AbstractHorse staynear = null;
-    protected double staynearDistance = 16;
-    protected double speedModifier = 1.0;
+    protected float distanceModifier = 1;
+
+    protected double speedModifier = 1.4;
     protected int timeUntilRecalculatePath = 0;
 
     protected int lastSearchTick = 0;
-    protected int acceptableDelay = 100;
+    protected int acceptableDelay = 50;
 
     public StayWithHerd(AbstractHorseGenetic horse) {
         this.horse = horse;
+        setFlags(EnumSet.of(Goal.Flag.MOVE));
     }
 
     protected double closeEnoughDistance() {
@@ -36,6 +39,7 @@ public class StayWithHerd extends Goal {
             return false;
         }
 
+        distanceModifier = 1;
         if (horse.isBaby() && target != null && target.isAlive() && target.getUUID().equals(horse.getMotherUUID())) {
             double distSq = target.distanceToSqr(horse);
             double min = closeEnoughDistance();
@@ -54,7 +58,7 @@ public class StayWithHerd extends Goal {
             double horizontalSearch = 4 + 16 * age;
             double verticalSearch = 4 + 8 * age;
             List<AbstractHorse> equines = horse.level().getEntitiesOfClass(AbstractHorse.class, horse.getBoundingBox().inflate(horizontalSearch, verticalSearch, horizontalSearch));
-            target = getBestTarget(equines);
+            target = getBestTarget(equines.stream().filter((h) -> h != horse).toList());
         }
         return canContinueToUse();
     }
@@ -64,13 +68,9 @@ public class StayWithHerd extends Goal {
         if (target == null || !target.isAlive()) {
             return false;
         }
-        if (staynear != null && staynear.distanceToSqr(horse) > staynearDistance * staynearDistance) {
-            target = staynear;
-            staynear = null;
-        }
         double distSq = target.distanceToSqr(horse);
-        double max = tooFarDistance();
-        double min = closeEnoughDistance();
+        double max = tooFarDistance() * distanceModifier;
+        double min = closeEnoughDistance() * distanceModifier;
         return distSq < max * max && distSq > min * min;
     }
 
@@ -116,8 +116,8 @@ public class StayWithHerd extends Goal {
             return equines.stream().sorted(this::bestMother).findFirst().orElse(null);
         }
 
-        List<AbstractHorse> vanillaEquines = new ArrayList<>();
         List<AbstractHorseGenetic> geneticEquines = new ArrayList<>();
+        List<AbstractHorse> vanillaEquines = new ArrayList<>();
         for (AbstractHorse h : equines) {
             if (h instanceof AbstractHorseGenetic) {
                 geneticEquines.add((AbstractHorseGenetic)h);
@@ -137,6 +137,7 @@ public class StayWithHerd extends Goal {
                 }
             }
             if (foal != null && foal.distanceToSqr(horse) > 12 * 12) {
+                distanceModifier = 0.1f * foal.getFractionGrown();
                 return foal;
             }
         }
@@ -146,28 +147,29 @@ public class StayWithHerd extends Goal {
                 .sorted((h1, h2) -> Double.compare(h1.distanceToSqr(horse), h2.distanceToSqr(horse)))
                 .findFirst().orElse(null);
             if (mare != null) {
-                if (!HorseConfig.COMMON.jealousStallions.get() || mare.distanceToSqr(horse) > staynearDistance * staynearDistance) {
+                if (!HorseConfig.COMMON.jealousStallions.get()) {
                     return mare;
                 }
                 AbstractHorseGenetic competitor = geneticEquines.stream()
-                    .filter(this::isFertileStallion)
+                    .filter((h) -> isFertileStallion(h) && !h.isLeashed() && !h.isVehicle())
                     .sorted(this::highestHealth)
                     .findFirst().orElse(null);
                 if (competitor == null) {
                     return mare;
                 }
                 if (competitor.getMaxHealth() < horse.getMaxHealth()) {
-                    speedModifier = 0.75;
-                    staynear = mare;
-                    competitor.fleeFrom(horse);
-                    return competitor;
+                    horse.oust(competitor, mare);
+                    return null;
                 }
             }
         }
 
-        AbstractHorse t = equines.stream()
+        AbstractHorse t = geneticEquines.stream()
             .sorted(horse.isMale() ? this::nearestIdeallyMatchingClass : this::strongestIdeallyMatchingClass)
             .findFirst().orElse(null);
+        if (t == null) {
+            t = vanillaEquines.stream().sorted(this::highestHealth).findFirst().orElse(null);
+        }
         if (t != null && t.getMaxHealth() <= horse.getMaxHealth()) {
             return null;
         }
@@ -190,7 +192,6 @@ public class StayWithHerd extends Goal {
     @Override
     public void stop() {
         speedModifier = 1.0;
-        staynear = null;
     }
 
     @Override

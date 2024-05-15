@@ -50,12 +50,12 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
+import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.breed.*;
 import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.ai.*;
 import sekelsta.horse_colors.entity.genetics.*;
 import sekelsta.horse_colors.entity.genetics.EquineGenome.Gene;
-import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.item.*;
 import sekelsta.horse_colors.util.Util;
 
@@ -73,6 +73,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     protected static final EntityDataAccessor<Float> MOTHER_SIZE = SynchedEntityData.<Float>defineId(AbstractHorseGenetic.class, EntityDataSerializers.FLOAT);
     protected int trueAge;
     public boolean ownerAllowsAutobreeding = false;
+    protected FleeGoal fleeGoal;
+    protected OustGoal oustGoal;
+
 
     protected static final UUID ARMOR_MODIFIER_UUID = UUID.fromString("556E1665-8B10-40C8-8F9D-CF9B1667F295");
     protected static final UUID CSNB_SPEED_UUID = UUID.fromString("84ca527a-5c70-4336-a737-ae3f6d40ef45");
@@ -122,17 +125,19 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new PanicGoal(this, 1.2D));
-        this.goalSelector.addGoal(1, new RunAroundLikeCrazyGoal(this, 1.2D));
+        this.goalSelector.addGoal(2, new RunAroundLikeCrazyGoal(this, 1.2D));
         if (HorseConfig.COMMON.spookyHorses.get()) {
-            this.goalSelector.addGoal(1, new SpookGoal(this, Monster.class, 8.0F, 1.5, 1.5));
+            this.goalSelector.addGoal(3, new SpookGoal(this, Monster.class, 8.0F, 1.5, 1.5));
         }
-        this.goalSelector.addGoal(2, new BreedGoal(this, 1.0D, AbstractHorse.class));
-        this.goalSelector.addGoal(3, new TemptGoal(this, 1.25, 
+        this.goalSelector.addGoal(4, fleeGoal = new FleeGoal(this));
+        this.goalSelector.addGoal(5, new BreedGoal(this, 1.0D, AbstractHorse.class));
+        this.goalSelector.addGoal(6, new TemptGoal(this, 1.25, 
             Ingredient.of(Items.GOLDEN_CARROT, Items.GOLDEN_APPLE, Items.ENCHANTED_GOLDEN_APPLE, Items.APPLE, Blocks.HAY_BLOCK.asItem()), false));
-        this.goalSelector.addGoal(5, new StayWithHerd(this));
-        this.goalSelector.addGoal(6, new RandomWalkGroundTie(this, 0.7D));
-        this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 6.0F));
-        this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
+        this.goalSelector.addGoal(7, new StayWithHerd(this));
+        this.goalSelector.addGoal(8, oustGoal = new OustGoal(this));
+        this.goalSelector.addGoal(9, new RandomWalkGroundTie(this, 0.7D));
+        this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Player.class, 6.0F));
+        this.goalSelector.addGoal(11, new RandomLookAroundGoal(this));
     }
 
     @Override
@@ -1091,7 +1096,12 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     }
 
     public void fleeFrom(Entity entity) {
-        // TODO
+        fleeGoal.toAvoid = entity;
+    }
+
+    public void oust(AbstractHorseGenetic competitor, AbstractHorseGenetic mare) {
+        oustGoal.target = competitor;
+        oustGoal.stayNear = mare;
     }
 
     /**
