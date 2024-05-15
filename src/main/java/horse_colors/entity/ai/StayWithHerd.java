@@ -14,7 +14,8 @@ public class StayWithHerd extends Goal {
     protected AbstractHorse target;
     protected float distanceModifier = 1;
 
-    protected double speedModifier = 1.4;
+    protected double walkSpeed = 1;
+    protected double runSpeed = 1.4;
     protected int timeUntilRecalculatePath = 0;
 
     protected int lastSearchTick = 0;
@@ -127,7 +128,7 @@ public class StayWithHerd extends Goal {
             }
         }
 
-        if (!horse.isMale()) {
+        if (!horse.isMale() || !HorseConfig.BREEDING.enableGenders.get()) {
             AbstractHorseGenetic foal = null;
             for (AbstractHorseGenetic h : geneticEquines) {
                 if (h.isBaby() && horse.getUUID().equals(h.getMotherUUID())) {
@@ -190,16 +191,12 @@ public class StayWithHerd extends Goal {
     }
 
     @Override
-    public void stop() {
-        speedModifier = 1.0;
-    }
-
-    @Override
     public void tick() {
         timeUntilRecalculatePath -= 1;
         if (timeUntilRecalculatePath < 0) {
             timeUntilRecalculatePath = adjustedTickDelay(10);
-            horse.getNavigation().moveTo(target, speedModifier);
+            double speed = horse.isBaby() || horse.distanceToSqr(target) > 16 * 16 ? runSpeed : walkSpeed;
+            horse.getNavigation().moveTo(target, speed);
         }
     }
 }
