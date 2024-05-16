@@ -54,7 +54,6 @@ public class OustGoal extends Goal {
     @Override
     public void stop() {
         target = null;
-        stayNear = null;
     }
 
     @Override

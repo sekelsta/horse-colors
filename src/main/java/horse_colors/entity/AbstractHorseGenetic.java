@@ -75,7 +75,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     protected static final EntityDataAccessor<Boolean> AUTOBREEDABLE = SynchedEntityData.<Boolean>defineId(AbstractHorseGenetic.class, EntityDataSerializers.BOOLEAN);
     protected int trueAge;
     protected FleeGoal fleeGoal;
-    protected OustGoal oustGoal;
+    public OustGoal oustGoal;
+    protected long lastOustTime;
 
 
     protected static final UUID ARMOR_MODIFIER_UUID = UUID.fromString("556E1665-8B10-40C8-8F9D-CF9B1667F295");
@@ -1117,6 +1118,13 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     public void oust(AbstractHorseGenetic competitor, AbstractHorseGenetic mare) {
         oustGoal.target = competitor;
         oustGoal.stayNear = mare;
+    }
+
+    public boolean isDrivingAwayCompetitor() {
+        if (oustGoal.target != null) {
+            lastOustTime = tickCount;
+        }
+        return tickCount - lastOustTime < 400;
     }
 
     /**

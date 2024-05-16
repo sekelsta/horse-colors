@@ -69,10 +69,13 @@ public class StayWithHerd extends Goal {
         if (target == null || !target.isAlive()) {
             return false;
         }
+        if (target instanceof AbstractHorseGenetic && ((AbstractHorseGenetic)target).isDrivingAwayCompetitor()) {
+            return false;
+        }
         double distSq = target.distanceToSqr(horse);
         double max = tooFarDistance() * distanceModifier;
         double min = closeEnoughDistance() * distanceModifier;
-        return distSq < max * max && distSq > min * min;
+        return (distSq < max * max || horse.isDrivingAwayCompetitor()) && distSq > min * min;
     }
 
     public int bestMother(AbstractHorse h1, AbstractHorse h2) {
@@ -115,6 +118,10 @@ public class StayWithHerd extends Goal {
     public AbstractHorse getBestTarget(List<AbstractHorse> equines) {
         if (horse.isBaby()) {
             return equines.stream().sorted(this::bestMother).findFirst().orElse(null);
+        }
+
+        if (horse.isDrivingAwayCompetitor() && horse.oustGoal.stayNear != null) {
+            return horse.oustGoal.stayNear;
         }
 
         List<AbstractHorseGenetic> geneticEquines = new ArrayList<>();
