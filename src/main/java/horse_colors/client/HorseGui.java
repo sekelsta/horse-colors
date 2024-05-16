@@ -20,7 +20,7 @@ import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import org.jetbrains.annotations.NotNull;
-import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.HorseConfig;
 import sekelsta.horse_colors.ContainerEventHandler;
 import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 import sekelsta.horse_colors.entity.HorseGeneticEntity;
@@ -116,7 +116,7 @@ public class HorseGui extends HorseInventoryScreen {
         if (HorseConfig.BREEDING.autobreeding.get()) {
             int textureX = 177;
             int textureY = 36;
-            if (horseGenetic.ownerAllowsAutobreeding) {
+            if (horseGenetic.isAutobreedable()) {
                 textureX += autobreedIconWidth + 1;
             }
             int renderX = genderIconRenderX - autobreedIconWidth - 1;
@@ -168,7 +168,7 @@ public class HorseGui extends HorseInventoryScreen {
     @Override
     public boolean mouseClicked(double x, double y, int button) {
         if (button == InputConstants.MOUSE_BUTTON_LEFT && HorseConfig.BREEDING.autobreeding.get() && inAutobreedButton(x, y)) {
-            horseGenetic.ownerAllowsAutobreeding = !horseGenetic.ownerAllowsAutobreeding;
+            horseGenetic.setAutobreedable(!horseGenetic.isAutobreedable());
             return true;
         }
         return super.mouseClicked(x, y, button);

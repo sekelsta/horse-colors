@@ -19,7 +19,7 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.HorseConfig;
 import sekelsta.horse_colors.entity.genetics.IGeneticEntity;
 import sekelsta.horse_colors.HorseColors;
 

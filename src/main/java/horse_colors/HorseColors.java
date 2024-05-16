@@ -13,9 +13,9 @@ import org.apache.logging.log4j.Logger;
 
 import sekelsta.horse_colors.breed.BreedManager;
 import sekelsta.horse_colors.client.HorseGui;
-import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.ModEntities;
 import sekelsta.horse_colors.item.ModItems;
+import sekelsta.horse_colors.network.*;
 import sekelsta.horse_colors.world.HorseReplacer;
 import sekelsta.horse_colors.world.Spawns;
 
@@ -55,6 +55,7 @@ public class HorseColors
         event.enqueueWork(ModEntities::registerSpawnPlacements);
         event.enqueueWork(ModItems::registerDispenseBehaviour);
         event.enqueueWork(ModItems::registerPotionRecipes);
+        HorsePacketHandler.registerPackets();
     }
 
     public static void registerDeferredRegistries(IEventBus modBus) {

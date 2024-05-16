@@ -1,7 +1,7 @@
 package sekelsta.horse_colors.entity.genetics;
 import java.util.*;
 
-import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.HorseConfig;
 import sekelsta.horse_colors.client.renderer.TextureLayer;
 import sekelsta.horse_colors.client.renderer.TextureLayerGroup;
 import sekelsta.horse_colors.entity.genetics.EquineGenome.Gene;

@@ -51,12 +51,13 @@ import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import sekelsta.horse_colors.HorseColors;
+import sekelsta.horse_colors.HorseConfig;
 import sekelsta.horse_colors.breed.*;
-import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.ai.*;
 import sekelsta.horse_colors.entity.genetics.*;
 import sekelsta.horse_colors.entity.genetics.EquineGenome.Gene;
 import sekelsta.horse_colors.item.*;
+import sekelsta.horse_colors.network.*;
 import sekelsta.horse_colors.util.Util;
 
 public abstract class AbstractHorseGenetic extends AbstractChestedHorse implements IGeneticEntity<Gene> {
@@ -71,8 +72,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     protected static final EntityDataAccessor<Boolean> FERTILE = SynchedEntityData.<Boolean>defineId(AbstractHorseGenetic.class, EntityDataSerializers.BOOLEAN);
     protected static final EntityDataAccessor<Integer> PREGNANT_SINCE = SynchedEntityData.<Integer>defineId(AbstractHorseGenetic.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<Float> MOTHER_SIZE = SynchedEntityData.<Float>defineId(AbstractHorseGenetic.class, EntityDataSerializers.FLOAT);
+    protected static final EntityDataAccessor<Boolean> AUTOBREEDABLE = SynchedEntityData.<Boolean>defineId(AbstractHorseGenetic.class, EntityDataSerializers.BOOLEAN);
     protected int trueAge;
-    public boolean ownerAllowsAutobreeding = false;
     protected FleeGoal fleeGoal;
     protected OustGoal oustGoal;
 
@@ -149,6 +150,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         this.entityData.define(DISPLAY_AGE, 0);
         this.entityData.define(GENDER, false);
         this.entityData.define(FERTILE, true);
+        this.entityData.define(AUTOBREEDABLE, false);
         this.entityData.define(PREGNANT_SINCE, -1);
         this.entityData.define(MOTHER_SIZE, 1f);
     }
@@ -164,7 +166,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         if (!this.inventory.getItem(1).isEmpty()) {
             compound.put("ArmorItem", this.inventory.getItem(1).save(new CompoundTag()));
         }
-        compound.putBoolean("ownerAllowsAutobreeding", ownerAllowsAutobreeding);
+        compound.putBoolean("autobreedable", isAutobreedable());
     }
 
     private void writeGeneticData(CompoundTag compound) {
@@ -243,8 +245,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         }
         this.updateContainerEquipment();
 
-        if (compound.contains("ownerAllowsAutobreeding")) {
-            ownerAllowsAutobreeding = compound.getBoolean("ownerAllowsAutobreeding");
+        if (compound.contains("autobreedable")) {
+            setAutobreedable(compound.getBoolean("autobreedable"));
         }
     }
 
@@ -522,6 +524,19 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
             fertile = true;
         }
         this.entityData.set(FERTILE, fertile);
+    }
+
+    public boolean isAutobreedable() {
+        return ((Boolean)this.entityData.get(AUTOBREEDABLE)).booleanValue();
+    }
+
+    public void setAutobreedable(boolean allowed) {
+        if (level().isClientSide) {
+            HorsePacketHandler.sendToServer(new CAutobreedPacket(getId(), allowed));
+        }
+        else {
+            entityData.set(AUTOBREEDABLE, allowed);
+        }
     }
 
     @Override
@@ -1021,7 +1036,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         // Check elsewhere if autobreeding is allowed in the config
         boolean notArmored = this.inventory.getItem(1).isEmpty();
         return !isVehicle() && !isLeashed() && !isSaddled() && !hasChest() && notArmored
-            && (!isTamed() || ownerAllowsAutobreeding) && isFertile() && getAge() == 0;
+            && (!isTamed() || isAutobreedable()) && isFertile() && getAge() == 0;
     }
 
     @Override
@@ -1148,13 +1163,14 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                 this.entityData.set(PREGNANT_SINCE, -1);
             }
         }
-        else if (HorseConfig.BREEDING.autobreeding.get() 
-                && tickCount % 800 == 0 
-                && (!isMale() || !HorseConfig.isGenderEnabled())
-                && canAutobreed() 
-                && canFallInLove() 
-                && random.nextFloat() < 0.05f) {
-            List<AbstractHorseGenetic> equines = level().getEntitiesOfClass(AbstractHorseGenetic.class, getBoundingBox().inflate(12, 8, 12));
+
+         else if (HorseConfig.BREEDING.autobreeding.get() 
+                 && tickCount % 800 == 0 
+                 && (!isMale() || !HorseConfig.isGenderEnabled())
+                 && canAutobreed() 
+                 && canFallInLove() 
+                 && random.nextFloat() < 0.05f) {
+            List<AbstractHorseGenetic> equines = level().getEntitiesOfClass(AbstractHorseGenetic.class, getBoundingBox().inflate(16, 12, 16));
             if (equines.size() < 16) {
                 setInLove(null);
                 AbstractHorseGenetic stallion = equines

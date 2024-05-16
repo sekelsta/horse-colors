@@ -22,9 +22,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 
+import sekelsta.horse_colors.HorseConfig;
 import sekelsta.horse_colors.breed.Breed;
 import sekelsta.horse_colors.breed.BreedManager;
-import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.genetics.EquineGenome.Gene;
 import sekelsta.horse_colors.entity.genetics.Species;
 import sekelsta.horse_colors.util.Util;

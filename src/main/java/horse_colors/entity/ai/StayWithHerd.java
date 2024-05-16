@@ -6,7 +6,7 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 
 import sekelsta.horse_colors.HorseColors;
-import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.HorseConfig;
 import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 
 public class StayWithHerd extends Goal {

@@ -1,4 +1,4 @@
-package sekelsta.horse_colors.config;
+package sekelsta.horse_colors;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;

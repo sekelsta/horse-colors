@@ -23,9 +23,9 @@ import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.Level;
 
+import sekelsta.horse_colors.HorseConfig;
 import sekelsta.horse_colors.breed.Breed;
 import sekelsta.horse_colors.breed.BreedManager;
-import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.genetics.EquineGenome;
 import sekelsta.horse_colors.entity.genetics.EquineGenome.Gene;
 import sekelsta.horse_colors.entity.genetics.Species;

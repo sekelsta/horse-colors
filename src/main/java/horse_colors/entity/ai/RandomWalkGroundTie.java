@@ -4,7 +4,7 @@ import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 
-import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.HorseConfig;
 
 public class RandomWalkGroundTie extends WaterAvoidingRandomStrollGoal {
 

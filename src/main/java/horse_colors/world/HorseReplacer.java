@@ -10,7 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.HorseConfig;
 import sekelsta.horse_colors.entity.*;
 
 public class HorseReplacer {

@@ -34,7 +34,7 @@ import java.util.Collection;
 import java.util.function.Function;
 import java.util.List;
 
-import sekelsta.horse_colors.config.HorseConfig;
+import sekelsta.horse_colors.HorseConfig;
 import sekelsta.horse_colors.entity.*;
 import sekelsta.horse_colors.HorseColors;
 

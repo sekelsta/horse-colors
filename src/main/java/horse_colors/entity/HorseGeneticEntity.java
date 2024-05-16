@@ -26,9 +26,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.WoolCarpetBlock;
 import net.minecraft.world.level.block.SoundType;
 
+import sekelsta.horse_colors.HorseConfig;
 import sekelsta.horse_colors.breed.Breed;
 import sekelsta.horse_colors.breed.BreedManager;
-import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.entity.genetics.EquineGenome.Gene;
 import sekelsta.horse_colors.entity.genetics.Species;
 import sekelsta.horse_colors.util.Util;

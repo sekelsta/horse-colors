@@ -5,10 +5,10 @@ import java.util.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import sekelsta.horse_colors.HorseConfig;
 import sekelsta.horse_colors.breed.Breed;
 import sekelsta.horse_colors.client.renderer.CustomLayeredTexture;
 import sekelsta.horse_colors.client.renderer.TextureLayerGroup;
-import sekelsta.horse_colors.config.HorseConfig;
 import sekelsta.horse_colors.util.RandomSupplier;
 import sekelsta.horse_colors.util.Util;
 
