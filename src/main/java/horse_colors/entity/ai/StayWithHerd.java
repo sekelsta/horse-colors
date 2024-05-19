@@ -120,7 +120,7 @@ public class StayWithHerd extends Goal {
             return equines.stream().sorted(this::bestMother).findFirst().orElse(null);
         }
 
-        if (horse.isDrivingAwayCompetitor() && horse.oustGoal.stayNear != null) {
+        if (horse.isDrivingAwayCompetitor() && horse.oustGoal.target == null && horse.oustGoal.stayNear != null) {
             return horse.oustGoal.stayNear;
         }
 
