@@ -7,9 +7,8 @@ import sekelsta.horse_colors.HorseColors;
 
 public class Util {
     public static boolean horseCanMate(AbstractHorse horse) {
-        // This is the same as calling other.canMate() but doesn't require
-        // reflection
-        return !horse.isVehicle() && !horse.isPassenger() && horse.isTamed() && !horse.isBaby() && horse.getHealth() >= horse.getMaxHealth() && horse.isInLove();
+        // Like other.canParent() but without needing reflection, also skips tamed check
+        return !horse.isVehicle() && !horse.isPassenger() && !horse.isBaby() && horse.getHealth() >= horse.getMaxHealth() && horse.isInLove();
     }
 
     public static String translate(String in) {

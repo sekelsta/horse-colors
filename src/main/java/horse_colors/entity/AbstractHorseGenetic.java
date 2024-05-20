@@ -542,7 +542,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
 
     @Override
     protected boolean canParent() {
-        return super.canParent() && isFertile();
+        return Util.horseCanMate(this) && isFertile();
     }
 
     @Override
@@ -1173,6 +1173,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         }
 
          else if (HorseConfig.BREEDING.autobreeding.get() 
+                 && !this.level().isClientSide
                  && tickCount % 800 == 0 
                  && (!isMale() || !HorseConfig.isGenderEnabled())
                  && canAutobreed() 
