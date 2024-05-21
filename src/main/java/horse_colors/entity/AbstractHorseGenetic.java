@@ -12,7 +12,6 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.*;
 import net.minecraft.network.syncher.*;
@@ -50,6 +49,7 @@ import net.minecraft.world.level.pathfinder.Path;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.HorseConfig;
@@ -1362,7 +1362,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         if (stack.isEmpty() || stack.is(Items.SADDLE)) {
             return true;
         }
-        ResourceLocation name = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        ResourceLocation name = ForgeRegistries.ITEMS.getKey(stack.getItem());
         return name.getNamespace().equals("eanimod") && name.getPath().startsWith("saddle");
     }
 
