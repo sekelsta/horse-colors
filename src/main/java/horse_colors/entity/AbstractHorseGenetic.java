@@ -12,6 +12,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.*;
 import net.minecraft.network.syncher.*;
@@ -1360,7 +1361,11 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     }
 
     public boolean isSaddle(ItemStack stack) {
-        return stack.isEmpty() || stack.is(Items.SADDLE);
+        if (stack.isEmpty() || stack.is(Items.SADDLE)) {
+            return true;
+        }
+        ResourceLocation name = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        return name.getNamespace().equals("eanimod") && name.getPath().startsWith("saddle");
     }
 
     // Override to allow alternate saddles to be equipped
