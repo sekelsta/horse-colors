@@ -28,6 +28,9 @@ public class FleeGoal extends Goal {
         if (toAvoid == null) {
             return false;
         }
+        if (!canContinueToUse()) {
+            return false;
+        }
         setPath();
         return path != null;
     }
@@ -45,6 +48,9 @@ public class FleeGoal extends Goal {
 
     @Override
     public boolean canContinueToUse() {
+        if (entity.isGroundTied() || entity.isLeashed() || entity.isVehicle()) {
+            return false;
+        }
         return entity.distanceToSqr(toAvoid) < maxDist * maxDist;
     }
 

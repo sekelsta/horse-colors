@@ -1,27 +1,26 @@
 package sekelsta.horse_colors.entity.ai;
 
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
-import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.animal.horse.AbstractHorse;
 
-import sekelsta.horse_colors.HorseConfig;
+import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 
 public class RandomWalkGroundTie extends WaterAvoidingRandomStrollGoal {
+    protected AbstractHorseGenetic horse = null;
 
-    public RandomWalkGroundTie(PathfinderMob creature, double speedIn) {
+    public RandomWalkGroundTie(AbstractHorseGenetic creature, double speedIn) {
         super(creature, speedIn);
+        this.horse = creature;
     }
 
-    public RandomWalkGroundTie(PathfinderMob creature, double speedIn, float probabilityIn) {
+    public RandomWalkGroundTie(AbstractHorseGenetic creature, double speedIn, float probabilityIn) {
         super(creature, speedIn, probabilityIn);
+        this.horse = creature;
     }
 
     @Override
     public boolean canUse() {
-        if (this.mob instanceof AbstractHorse && HorseConfig.COMMON.enableGroundTie.get()) {
-            if (((AbstractHorse)this.mob).isSaddled()) {
-                return false;
-            }
+        if (horse.isGroundTied()) {
+            return false;
         }
         return super.canUse();
     }

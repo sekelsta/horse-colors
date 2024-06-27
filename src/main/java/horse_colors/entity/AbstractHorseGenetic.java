@@ -1034,6 +1034,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         return isParent || isChild || sharesMother || sharesFather;
     }
 
+    public boolean isGroundTied() {
+        return HorseConfig.COMMON.enableGroundTie.get() && this.isSaddled();
+    }
+
     public boolean canAutobreed() {
         // Check elsewhere if autobreeding is allowed in the config
         boolean notArmored = this.inventory.getItem(1).isEmpty();

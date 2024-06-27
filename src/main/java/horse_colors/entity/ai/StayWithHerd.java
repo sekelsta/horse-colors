@@ -36,7 +36,7 @@ public class StayWithHerd extends Goal {
 
     @Override
     public boolean canUse() {
-        if (horse.isVehicle() || horse.isLeashed()) {
+        if (horse.isVehicle() || horse.isLeashed() || horse.isGroundTied()) {
             return false;
         }
 
@@ -70,6 +70,9 @@ public class StayWithHerd extends Goal {
             return false;
         }
         if (target instanceof AbstractHorseGenetic && ((AbstractHorseGenetic)target).isDrivingAwayCompetitor()) {
+            return false;
+        }
+        if (!HorseConfig.COMMON.herdsFollowRidden.get() && !horse.isBaby() && (target.isVehicle() || target.isLeashed())) {
             return false;
         }
         double distSq = target.distanceToSqr(horse);
@@ -127,6 +130,9 @@ public class StayWithHerd extends Goal {
         List<AbstractHorseGenetic> geneticEquines = new ArrayList<>();
         List<AbstractHorse> vanillaEquines = new ArrayList<>();
         for (AbstractHorse h : equines) {
+            if (!HorseConfig.COMMON.herdsFollowRidden.get() && (h.isVehicle() || h.isLeashed())) {
+                continue;
+            }
             if (h instanceof AbstractHorseGenetic) {
                 geneticEquines.add((AbstractHorseGenetic)h);
             }

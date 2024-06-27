@@ -36,11 +36,18 @@ public class OustGoal extends Goal {
         if (entity.distanceToSqr(stayNear) > stayNearDistance * stayNearDistance) {
             return false;
         }
+        if (!canContinueToUse()) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public boolean canContinueToUse() {
+        if (entity.isGroundTied() || entity.isLeashed() || entity.isVehicle() 
+                || target.isLeashed() || target.isVehicle()) {
+            return false;
+        }
         return entity.distanceToSqr(target) < maxDist * maxDist && !entity.getNavigation().isDone()
             && (stayNear == null || entity.distanceToSqr(stayNear) < stayNearDistance * stayNearDistance);
     }

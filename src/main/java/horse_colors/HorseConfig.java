@@ -30,6 +30,7 @@ public class HorseConfig
         public static BooleanValue spookyHorses;
         public static BooleanValue jealousStallions;
         public static BooleanValue enableSizes;
+        public static BooleanValue herdsFollowRidden;
         public static BooleanValue useGeneticAnimalsIcons;
         public static BooleanValue rideSmallEquines;
         public static ConfigValue<ArrayList<String>> equineFoods;
@@ -69,6 +70,10 @@ public class HorseConfig
             enableSizes = builder
                     .comment("If enabled, horses can be different sizes.")
                     .define("enableSizes", true);
+
+            herdsFollowRidden = builder
+                    .comment("If enabled, horse herds can follow a horse even if it is ridden or on a lead.")
+                    .define("herdsFollowRidden", true);
 
             useGeneticAnimalsIcons = builder
                     .comment("Whether to use the gray themed gender icons from Genetic Animals (by mokiyoki,",
