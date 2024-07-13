@@ -47,10 +47,17 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
         return this.LOOT_TABLE;
     }
 
-    protected void playGallopSound(SoundType p_190680_1_) {
-        super.playGallopSound(p_190680_1_);
+    @Override
+    protected void playGallopSound(SoundType sound) {
+        System.out.println("sekdebug playing gallop sound");
+        super.playGallopSound(sound);
         if (this.random.nextInt(10) == 0) {
-            this.playSound(SoundEvents.HORSE_BREATHE, p_190680_1_.getVolume() * 0.6F, p_190680_1_.getPitch());
+            this.playSound(SoundEvents.HORSE_BREATHE, sound.getVolume() * 0.6F, sound.getPitch());
+        }
+
+        ItemStack stack = this.inventory.getItem(1);
+        if (isArmor(stack)) {
+            stack.onHorseArmorTick(level(), this);
         }
     }
 
