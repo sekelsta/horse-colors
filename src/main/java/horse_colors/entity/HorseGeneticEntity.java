@@ -40,6 +40,7 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
     public HorseGeneticEntity(EntityType<? extends HorseGeneticEntity> entityType, Level worldIn)
     {
         super(entityType, worldIn);
+        this.canGallop = true;
     }
 
     @Override
@@ -49,7 +50,6 @@ public class HorseGeneticEntity extends AbstractHorseGenetic
 
     @Override
     protected void playGallopSound(SoundType sound) {
-        System.out.println("sekdebug playing gallop sound");
         super.playGallopSound(sound);
         if (this.random.nextInt(10) == 0) {
             this.playSound(SoundEvents.HORSE_BREATHE, sound.getVolume() * 0.6F, sound.getPitch());
