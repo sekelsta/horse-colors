@@ -75,6 +75,9 @@ public class StayWithHerd extends Goal {
         if (!HorseConfig.COMMON.herdsFollowRidden.get() && !horse.isBaby() && (target.isVehicle() || target.isLeashed())) {
             return false;
         }
+        if (!HorseConfig.COMMON.herdingWhenTame.get() && !horse.isBaby() && horse.isTamed()) {
+            return false;
+        }
         double distSq = target.distanceToSqr(horse);
         double max = tooFarDistance() * distanceModifier;
         double min = closeEnoughDistance() * distanceModifier;

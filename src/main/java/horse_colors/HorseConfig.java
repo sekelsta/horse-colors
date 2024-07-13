@@ -31,6 +31,7 @@ public class HorseConfig
         public static BooleanValue jealousStallions;
         public static BooleanValue enableSizes;
         public static BooleanValue herdsFollowRidden;
+        public static BooleanValue herdingWhenTame;
         public static BooleanValue useGeneticAnimalsIcons;
         public static BooleanValue rideSmallEquines;
         public static ConfigValue<ArrayList<String>> equineFoods;
@@ -74,6 +75,10 @@ public class HorseConfig
             herdsFollowRidden = builder
                     .comment("If enabled, horse herds can follow a horse even if it is ridden or on a lead.")
                     .define("herdsFollowRidden", true);
+
+            herdingWhenTame = builder
+                    .comment("If enabled, horses will exhibit herding behavior when tame as well as when wild.")
+                    .define("herdingWhenTame", true);
 
             useGeneticAnimalsIcons = builder
                     .comment("Whether to use the gray themed gender icons from Genetic Animals (by mokiyoki,",
