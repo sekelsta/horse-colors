@@ -185,7 +185,7 @@ public class HorseConfig
                             "The default value is 48000 ticks (40 minutes, or 2 minecraft days).",
                             "To disable pregnancy altogether, set this number to 0.",
                             "Lowering this will not let female horses breed again sooner unless you",
-                            "also lower femaleRebreedTicks")
+                            "also lower femaleBreedingCooldown")
                     .defineInRange("pregnancyLength", 48000, 0, Integer.MAX_VALUE);
 
             horseBreedingFoods = builder

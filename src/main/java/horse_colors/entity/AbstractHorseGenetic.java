@@ -184,6 +184,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                 CompoundTag childNBT = new CompoundTag();
                 childNBT.putString("species", child.getSpecies().toString());
                 childNBT.putString("genes", child.getGenome().genesToString());
+                childNBT.putFloat("mother_size", child.getMotherSize());
                 if (child.motherUUID != null) {
                     childNBT.putUUID("MotherUUID", child.motherUUID);
                 }
@@ -349,6 +350,12 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                         }
                         if (childNBT.hasUUID("FatherUUID")) {
                             child.fatherUUID = childNBT.getUUID("FatherUUID");
+                        }
+                        if (childNBT.contains("mother_size")) {
+                            child.setMotherSize(childNBT.getFloat("mother_size"));
+                        }
+                        else {
+                            child.setMotherSize(this.getGenome().getAdultScale());
                         }
                         this.unbornChildren.add(child);
                     }
@@ -931,15 +938,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                 continue;
             }
 
-            if (HorseConfig.isPregnancyEnabled()) {
-                if (this.setPregnantWith(ageableentity, mate)) {
-                    ageableentity = null;
-                }
-            }
-            // Spawn if pregnancy is not enabled
-            else {
-                spawnChild(ageableentity, world);
-            }
             foals.add(ageableentity);
 
             if (serverplayerentity != null) {
@@ -966,6 +964,11 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
             if (foal instanceof IGeneticEntity) {
                 IGeneticEntity gFoal = (IGeneticEntity)foal;
                 gFoal.setMotherSize(gFoal.getMotherSize() * multiplier);
+            }
+
+            // Set pregnant or spawn into world directly
+            if (!HorseConfig.isPregnancyEnabled() || !setPregnantWith(foal, mate)) {
+                spawnChild(foal, world);
             }
         }
 
