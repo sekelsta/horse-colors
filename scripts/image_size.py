@@ -50,7 +50,6 @@ def mass_convert(func, srcdir, enddir):
         if os.path.isdir(srcname):
             mass_convert(func, srcname, endname)
         else:
-            #print(srcname)
             func(srcname, endname)
 
 def do_convert():
