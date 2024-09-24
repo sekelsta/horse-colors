@@ -987,6 +987,9 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     private void spawnChild(AgeableMob child, ServerLevel world) {
         child.setBaby(true);
         child.moveTo(this.getX(), this.getY(), this.getZ(), 0.0F, 0.0F);
+        if (child instanceof AbstractHorseGenetic) {
+            ((AbstractHorseGenetic)child).setSeed(getRandom().nextInt());
+        }
         world.addFreshEntity(child);
         // Spawn heart particles
         world.broadcastEntityEvent(this, (byte)18);
