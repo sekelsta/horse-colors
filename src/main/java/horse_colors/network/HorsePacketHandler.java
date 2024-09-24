@@ -4,9 +4,9 @@ import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.simple.SimpleChannel;
+import net.neoforged.neoforge.network.PlayNetworkDirection;
+import net.neoforged.neoforge.network.NetworkRegistry;
+import net.neoforged.neoforge.network.simple.SimpleChannel;
 
 import sekelsta.horse_colors.HorseColors;
 
@@ -29,7 +29,7 @@ public class HorsePacketHandler {
     public static void registerPackets() {
         CHANNEL.registerMessage(ID++, CAutobreedPacket.class, CAutobreedPacket::encode,
             CAutobreedPacket::decode, CAutobreedPacket::handleServerside,
-            Optional.of(NetworkDirection.PLAY_TO_SERVER));
+            Optional.of(PlayNetworkDirection.PLAY_TO_SERVER));
     }
 
     public static void sendToServer(CAutobreedPacket packet) {

@@ -1,13 +1,12 @@
 package sekelsta.horse_colors;
 
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.neoforge.common.NeoForge;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,27 +27,27 @@ public class HorseColors
 
     public static Logger logger = LogManager.getLogger(MODID);
 
-    public HorseColors()
+    public HorseColors(IEventBus modEventBus)
     {
         instance = this;
 
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
-        MinecraftForge.EVENT_BUS.addListener(ContainerEventHandler::editContainer);
-        MinecraftForge.EVENT_BUS.register(HorseReplacer.class);
+        modEventBus.addListener(this::commonSetup);
+        modEventBus.addListener(this::clientSetup);
+        NeoForge.EVENT_BUS.addListener(ContainerEventHandler::editContainer);
+        NeoForge.EVENT_BUS.register(HorseReplacer.class);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, HorseConfig.spec);
-        MinecraftForge.EVENT_BUS.addListener(BreedManager::addReloadListener);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(ModItems::addToCreativeTab);
+        NeoForge.EVENT_BUS.addListener(BreedManager::addReloadListener);
+        modEventBus.addListener(ModItems::addToCreativeTab);
 
         Spawns.registerBiomeModifiers();
 
-        registerDeferredRegistries(FMLJavaModLoadingContext.get().getModEventBus());
+        registerDeferredRegistries(modEventBus);
     }
 
     private void clientSetup(final FMLClientSetupEvent event)
     {
-        MinecraftForge.EVENT_BUS.addListener(HorseGui::replaceGui);
+        NeoForge.EVENT_BUS.addListener(HorseGui::replaceGui);
     }
 
     public void commonSetup(final FMLCommonSetupEvent event) {

@@ -1,32 +1,17 @@
-# Example file at
-# https://github.com/MinecraftForge/MinecraftForge/blob/1.13.x/mdk/src/main/resources/META-INF/mods.toml
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+issueTrackerURL="https://github.com/sekelsta/horse-colors/issues"
 
-# The name of the mod loader type to load - for regular FML @Mod mods it should be javafml
-modLoader="javafml" #mandatory
-# A version range to match for said mod loader - for regular FML @Mod it will be the forge version
-loaderVersion="[47,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
-# The license for you mod. This is mandatory metadata and allows for easier comprehension of your redistributive properties.
-# Review your options at https://choosealicense.com/. All rights reserved is the default copyright stance, and is thus the default here.
-license="LGLP3"
-# A URL to refer people to when problems occur with this mod
-issueTrackerURL="https://github.com/sekelsta/horse-colors/issues" #optional
-# A list of mods - how many allowed here is determined by the individual mod loader
-[[mods]] #mandatory
-# The modid of the mod
-modId="horse_colors" #mandatory
-# The version number of the mod - there's a few well known ${} variables useable here or just hardcode it
-version="${file.jarVersion}" #mandatory
- # A display name for the mod
-displayName="Realistic Horse Genetics" #mandatory
-# A URL for the "homepage" for this mod, displayed in the mod UI
-displayURL="https://www.curseforge.com/minecraft/mc-mods/realistic-horse-genetics" #optional
-# A file name (in the root of the mod JAR) containing a logo for display
-logoFile="logo.png" #optional
-# A text field displayed in the mod UI
-authors="sekelsta" #optional
-credits="Thanks to faainleog for contributing some gorgeous textures! Thanks also to Rambonata and RosaNera for making textures, and to everyone who has translated the mod."
-# The description text for the mod (multi line!) (#mandatory)
-description='''
+[[mods]]
+    modId="${mod_id}"
+    version="${mod_version}"
+    displayName="${mod_name}"
+    displayURL="https://www.curseforge.com/minecraft/mc-mods/realistic-horse-genetics"
+    logoFile="logo.png"
+    authors="${mod_authors}"
+    credits="Thanks to faainleog for contributing some gorgeous textures! Thanks also to Rambonata and RosaNera for making textures, and to everyone who has translated the mod."
+    description='''
 "Blacks and bays, dapples and grays
 Running in the night
 When you wake, you shall have
@@ -34,24 +19,21 @@ All the pretty little ponies"
 
 This mod adds biologically correct genetics for horses, massively expanding the available coat colors and patterns, as well as plausible genetics for speed, health, and jump height. Mendelian and non-Mendelian inheritance are used where applicable, including chromosome linkage based on published research.
 '''
-# A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
-[[dependencies.horse_colors]] #optional
-    # the modid of the dependency
-    modId="forge" #mandatory
-    # Does this dependency have to exist - if not, ordering below must be specified
-    mandatory=true #mandatory
-    # The version range of the dependency
-    versionRange="[47,)" #mandatory
-    # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
+
+[[accessTransformers]]
+    file="META-INF/accesstransformer.cfg"
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    mandatory=true
+    versionRange="${neo_version_range}"
     ordering="NONE"
-    # Side this dependency is applied on - BOTH, CLIENT or SERVER
     side="BOTH"
-# Here's another dependency
-[[dependencies.horse_colors]]
+
+[[dependencies.${mod_id}]]
     modId="minecraft"
     mandatory=true
-    # Includes the latest Minecraft version and minor updates, but not the next major version
-    versionRange="[1.20.1,1.20.2)"
+    versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"
 

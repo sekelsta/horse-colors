@@ -47,9 +47,8 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.Path;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.BabyEntitySpawnEvent;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.living.BabyEntitySpawnEvent;
 
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.HorseConfig;
@@ -87,9 +86,6 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
     protected static final AttributeModifier CSNB_JUMP_MODIFIER = new AttributeModifier(CSNB_JUMP_UUID, "CSNB jump penalty", -0.6, AttributeModifier.Operation.MULTIPLY_TOTAL);
 
     protected List<AbstractHorseGenetic> unbornChildren = new ArrayList<>();
-
-    // f_30514_ = standAnimO
-    private Field rearingAmountField = ObfuscationReflectionHelper.findField(AbstractHorse.class, "f_30514_");
 
     public AbstractHorseGenetic(EntityType<? extends AbstractHorseGenetic> entityType, Level worldIn)
     {
@@ -854,12 +850,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         }
 
         if (fed) {
-            try {
-                ObfuscationReflectionHelper.findMethod(AbstractHorse.class, "m_30610_").invoke(this); // eating()
-            }
-            catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+            this.eating();
             gameEvent(GameEvent.EAT);
         }
         return fed;
@@ -931,7 +922,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
                 continue;
             }
             final BabyEntitySpawnEvent event = new BabyEntitySpawnEvent(this, mate, ageableentity);
-            final boolean cancelled = MinecraftForge.EVENT_BUS.post(event);
+            final boolean cancelled = NeoForge.EVENT_BUS.post(event).isCanceled();
             ageableentity = event.getChild();
             // Don't spawn if cancelled or a null entity
             if (cancelled || ageableentity == null) {
@@ -1231,10 +1222,10 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
             float brightness = this.level().getMaxLocalRawBrightness(this.getOnPos());
             if (brightness > 0.5f) {
                 if (speedAttribute.getModifier(CSNB_SPEED_UUID) != null) {
-                    speedAttribute.removeModifier(CSNB_SPEED_MODIFIER);
+                    speedAttribute.removeModifier(CSNB_SPEED_UUID);
                 }
                 if (jumpAttribute.getModifier(CSNB_JUMP_UUID) != null) {
-                    jumpAttribute.removeModifier(CSNB_JUMP_MODIFIER);
+                    jumpAttribute.removeModifier(CSNB_JUMP_UUID);
                 }
             }
             else {
@@ -1252,8 +1243,8 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
 
     // Returns the Y offset from the entity's position for any entity riding this one.
     @Override
-    public double getPassengersRidingOffset() {
-        return (double)this.getBbHeight() * 0.833 - 0.295;
+    protected float getPassengersRidingOffsetY(EntityDimensions entityDimensions, float f) {
+        return this.getBbHeight() * 0.833f - 0.295f;
     }
 
     @Override
@@ -1295,24 +1286,17 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         }
         xzOffset *= this.getGenome().getAdultScale();
 
-        double yOffset = this.getPassengersRidingOffset() + passenger.getMyRidingOffset();
+        double yOffset = this.getPassengersRidingOffsetY(null, 0) + passenger.getMyRidingOffset(this);
         // Compensate for saddle for players
         if (passenger instanceof Player && this.isSaddled()) {
             yOffset += 0.04 * this.getGenome().getAdultScale();
         }
-        float standAnim0 = 0;
-        try {
-            standAnim0 = (Float)rearingAmountField.get(this);
-        }
-        catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-        if (standAnim0 > 0.0F) {
+        if (this.standAnimO > 0.0F) {
             float xLoc = this.getBbWidth() + xzOffset;
             float facingX = Mth.sin(this.yBodyRot * ((float)Math.PI / 180F));
             float facingZ = Mth.cos(this.yBodyRot * ((float)Math.PI / 180F));
             // A rearing amount of 1 corresponds to 45 degrees up
-            float rearAngle = standAnim0 * (float)Math.PI / 4F;
+            float rearAngle = standAnimO * (float)Math.PI / 4F;
             // The y distance from the top of the back to the bottom of the belly (10 pixels)
             float bodyHeight = 10F / 16F * this.getGenome().getAdultScale();
             float rearXZ = xLoc * (Mth.cos(rearAngle) - 1F) - bodyHeight * Mth.sin(rearAngle);

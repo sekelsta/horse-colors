@@ -14,10 +14,9 @@ import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.HorseInventoryMenu;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ScreenEvent;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.event.ScreenEvent;
 
 import org.jetbrains.annotations.NotNull;
 import sekelsta.horse_colors.HorseConfig;
@@ -132,7 +131,7 @@ public class HorseGui extends HorseInventoryScreen {
             }
         }
 
-        InventoryScreen.renderEntityInInventoryFollowsMouse(guiGraphics, i + 51, j + 60, 17, (float)(i + 51) - mouseX, (float)(j + 75 - 50) - mouseY, this.horseGenetic);
+        InventoryScreen.renderEntityInInventoryFollowsMouse(guiGraphics, i + 26, j + 18, i + 78, j + 70, 17, 0.25F, mouseX, mouseY, this.horseGenetic);
     }
 
     @Override
@@ -182,15 +181,7 @@ public class HorseGui extends HorseInventoryScreen {
     public static void replaceGui(ScreenEvent.Opening event) {
         if (event.getScreen() instanceof HorseInventoryScreen) {
             HorseInventoryScreen screen = (HorseInventoryScreen)event.getScreen();
-            AbstractHorse horse = null;
-            try {
-                // f_98812_ = horse
-                horse = ObfuscationReflectionHelper.getPrivateValue(HorseInventoryScreen.class, screen, "f_98812_");
-            }
-            catch (ObfuscationReflectionHelper.UnableToAccessFieldException e) {
-                System.err.println("Unable to access private value horseGenetic while replacing the horse GUI.");
-                System.err.println(e);
-            }
+            AbstractHorse horse = screen.horse;
             if (horse instanceof AbstractHorseGenetic) {
                 AbstractHorseGenetic horseGenetic = (AbstractHorseGenetic)horse;
                 Inventory inventory = new Inventory(null);

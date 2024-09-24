@@ -5,10 +5,9 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.HorseInventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.entity.player.PlayerContainerEvent;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent;
 
 import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 
@@ -18,15 +17,7 @@ public class ContainerEventHandler {
             return;
         }
         HorseInventoryMenu horseContainer = (HorseInventoryMenu)event.getContainer();
-        AbstractHorse horse = null;
-        try {
-            horse = ObfuscationReflectionHelper.getPrivateValue(HorseInventoryMenu.class, horseContainer, "f_39654_");
-        }
-        catch (ObfuscationReflectionHelper.UnableToAccessFieldException e) {
-            System.err.println("Unable to access private value horse while replacing the horse container.");
-            System.err.println(e);
-        }
-
+        AbstractHorse horse = horseContainer.horse;
         if (horse == null || !(horse instanceof AbstractHorseGenetic)) {
             return;
         }

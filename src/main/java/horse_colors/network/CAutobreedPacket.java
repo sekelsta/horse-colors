@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.neoforged.neoforge.network.NetworkEvent.Context;
 
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.entity.AbstractHorseGenetic;
@@ -30,17 +30,17 @@ public class CAutobreedPacket {
         return new CAutobreedPacket(id, allowed);
     }
 
-    public static void handleServerside(CAutobreedPacket packet, Supplier<Context> context) {
-        ServerPlayer sender = context.get().getSender();
+    public static void handleServerside(CAutobreedPacket packet, Context context) {
+        ServerPlayer sender = context.getSender();
         if (sender == null) {
             throw new RuntimeException("Expected handled CAutobreed packet to be sent from client to server");
         }
 
         // Enqueue anything that needs to be thread-safe
-        context.get().enqueueWork(() -> {
+        context.enqueueWork(() -> {
             Entity entity = sender.level().getEntity(packet.entityID);
             ((AbstractHorseGenetic)entity).setAutobreedable(packet.allowed);
         });
-        context.get().setPacketHandled(true);
+        context.setPacketHandled(true);
     }
 }

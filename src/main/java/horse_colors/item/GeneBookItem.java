@@ -18,8 +18,8 @@ import net.minecraft.util.StringUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.client.GeneBookScreen;

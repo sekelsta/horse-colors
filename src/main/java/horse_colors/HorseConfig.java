@@ -1,11 +1,11 @@
 package sekelsta.horse_colors;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
-import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
-import net.minecraftforge.common.ForgeConfigSpec.EnumValue;
-import net.minecraftforge.common.ForgeConfigSpec.IntValue;
-import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
+import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec.BooleanValue;
+import net.neoforged.neoforge.common.ModConfigSpec.ConfigValue;
+import net.neoforged.neoforge.common.ModConfigSpec.EnumValue;
+import net.neoforged.neoforge.common.ModConfigSpec.IntValue;
+import net.neoforged.neoforge.common.ModConfigSpec.DoubleValue;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.Entity;
@@ -17,7 +17,7 @@ import java.util.*;
 public class HorseConfig
 {
     private static Set<String> equineFoodsSet = null;
-    public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+    public static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
     public static final Common COMMON = new Common(BUILDER);
     public static final Growth GROWTH = new Growth(BUILDER);
     public static final Breeding BREEDING = new Breeding(BUILDER);
@@ -36,7 +36,7 @@ public class HorseConfig
         public static BooleanValue rideSmallEquines;
         public static ConfigValue<ArrayList<String>> equineFoods;
 
-        Common(final ForgeConfigSpec.Builder builder) {
+        Common(final ModConfigSpec.Builder builder) {
             ArrayList<String> DEFAULT_EQUINE_FOODS = new ArrayList<>(Arrays.asList("hay_block",  "wheat", "sugar", 
                 "carrot", "apple", "pumpkin", "carved_pumpkin", "melon_slice", "glistening_melon_slice", "grass", 
                 "tall_grass", "dandelion", "cornflower", "oxeye_daisy", "dried_kelp", "sugar_cane", "beetroot", 
@@ -103,7 +103,7 @@ public class HorseConfig
         public static BooleanValue growGradually;
         public static DoubleValue growTime;
 
-        Growth(final ForgeConfigSpec.Builder builder) {
+        Growth(final ModConfigSpec.Builder builder) {
             builder.comment("Config settings related to growth and aging")
                     .push("growth");
 
@@ -146,7 +146,7 @@ public class HorseConfig
         public static ConfigValue<ArrayList<String>> horseBreedingFoods;
         public static ConfigValue<ArrayList<String>> donkeyBreedingFoods;
 
-        public Breeding(final ForgeConfigSpec.Builder builder) {
+        public Breeding(final ModConfigSpec.Builder builder) {
             ArrayList<String> DEFAULT_HORSE_BREEDABLE = new ArrayList<>(Arrays.asList("golden_carrot", 
                 "golden_apple", "enchanted_golden_apple", "hay_block"));
             ArrayList<String> DEFAULT_DONKEY_BREEDABLE = new ArrayList<>(Arrays.asList("golden_carrot", 
@@ -207,7 +207,7 @@ public class HorseConfig
         public static BooleanValue bookShowsGenes;
         public static BooleanValue bookShowsTraits;
 
-        Genetics(final ForgeConfigSpec.Builder builder) {
+        Genetics(final ModConfigSpec.Builder builder) {
             builder.comment("Config settings for genetics")
                     .push("genetics");
 
@@ -250,7 +250,7 @@ public class HorseConfig
         public static BooleanValue convertVanillaDonkeys;
         public static BooleanValue convertVanillaMules;
 
-        Spawn(final ForgeConfigSpec.Builder builder) {
+        Spawn(final ModConfigSpec.Builder builder) {
             builder.comment("Settings to configure spawning. Note as of Minecraft 1.19 spawn weights are now controlled via json data.")
                    .push("spawn");
 
@@ -281,7 +281,7 @@ public class HorseConfig
 
     }
 
-    public static final ForgeConfigSpec spec = BUILDER.build();
+    public static final ModConfigSpec spec = BUILDER.build();
 
     public static boolean isGenderEnabled() {
         return BREEDING.enableGenders.get();

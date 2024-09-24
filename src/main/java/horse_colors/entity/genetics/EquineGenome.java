@@ -3,8 +3,8 @@ package sekelsta.horse_colors.entity.genetics;
 import java.util.*;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.HorseConfig;

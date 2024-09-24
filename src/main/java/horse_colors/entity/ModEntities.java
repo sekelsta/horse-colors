@@ -1,5 +1,7 @@
 package sekelsta.horse_colors.entity;
 
+// TODO: Remove unused imports
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
@@ -13,18 +15,19 @@ import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.common.ForgeSpawnEggItem;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.common.DeferredSpawnEggItem;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.Mod.EventBusSubscriber.Bus;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredItem;
 
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.client.renderer.HorseArmorLayer;
@@ -35,23 +38,20 @@ import sekelsta.horse_colors.item.ModItems;
 @Mod.EventBusSubscriber(modid = HorseColors.MODID, bus = Bus.MOD)
 public class ModEntities {
     public static final DeferredRegister<EntityType<?>> ENTITY_DEFERRED 
-        = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, HorseColors.MODID);
+        = DeferredRegister.create(Registries.ENTITY_TYPE, HorseColors.MODID);
 
-    public static final RegistryObject<EntityType<HorseGeneticEntity>> HORSE_GENETIC 
+    public static final DeferredHolder<EntityType<?>, EntityType<HorseGeneticEntity>> HORSE_GENETIC 
         = registerEntity("horse_felinoid", HorseGeneticEntity::new, 1.2F, 1.6F);
-    public static final RegistryObject<EntityType<DonkeyGeneticEntity>> DONKEY_GENETIC 
+    public static final DeferredHolder<EntityType<?>, EntityType<DonkeyGeneticEntity>> DONKEY_GENETIC 
         = registerEntity("donkey", DonkeyGeneticEntity::new, 1.2F, 1.6F);
-    public static final RegistryObject<EntityType<MuleGeneticEntity>> MULE_GENETIC 
+    public static final DeferredHolder<EntityType<?>, EntityType<MuleGeneticEntity>> MULE_GENETIC 
         = registerEntity("mule", MuleGeneticEntity::new, 1.2F, 1.6F);
 
-    public static RegistryObject<Item> HORSE_SPAWN_EGG 
-        = registerSpawnEgg("horse_spawn_egg", HORSE_GENETIC, 0x7F4320, 0x110E0D);
-    public static RegistryObject<Item> DONKEY_SPAWN_EGG 
-        = registerSpawnEgg("donkey_spawn_egg", DONKEY_GENETIC, 0x726457, 0xcdc0b5);
-    public static RegistryObject<Item> MULE_SPAWN_EGG 
-        = registerSpawnEgg("mule_spawn_egg", MULE_GENETIC, 0x4b3a30, 0xcdb9a8);
+    public static DeferredItem<Item> HORSE_SPAWN_EGG = registerSpawnEgg("horse_spawn_egg", HORSE_GENETIC, 0x7F4320, 0x110E0D);
+    public static DeferredItem<Item> DONKEY_SPAWN_EGG = registerSpawnEgg("donkey_spawn_egg", DONKEY_GENETIC, 0x726457, 0xcdc0b5);
+    public static DeferredItem<Item> MULE_SPAWN_EGG = registerSpawnEgg("mule_spawn_egg", MULE_GENETIC, 0x4b3a30, 0xcdb9a8);
 
-    private static <T extends Animal> RegistryObject<EntityType<T>> registerEntity(
+    private static <T extends Animal> DeferredHolder<EntityType<?>, EntityType<T>> registerEntity(
             String name, EntityType.EntityFactory<T> factory, float width, float height) {
         final ResourceLocation registryName = new ResourceLocation(HorseColors.MODID, name);
         return ENTITY_DEFERRED.register(name, 
@@ -59,9 +59,9 @@ public class ModEntities {
         );
     }
 
-    private static RegistryObject<Item> registerSpawnEgg(String name, RegistryObject<? extends EntityType<? extends Mob>> type, int primary, int secondary) {
+    private static DeferredItem<Item> registerSpawnEgg(String name, DeferredHolder<EntityType<?>, ? extends EntityType<? extends Mob>> type, int primary, int secondary) {
         return ModItems.ITEM_DEFERRED.register(name, 
-            () -> new ForgeSpawnEggItem(type, primary, secondary, new Item.Properties())
+            () -> new DeferredSpawnEggItem(type, primary, secondary, new Item.Properties())
         );
     }
 

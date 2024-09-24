@@ -3,9 +3,8 @@ package sekelsta.horse_colors.item;
 import net.minecraft.world.item.HorseArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import sekelsta.horse_colors.HorseColors;
 
@@ -20,15 +19,6 @@ public class CompatibleHorseArmor extends HorseArmorItem {
         super(armorValue, new ResourceLocation(HorseColors.MODID, "textures/entity/vanillahorse/armor/horse_armor_" + armorName + ".png"), builder);
         this.armorName = armorName;
         this.alternateTexture = new ResourceLocation(HorseColors.MODID, "textures/entity/horse/armor/horse_armor_" + armorName + ".png");
-    }
-
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public ResourceLocation getTexture() {
-        if (ModList.get().isLoaded("familiarhorses")) {
-            return getAlternateTexture();
-        }
-        return super.getTexture();
     }
 
     @OnlyIn(Dist.CLIENT)
