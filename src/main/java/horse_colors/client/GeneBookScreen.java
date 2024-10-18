@@ -52,17 +52,15 @@ public class GeneBookScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        // Render the book picture in the back
-        this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
+        super.render(guiGraphics, mouseX, mouseY, partialTicks);
 
-        
+        // Render the book picture in the back
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, BACKGROUND_TEXTURE_LOCATION);
 
         int x = (this.width - bookWidth) / 2;
         int y = 2;
-        //x = 0;
         guiGraphics.blit(BACKGROUND_TEXTURE_LOCATION, x, y, 0, 0, bookWidth, bookHeight, 512, 256);
 
         if (this.cachedPage != this.currPage) {
@@ -76,7 +74,6 @@ public class GeneBookScreen extends Screen {
             renderPage(guiGraphics, currPage + 1, cachedPageLinesRight, this.width / 2 + pageCrease);
         }
 
-        super.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
     private List<FormattedCharSequence> cachePageLines(int page) {
