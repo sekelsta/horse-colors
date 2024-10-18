@@ -49,6 +49,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.Path;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.living.BabyEntitySpawnEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.HorseConfig;
@@ -537,7 +538,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
 
     public void setAutobreedable(boolean allowed) {
         if (level().isClientSide) {
-            HorsePacketHandler.sendToServer(new CAutobreedPacket(getId(), allowed));
+            PacketDistributor.SERVER.noArg().send(new CAutobreedPacket(getId(), allowed));
         }
         else {
             entityData.set(AUTOBREEDABLE, allowed);
@@ -785,7 +786,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
         if (stack.is(Blocks.HAY_BLOCK.asItem())) {
             growth *= 9;
         }
-        else if (stack.is(Blocks.GRASS.asItem())) {
+        else if (stack.is(Blocks.GRASS_BLOCK.asItem())) {
             return 4;
         }
         else if (stack.is(Blocks.TALL_GRASS.asItem())) {
@@ -808,7 +809,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
             return 10;
         }
         else if (stack.is(Items.BROWN_MUSHROOM) || stack.is(Items.RED_MUSHROOM) || stack.is(Items.DRIED_KELP) 
-                || stack.is(Blocks.GRASS.asItem()) || stack.is(Blocks.TALL_GRASS.asItem())) {
+                || stack.is(Blocks.GRASS_BLOCK.asItem()) || stack.is(Blocks.TALL_GRASS.asItem())) {
             return 1;
         }
         return 3;

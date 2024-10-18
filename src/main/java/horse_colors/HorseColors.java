@@ -33,6 +33,7 @@ public class HorseColors
 
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::clientSetup);
+        modEventBus.addListener(HorsePacketHandler::register);
         NeoForge.EVENT_BUS.addListener(ContainerEventHandler::editContainer);
         NeoForge.EVENT_BUS.register(HorseReplacer.class);
 
@@ -54,7 +55,6 @@ public class HorseColors
         event.enqueueWork(ModEntities::registerSpawnPlacements);
         event.enqueueWork(ModItems::registerDispenseBehaviour);
         event.enqueueWork(ModItems::registerPotionRecipes);
-        HorsePacketHandler.registerPackets();
     }
 
     public static void registerDeferredRegistries(IEventBus modBus) {

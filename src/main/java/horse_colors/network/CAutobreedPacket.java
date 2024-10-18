@@ -3,14 +3,19 @@ package sekelsta.horse_colors.network;
 import java.util.function.Supplier;
 
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.neoforged.neoforge.network.NetworkEvent.Context;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 
-public class CAutobreedPacket {
+public class CAutobreedPacket implements CustomPacketPayload {
+    public static final ResourceLocation ID = new ResourceLocation(HorseColors.MODID, "cautobreed");
+
     public int entityID;
     public boolean allowed;
 
@@ -19,7 +24,12 @@ public class CAutobreedPacket {
         this.allowed = allowed;
     }
 
-    public void encode(FriendlyByteBuf buffer) {
+    @Override
+    public ResourceLocation id() {
+        return ID;
+    }
+
+    public void write(FriendlyByteBuf buffer) {
         buffer.writeVarInt(this.entityID);
         buffer.writeBoolean(this.allowed);
     }
@@ -30,17 +40,16 @@ public class CAutobreedPacket {
         return new CAutobreedPacket(id, allowed);
     }
 
-    public static void handleServerside(CAutobreedPacket packet, Context context) {
-        ServerPlayer sender = context.getSender();
+    public void handleServerside(PlayPayloadContext context) {
+        Player sender = context.player().get();
         if (sender == null) {
-            throw new RuntimeException("Expected handled CAutobreed packet to be sent from client to server");
+            throw new RuntimeException("Expected handled CAutobreed payload to be sent from client to server");
         }
 
         // Enqueue anything that needs to be thread-safe
-        context.enqueueWork(() -> {
-            Entity entity = sender.level().getEntity(packet.entityID);
-            ((AbstractHorseGenetic)entity).setAutobreedable(packet.allowed);
+        context.workHandler().execute(() -> {
+            Entity entity = sender.level().getEntity(this.entityID);
+            ((AbstractHorseGenetic)entity).setAutobreedable(this.allowed);
         });
-        context.setPacketHandled(true);
     }
 }
