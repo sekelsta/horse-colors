@@ -8,12 +8,12 @@ import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
 
 import sekelsta.horse_colors.HorseColors;
 
-public class HorsePacketHandler {
+public class HorseNetworking {
     private static final String PROTOCOL_VERSION = "1";
 
     public static void register(final RegisterPayloadHandlerEvent event) {
         IPayloadRegistrar registrar = event.registrar(HorseColors.MODID)
                 .versioned(PROTOCOL_VERSION);
-        registrar.play(CAutobreedPacket.ID, CAutobreedPacket::decode, CAutobreedPacket::handleServerside);
+        registrar.play(CAutobreedPayload.ID, CAutobreedPayload::decode, CAutobreedPayload::handleServerside);
     }
 }

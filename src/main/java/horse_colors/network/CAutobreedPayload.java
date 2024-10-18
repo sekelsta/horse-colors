@@ -13,13 +13,13 @@ import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 import sekelsta.horse_colors.HorseColors;
 import sekelsta.horse_colors.entity.AbstractHorseGenetic;
 
-public class CAutobreedPacket implements CustomPacketPayload {
+public class CAutobreedPayload implements CustomPacketPayload {
     public static final ResourceLocation ID = new ResourceLocation(HorseColors.MODID, "cautobreed");
 
     public int entityID;
     public boolean allowed;
 
-    public CAutobreedPacket(int entityID, boolean allowed) {
+    public CAutobreedPayload(int entityID, boolean allowed) {
         this.entityID = entityID;
         this.allowed = allowed;
     }
@@ -34,10 +34,10 @@ public class CAutobreedPacket implements CustomPacketPayload {
         buffer.writeBoolean(this.allowed);
     }
 
-    public static CAutobreedPacket decode(FriendlyByteBuf buffer) {
+    public static CAutobreedPayload decode(FriendlyByteBuf buffer) {
         int id = buffer.readVarInt();
         boolean allowed = buffer.readBoolean();
-        return new CAutobreedPacket(id, allowed);
+        return new CAutobreedPayload(id, allowed);
     }
 
     public void handleServerside(PlayPayloadContext context) {

@@ -538,7 +538,7 @@ public abstract class AbstractHorseGenetic extends AbstractChestedHorse implemen
 
     public void setAutobreedable(boolean allowed) {
         if (level().isClientSide) {
-            PacketDistributor.SERVER.noArg().send(new CAutobreedPacket(getId(), allowed));
+            PacketDistributor.SERVER.noArg().send(new CAutobreedPayload(getId(), allowed));
         }
         else {
             entityData.set(AUTOBREEDABLE, allowed);

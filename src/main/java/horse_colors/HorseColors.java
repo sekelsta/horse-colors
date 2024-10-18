@@ -33,7 +33,7 @@ public class HorseColors
 
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::clientSetup);
-        modEventBus.addListener(HorsePacketHandler::register);
+        modEventBus.addListener(HorseNetworking::register);
         NeoForge.EVENT_BUS.addListener(ContainerEventHandler::editContainer);
         NeoForge.EVENT_BUS.register(HorseReplacer.class);
 
